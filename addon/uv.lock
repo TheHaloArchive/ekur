@@ -1,0 +1,22 @@
+version = 1
+requires-python = ">=3.13"
+
+[[package]]
+name = "ekuraddon"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "fake-bpy-module-latest" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fake-bpy-module-latest" }]
+
+[[package]]
+name = "fake-bpy-module-latest"
+version = "20250123"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/20/68/43a5c76a7091cab1e31c477093cf15e340e22709ed1565c4e14515da2496/fake_bpy_module_latest-20250123.tar.gz", hash = "sha256:b27a006fbf8cdbf60c2b85be4998fc2c1a66cf18019de2bd626cf8fc43c3c8d8", size = 945795 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5b/56/36a2901fbfc39e13783b149d39bfb126229acfd1acc6ac3dd2010ea6012e/fake_bpy_module_latest-20250123-py3-none-any.whl", hash = "sha256:7fa6728f8b78d5497fea8dad40b1bbed1797b2e74f76d39e679685ab120f7da0", size = 1067493 },
+]

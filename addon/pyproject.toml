@@ -1,0 +1,26 @@
+[project]
+name = "ekuraddon"
+version = "0.1.0"
+description = "A multi-purpose importer for Halo Infinite."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["fake-bpy-module-latest"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+exclude = [".venv"]
+reportUnannotatedClassAttribute = false
+reportImplicitOverride = false
+reportOptionalMemberAccess = false
+reportIncompatibleMethodOverride = false
+reportAssignmentType = false
+reportInvalidTypeForm = false
+reportAny = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUninitializedInstanceVariable = false
+
+[tool.ruff]
+line-length = 100
