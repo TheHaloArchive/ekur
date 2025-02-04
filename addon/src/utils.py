@@ -12,6 +12,7 @@ from bpy.types import (
     NodeTreeInterfacePanel,
     Nodes,
 )
+from typing import TypeVar
 
 
 def read_texture(texturepath: str) -> Image:
@@ -72,13 +73,16 @@ def remove_nodes(node_tree: bpy.types.NodeTree | None) -> None:
         node_tree.nodes.remove(node)
 
 
-def create_socket[T: NodeSocket](
+NodeSocketT = TypeVar("NodeSocketT", bound=NodeSocket)
+
+
+def create_socket(
     interface: NodeTreeInterface,
     name: str,
-    type: type[T],
+    type: type[NodeSocketT],
     is_input: bool = True,
     panel: NodeTreeInterfacePanel | None = None,
-) -> T:
+) -> NodeSocketT:
     """Creates a new node socket on the given node interface.
 
     Args:
@@ -91,11 +95,16 @@ def create_socket[T: NodeSocket](
         The created socket.
     """
     in_out = "INPUT" if is_input else "OUTPUT"
-    out: T = interface.new_socket(name=name, in_out=in_out, socket_type=type.__name__, parent=panel)
+    out: NodeSocketT = interface.new_socket(
+        name=name, in_out=in_out, socket_type=type.__name__, parent=panel
+    )
     return out
 
 
-def create_node[T: Node](nodes: Nodes, x: int, y: int, _type: type[T]) -> T:
+NodeT = TypeVar("NodeT", bound=Node)
+
+
+def create_node(nodes: Nodes, x: int, y: int, _type: type[NodeT]) -> NodeT:
     """Creates a new node of the given type on the node tree.
 
     Args:
@@ -107,6 +116,6 @@ def create_node[T: Node](nodes: Nodes, x: int, y: int, _type: type[T]) -> T:
     Returns:
         Returns the created node of the same type provided.
     """
-    node: T = nodes.new(type=_type.__name__)
+    node: NodeT = nodes.new(type=_type.__name__)
     node.location = (x, y)
     return node
