@@ -61,12 +61,13 @@ class ColorMixer:
         mix1.clamp_result = True
         mix1.data_type = "RGBA"
 
-        _ = self.node_tree.links.new(input.outputs[2], mix1.inputs[6])
-        _ = self.node_tree.links.new(mix1.outputs[2], mix.inputs[6])
-        _ = self.node_tree.links.new(input.outputs[3], mix.inputs[7])
-        _ = self.node_tree.links.new(mix.outputs[2], output.inputs[0])
-        _ = self.node_tree.links.new(input.outputs[1], mix1.inputs[7])
-        _ = self.node_tree.links.new(input.outputs[0], madd.inputs[0])
-        _ = self.node_tree.links.new(input.outputs[0], madd2.inputs[0])
-        _ = self.node_tree.links.new(madd.outputs[0], mix1.inputs[0])
-        _ = self.node_tree.links.new(madd2.outputs[0], mix.inputs[0])
+        links = self.node_tree.links
+        _ = links.new(input.outputs[2], mix1.inputs[6])
+        _ = links.new(mix1.outputs[2], mix.inputs[6])
+        _ = links.new(input.outputs[3], mix.inputs[7])
+        _ = links.new(mix.outputs[2], output.inputs[0])
+        _ = links.new(input.outputs[1], mix1.inputs[7])
+        _ = links.new(input.outputs[0], madd.inputs[0])
+        _ = links.new(input.outputs[0], madd2.inputs[0])
+        _ = links.new(madd.outputs[0], mix1.inputs[0])
+        _ = links.new(madd2.outputs[0], mix.inputs[0])

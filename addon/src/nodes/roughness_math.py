@@ -51,12 +51,13 @@ class RoughnessMath:
         mix = create_node(nodes, 272, 40, ShaderNodeMix)
         mix.data_type = "RGBA"
 
-        _ = self.node_tree.links.new(input.outputs[1], divide.inputs[0])
-        _ = self.node_tree.links.new(divide.outputs[0], multiply.inputs[1])
-        _ = self.node_tree.links.new(input.outputs[2], multiply.inputs[0])
-        _ = self.node_tree.links.new(multiply.outputs[0], mix.inputs[6])
-        _ = self.node_tree.links.new(input.outputs[0], mix.inputs[0])
-        _ = self.node_tree.links.new(multiply2.outputs[0], mix.inputs[7])
-        _ = self.node_tree.links.new(input.outputs[3], multiply2.inputs[0])
-        _ = self.node_tree.links.new(divide.outputs[0], multiply2.inputs[1])
-        _ = self.node_tree.links.new(mix.outputs[2], output.inputs[0])
+        links = self.node_tree.links
+        _ = links.new(input.outputs[1], divide.inputs[0])
+        _ = links.new(divide.outputs[0], multiply.inputs[1])
+        _ = links.new(input.outputs[2], multiply.inputs[0])
+        _ = links.new(multiply.outputs[0], mix.inputs[6])
+        _ = links.new(input.outputs[0], mix.inputs[0])
+        _ = links.new(multiply2.outputs[0], mix.inputs[7])
+        _ = links.new(input.outputs[3], multiply2.inputs[0])
+        _ = links.new(divide.outputs[0], multiply2.inputs[1])
+        _ = links.new(mix.outputs[2], output.inputs[0])

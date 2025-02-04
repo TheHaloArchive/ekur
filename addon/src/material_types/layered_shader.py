@@ -44,7 +44,7 @@ class LayeredShader:
 
     def create_nodes(self):
         self.shader = self.node_tree.nodes.new("ShaderNodeGroup")
-        self.shader.node_tree = HIMS()
+        self.shader.node_tree = HIMS().node_tree
         self.shader.location = (700, 600)
         self.shader.width = 400
 

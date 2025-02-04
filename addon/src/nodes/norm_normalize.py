@@ -53,6 +53,7 @@ class NormNormalize:
         sqrt.operation = "SQRT"
 
         normalize = create_node(nodes, 1743, -140, ShaderNodeVectorMath)
+
         normalize.operation = "NORMALIZE"
 
         add = create_node(nodes, 1923, -140, ShaderNodeMix)
