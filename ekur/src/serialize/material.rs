@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 use serde_with::base64::Base64;
 use std::{collections::HashMap, fs::File, io::BufWriter, path::PathBuf};
 

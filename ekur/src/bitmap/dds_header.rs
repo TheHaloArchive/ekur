@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 use crate::definitions::bitmap::{BitmapData, BitmapFormat, BitmapType};
 use anyhow::Result;
 use ddsfile::{AlphaMode, Caps2, D3D10ResourceDimension, Dds, DxgiFormat, NewDxgiParams};

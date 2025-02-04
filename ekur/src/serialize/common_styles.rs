@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 use crate::definitions::runtime_styles::RuntimeCoatingStyles;
 use anyhow::Result;
 use indexmap::IndexMap;

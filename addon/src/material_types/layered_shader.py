@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
+
 # pyright: reportAttributeAccessIssue=false
 import json
 import logging

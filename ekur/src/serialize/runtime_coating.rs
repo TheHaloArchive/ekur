@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 use crate::definitions::{coating_swatch::CoatingSwatchPODTag, runtime_style::RuntimeCoatingStyle};
 
 use super::common_coating::{CommonCoating, CommonLayer, CommonRegion};

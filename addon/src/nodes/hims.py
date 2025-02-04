@@ -1,5 +1,15 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
 import bpy
-from bpy.types import NodeSocketColor, NodeSocketFloat, NodeSocketShader, NodeSocketVector, ShaderNodeGroup, ShaderNodeMath, ShaderNodeSeparateColor
+from bpy.types import (
+    NodeSocketColor,
+    NodeSocketFloat,
+    NodeSocketShader,
+    NodeSocketVector,
+    ShaderNodeGroup,
+    ShaderNodeMath,
+    ShaderNodeSeparateColor,
+)
 
 from .detail_normals import DetailNormals
 from .infinite_color import InfiniteColor
@@ -14,9 +24,12 @@ from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
 
 from ..utils import create_node, create_socket
 
+
 class HIMS:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Halo Infinite Shader 3.0 by Chunch and ChromaCore")
+        self.node_tree = bpy.data.node_groups.get(
+            "Halo Infinite Shader 3.0 by Chunch and ChromaCore"
+        )
         if self.node_tree:
             return
         else:
@@ -50,22 +63,34 @@ class HIMS:
         _ = create_socket(interface, "Normal", NodeSocketColor, panel=textures)
 
         settings = interface.new_panel("Globals")
-        norm_toggle = create_socket(interface, "Detail Normal Toggle", NodeSocketFloat, panel=settings)
+        norm_toggle = create_socket(
+            interface, "Detail Normal Toggle", NodeSocketFloat, panel=settings
+        )
         norm_toggle.default_value = 1.0
         base_flip = create_socket(interface, "Base Normal Flip", NodeSocketFloat, panel=settings)
         base_flip.default_value = 1.0
-        detail_flip = create_socket(interface, "Detail normal Flip", NodeSocketFloat, panel=settings)
+        detail_flip = create_socket(
+            interface, "Detail normal Flip", NodeSocketFloat, panel=settings
+        )
         detail_flip.default_value = 1.0
         _ = create_socket(interface, "Grime Amount", NodeSocketFloat, panel=settings)
-        grime_height = create_socket(interface, "Grime Height Toggle", NodeSocketFloat, panel=settings)
+        grime_height = create_socket(
+            interface, "Grime Height Toggle", NodeSocketFloat, panel=settings
+        )
         grime_height.default_value = 1.0
-        grime_height_scale = create_socket(interface, "Grime Height Scale", NodeSocketFloat, panel=settings)
+        grime_height_scale = create_socket(
+            interface, "Grime Height Scale", NodeSocketFloat, panel=settings
+        )
         grime_height_scale.default_value = 100.0
         ao_amount = create_socket(interface, "AO Amount", NodeSocketFloat, panel=settings)
         ao_amount.default_value = 1.0
-        scratch_height = create_socket(interface, "Scratch Height Amount", NodeSocketFloat, panel=settings)
+        scratch_height = create_socket(
+            interface, "Scratch Height Amount", NodeSocketFloat, panel=settings
+        )
         scratch_height.default_value = 1.0
-        global_scratch = create_socket(interface, "Global Scratch Toggle", NodeSocketFloat, panel=settings)
+        global_scratch = create_socket(
+            interface, "Global Scratch Toggle", NodeSocketFloat, panel=settings
+        )
         global_scratch.default_value = 1.0
 
         zone1 = interface.new_panel("Zone 1")
@@ -206,7 +231,9 @@ class HIMS:
 
         overrides = interface.new_panel("Color Overrides")
         _ = create_socket(interface, "Color Override", NodeSocketColor, panel=overrides)
-        override_toggle = create_socket(interface, "Color Override Toggle", NodeSocketFloat, panel=overrides)
+        override_toggle = create_socket(
+            interface, "Color Override Toggle", NodeSocketFloat, panel=overrides
+        )
         override_toggle.default_value = 0.0
 
     def create_nodes(self) -> None:
@@ -294,7 +321,7 @@ class HIMS:
         reroute_043 = nodes.new("NodeReroute")
         reroute_044 = nodes.new("NodeReroute")
         reroute_062 = nodes.new("NodeReroute")
-        
+
         group_008: ShaderNodeGroup = nodes.new("ShaderNodeGroup")
         group_008.node_tree = ColorMixer().node_tree
 
@@ -4191,7 +4218,7 @@ class HIMS:
         group_input_027.location = (-3481.869140625, -308.447509765625)
         math_008_2.location = (1321.500244140625, 1573.3026123046875)
         math_009_2.location = (1321.500244140625, 1613.3026123046875)
-        
+
         _ = self.node_tree.links.new(group_002_4.outputs[0], group_4.inputs[3])
         _ = self.node_tree.links.new(group_004.outputs[0], group_4.inputs[4])
         _ = self.node_tree.links.new(group_008.outputs[0], group_4.inputs[5])

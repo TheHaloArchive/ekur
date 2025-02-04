@@ -1,5 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
 """
-Ekur - Simple coating import for Reclaimer to Blender.
+Ekur - A multi-purpose importer for Halo Infinite.
 """
 
 import logging

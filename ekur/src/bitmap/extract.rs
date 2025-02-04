@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 use std::collections::{HashMap, HashSet};
 
 use crate::definitions::coating_swatch::CoatingSwatchPODTag;
