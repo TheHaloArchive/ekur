@@ -8,8 +8,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CARGO_MANIFEST_DIR: "./ekur"
-  CARGO_MANIFEST_PATH: "./ekur/Cargo.toml"
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
@@ -25,7 +23,7 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run: cargo build --profile ${{ matrix.profile }}
+        run: cargo build --manifest-path "./ekur/Cargo.toml" --profile ${{ matrix.profile }}
 
       - name: Check clippy
-        run: cargo clippy
+        run: cargo clippy --manifest-path "./ekur/Cargo.toml"
