@@ -14,9 +14,9 @@ requires-dist = [{ name = "fake-bpy-module-latest" }]
 
 [[package]]
 name = "fake-bpy-module-latest"
-version = "20250123"
+version = "20250204"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/20/68/43a5c76a7091cab1e31c477093cf15e340e22709ed1565c4e14515da2496/fake_bpy_module_latest-20250123.tar.gz", hash = "sha256:b27a006fbf8cdbf60c2b85be4998fc2c1a66cf18019de2bd626cf8fc43c3c8d8", size = 945795 }
+sdist = { url = "https://files.pythonhosted.org/packages/9b/a5/4b477be33a702e1fc5bd5c3f19946e931a2d8b77ffa448759df16502e571/fake_bpy_module_latest-20250204.tar.gz", hash = "sha256:5c70135612b54dac67d1a8c94f8c5f0f3461112495958abd1190b0556a95b306", size = 943385 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/56/36a2901fbfc39e13783b149d39bfb126229acfd1acc6ac3dd2010ea6012e/fake_bpy_module_latest-20250123-py3-none-any.whl", hash = "sha256:7fa6728f8b78d5497fea8dad40b1bbed1797b2e74f76d39e679685ab120f7da0", size = 1067493 },
+    { url = "https://files.pythonhosted.org/packages/7b/6b/d86612b83e8ce0a290f00b869beeaf12684a44ad2de534c7df59adc125a3/fake_bpy_module_latest-20250204-py3-none-any.whl", hash = "sha256:7be1fdcbddc685f17e5335f1f8f44b60008d9fb34fb8a48a2c48e30fc7b63d26", size = 1065364 },
 ]
