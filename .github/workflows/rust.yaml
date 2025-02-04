@@ -1,0 +1,39 @@
+name: Cargo test/clippy/build
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_MANIFEST_DIR: "./addon"
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        profile: ["release", "dev"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install latest rust toolchain
+        run: rustup toolchain install stable --profile minimal
+
+      - name: Check semver
+        uses: obi1kenobi/cargo-semver-checks-action@v2.6
+
+      - name: Build
+        run: cargo build --profile ${{ matrix.profile }}
+
+      - name: Check clippy
+        run: cargo clippy
+
+      - name: Cache cargo dependencies
+        uses: Swatinem/rust-cache@v2.7.5

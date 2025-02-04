@@ -1,0 +1,16 @@
+name: pack_addon
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build addon
+        uses: blenderkit/blender-addon-build@main
+        with:
+          name: ekur
+          build-location: "./addon"
+          exclude-files: ".git;.github;README.md"
