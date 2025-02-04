@@ -237,7 +237,11 @@ class LayeredShader:
             i: Index of the intention.
         """
         layer = self.get_intention(intention, mat_reg, any_reg, globals)
-        if i == 0 and self.material["style_info"]["region_name"] == 1420626520:  # mp_visor
+        if (
+            i == 0
+            and self.material["style_info"]["region_name"] == 1420626520
+            and bpy.context.scene.import_properties.toggle_visors
+        ):  # mp_visor
             visors_path = Path(f"{self.data_folder}/all_visors.json")
             if not visors_path.exists():
                 return
