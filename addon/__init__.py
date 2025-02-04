@@ -91,7 +91,7 @@ package_version_string = ".".join(str(i) for i in package_version)
 def register():
     register_class(ImportCoatingOperator)
     register_class(CoatingImportPanel)
-    register_class(EkurPreferences)  # pyright: ignore[reportArgumentType]
+    register_class(EkurPreferences)
     register_class(ImportProperties)
     register_class(RandomizeCoatingOperator)
     register_class(DownloadStringsOperator)
@@ -101,7 +101,7 @@ def register():
 
 def unregister():
     unregister_class(ImportCoatingOperator)
-    unregister_class(EkurPreferences)  # pyright: ignore[reportArgumentType]
+    unregister_class(EkurPreferences)
     unregister_class(CoatingImportPanel)
     unregister_class(ImportProperties)
     unregister_class(RandomizeCoatingOperator)

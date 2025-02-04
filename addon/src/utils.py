@@ -84,6 +84,9 @@ def create_socket[T: NodeSocket](
         name: User-facing name for the socket.
         type: Socket type.
         is_input: Whether the socket is an input or output.
+
+    Returns:
+        The created socket.
     """
     in_out = "INPUT" if is_input else "OUTPUT"
     out: T = interface.new_socket(name=name, in_out=in_out, socket_type=type.__name__, parent=panel)

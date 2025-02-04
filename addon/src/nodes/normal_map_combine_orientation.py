@@ -1,165 +1,130 @@
 import bpy
-from bpy.types import ShaderNodeVectorMath
+from bpy.types import (
+    NodeGroupInput,
+    NodeGroupOutput,
+    NodeReroute,
+    NodeSocketColor,
+    NodeSocketFloat,
+    NodeSocketVector,
+    ShaderNodeCombineXYZ,
+    ShaderNodeMix,
+    ShaderNodeSeparateXYZ,
+    ShaderNodeVectorMath,
+)
+
+from ..utils import create_node, create_socket
 
 
-def NormalMapCombineOrientation():
-    node = bpy.data.node_groups.get("NormalMap_Combine-Orientation")
-    if node:
-        return node
+class NormalMapCombineOrientation:
+    def __init__(self) -> None:
+        self.node_tree = bpy.data.node_groups.get("Normal Map Combine-Orientation")
+        if self.node_tree:
+            return
+        else:
+            self.node_tree = bpy.data.node_groups.new(
+                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
+                name="Normal Map Combine-Orientation",
+            )
+        self.create_sockets()
+        self.create_nodes()
 
-    norm = bpy.data.node_groups.new(type="ShaderNodeTree", name="NormalMap_Combine-Orientation")
+    def create_sockets(self) -> None:
+        interface = self.node_tree.interface
+        _ = create_socket(interface, "Combined Normal Map", NodeSocketColor, False)
+        _ = create_socket(interface, "Factor", NodeSocketFloat)
+        _ = create_socket(interface, "Base", NodeSocketColor)
+        _ = create_socket(interface, "Detail", NodeSocketColor)
 
-    _ = norm.interface.new_socket(
-        name="Combined Normal Map", in_out="OUTPUT", socket_type="NodeSocketColor"
-    )
+    def create_nodes(self) -> None:
+        nodes = self.node_tree.nodes
+        input = create_node(nodes, -680, 0, NodeGroupInput)
+        reroute = create_node(nodes, -473, -55, NodeReroute)
+        reroute1 = create_node(nodes, -472, 236, NodeReroute)
+        reroute2 = create_node(nodes, -442, -76, NodeReroute)
+        reroute3 = create_node(nodes, -436, 164, NodeReroute)
 
-    _ = norm.interface.new_socket(name="Factor", in_out="INPUT", socket_type="NodeSocketFloat")
-    _ = norm.interface.new_socket(name="Base", in_out="INPUT", socket_type="NodeSocketColor")
-    _ = norm.interface.new_socket(name="Detail", in_out="INPUT", socket_type="NodeSocketColor")
+        vectormult = create_node(nodes, -361, 166, ShaderNodeVectorMath)
+        vectormult.operation = "MULTIPLY"
+        factor: NodeSocketVector = vectormult.inputs[1]
+        factor.default_value = (-2.0, -2.0, 2.0)
 
-    group_input_14 = norm.nodes.new("NodeGroupInput")
-    reroute_003 = norm.nodes.new("NodeReroute")
-    reroute_002_3 = norm.nodes.new("NodeReroute")
-    reroute_001_3 = norm.nodes.new("NodeReroute")
-    reroute_004_3 = norm.nodes.new("NodeReroute")
+        vectorscale = create_node(nodes, -352, 240, ShaderNodeVectorMath)
+        vectorscale.operation = "SCALE"
+        scale: NodeSocketFloat = vectorscale.inputs[3]
+        scale.default_value = 2.0
 
-    vectormult: ShaderNodeVectorMath = norm.nodes.new("ShaderNodeVectorMath")
-    vectormult.operation = "MULTIPLY"
-    vectormult.inputs[1].default_value = (-2.0, -2.0, 2.0)
-    vectormult.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vectormult.inputs[3].default_value = 1.0
+        vectoradd = create_node(nodes, -357, 205, ShaderNodeVectorMath)
+        vectoradd.operation = "ADD"
+        add: NodeSocketVector = vectoradd.inputs[1]
+        add.default_value = (-1.0, -1.0, 0.0)
 
-    vectorscale: ShaderNodeVectorMath = norm.nodes.new("ShaderNodeVectorMath")
-    vectorscale.operation = "SCALE"
-    vectorscale.inputs[1].default_value = (2.0, 2.0, 2.0)
-    vectorscale.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vectorscale.inputs[3].default_value = 2.0
+        vectoradd2 = create_node(nodes, -366, 131, ShaderNodeVectorMath)
+        vectoradd2.operation = "ADD"
+        add2: NodeSocketVector = vectoradd2.inputs[1]
+        add2.default_value = (1.0, 1.0, -1.0)
 
-    vectoradd = norm.nodes.new("ShaderNodeVectorMath")
-    vectoradd.operation = "ADD"
-    vectoradd.inputs[1].default_value = (-1.0, -1.0, 0.0)
-    vectoradd.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vectoradd.inputs[3].default_value = 1.0
+        vectorscale2 = create_node(nodes, -115, 165, ShaderNodeVectorMath)
+        vectorscale2.operation = "SCALE"
 
-    vectoradd2: ShaderNodeVectorMath = norm.nodes.new("ShaderNodeVectorMath")
-    vectoradd2.operation = "ADD"
-    vectoradd2.inputs[1].default_value = (1.0, 1.0, -1.0)
-    vectoradd2.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vectoradd2.inputs[3].default_value = 1.0
+        vectordot = create_node(nodes, -113, 200, ShaderNodeVectorMath)
+        vectordot.operation = "DOT_PRODUCT"
 
-    vectorscale2: ShaderNodeVectorMath = norm.nodes.new("ShaderNodeVectorMath")
-    vectorscale2.operation = "SCALE"
-    vectorscale2.inputs[1].default_value = (1.0, 1.0, -1.0)
-    vectorscale2.inputs[2].default_value = (0.0, 0.0, 0.0)
+        separate_xyz = create_node(nodes, -109, 241, ShaderNodeSeparateXYZ)
+        combinexyz = create_node(nodes, 57, 209, ShaderNodeCombineXYZ)
 
-    vectordot: ShaderNodeVectorMath = norm.nodes.new("ShaderNodeVectorMath")
-    vectordot.operation = "DOT_PRODUCT"
-    vectordot.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vectordot.inputs[3].default_value = 1.0
+        vectordiv = create_node(nodes, 55, 175, ShaderNodeVectorMath)
+        vectordiv.operation = "DIVIDE"
 
-    separate_xyz = norm.nodes.new("ShaderNodeSeparateXYZ")
-    separate_xyz.outputs[0].hide = True
-    separate_xyz.outputs[1].hide = True
-    combinexyz = norm.nodes.new("ShaderNodeCombineXYZ")
+        vectorsub = create_node(nodes, 212, 148, ShaderNodeVectorMath)
+        vectorsub.operation = "SUBTRACT"
 
-    vector_math_010 = norm.nodes.new("ShaderNodeVectorMath")
-    vector_math_010.operation = "DIVIDE"
-    vector_math_010.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vector_math_010.inputs[3].default_value = 1.0
+        vectorscale3 = create_node(nodes, 214, 77, ShaderNodeVectorMath)
+        vectorscale3.operation = "SCALE"
+        scale3: NodeSocketFloat = vectorscale3.inputs[3]
+        scale3.default_value = 0.5
 
-    vector_math_009 = norm.nodes.new("ShaderNodeVectorMath")
-    vector_math_009.operation = "SUBTRACT"
-    vector_math_009.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vector_math_009.inputs[3].default_value = 1.0
+        vectornormz = create_node(nodes, 213, 112, ShaderNodeVectorMath)
+        vectornormz.operation = "NORMALIZE"
 
-    vector_math_005 = norm.nodes.new("ShaderNodeVectorMath")
-    vector_math_005.operation = "SCALE"
-    vector_math_005.inputs[1].default_value = (0.5, 0.5, 0.5)
-    vector_math_005.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vector_math_005.inputs[3].default_value = 0.5
+        vectoradd3 = create_node(nodes, 216, 43, ShaderNodeVectorMath)
+        vectoradd3.operation = "ADD"
+        add3: NodeSocketVector = vectoradd3.inputs[1]
+        add3.default_value = (0.5, 0.5, 0.5)
 
-    vector_math_004 = norm.nodes.new("ShaderNodeVectorMath")
-    vector_math_004.operation = "NORMALIZE"
-    vector_math_004.inputs[1].default_value = (0.0, 0.0, 0.0)
-    vector_math_004.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vector_math_004.inputs[3].default_value = 1.0
+        reroute4 = create_node(nodes, 383, -64, NodeReroute)
+        mix = create_node(nodes, 415, 89, ShaderNodeMix)
+        mix.data_type = "RGBA"
 
-    vector_math_006 = norm.nodes.new("ShaderNodeVectorMath")
-    vector_math_006.operation = "ADD"
-    vector_math_006.inputs[1].default_value = (0.5, 0.5, 0.5)
-    vector_math_006.inputs[2].default_value = (0.0, 0.0, 0.0)
-    vector_math_006.inputs[3].default_value = 1.0
+        reroute5 = create_node(nodes, 383, 31, NodeReroute)
+        output = create_node(nodes, 613, 81, NodeGroupOutput)
 
-    reroute = norm.nodes.new("NodeReroute")
-    mix_8 = norm.nodes.new("ShaderNodeMix")
-    mix_8.blend_type = "MIX"
-    mix_8.clamp_factor = True
-    mix_8.clamp_result = False
-    mix_8.data_type = "RGBA"
-    mix_8.factor_mode = "UNIFORM"
-    mix_8.inputs[1].default_value = (0.5, 0.5, 0.5)
-    mix_8.inputs[2].default_value = 0.0
-    mix_8.inputs[3].default_value = 0.0
-    mix_8.inputs[4].default_value = (0.0, 0.0, 0.0)
-    mix_8.inputs[5].default_value = (0.0, 0.0, 0.0)
-    mix_8.inputs[8].default_value = (0.0, 0.0, 0.0)
-    mix_8.inputs[9].default_value = (0.0, 0.0, 0.0)
-
-    reroute_005_3 = norm.nodes.new("NodeReroute")
-
-    group_output_14 = norm.nodes.new("NodeGroupOutput")
-    group_output_14.is_active_output = True
-
-    group_input_14.location = (-680.1478271484375, -1.7763557434082031)
-    reroute_003.location = (-473.7449645996094, -55.63496780395508)
-    reroute_002_3.location = (-472.5776062011719, 236.6663818359375)
-    reroute_001_3.location = (-442.8094177246094, -76.09606170654297)
-    reroute_004_3.location = (-436.8861389160156, 164.55894470214844)
-    vectormult.location = (-361.7262268066406, 166.41342163085938)
-    vectorscale.location = (-352.0022277832031, 240.16766357421875)
-    vectoradd.location = (-357.1380615234375, 205.62777709960938)
-    vectoradd2.location = (-366.862060546875, 131.87353515625)
-    vectorscale2.location = (-115.93279266357422, 165.04258728027344)
-    vectordot.location = (-113.82295227050781, 200.9220733642578)
-    separate_xyz.location = (-109.48788452148438, 241.37655639648438)
-    combinexyz.location = (57.07867431640625, 209.7696075439453)
-    vector_math_010.location = (55.63336181640625, 175.2928924560547)
-    vector_math_009.location = (212.1328887939453, 148.53402709960938)
-    vector_math_005.location = (214.83480834960938, 77.948974609375)
-    vector_math_004.location = (213.77255249023438, 112.6468505859375)
-    vector_math_006.location = (216.1195068359375, 43.219696044921875)
-    reroute.location = (383.51739501953125, -64.48645782470703)
-    mix_8.location = (415.302734375, 89.13896942138672)
-    reroute_005_3.location = (383.51739501953125, 31.338207244873047)
-    group_output_14.location = (613.7005615234375, 81.01988983154297)
-
-    _ = norm.links.new(reroute_002_3.outputs[0], vectorscale.inputs[0])
-    _ = norm.links.new(vectorscale.outputs[0], vectoradd.inputs[0])
-    _ = norm.links.new(vectoradd.outputs[0], separate_xyz.inputs[0])
-    _ = norm.links.new(vector_math_005.outputs[0], vector_math_006.inputs[0])
-    _ = norm.links.new(vector_math_004.outputs[0], vector_math_005.inputs[0])
-    _ = norm.links.new(mix_8.outputs[2], group_output_14.inputs[0])
-    _ = norm.links.new(group_input_14.outputs[0], mix_8.inputs[0])
-    _ = norm.links.new(reroute_003.outputs[0], mix_8.inputs[6])
-    _ = norm.links.new(vectormult.outputs[0], vectoradd2.inputs[0])
-    _ = norm.links.new(reroute_004_3.outputs[0], vectormult.inputs[0])
-    _ = norm.links.new(vectoradd.outputs[0], vectordot.inputs[0])
-    _ = norm.links.new(vectoradd2.outputs[0], vectordot.inputs[1])
-    _ = norm.links.new(vectordot.outputs[1], vectorscale2.inputs[3])
-    _ = norm.links.new(vectoradd.outputs[0], vectorscale2.inputs[0])
-    _ = norm.links.new(vectoradd2.outputs[0], vector_math_009.inputs[1])
-    _ = norm.links.new(vectorscale2.outputs[0], vector_math_010.inputs[0])
-    _ = norm.links.new(vector_math_010.outputs[0], vector_math_009.inputs[0])
-    _ = norm.links.new(separate_xyz.outputs[2], combinexyz.inputs[0])
-    _ = norm.links.new(separate_xyz.outputs[2], combinexyz.inputs[1])
-    _ = norm.links.new(separate_xyz.outputs[2], combinexyz.inputs[2])
-    _ = norm.links.new(combinexyz.outputs[0], vector_math_010.inputs[1])
-    _ = norm.links.new(vector_math_009.outputs[0], vector_math_004.inputs[0])
-    _ = norm.links.new(reroute.outputs[0], mix_8.inputs[7])
-    _ = norm.links.new(group_input_14.outputs[2], reroute_001_3.inputs[0])
-    _ = norm.links.new(group_input_14.outputs[1], reroute_003.inputs[0])
-    _ = norm.links.new(reroute_003.outputs[0], reroute_002_3.inputs[0])
-    _ = norm.links.new(reroute_001_3.outputs[0], reroute_004_3.inputs[0])
-    _ = norm.links.new(reroute_005_3.outputs[0], reroute.inputs[0])
-    _ = norm.links.new(vector_math_006.outputs[0], reroute_005_3.inputs[0])
-    return norm
+        links = self.node_tree.links
+        _ = links.new(reroute1.outputs[0], vectorscale.inputs[0])
+        _ = links.new(vectorscale.outputs[0], vectoradd.inputs[0])
+        _ = links.new(vectoradd.outputs[0], separate_xyz.inputs[0])
+        _ = links.new(vectorscale3.outputs[0], vectoradd3.inputs[0])
+        _ = links.new(vectornormz.outputs[0], vectorscale3.inputs[0])
+        _ = links.new(mix.outputs[2], output.inputs[0])
+        _ = links.new(input.outputs[0], mix.inputs[0])
+        _ = links.new(reroute.outputs[0], mix.inputs[6])
+        _ = links.new(vectormult.outputs[0], vectoradd2.inputs[0])
+        _ = links.new(reroute3.outputs[0], vectormult.inputs[0])
+        _ = links.new(vectoradd.outputs[0], vectordot.inputs[0])
+        _ = links.new(vectoradd2.outputs[0], vectordot.inputs[1])
+        _ = links.new(vectordot.outputs[1], vectorscale2.inputs[3])
+        _ = links.new(vectoradd.outputs[0], vectorscale2.inputs[0])
+        _ = links.new(vectoradd2.outputs[0], vectorsub.inputs[1])
+        _ = links.new(vectorscale2.outputs[0], vectordiv.inputs[0])
+        _ = links.new(vectordiv.outputs[0], vectorsub.inputs[0])
+        _ = links.new(separate_xyz.outputs[2], combinexyz.inputs[0])
+        _ = links.new(separate_xyz.outputs[2], combinexyz.inputs[1])
+        _ = links.new(separate_xyz.outputs[2], combinexyz.inputs[2])
+        _ = links.new(combinexyz.outputs[0], vectordiv.inputs[1])
+        _ = links.new(vectorsub.outputs[0], vectornormz.inputs[0])
+        _ = links.new(reroute4.outputs[0], mix.inputs[7])
+        _ = links.new(input.outputs[2], reroute2.inputs[0])
+        _ = links.new(input.outputs[1], reroute.inputs[0])
+        _ = links.new(reroute.outputs[0], reroute1.inputs[0])
+        _ = links.new(reroute2.outputs[0], reroute3.inputs[0])
+        _ = links.new(reroute5.outputs[0], reroute4.inputs[0])
+        _ = links.new(vectoradd3.outputs[0], reroute5.inputs[0])

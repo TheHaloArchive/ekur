@@ -91,13 +91,13 @@ class DetailNormals:
         scratchmath.label = "Scratch"
 
         normalize = create_node(self.node_tree.nodes, 600, 480, ShaderNodeGroup)
-        normalize.node_tree = NormNormalize()  # pyright: ignore[reportAttributeAccessIssue]
+        normalize.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         normalize2 = create_node(self.node_tree.nodes, 600, 330, ShaderNodeGroup)
-        normalize2.node_tree = NormNormalize()  # pyright: ignore[reportAttributeAccessIssue]
+        normalize2.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         normcombine = create_node(self.node_tree.nodes, 890, 480, ShaderNodeGroup)
-        normcombine.node_tree = NormalMapCombineOrientation()  # pyright: ignore[reportAttributeAccessIssue]
+        normcombine.node_tree = NormalMapCombineOrientation().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         _ = self.node_tree.links.new(input.outputs[1], srgb2.inputs[0])
         _ = self.node_tree.links.new(input.outputs[2], srgb3.inputs[0])

@@ -4733,7 +4733,7 @@ def HIMS() -> ShaderNodeTree:
     # node Group.003
     group_003 = hims.nodes.new("ShaderNodeGroup")
     group_003.name = "Group.003"
-    group_003.node_tree = MaskToggles()
+    group_003.node_tree = MaskToggles().node_tree
 
     # node Group Input.016
     group_input_016 = hims.nodes.new("NodeGroupInput")

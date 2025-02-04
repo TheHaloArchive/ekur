@@ -33,6 +33,7 @@ class CommonMaterial(TypedDict):
     texel_density: tuple[float, float]
     material_offset: tuple[float, float]
     style_info: StyleInfo
+    material_constants: str
 
 
 class CommonLayer(TypedDict):
