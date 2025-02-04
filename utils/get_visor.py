@@ -7,11 +7,14 @@ def get_visors():
     visor_things = []
     for visor in visors:
         visor_data = requests.get(f"https://hi.cylix.guide/item/{visor['name']}/{visor['res']}.json").json()
+        rough = visor_data["Roughness"]
+        if rough == -1:
+            rough = 4
         visor_data = {
             "name": visor_data["CommonData"]["Title"],
             "pattern": visor_data["VisorId"]["m_identifier"],
             "color": visor_data["ColorVariant"]["m_identifier"],
-            "Roughness": visor_data["Roughness"],
+            "Roughness": rough,
             "Emissive": visor_data["Emissive"],
         }
         visor_things.append(visor_data)

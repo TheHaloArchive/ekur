@@ -32,7 +32,7 @@ package_version = bl_info["version"]
 package_version_string = ".".join(str(i) for i in package_version)
 
 STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
-VISORS_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/all_visors.json"
+VISORS_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/all_visors.json"
 
 
 class DownloadFilesOperator(Operator):
@@ -63,7 +63,7 @@ class DownloadFilesOperator(Operator):
             logging.error(f"Failed to download all_visors.json: {e.status}")
             return {"CANCELLED"}
 
-        _ = Path(f"{data.data_folder}/all_visors.json")
+        _ = Path(f"{data}/all_visors.json")
 
         return {"FINISHED"}
 
