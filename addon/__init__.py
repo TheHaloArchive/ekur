@@ -21,7 +21,7 @@ bl_info = {
     "name": "Ekur",
     "description": "A multi-purpose importer for Halo Infinite.",
     "author": "Surasia",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (4, 3, 0),
     "category": "Import-Export",
     "support": "COMMUNITY",
