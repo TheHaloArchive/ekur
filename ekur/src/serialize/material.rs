@@ -196,9 +196,14 @@ impl Material {
     }
 }
 
-pub fn process_materials(materials: &HashMap<i32, MaterialTag>, save_path: &str) -> Result<()> {
+pub fn process_materials(
+    materials: &HashMap<i32, MaterialTag>,
+    save_path: &str,
+) -> Result<Vec<i32>> {
+    let mut all_textures = Vec::new();
     for (id, mat) in materials.iter() {
         let material = Material::from_mat(mat)?;
+        all_textures.extend(material.textures.values().map(|x| x.0));
         let mut path = PathBuf::from(format!("{save_path}/materials"));
         path.push(id.to_string());
         path.set_extension("json");
@@ -206,5 +211,5 @@ pub fn process_materials(materials: &HashMap<i32, MaterialTag>, save_path: &str)
         let writer = BufWriter::new(file);
         serde_json::to_writer(writer, &material)?;
     }
-    Ok(())
+    Ok(all_textures)
 }

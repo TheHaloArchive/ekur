@@ -3,7 +3,6 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::definitions::coating_swatch::CoatingSwatchPODTag;
-use crate::definitions::material::MaterialTag;
 use crate::definitions::material_swatch::MaterialSwatchTag;
 use crate::loader::module::{decompress_file, extract_bitmaps};
 
@@ -39,32 +38,12 @@ fn save_bitmap(data: &[u8], name: &str, bitmap: &BitmapData, save_path: &str) ->
 }
 
 fn collect_bitmaps(
-    materials: &HashMap<i32, MaterialTag>,
+    textures: Vec<i32>,
     coating_swatches: &HashMap<i32, CoatingSwatchPODTag>,
     material_swatches: &HashMap<i32, MaterialSwatchTag>,
 ) -> HashSet<i32> {
     let mut bitmaps = HashSet::new();
-    for mat in materials {
-        let gradient = mat
-            .1
-            .material_parameters
-            .elements
-            .iter()
-            .map(|x| x.bitmap.global_id);
-        bitmaps.extend(gradient);
-        /*
-                let postprocess = mat.1.post_process_definition.elements.iter().flat_map(|x| {
-                    {
-                        x.textures
-                            .elements
-                            .iter()
-                            .map(|x| x.bitmap_reference.global_id)
-                    }
-                    .collect::<Vec<_>>()
-                });
-                bitmaps.extend(postprocess);
-        */
-    }
+    bitmaps.extend(textures);
     for cmsw in coating_swatches {
         let gradient = cmsw.1.color_gradient_map.global_id;
         let normal = cmsw.1.normal_detail_map.global_id;
@@ -80,12 +59,12 @@ fn collect_bitmaps(
 
 pub fn extract_all_bitmaps(
     modules: &mut [ModuleFile],
-    materials: &HashMap<i32, MaterialTag>,
+    textures: Vec<i32>,
     coating_swatches: &HashMap<i32, CoatingSwatchPODTag>,
     material_swatches: &HashMap<i32, MaterialSwatchTag>,
     save_path: &str,
 ) -> Result<()> {
-    let bitmaps = collect_bitmaps(materials, coating_swatches, material_swatches);
+    let bitmaps = collect_bitmaps(textures, coating_swatches, material_swatches);
     for idx in bitmaps {
         if idx == -1 {
             continue;

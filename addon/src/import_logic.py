@@ -5,13 +5,14 @@ from pathlib import Path
 
 from bpy.types import Context, Operator
 
+from .material_types.diffuse_shader import DiffuseShaderType
 from .json_definitions import CommonMaterial, CommonStyleList
 from .material_types.layered_shader import LayeredShader
 from .utils import get_materials, read_json_file, remove_nodes
 
 
-class ImportCoatingOperator(Operator):
-    bl_idname = "ekur.importcoating"
+class ImportMaterialOperator(Operator):
+    bl_idname = "ekur.importmaterial"
     bl_label = "Import"
 
     def execute(self, context: Context | None) -> set[str]:
@@ -48,7 +49,7 @@ class ImportCoatingOperator(Operator):
                             layered_shader.process_styles()
 
                     case "DiffuseShader":
-                        ...
+                        _ = DiffuseShaderType(material, node_tree)
                     case _:
                         logging.error(f"Unknown shader type!: {material['shader_type']}")
 
