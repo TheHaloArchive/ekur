@@ -1,18 +1,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from pathlib import Path
-import bpy
 import json
+from pathlib import Path
+from typing import TypeVar
+
+import bpy
 from bpy.types import (
     Image,
     MaterialSlot,
     Node,
+    Nodes,
     NodeSocket,
     NodeTreeInterface,
     NodeTreeInterfacePanel,
-    Nodes,
 )
-from typing import TypeVar
 
 
 def read_texture(texturepath: str) -> Image:

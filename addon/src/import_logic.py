@@ -1,18 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
-
 from pathlib import Path
 
 from bpy.types import Context, Operator
 
 from .json_definitions import CommonMaterial, CommonStyleList
 from .material_types.layered_shader import LayeredShader
-from .utils import (
-    get_materials,
-    read_json_file,
-    remove_nodes,
-)
+from .utils import get_materials, read_json_file, remove_nodes
 
 
 class ImportCoatingOperator(Operator):
@@ -36,13 +31,25 @@ class ImportCoatingOperator(Operator):
             remove_nodes(node_tree)
             material: CommonMaterial = read_json_file(definition_path)
             if node_tree:
-                styles_path = Path(f"{data}/stylelists/{material['style_info']['stylelist']}.json")
-                if not styles_path.exists():
-                    logging.warning(f"Styles path does not exist!: {styles_path}")
-                    continue
-                styles: CommonStyleList = read_json_file(styles_path)
-                layered_shader: LayeredShader = LayeredShader(node_tree, material, styles, data)
-                layered_shader.create_textures()
-                layered_shader.process_styles()
+                match material["shader_type"]:
+                    case "LayeredShader":
+                        if material["style_info"] is not None:
+                            styles_path = Path(
+                                f"{data}/stylelists/{material['style_info']['stylelist']}.json"
+                            )
+                            if not styles_path.exists():
+                                logging.warning(f"Styles path does not exist!: {styles_path}")
+                                continue
+                            styles: CommonStyleList = read_json_file(styles_path)
+                            layered_shader: LayeredShader = LayeredShader(
+                                node_tree, material, styles, data
+                            )
+                            layered_shader.create_textures()
+                            layered_shader.process_styles()
+
+                    case "DiffuseShader":
+                        ...
+                    case _:
+                        logging.error(f"Unknown shader type!: {material['shader_type']}")
 
         return {"FINISHED"}
