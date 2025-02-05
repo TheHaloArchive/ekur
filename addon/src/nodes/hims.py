@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=false
+
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
@@ -6,8 +8,12 @@ from bpy.types import (
     NodeSocketFloat,
     NodeSocketShader,
     NodeSocketVector,
+    ShaderNodeBsdfPrincipled,
+    ShaderNodeCombineColor,
+    ShaderNodeGamma,
     ShaderNodeGroup,
     ShaderNodeMath,
+    ShaderNodeMix,
     ShaderNodeSeparateColor,
 )
 
@@ -240,7 +246,6 @@ class HIMS:
         nodes = self.node_tree.nodes
 
         srgb = create_node(nodes, 1210, 366, ShaderNodeSeparateColor)
-
         mult = create_node(nodes, 2175, 168, ShaderNodeMath)
         mult.operation = "MULTIPLY"
 
@@ -312,8 +317,8 @@ class HIMS:
         reroute_044 = nodes.new("NodeReroute")
         reroute_062 = nodes.new("NodeReroute")
 
-        group_008: ShaderNodeGroup = nodes.new("ShaderNodeGroup")
-        group_008.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        zone3 = create_node(nodes, -1609, 1866, ShaderNodeGroup)
+        zone3.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         group_input = nodes.new("NodeGroupInput")
 
@@ -335,22 +340,13 @@ class HIMS:
         clamp_006 = nodes.new("ShaderNodeClamp")
         clamp_007 = nodes.new("ShaderNodeClamp")
 
-        mix_005_6 = nodes.new("ShaderNodeMix")
+        mix_005_6 = create_node(nodes, 2505, -803, ShaderNodeMix)
         mix_005_6.blend_type = "MULTIPLY"
-        mix_005_6.clamp_factor = True
         mix_005_6.clamp_result = True
         mix_005_6.data_type = "RGBA"
-        mix_005_6.inputs[0].default_value = 1.0
-        mix_005_6.inputs[1].default_value = (0.5, 0.5, 0.5)
-        mix_005_6.inputs[2].default_value = 0.0
-        mix_005_6.inputs[3].default_value = 0.0
-        mix_005_6.inputs[4].default_value = (0.0, 0.0, 0.0)
-        mix_005_6.inputs[5].default_value = (0.0, 0.0, 0.0)
-        mix_005_6.inputs[8].default_value = (0.0, 0.0, 0.0)
-        mix_005_6.inputs[9].default_value = (0.0, 0.0, 0.0)
 
         gamma = nodes.new("ShaderNodeGamma")
-        gamma.inputs[1].default_value = 2.200000047683716
+        gamma.inputs[1].default_value = 2.2
 
         math_006_1 = nodes.new("ShaderNodeMath")
         math_006_1.operation = "SUBTRACT"
@@ -477,17 +473,9 @@ class HIMS:
 
         mix_006_7 = nodes.new("ShaderNodeMix")
         mix_006_7.blend_type = "MULTIPLY"
-        mix_006_7.clamp_factor = True
         mix_006_7.clamp_result = True
         mix_006_7.data_type = "RGBA"
-        mix_006_7.inputs[1].default_value = (0.5, 0.5, 0.5)
-        mix_006_7.inputs[2].default_value = 0.0
-        mix_006_7.inputs[3].default_value = 0.0
-        mix_006_7.inputs[4].default_value = (0.0, 0.0, 0.0)
-        mix_006_7.inputs[5].default_value = (0.0, 0.0, 0.0)
         mix_006_7.inputs[7].default_value = (0.0, 0.0, 0.0, 1.0)
-        mix_006_7.inputs[8].default_value = (0.0, 0.0, 0.0)
-        mix_006_7.inputs[9].default_value = (0.0, 0.0, 0.0)
 
         gamma_002 = nodes.new("ShaderNodeGamma")
         gamma_002.inputs[1].default_value = 2.2
@@ -503,19 +491,19 @@ class HIMS:
         reroute_074 = nodes.new("NodeReroute")
         reroute_073 = nodes.new("NodeReroute")
         group_011 = nodes.new("ShaderNodeGroup")
-        group_011.node_tree = ColorMixer().node_tree
+        group_011.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         group_010 = nodes.new("ShaderNodeGroup")
-        group_010.node_tree = ColorMixer().node_tree
+        group_010.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         reroute_058 = nodes.new("NodeReroute")
         bump_001 = nodes.new("ShaderNodeBump")
-        bump_001.invert = False
-        bump_001.inputs[0].default_value = 1.0
-        bump_001.inputs[1].default_value = 0.007499999832361937
+        strength: NodeSocketFloat = bump_001.inputs[0]
+        strength.default_value = 1.0
+        distance: NodeSocketFloat = bump_001.inputs[1]
+        distance.default_value = 0.0075
 
         group_output_17 = nodes.new("NodeGroupOutput")
-        group_output_17.is_active_output = True
 
         reroute_075 = nodes.new("NodeReroute")
         reroute_007_3 = nodes.new("NodeReroute")
@@ -526,132 +514,87 @@ class HIMS:
         reroute_079 = nodes.new("NodeReroute")
         reroute_008 = nodes.new("NodeReroute")
         reroute_052 = nodes.new("NodeReroute")
+
         gamma_003 = nodes.new("ShaderNodeGamma")
-        gamma_003.inputs[1].default_value = 2.200000047683716
+        gam: NodeSocketFloat = gamma_003.inputs[1]
+        gam.default_value = 2.2
 
         reroute_048 = nodes.new("NodeReroute")
         reroute_046 = nodes.new("NodeReroute")
-        mix_11 = nodes.new("ShaderNodeMix")
-        mix_11.blend_type = "MULTIPLY"
-        mix_11.clamp_factor = True
-        mix_11.clamp_result = False
-        mix_11.data_type = "RGBA"
-        mix_11.inputs[0].default_value = 1.0
-        mix_11.inputs[1].default_value = (0.5, 0.5, 0.5)
-        mix_11.inputs[2].default_value = 0.0
-        mix_11.inputs[3].default_value = 0.0
-        mix_11.inputs[4].default_value = (0.0, 0.0, 0.0)
-        mix_11.inputs[5].default_value = (0.0, 0.0, 0.0)
-        mix_11.inputs[8].default_value = (0.0, 0.0, 0.0)
-        mix_11.inputs[9].default_value = (0.0, 0.0, 0.0)
 
-        math_001_4 = nodes.new("ShaderNodeMath")
+        mix_11 = create_node(nodes, 2478, 560, ShaderNodeMix)
+        mix_11.blend_type = "MULTIPLY"
+        mix_11.data_type = "RGBA"
+
+        math_001_4 = create_node(nodes, 1747, 329, ShaderNodeMath)
         math_001_4.operation = "POWER"
-        math_001_4.inputs[2].default_value = 0.5
 
         reroute_080 = nodes.new("NodeReroute")
         reroute_083 = nodes.new("NodeReroute")
         reroute_084 = nodes.new("NodeReroute")
         reroute_081 = nodes.new("NodeReroute")
         reroute_017 = nodes.new("NodeReroute")
-        math_007_1 = nodes.new("ShaderNodeMath")
+
+        math_007_1 = create_node(nodes, 3092, 35, ShaderNodeMath)
         math_007_1.operation = "SUBTRACT"
-        math_007_1.inputs[0].default_value = 1.0
-        math_007_1.inputs[2].default_value = 0.5
+        sub: NodeSocketFloat = math_007_1.inputs[0]
+        sub.default_value = 1.0
 
-        gamma_001 = nodes.new("ShaderNodeGamma")
-        gamma_001.inputs[1].default_value = 2.200000047683716
+        gamma_001 = create_node(nodes, 4111, -118, ShaderNodeGamma)
+        gam_val: NodeSocketFloat = gamma_001.inputs[1]
+        gam_val.default_value = 2.2
 
-        combine_color = nodes.new("ShaderNodeCombineColor")
-        combine_color.mode = "RGB"
-        combine_color.inputs[2].default_value = 0.0
+        combine_color = create_node(nodes, 4491, -5, ShaderNodeCombineColor)
+        zero: NodeSocketFloat = combine_color.inputs[2]
+        zero.default_value = 0.0
 
-        group_009 = nodes.new("ShaderNodeGroup")
-        group_009.node_tree = InfiniteMatts().node_tree
+        group_009 = create_node(nodes, -50, 306, ShaderNodeGroup)
+        group_009.node_tree = InfiniteMatts().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
-        group_001_4 = nodes.new("ShaderNodeGroup")
-        group_001_4.node_tree = InfiniteMatts().node_tree
+        group_001_4 = create_node(nodes, -50, 800, ShaderNodeGroup)
+        group_001_4.node_tree = InfiniteMatts().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
-        group_014 = nodes.new("ShaderNodeGroup")
-        group_014.node_tree = InfiniteMaskingSorterNoGrimeCol().node_tree
-        group_003 = nodes.new("ShaderNodeGroup")
-        group_003.node_tree = MaskToggles().node_tree
+        nogrimecol = create_node(nodes, -1688, 753, ShaderNodeGroup)
+        nogrimecol.node_tree = InfiniteMaskingSorterNoGrimeCol().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
-        group_015 = nodes.new("ShaderNodeGroup")
-        group_015.node_tree = ColorMixer().node_tree
+        masktoggles = create_node(nodes, -3035, -233, ShaderNodeGroup)
+        masktoggles.node_tree = MaskToggles().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
-        separate_color_001 = nodes.new("ShaderNodeSeparateColor")
-        separate_color_001.mode = "RGB"
+        zone7 = create_node(nodes, -1609, 1146, ShaderNodeGroup)
+        zone7.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
-        mix_001_9 = nodes.new("ShaderNodeMix")
-        mix_001_9.blend_type = "MIX"
-        mix_001_9.clamp_factor = True
-        mix_001_9.clamp_result = False
-        mix_001_9.data_type = "RGBA"
-        mix_001_9.inputs[1].default_value = (0.5, 0.5, 0.5)
-        mix_001_9.inputs[2].default_value = 0.0
-        mix_001_9.inputs[3].default_value = 0.0
-        mix_001_9.inputs[4].default_value = (0.0, 0.0, 0.0)
-        mix_001_9.inputs[5].default_value = (0.0, 0.0, 0.0)
-        mix_001_9.inputs[7].default_value = (0.0, 1.0, 1.0, 1.0)
-        mix_001_9.inputs[8].default_value = (0.0, 0.0, 0.0)
-        mix_001_9.inputs[9].default_value = (0.0, 0.0, 0.0)
+        separate_color_001 = create_node(nodes, 4255, -1000, ShaderNodeSeparateColor)
 
-        mix_003_7 = nodes.new("ShaderNodeMix")
-        mix_003_7.blend_type = "MIX"
-        mix_003_7.clamp_factor = True
-        mix_003_7.clamp_result = False
-        mix_003_7.data_type = "RGBA"
-        mix_003_7.inputs[1].default_value = (0.5, 0.5, 0.5)
-        mix_003_7.inputs[2].default_value = 0.0
-        mix_003_7.inputs[3].default_value = 0.0
-        mix_003_7.inputs[4].default_value = (0.0, 0.0, 0.0)
-        mix_003_7.inputs[5].default_value = (0.0, 0.0, 0.0)
-        mix_003_7.inputs[7].default_value = (1.0, 0.01103365421295166, 1.0, 1.0)
-        mix_003_7.inputs[8].default_value = (0.0, 0.0, 0.0)
-        mix_003_7.inputs[9].default_value = (0.0, 0.0, 0.0)
+        cyan = create_node(nodes, 4436, -963, ShaderNodeMix)
+        cyan.data_type = "RGBA"
+        col: NodeSocketColor = cyan.inputs[7]
+        col.default_value = (0.0, 1.0, 1.0, 1.0)
 
-        mix_002_7 = nodes.new("ShaderNodeMix")
-        mix_002_7.blend_type = "MIX"
-        mix_002_7.clamp_factor = True
-        mix_002_7.clamp_result = False
-        mix_002_7.data_type = "RGBA"
-        mix_002_7.inputs[1].default_value = (0.5, 0.5, 0.5)
-        mix_002_7.inputs[2].default_value = 0.0
-        mix_002_7.inputs[3].default_value = 0.0
-        mix_002_7.inputs[4].default_value = (0.0, 0.0, 0.0)
-        mix_002_7.inputs[5].default_value = (0.0, 0.0, 0.0)
-        mix_002_7.inputs[7].default_value = (1.0, 1.0, 0.0, 1.0)
-        mix_002_7.inputs[8].default_value = (0.0, 0.0, 0.0)
-        mix_002_7.inputs[9].default_value = (0.0, 0.0, 0.0)
+        magenta = create_node(nodes, 4847, -963, ShaderNodeMix)
+        magenta.data_type = "RGBA"
+        col = magenta.inputs[7]
+        col.default_value = (1.0, 0.0, 1.0, 1.0)
 
-        math_5 = nodes.new("ShaderNodeMath")
+        yellow = create_node(nodes, 4649, -963, ShaderNodeMix)
+        yellow.data_type = "RGBA"
+        col = yellow.inputs[7]
+        col.default_value = (1.0, 1.0, 0.0, 1.0)
+
+        math_5 = create_node(nodes, 3287, 127, ShaderNodeMath)
         math_5.operation = "MULTIPLY"
-        math_5.inputs[0].default_value = 0.5
-        math_5.inputs[2].default_value = 0.5
 
-        group_005: ShaderNodeGroup = nodes.new("ShaderNodeGroup")
-        group_005.node_tree = DetailNormals().node_tree
+        detailnormals = create_node(nodes, -30, -142, ShaderNodeGroup)
+        detailnormals.node_tree = DetailNormals().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
-        group_002_4 = nodes.new("ShaderNodeGroup")
-        group_002_4.node_tree = ColorMixer().node_tree
+        group_002_4 = create_node(nodes, -1609, 2226, ShaderNodeGroup)
+        group_002_4.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
-        principled_bsdf = nodes.new("ShaderNodeBsdfPrincipled")
+        principled_bsdf = create_node(nodes, 3693, 316, ShaderNodeBsdfPrincipled)
         principled_bsdf.distribution = "GGX"
         principled_bsdf.subsurface_method = "RANDOM_WALK_SKIN"
 
-        mix_007_4 = nodes.new("ShaderNodeMix")
-        mix_007_4.blend_type = "MIX"
-        mix_007_4.clamp_factor = True
-        mix_007_4.clamp_result = False
-        mix_007_4.data_type = "RGBA"
-        mix_007_4.inputs[1].default_value = (0.5, 0.5, 0.5)
-        mix_007_4.inputs[2].default_value = 0.0
-        mix_007_4.inputs[3].default_value = 0.0
-        mix_007_4.inputs[4].default_value = (0.0, 0.0, 0.0)
-        mix_007_4.inputs[5].default_value = (0.0, 0.0, 0.0)
-        mix_007_4.inputs[8].default_value = (0.0, 0.0, 0.0)
-        mix_007_4.inputs[9].default_value = (0.0, 0.0, 0.0)
+        mixemission = create_node(nodes, 3494, 196, ShaderNodeMix)
+        mixemission.data_type = "RGBA"
 
         infinite_color = create_node(nodes, 1210, 366, ShaderNodeGroup)
         infinite_color.node_tree = InfiniteColor().node_tree  # pyright: ignore[reportAttributeAccessIssue]
@@ -727,7 +670,7 @@ class HIMS:
         reroute_043.location = (3871.645751953125, 442.1236572265625)
         reroute_044.location = (3898.373779296875, 442.1236267089844)
         reroute_062.location = (-1098.9185791015625, -146.46742248535156)
-        group_008.location = (-1609.9658203125, 1866.7508544921875)
+        zone3.location = (-1609.9658203125, 1866.7508544921875)
         group_016.location = (-1609.9658203125, 966.75048828125)
         group_017.location = (-1689.9661865234375, 366.7505798339844)
         group_020.location = (-1689.9661865234375, 14.793144226074219)
@@ -799,29 +742,29 @@ class HIMS:
         combine_color.location = (4491.5263671875, -5.611602783203125)
         group_009.location = (-49.96565628051758, 306.75048828125)
         group_001_4.location = (-49.96565628051758, 806.75048828125)
-        group_014.location = (-1688.847900390625, 753.6773681640625)
-        group_003.location = (-3035.89697265625, -233.072265625)
-        group_015.location = (-1609.9658203125, 1146.75048828125)
+        nogrimecol.location = (-1688.847900390625, 753.6773681640625)
+        masktoggles.location = (-3035.89697265625, -233.072265625)
+        zone7.location = (-1609.9658203125, 1146.75048828125)
         separate_color_001.location = (4255.1904296875, -999.6777954101562)
-        mix_001_9.location = (4436.95654296875, -965.3305053710938)
-        mix_003_7.location = (4877.5087890625, -961.576171875)
-        mix_002_7.location = (4649.0185546875, -963.38232421875)
+        cyan.location = (4436.95654296875, -965.3305053710938)
+        magenta.location = (4877.5087890625, -961.576171875)
+        yellow.location = (4649.0185546875, -963.38232421875)
         math_5.location = (3287.00830078125, 127.77780151367188)
-        group_005.location = (-30.266983032226562, -142.71868896484375)
+        detailnormals.location = (-30.266983032226562, -142.71868896484375)
         group_002_4.location = (-1609.9658203125, 2226.75048828125)
         principled_bsdf.location = (3693.52001953125, 316.2340087890625)
-        mix_007_4.location = (3494.010498046875, 196.2340087890625)
+        mixemission.location = (3494.010498046875, 196.2340087890625)
         infinite_color.location = (-53.98965072631836, 1419.260498046875)
         multvoronoi.location = (1321.500244140625, 1573.3026123046875)
         addtovoronoi.location = (1321.500244140625, 1613.3026123046875)
 
         _ = self.node_tree.links.new(group_002_4.outputs[0], infinite_color.inputs[3])
         _ = self.node_tree.links.new(group_004.outputs[0], infinite_color.inputs[4])
-        _ = self.node_tree.links.new(group_008.outputs[0], infinite_color.inputs[5])
+        _ = self.node_tree.links.new(zone3.outputs[0], infinite_color.inputs[5])
         _ = self.node_tree.links.new(group_010.outputs[0], infinite_color.inputs[6])
         _ = self.node_tree.links.new(group_011.outputs[0], infinite_color.inputs[7])
         _ = self.node_tree.links.new(group_012.outputs[0], infinite_color.inputs[8])
-        _ = self.node_tree.links.new(group_015.outputs[0], infinite_color.inputs[10])
+        _ = self.node_tree.links.new(zone7.outputs[0], infinite_color.inputs[10])
         _ = self.node_tree.links.new(group_016.outputs[0], infinite_color.inputs[9])
         _ = self.node_tree.links.new(group_input.outputs[22], group_013.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[37], group_013.inputs[4])
@@ -829,7 +772,7 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[68], group_013.inputs[6])
         _ = self.node_tree.links.new(group_input.outputs[84], group_013.inputs[7])
         _ = self.node_tree.links.new(group_input.outputs[100], group_013.inputs[8])
-        _ = self.node_tree.links.new(group_014.outputs[0], infinite_color.inputs[11])
+        _ = self.node_tree.links.new(nogrimecol.outputs[0], infinite_color.inputs[11])
         _ = self.node_tree.links.new(group_017.outputs[0], group_001_4.inputs[11])
         _ = self.node_tree.links.new(group_018.outputs[0], group_009.inputs[11])
         _ = self.node_tree.links.new(srgb.outputs[0], math_001_4.inputs[0])
@@ -839,12 +782,12 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[63], group_017.inputs[6])
         _ = self.node_tree.links.new(group_input.outputs[79], group_017.inputs[7])
         _ = self.node_tree.links.new(group_input.outputs[95], group_017.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[26], group_014.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[41], group_014.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[56], group_014.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[72], group_014.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[88], group_014.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[104], group_014.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[26], nogrimecol.inputs[4])
+        _ = self.node_tree.links.new(group_input.outputs[41], nogrimecol.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[56], nogrimecol.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[72], nogrimecol.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[88], nogrimecol.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[104], nogrimecol.inputs[9])
         _ = self.node_tree.links.new(group_input.outputs[18], group_018.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[33], group_018.inputs[4])
         _ = self.node_tree.links.new(group_input.outputs[48], group_018.inputs[5])
@@ -859,10 +802,10 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[38], group_004.inputs[1])
         _ = self.node_tree.links.new(group_input.outputs[39], group_004.inputs[2])
         _ = self.node_tree.links.new(group_input.outputs[40], group_004.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[43], group_008.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[53], group_008.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[54], group_008.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[55], group_008.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[43], zone3.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[53], zone3.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[54], zone3.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[55], zone3.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[59], group_010.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[69], group_010.inputs[1])
         _ = self.node_tree.links.new(group_input.outputs[70], group_010.inputs[2])
@@ -901,7 +844,7 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[0], group_013.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[128], group_013.inputs[10])
         _ = self.node_tree.links.new(group_input.outputs[116], group_013.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[0], group_014.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[0], nogrimecol.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_017.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_018.inputs[0])
         _ = self.node_tree.links.new(reroute_014_3.outputs[0], colorramp.inputs[0])
@@ -915,7 +858,7 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[7], group_009.inputs[13])
         _ = self.node_tree.links.new(group_input.outputs[7], group_013.inputs[11])
         _ = self.node_tree.links.new(group_input.outputs[0], srgb.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[7], group_014.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[7], nogrimecol.inputs[3])
         _ = self.node_tree.links.new(bump.outputs[0], bump_001.inputs[3])
         _ = self.node_tree.links.new(texture_coordinate.outputs[2], mapping_1.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[9], mapping_1.inputs[3])
@@ -945,7 +888,7 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[11], mult3.inputs[1])
         _ = self.node_tree.links.new(group_input.outputs[112], group_018.inputs[9])
         _ = self.node_tree.links.new(group_input.outputs[111], group_017.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[120], group_014.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[120], nogrimecol.inputs[10])
         _ = self.node_tree.links.new(colorramp.outputs[0], mult3.inputs[0])
         _ = self.node_tree.links.new(gamma.outputs[0], combine_color.inputs[0])
         _ = self.node_tree.links.new(gamma_001.outputs[0], combine_color.inputs[1])
@@ -1048,50 +991,50 @@ class HIMS:
         _ = self.node_tree.links.new(group_023.outputs[0], reroute_064.inputs[0])
         _ = self.node_tree.links.new(reroute_064.outputs[0], reroute_065.inputs[0])
         _ = self.node_tree.links.new(reroute_065.outputs[0], math_007_1.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[0], group_005.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[3], group_005.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[15], group_005.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[30], group_005.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[45], group_005.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[61], group_005.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[77], group_005.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[93], group_005.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[124], group_005.inputs[11])
-        _ = self.node_tree.links.new(group_input.outputs[109], group_005.inputs[10])
-        _ = self.node_tree.links.new(group_input.outputs[7], group_005.inputs[13])
+        _ = self.node_tree.links.new(group_input.outputs[0], detailnormals.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[3], detailnormals.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[15], detailnormals.inputs[4])
+        _ = self.node_tree.links.new(group_input.outputs[30], detailnormals.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[45], detailnormals.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[61], detailnormals.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[77], detailnormals.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[93], detailnormals.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[124], detailnormals.inputs[11])
+        _ = self.node_tree.links.new(group_input.outputs[109], detailnormals.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[7], detailnormals.inputs[13])
         _ = self.node_tree.links.new(reroute_076.outputs[0], normal_map.inputs[1])
-        _ = self.node_tree.links.new(reroute_062.outputs[0], group_005.inputs[12])
-        _ = self.node_tree.links.new(group_input.outputs[4], group_005.inputs[14])
-        _ = self.node_tree.links.new(group_input.outputs[1], group_003.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[2], group_003.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[27], group_003.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[42], group_003.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[58], group_003.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[74], group_003.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[90], group_003.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[106], group_003.inputs[7])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_014.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_014.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_017.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_017.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_020.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_020.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_018.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_018.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_019.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_019.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_023.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_023.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_013.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_013.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_005.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_005.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_009.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_009.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_001_4.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_001_4.inputs[2])
-        _ = self.node_tree.links.new(group_003.outputs[0], infinite_color.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], infinite_color.inputs[2])
+        _ = self.node_tree.links.new(reroute_062.outputs[0], detailnormals.inputs[12])
+        _ = self.node_tree.links.new(group_input.outputs[4], detailnormals.inputs[14])
+        _ = self.node_tree.links.new(group_input.outputs[1], masktoggles.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[2], masktoggles.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[27], masktoggles.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[42], masktoggles.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[58], masktoggles.inputs[4])
+        _ = self.node_tree.links.new(group_input.outputs[74], masktoggles.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[90], masktoggles.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[106], masktoggles.inputs[7])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], nogrimecol.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], nogrimecol.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_017.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_017.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_020.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_020.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_018.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_018.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_019.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_019.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_023.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_023.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_013.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_013.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], detailnormals.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], detailnormals.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_009.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_009.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_001_4.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_001_4.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], infinite_color.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], infinite_color.inputs[2])
         _ = self.node_tree.links.new(group_input.outputs[16], group_006.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[31], group_006.inputs[1])
         _ = self.node_tree.links.new(group_input.outputs[46], group_006.inputs[2])
@@ -1125,17 +1068,17 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[116], clamp_006.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[128], clamp_007.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_022.inputs[0])
-        _ = self.node_tree.links.new(group_003.outputs[0], group_022.inputs[1])
-        _ = self.node_tree.links.new(group_003.outputs[1], group_022.inputs[2])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], group_022.inputs[1])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], group_022.inputs[2])
         _ = self.node_tree.links.new(reroute_079.outputs[0], mix_005_6.inputs[7])
         _ = self.node_tree.links.new(mapping_1.outputs[0], musgrave_texture.inputs[0])
         _ = self.node_tree.links.new(reroute_027.outputs[0], gamma_002.inputs[0])
         _ = self.node_tree.links.new(reroute_049.outputs[0], gamma_003.inputs[0])
         _ = self.node_tree.links.new(reroute_044.outputs[0], gamma_004.inputs[0])
         _ = self.node_tree.links.new(mix_004_7.outputs[2], reroute_028.inputs[0])
-        _ = self.node_tree.links.new(group_003.outputs[0], reroute_009.inputs[0])
+        _ = self.node_tree.links.new(masktoggles.outputs[0], reroute_009.inputs[0])
         _ = self.node_tree.links.new(reroute_009.outputs[0], reroute_067.inputs[0])
-        _ = self.node_tree.links.new(group_003.outputs[1], reroute_066.inputs[0])
+        _ = self.node_tree.links.new(masktoggles.outputs[1], reroute_066.inputs[0])
         _ = self.node_tree.links.new(reroute_066.outputs[0], reroute_068.inputs[0])
         _ = self.node_tree.links.new(reroute_068.outputs[0], reroute_070.inputs[0])
         _ = self.node_tree.links.new(reroute_067.outputs[0], reroute_069.inputs[0])
@@ -1144,17 +1087,17 @@ class HIMS:
         _ = self.node_tree.links.new(reroute_071.outputs[0], reroute_073.inputs[0])
         _ = self.node_tree.links.new(reroute_072.outputs[0], reroute_074.inputs[0])
         _ = self.node_tree.links.new(reroute_074.outputs[0], separate_color_001.inputs[0])
-        _ = self.node_tree.links.new(reroute_073.outputs[0], mix_001_9.inputs[6])
-        _ = self.node_tree.links.new(separate_color_001.outputs[0], mix_001_9.inputs[0])
-        _ = self.node_tree.links.new(mix_001_9.outputs[2], mix_002_7.inputs[6])
-        _ = self.node_tree.links.new(separate_color_001.outputs[1], mix_002_7.inputs[0])
-        _ = self.node_tree.links.new(mix_002_7.outputs[2], mix_003_7.inputs[6])
-        _ = self.node_tree.links.new(separate_color_001.outputs[2], mix_003_7.inputs[0])
-        _ = self.node_tree.links.new(mix_003_7.outputs[2], group_output_17.inputs[11])
+        _ = self.node_tree.links.new(reroute_073.outputs[0], cyan.inputs[6])
+        _ = self.node_tree.links.new(separate_color_001.outputs[0], cyan.inputs[0])
+        _ = self.node_tree.links.new(cyan.outputs[2], yellow.inputs[6])
+        _ = self.node_tree.links.new(separate_color_001.outputs[1], yellow.inputs[0])
+        _ = self.node_tree.links.new(yellow.outputs[2], magenta.inputs[6])
+        _ = self.node_tree.links.new(separate_color_001.outputs[2], magenta.inputs[0])
+        _ = self.node_tree.links.new(magenta.outputs[2], group_output_17.inputs[11])
         _ = self.node_tree.links.new(group_input.outputs[115], group_023.inputs[10])
         _ = self.node_tree.links.new(reroute_063.outputs[0], reroute_075.inputs[0])
         _ = self.node_tree.links.new(reroute_077.outputs[0], reroute_076.inputs[0])
-        _ = self.node_tree.links.new(group_005.outputs[0], reroute_077.inputs[0])
+        _ = self.node_tree.links.new(detailnormals.outputs[0], reroute_077.inputs[0])
         _ = self.node_tree.links.new(group_022.outputs[0], reroute_078.inputs[0])
         _ = self.node_tree.links.new(reroute_078.outputs[0], reroute_079.inputs[0])
         _ = self.node_tree.links.new(math_001_4.outputs[0], reroute_080.inputs[0])
@@ -1162,17 +1105,17 @@ class HIMS:
         _ = self.node_tree.links.new(reroute_004_4.outputs[0], reroute_083.inputs[0])
         _ = self.node_tree.links.new(reroute_083.outputs[0], reroute_084.inputs[0])
         _ = self.node_tree.links.new(reroute_084.outputs[0], mix_11.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[107], group_015.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[117], group_015.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[118], group_015.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[119], group_015.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[5], group_005.inputs[15])
-        _ = self.node_tree.links.new(group_input.outputs[6], group_005.inputs[16])
-        _ = self.node_tree.links.new(reroute_032.outputs[0], mix_007_4.inputs[6])
-        _ = self.node_tree.links.new(reroute_034.outputs[0], mix_007_4.inputs[7])
-        _ = self.node_tree.links.new(reroute_033.outputs[0], mix_007_4.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[107], zone7.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[117], zone7.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[118], zone7.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[119], zone7.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[5], detailnormals.inputs[15])
+        _ = self.node_tree.links.new(group_input.outputs[6], detailnormals.inputs[16])
+        _ = self.node_tree.links.new(reroute_032.outputs[0], mixemission.inputs[6])
+        _ = self.node_tree.links.new(reroute_034.outputs[0], mixemission.inputs[7])
+        _ = self.node_tree.links.new(reroute_033.outputs[0], mixemission.inputs[0])
         _ = self.node_tree.links.new(reroute_033.outputs[0], principled_bsdf.inputs[9])
-        _ = self.node_tree.links.new(mix_007_4.outputs[2], principled_bsdf.inputs[0])
+        _ = self.node_tree.links.new(mixemission.outputs[2], principled_bsdf.inputs[0])
         _ = self.node_tree.links.new(addtovoronoi.outputs[0], reroute_054.inputs[0])
         _ = self.node_tree.links.new(multvoronoi.outputs[0], addtovoronoi.inputs[0])
         _ = self.node_tree.links.new(musgrave_texture.outputs[0], multvoronoi.inputs[0])
