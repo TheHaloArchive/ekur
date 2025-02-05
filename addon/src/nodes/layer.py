@@ -56,9 +56,9 @@ class Layer:
         grad_x.default_value = self.intention["gradient_transform"][0]
         grad_y = create_socket(interface, "Gradient-Scale_Y", NodeSocketFloat, panel=scaling)
         grad_y.default_value = self.intention["gradient_transform"][1]
-        norm_x = create_socket(interface, "Normal-Scale_Y", NodeSocketFloat, panel=scaling)
+        norm_x = create_socket(interface, "Normal-Scale_X", NodeSocketFloat, panel=scaling)
         norm_x.default_value = self.intention["normal_transform"][0]
-        norm_y = create_socket(interface, "Normal-Scale_X", NodeSocketFloat, panel=scaling)
+        norm_y = create_socket(interface, "Normal-Scale_Y", NodeSocketFloat, panel=scaling)
         norm_y.default_value = self.intention["normal_transform"][1]
 
         transforms = interface.new_panel("Transforms")
@@ -174,12 +174,12 @@ class Layer:
         _ = links.new(uvscaling2.outputs[0], reroute35.inputs[0])
         _ = links.new(uvscaling.outputs[0], reroute3.inputs[0])
         _ = links.new(input.outputs[0], uvscaling.inputs[0])
-        _ = links.new(input.outputs[5], uvscaling.inputs[2])
+        _ = links.new(input.outputs[5], uvscaling.inputs[3])
         _ = links.new(input.outputs[7], uvscaling2.inputs[5])
         _ = links.new(input.outputs[6], uvscaling2.inputs[4])
         _ = links.new(input.outputs[1], uvscaling2.inputs[1])
         _ = links.new(input.outputs[3], uvscaling2.inputs[3])
-        _ = links.new(input.outputs[4], uvscaling.inputs[3])
+        _ = links.new(input.outputs[4], uvscaling.inputs[2])
         _ = links.new(input.outputs[1], uvscaling.inputs[1])
         _ = links.new(input.outputs[6], uvscaling.inputs[4])
         _ = links.new(input.outputs[7], uvscaling.inputs[5])
