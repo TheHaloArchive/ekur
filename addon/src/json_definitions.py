@@ -83,5 +83,5 @@ class CommonStyleListEntry(TypedDict):
 
 
 class CommonStyleList(TypedDict):
-    default_index: int
+    default_style: CommonStyleListEntry
     styles: OrderedDict[str, CommonStyleListEntry]

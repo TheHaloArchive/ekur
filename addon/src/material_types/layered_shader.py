@@ -91,8 +91,7 @@ class LayeredShader:
             _ = self.node_tree.links.new(normal_value_node.outputs[0], self.shader.inputs[3])
 
     def process_styles(self) -> None:
-        default_style_index = self.styles["default_index"]
-        style = list(self.styles["styles"].values())[default_style_index]["reference"]
+        style = self.styles["default_style"]["reference"]
         custom_style = bpy.context.scene.import_properties.coat_id
         items_func = bpy.context.scene.import_properties.coatings
         use_default = bpy.context.scene.import_properties.use_default
