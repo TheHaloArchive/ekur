@@ -136,7 +136,7 @@ class CoatingImportPanel(Panel):
     def draw(self, context: Context | None) -> None:
         layout = self.layout
         box: UILayout = layout.box()
-        box.label(icon="MATERIAL", text="Import Coating")
+        box.label(icon="MATERIAL", text="Import Material")
         options = box.box()
         options.prop(context.scene.import_properties, "use_default")  # pyright: ignore[reportAttributeAccessIssue]
         if not context.scene.import_properties.use_default:  # pyright: ignore[reportAttributeAccessIssue]

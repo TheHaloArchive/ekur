@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
 import bpy
 from bpy.types import (
     NodeGroupInput,
@@ -59,9 +61,9 @@ class DiffuseShader:
         normal_map = create_node(nodes, 0, 0, ShaderNodeNormalMap)
 
         normalize = create_node(nodes, 0, 0, ShaderNodeGroup)
+        normalize.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
         invert: NodeSocketFloat = normalize.inputs[1]
         invert.default_value = 1.0
-        normalize.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         links = self.node_tree.links
         _ = links.new(input.outputs[0], ao_multiply.inputs[1])

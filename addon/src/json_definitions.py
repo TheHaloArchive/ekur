@@ -32,6 +32,15 @@ def get_intentions(style_info: StyleInfo) -> list[int]:
     ]
 
 
+class DecalSlot(TypedDict):
+    top_color: tuple[float, float, float]
+    mid_color: tuple[float, float, float]
+    bot_color: tuple[float, float, float]
+    roughness_white: float
+    roughness_black: float
+    metallic: float
+
+
 class DiffuseInfo(TypedDict):
     metallic_white: float
     metallic_black: float
@@ -44,6 +53,7 @@ class CommonMaterial(TypedDict):
     shader_type: str
     style_info: StyleInfo | None
     diffuse_info: DiffuseInfo | None
+    decal_slots: DecalSlot | None
     material_constants: str
 
 

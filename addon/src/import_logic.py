@@ -5,8 +5,9 @@ from pathlib import Path
 
 from bpy.types import Context, Operator
 
-from .material_types.diffuse_shader import DiffuseShaderType
 from .json_definitions import CommonMaterial, CommonStyleList
+from .material_types.decal_shader import DecalShader
+from .material_types.diffuse_shader import DiffuseShaderType
 from .material_types.layered_shader import LayeredShader
 from .utils import get_materials, read_json_file, remove_nodes
 
@@ -50,6 +51,8 @@ class ImportMaterialOperator(Operator):
 
                     case "DiffuseShader":
                         _ = DiffuseShaderType(material, node_tree)
+                    case "DecalShader":
+                        _ = DecalShader(material, node_tree)
                     case _:
                         logging.error(f"Unknown shader type!: {material['shader_type']}")
 
