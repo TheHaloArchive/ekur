@@ -5,6 +5,8 @@ from typing import TypedDict
 
 
 class StyleInfo(TypedDict):
+    texel_density: tuple[float, float]
+    material_offset: tuple[float, float]
     stylelist: int
     region_name: int
     base_intention: int
@@ -30,11 +32,28 @@ def get_intentions(style_info: StyleInfo) -> list[int]:
     ]
 
 
+class DecalSlot(TypedDict):
+    top_color: tuple[float, float, float]
+    mid_color: tuple[float, float, float]
+    bot_color: tuple[float, float, float]
+    roughness_white: float
+    roughness_black: float
+    metallic: float
+
+
+class DiffuseInfo(TypedDict):
+    metallic_white: float
+    metallic_black: float
+    roughness_white: float
+    roughness_black: float
+
+
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
-    texel_density: tuple[float, float]
-    material_offset: tuple[float, float]
-    style_info: StyleInfo
+    shader_type: str
+    style_info: StyleInfo | None
+    diffuse_info: DiffuseInfo | None
+    decal_slots: DecalSlot | None
     material_constants: str
 
 

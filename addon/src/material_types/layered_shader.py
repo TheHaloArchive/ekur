@@ -116,38 +116,39 @@ class LayeredShader:
 
     def create_style(self, style: CommonCoating, globals: CoatingGlobalEntries):
         style_info = self.material["style_info"]
-        all = style["regions"].get("192819851")  # "all"
-        reg: CommonRegion = None
-        if style["regions"].get(str(style_info["region_name"])):
-            reg = style["regions"][str(style_info["region_name"])]
+        if style_info:
+            all = style["regions"].get("192819851")  # "all"
+            reg: CommonRegion = None
+            if style["regions"].get(str(style_info["region_name"])):
+                reg = style["regions"][str(style_info["region_name"])]
 
-        intentions = get_intentions(style_info)
-        self.index = 0
-        diff = 15
+            intentions = get_intentions(style_info)
+            self.index = 0
+            diff = 15
 
-        for i, intention in enumerate(intentions[: style_info["supported_layers"]]):
-            intention = str(intention)
-            if i == 2:
-                diff = 16
-            self.find_intention(intention, reg, all, globals, diff, i)
+            for i, intention in enumerate(intentions[: style_info["supported_layers"]]):
+                intention = str(intention)
+                if i == 2:
+                    diff = 16
+                self.find_intention(intention, reg, all, globals, diff, i)
 
-        self.shader.inputs[7].default_value = style["grime_amount"]
-        if style["grime_swatch"]["disabled"]:
-            self.shader.inputs[7].default_value = 0.0
-        self.shader.inputs[16].default_value = style["scratch_amount"]
-        self.shader.inputs[12].default_value = 1.0
+            self.shader.inputs[7].default_value = style["grime_amount"]
+            if style["grime_swatch"]["disabled"]:
+                self.shader.inputs[7].default_value = 0.0
+            self.shader.inputs[16].default_value = style["scratch_amount"]
+            self.shader.inputs[12].default_value = 1.0
 
-        self.index = 109
-        top = style["grime_swatch"]["top_color"]
-        swatch: ShaderNodeTree = Layer(style["grime_swatch"], f"g_{top}").node_tree
-        emissive_amount = style["grime_swatch"]["emissive_amount"]
-        self.create_swatch(swatch, top, 7, emissive_amount, is_grime=True)
-        toggle_damage = bpy.context.scene.import_properties.toggle_damage
-        if toggle_damage and style_info["supported_layers"] == 7:
-            self.shader.inputs[106].default_value = 0.0
-        if toggle_damage and style_info["supported_layers"] == 4:
-            self.shader.inputs[58].default_value = 0.0
-        self.index = 0
+            self.index = 109
+            top = style["grime_swatch"]["top_color"]
+            swatch: ShaderNodeTree = Layer(style["grime_swatch"], f"g_{top}").node_tree
+            emissive_amount = style["grime_swatch"]["emissive_amount"]
+            self.create_swatch(swatch, top, 7, emissive_amount, is_grime=True)
+            toggle_damage = bpy.context.scene.import_properties.toggle_damage
+            if toggle_damage and style_info["supported_layers"] == 7:
+                self.shader.inputs[106].default_value = 0.0
+            if toggle_damage and style_info["supported_layers"] == 4:
+                self.shader.inputs[58].default_value = 0.0
+            self.index = 0
 
     def create_swatch(
         self,
@@ -170,10 +171,12 @@ class LayeredShader:
         swatch.color = color
         swatch.node_tree = shader_group
         swatch.location = (500, -232 + location * -350)
-        swatch.inputs[0].default_value = self.material["texel_density"][0]
-        swatch.inputs[1].default_value = self.material["texel_density"][1]
-        swatch.inputs[6].default_value = self.material["material_offset"][0]
-        swatch.inputs[7].default_value = self.material["material_offset"][1]
+        if self.material["style_info"]:
+            swatch.inputs[0].default_value = self.material["style_info"]["texel_density"][0]
+            swatch.inputs[1].default_value = self.material["style_info"]["texel_density"][1]
+            swatch.inputs[6].default_value = self.material["style_info"]["material_offset"][0]
+            swatch.inputs[7].default_value = self.material["style_info"]["material_offset"][1]
+
         _ = self.node_tree.links.new(swatch.outputs[0], self.shader.inputs[13 + self.index])
         _ = self.node_tree.links.new(swatch.outputs[1], self.shader.inputs[14 + self.index])
         _ = self.node_tree.links.new(swatch.outputs[2], self.shader.inputs[15 + self.index])
@@ -238,6 +241,7 @@ class LayeredShader:
         layer = self.get_intention(intention, mat_reg, any_reg, globals)
         if (
             i == 0
+            and self.material["style_info"]
             and self.material["style_info"]["region_name"] == 1420626520
             and bpy.context.scene.import_properties.toggle_visors
         ):  # mp_visor

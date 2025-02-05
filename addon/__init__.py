@@ -15,7 +15,7 @@ from pathlib import Path
 from bpy.types import AddonPreferences, Operator, Context
 from bpy.utils import register_class, unregister_class
 from .src.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
-from .src.import_logic import ImportCoatingOperator
+from .src.import_logic import ImportMaterialOperator
 
 bl_info = {
     "name": "Ekur",
@@ -137,7 +137,7 @@ class EkurPreferences(AddonPreferences):
 
 
 def register():
-    register_class(ImportCoatingOperator)
+    register_class(ImportMaterialOperator)
     register_class(CoatingImportPanel)
     register_class(EkurPreferences)
     register_class(ImportProperties)
@@ -148,7 +148,7 @@ def register():
 
 
 def unregister():
-    unregister_class(ImportCoatingOperator)
+    unregister_class(ImportMaterialOperator)
     unregister_class(EkurPreferences)
     unregister_class(CoatingImportPanel)
     unregister_class(ImportProperties)

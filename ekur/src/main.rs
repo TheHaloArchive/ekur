@@ -80,7 +80,7 @@ fn main() -> Result<()> {
         runtime_style.extend(get_tags::<RuntimeCoatingStyle>("rucy", module)?);
         runtime_styles.extend(get_tags::<RuntimeCoatingStyles>("rucs", module)?);
     }
-    process_materials(&materials, &args.save_path)?;
+    let textures = process_materials(&materials, &args.save_path)?;
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
     process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
@@ -94,7 +94,7 @@ fn main() -> Result<()> {
     process_visor(&visor, &material_swatch, &args.save_path)?;
     extract_all_bitmaps(
         &mut modules,
-        &materials,
+        textures,
         &coating_swatches,
         &material_swatch,
         &args.save_path,

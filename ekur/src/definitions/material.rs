@@ -2,7 +2,7 @@
 /* Copyright © 2025 Surasia */
 use infinite_rs::tag::types::common_types::{
     AnyTag, FieldBlock, FieldCharEnum, FieldLongEnum, FieldReal, FieldRealARGBColor,
-    FieldRealQuaternion, FieldRealVector3D, FieldReference, FieldStringId,
+    FieldRealQuaternion, FieldRealVector3D, FieldReference, FieldStringId, FieldWordInteger,
 };
 use infinite_rs::TagStructure;
 use num_enum::TryFromPrimitive;
@@ -91,6 +91,8 @@ pub struct MaterialParameter {
 pub struct MaterialPostProcessTexture {
     #[data(offset(0x00))]
     pub bitmap_reference: FieldReference,
+    #[data(offset(0x2A))]
+    pub parameter_index: FieldWordInteger,
 }
 
 #[derive(Default, Debug, TagStructure)]

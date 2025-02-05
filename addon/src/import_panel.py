@@ -43,12 +43,13 @@ def get_styles(context: Context | None) -> CommonStyleList | None:
             logging.warning(f"Material path does not exist!: {definition_path}")
             return
         material: CommonMaterial = read_json_file(definition_path)
-        styles_path = Path(f"{data}/stylelists/{material['style_info']['stylelist']}.json")
-        if not styles_path.exists():
-            logging.warning(f"Styles path does not exist!: {styles_path}")
-            return
-        styles: CommonStyleList = read_json_file(styles_path)
-        return styles
+        if material["style_info"]:
+            styles_path = Path(f"{data}/stylelists/{material['style_info']['stylelist']}.json")
+            if not styles_path.exists():
+                logging.warning(f"Styles path does not exist!: {styles_path}")
+                return
+            styles: CommonStyleList = read_json_file(styles_path)
+            return styles
 
 
 class GrabStrings:
@@ -135,7 +136,7 @@ class CoatingImportPanel(Panel):
     def draw(self, context: Context | None) -> None:
         layout = self.layout
         box: UILayout = layout.box()
-        box.label(icon="MATERIAL", text="Import Coating")
+        box.label(icon="MATERIAL", text="Import Material")
         options = box.box()
         options.prop(context.scene.import_properties, "use_default")  # pyright: ignore[reportAttributeAccessIssue]
         if not context.scene.import_properties.use_default:  # pyright: ignore[reportAttributeAccessIssue]
@@ -149,7 +150,7 @@ class CoatingImportPanel(Panel):
         options.prop(context.scene.import_properties, "toggle_visors")  # pyright: ignore[reportAttributeAccessIssue]
         if context.scene.import_properties.toggle_visors:  # pyright: ignore[reportAttributeAccessIssue]
             options.prop(context.scene.import_properties, "visors")  # pyright: ignore[reportAttributeAccessIssue]
-        _ = box.operator("ekur.importcoating")
+        _ = box.operator("ekur.importmaterial")
 
     @classmethod
     def poll(cls, context: Context | None) -> bool:

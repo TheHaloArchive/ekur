@@ -223,9 +223,9 @@ checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
 name = "cmake"
-version = "0.1.52"
+version = "0.1.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c682c223677e0e5b6b7f63a64b9351844c3f1b1678a68b7ee617e30fb082620e"
+checksum = "e24a03c8b52922d68a1589ad61032f2c1aa5a8158d2aa0d93c6e9534944bbad6"
 dependencies = [
  "cc",
 ]
@@ -357,7 +357,7 @@ dependencies = [
 
 [[package]]
 name = "ekur"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "bitflags 2.8.0",
@@ -542,9 +542,9 @@ dependencies = [
 
 [[package]]
 name = "infinite-rs"
-version = "0.8.3"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84b3450bbea62d3f39e60290aa9d180e2686b58021b6f99f8e194ad208c0308a"
+checksum = "a804056e73d4dc3c1fc775d72796d4153b06bf2adec6b7f0d83be9b0977f896b"
 dependencies = [
  "bitflags 2.8.0",
  "byteorder",
