@@ -14,6 +14,8 @@ use super::{
     common_styles::{CommonStyleList, CommonStyleListEntry},
 };
 
+const DEFAULT_STYLE_NAME: i32 = 1120495519;
+
 pub fn process_material_coatings(
     styles: &HashMap<i32, MaterialStylesTag>,
     palettes: &HashMap<i32, MaterialPaletteTag>,
@@ -22,7 +24,22 @@ pub fn process_material_coatings(
     mappings: &HashMap<i32, String>,
 ) -> Result<()> {
     for (id, style) in styles {
-        let mut style_list = CommonStyleList::default();
+        let default_style = style
+            .styles
+            .elements
+            .iter()
+            .find(|x| x.name.0 == DEFAULT_STYLE_NAME)
+            .unwrap_or(&style.styles.elements[0]);
+        let mut style_list = CommonStyleList {
+            default_style: CommonStyleListEntry {
+                reference: format!("{id}_{}", default_style.name.0),
+                name: mappings
+                    .get(&default_style.name.0)
+                    .cloned()
+                    .unwrap_or(default_style.name.0.to_string()),
+            },
+            ..Default::default()
+        };
         for coating in &style.styles.elements {
             let mut common_coating = CommonCoating::default();
             let material_palette = palettes

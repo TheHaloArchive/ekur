@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 import bpy
 from bpy.types import (
+    NodeSocketColor,
     NodeTree,
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
@@ -26,7 +27,10 @@ from ..json_definitions import (
     get_intentions,
 )
 from ..nodes.hims import HIMS
-from ..utils import read_json_file, read_texture
+from ..utils import create_node, read_json_file, read_texture
+
+MP_VISOR: int = 1420626520
+ANY_REGION: int = 192819851
 
 
 class LayeredShader:
@@ -46,17 +50,10 @@ class LayeredShader:
         self.create_nodes()
 
     def create_nodes(self):
-        self.shader = self.node_tree.nodes.new("ShaderNodeGroup")
+        self.shader = create_node(self.node_tree.nodes, 700, 600, ShaderNodeGroup)
         self.shader.node_tree = HIMS().node_tree
-        self.shader.location = (700, 600)
         self.shader.width = 400
-
-        material_output: ShaderNodeOutputMaterial = self.node_tree.nodes.new(
-            "ShaderNodeOutputMaterial"
-        )
-        material_output.target = "ALL"
-        material_output.location = (2000, 150)
-        material_output.is_active_output = True
+        material_output = create_node(self.node_tree.nodes, 2000, 150, ShaderNodeOutputMaterial)
         _ = self.node_tree.links.new(self.shader.outputs[0], material_output.inputs[0])
 
     def create_image(self, shader: NodeTree | None, name: int, y: int) -> ShaderNodeTexImage:
@@ -73,7 +70,8 @@ class LayeredShader:
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         else:
             asg_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            asg_node.color = (1, 0, 0)
+            inp: NodeSocketColor = asg_node.inputs[0]
+            inp.default_value = (1, 0, 0, 1)
             asg_node.location = (0, 120)
             _ = self.node_tree.links.new(asg_node.outputs[0], self.shader.inputs[3])
         if textures.get("Mask0Texture"):
@@ -85,9 +83,9 @@ class LayeredShader:
         if textures.get("Normal"):
             tex = self.create_image(self.node_tree, textures["Normal"], 0)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[3])
-        else:
             normal_value_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            normal_value_node.color = (0.5, 0.5, 1.0)
+            inp = normal_value_node.inputs[0]
+            inp.default_value = (0.5, 0.5, 1.0, 1.0)
             _ = self.node_tree.links.new(normal_value_node.outputs[0], self.shader.inputs[3])
 
     def process_styles(self) -> None:
@@ -117,7 +115,7 @@ class LayeredShader:
     def create_style(self, style: CommonCoating, globals: CoatingGlobalEntries):
         style_info = self.material["style_info"]
         if style_info:
-            all = style["regions"].get("192819851")  # "all"
+            all = style["regions"].get(str(ANY_REGION))
             reg: CommonRegion = None
             if style["regions"].get(str(style_info["region_name"])):
                 reg = style["regions"][str(style_info["region_name"])]
@@ -217,7 +215,7 @@ class LayeredShader:
                 return self.get_intention(fallback, reg, all, globals)
             return globals["entries"][intention]["layer"]
         else:
-            logging.critical(f"not found at all, what the fuck: {intention}")
+            logging.warning(f"Intention not found at all, skipping!: {intention}")
 
     def find_intention(
         self,
@@ -242,9 +240,9 @@ class LayeredShader:
         if (
             i == 0
             and self.material["style_info"]
-            and self.material["style_info"]["region_name"] == 1420626520
+            and self.material["style_info"]["region_name"] == MP_VISOR
             and bpy.context.scene.import_properties.toggle_visors
-        ):  # mp_visor
+        ):
             visors_path = Path(f"{self.data_folder}/all_visors.json")
             if not visors_path.exists():
                 return

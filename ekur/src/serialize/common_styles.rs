@@ -14,7 +14,7 @@ pub struct CommonStyleListEntry {
 
 #[derive(Debug, Default, Serialize)]
 pub struct CommonStyleList {
-    default_style: CommonStyleListEntry,
+    pub default_style: CommonStyleListEntry,
     pub styles: IndexMap<i32, CommonStyleListEntry>,
 }
 

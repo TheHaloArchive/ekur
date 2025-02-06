@@ -23,9 +23,10 @@ const KNOWN_DECALS: &[i32; 5] = &[-51713036, -131335022, 690034699, 2003821059, 
 #[derive(Default, Debug, Serialize)]
 pub enum ShaderType {
     #[default]
-    LayeredShader,
-    DiffuseShader,
-    DecalShader,
+    Unknown,
+    Layered,
+    Diffuse,
+    Decal,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -165,7 +166,7 @@ impl Material {
                 MaterialStyleShaderSupportedLayers::LayerShaderDisabled => 0,
             };
             material.style_info = Some(style_info);
-            material.shader_type = ShaderType::LayeredShader;
+            material.shader_type = ShaderType::Layered;
         }
 
         if mat.material_shader.global_id == DIFFUSE_SHADER {
@@ -173,7 +174,7 @@ impl Material {
             let mut diffuse_info = DiffuseInfo::default();
             if let Some(post_process) = post_process {
                 let textures = &post_process.textures.elements;
-                material.shader_type = ShaderType::DiffuseShader;
+                material.shader_type = ShaderType::Diffuse;
                 let color_map = textures
                     .iter()
                     .find(|t| t.parameter_index.0 == 0)
@@ -265,7 +266,7 @@ impl Material {
                     metallic,
                 };
                 material.decal_slots = Some(decal_slot);
-                material.shader_type = ShaderType::DecalShader;
+                material.shader_type = ShaderType::Decal;
             }
         }
         Ok(material)
