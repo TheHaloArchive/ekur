@@ -6,22 +6,24 @@ Ekur - A multi-purpose importer for Halo Infinite.
 
 import logging
 import platform
-import bpy
 import subprocess
-import urllib.request
 import urllib.error
-
+import urllib.request
 from pathlib import Path
-from bpy.types import AddonPreferences, Operator, Context
+
+import bpy
+from bpy.types import AddonPreferences, Context, Operator
 from bpy.utils import register_class, unregister_class
-from .src.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
+
 from .src.import_logic import ImportMaterialOperator
+from .src.import_panel import (CoatingImportPanel, ImportProperties,
+                               RandomizeCoatingOperator)
 
 bl_info = {
     "name": "Ekur",
     "description": "A multi-purpose importer for Halo Infinite.",
     "author": "Surasia",
-    "version": (0, 1, 1),
+    "version": (0, 1, 2),
     "blender": (4, 3, 0),
     "category": "Import-Export",
     "support": "COMMUNITY",
@@ -31,8 +33,12 @@ bl_info = {
 package_version = bl_info["version"]
 package_version_string = ".".join(str(i) for i in package_version)
 
-STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
-VISORS_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/all_visors.json"
+STRINGS_URL = (
+    "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
+)
+VISORS_URL = (
+    "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/all_visors.json"
+)
 
 
 class DownloadFilesOperator(Operator):
@@ -40,7 +46,9 @@ class DownloadFilesOperator(Operator):
     bl_label = "Download Required Files"
 
     def execute(self, context: Context | None) -> set[str]:
-        data = context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder  # pyright: ignore[reportAttributeAccessIssue]
+        data = context.preferences.addons[
+            "bl_ext.user_default.ekur"
+        ].preferences.data_folder  # pyright: ignore[reportAttributeAccessIssue]
         save_path = f"{data}/strings.txt"
         visors_path = f"{data}/all_visors.json"
         try:
@@ -73,7 +81,9 @@ class DumpFilesOperator(Operator):
     bl_label = "Dump Required Files"
 
     def execute(self, context: Context | None) -> set[str]:
-        data: EkurPreferences = context.preferences.addons["bl_ext.user_default.ekur"].preferences
+        data: EkurPreferences = context.preferences.addons[
+            "bl_ext.user_default.ekur"
+        ].preferences
         ekur_save_path = Path(f"{data.data_folder}/ekur")
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{package_version_string}/ekur-{package_version_string}"
         if platform.system() == "Windows":
@@ -144,7 +154,9 @@ def register():
     register_class(RandomizeCoatingOperator)
     register_class(DownloadFilesOperator)
     register_class(DumpFilesOperator)
-    bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
+    bpy.types.Scene.import_properties = bpy.props.PointerProperty(
+        type=ImportProperties
+    )  # pyright: ignore[reportAttributeAccessIssue]
 
 
 def unregister():

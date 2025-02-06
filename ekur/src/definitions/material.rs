@@ -84,6 +84,10 @@ pub struct MaterialParameter {
     pub real: FieldReal,
     #[data(offset(0x38))]
     pub vector: FieldRealVector3D,
+    #[data(offset(0x94))]
+    pub register_offset: FieldWordInteger,
+    #[data(offset(0x96))]
+    pub register_size: FieldWordInteger,
 }
 
 #[derive(Default, Debug, TagStructure)]

@@ -9,6 +9,7 @@ from .json_definitions import CommonMaterial, CommonStyleList
 from .material_types.decal_shader import DecalShader
 from .material_types.diffuse_shader import DiffuseShaderType
 from .material_types.layered_shader import LayeredShader
+from .material_types.illum_shader import IllumShader
 from .utils import get_materials, read_json_file, remove_nodes
 
 
@@ -43,7 +44,7 @@ class ImportMaterialOperator(Operator):
     ) -> None:
         data = context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder  # pyright: ignore[reportAttributeAccessIssue]
         match material["shader_type"]:
-            case "LayeredShader":
+            case "Layered":
                 if material["style_info"] is not None:
                     styles_path = Path(
                         f"{data}/stylelists/{material['style_info']['stylelist']}.json"
@@ -56,11 +57,13 @@ class ImportMaterialOperator(Operator):
                     layered_shader.create_textures()
                     layered_shader.process_styles()
 
-            case "DiffuseShader":
+            case "Diffuse":
                 _ = DiffuseShaderType(material, node_tree)
-            case "DecalShader":
+            case "Decal":
                 _ = DecalShader(material, node_tree)
             case "Unknown":
                 pass
+            case "SelfIllum":
+                _ = IllumShader(material, node_tree)
             case _:
                 logging.error(f"Unknown shader type!: {material['shader_type']}")

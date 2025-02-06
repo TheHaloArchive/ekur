@@ -5,6 +5,7 @@
 import json
 import logging
 from pathlib import Path
+
 import bpy
 from bpy.types import (
     NodeSocketColor,
@@ -14,8 +15,6 @@ from bpy.types import (
     ShaderNodeTexImage,
     ShaderNodeTree,
 )
-
-from ..nodes.layer import Layer
 
 from ..json_definitions import (
     CoatingGlobalEntries,
@@ -27,6 +26,7 @@ from ..json_definitions import (
     get_intentions,
 )
 from ..nodes.hims import HIMS
+from ..nodes.layer import Layer
 from ..utils import create_node, read_json_file, read_texture
 
 MP_VISOR: int = 1420626520
@@ -65,26 +65,27 @@ class LayeredShader:
 
     def create_textures(self) -> None:
         textures = self.material["textures"]
-        if textures.get("AsgTexture"):
-            tex = self.create_image(self.node_tree, textures["AsgTexture"], 120)
+        if textures.get("Asg"):
+            tex = self.create_image(self.node_tree, textures["Asg"], 120)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         else:
             asg_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            inp: NodeSocketColor = asg_node.inputs[0]
-            inp.default_value = (1, 0, 0, 1)
+            inp: NodeSocketColor = asg_node.outputs[0]
+            inp.default_value = (1.0, 0.0, 0.0, 1.0)
             asg_node.location = (0, 120)
             _ = self.node_tree.links.new(asg_node.outputs[0], self.shader.inputs[3])
-        if textures.get("Mask0Texture"):
-            tex = self.create_image(self.node_tree, textures["Mask0Texture"], 80)
+        if textures.get("Mask0"):
+            tex = self.create_image(self.node_tree, textures["Mask0"], 80)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[1])
-        if textures.get("Mask1Texture"):
-            tex = self.create_image(self.node_tree, textures["Mask1Texture"], 40)
+        if textures.get("Mask1"):
+            tex = self.create_image(self.node_tree, textures["Mask1"], 40)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[2])
         if textures.get("Normal"):
             tex = self.create_image(self.node_tree, textures["Normal"], 0)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[3])
+        else:
             normal_value_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            inp = normal_value_node.inputs[0]
+            inp = normal_value_node.outputs[0]
             inp.default_value = (0.5, 0.5, 1.0, 1.0)
             _ = self.node_tree.links.new(normal_value_node.outputs[0], self.shader.inputs[3])
 

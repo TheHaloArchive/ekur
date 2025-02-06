@@ -1,14 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
-from bpy.types import (
-    NodeGroupInput,
-    NodeGroupOutput,
-    NodeSocketColor,
-    NodeSocketFloat,
-    ShaderNodeMix,
-    ShaderNodeSeparateColor,
-)
+from bpy.types import (NodeGroupInput, NodeGroupOutput, NodeSocketColor,
+                       NodeSocketFloat, ShaderNodeMix, ShaderNodeSeparateColor)
 
 from ..utils import create_node, create_socket
 
@@ -28,18 +22,18 @@ class InfiniteMaskingSorterNoGrimeCol:
 
     def create_sockets(self) -> None:
         interface = self.node_tree.interface
-        _ = create_socket(interface, "Color", NodeSocketFloat, False)
+        _ = create_socket(interface, "Color", NodeSocketColor, False)
         _ = create_socket(interface, "ASG", NodeSocketColor)
         _ = create_socket(interface, "Mask_0", NodeSocketColor)
         _ = create_socket(interface, "Mask_1", NodeSocketColor)
         _ = create_socket(interface, "Grime Amount", NodeSocketFloat)
-        _ = create_socket(interface, "Slot 1", NodeSocketFloat)
-        _ = create_socket(interface, "Slot 2", NodeSocketFloat)
-        _ = create_socket(interface, "Slot 3", NodeSocketFloat)
-        _ = create_socket(interface, "Slot 4", NodeSocketFloat)
-        _ = create_socket(interface, "Slot 5", NodeSocketFloat)
-        _ = create_socket(interface, "Slot 6", NodeSocketFloat)
-        _ = create_socket(interface, "Slot 7", NodeSocketFloat)
+        _ = create_socket(interface, "Slot 1", NodeSocketColor)
+        _ = create_socket(interface, "Slot 2", NodeSocketColor)
+        _ = create_socket(interface, "Slot 3", NodeSocketColor)
+        _ = create_socket(interface, "Slot 4", NodeSocketColor)
+        _ = create_socket(interface, "Slot 5", NodeSocketColor)
+        _ = create_socket(interface, "Slot 6", NodeSocketColor)
+        _ = create_socket(interface, "Slot 7", NodeSocketColor)
 
     def create_nodes(self) -> None:
         input = create_node(self.node_tree.nodes, -1320, 140, NodeGroupInput)

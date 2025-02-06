@@ -22,8 +22,8 @@ class DecalShader:
         self.create_nodes()
 
     def get_textures(self, nodes: ShaderNodeGroup) -> None:
-        if self.material["textures"].get("ControlTexture"):
-            img = self.create_image(-100, str(self.material["textures"]["ControlTexture"]))
+        if self.material["textures"].get("Control"):
+            img = self.create_image(-100, str(self.material["textures"]["Control"]))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
 
         if self.material["textures"].get("Normal"):
