@@ -34,9 +34,7 @@ class IllumShader:
 
     def create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)
-        shader.node_tree = (
-            SelfIllum().node_tree
-        )  # pyright: ignore[reportAttributeAccessIssue]
+        shader.node_tree = SelfIllum().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         if self.material["illum_info"]:
             info = self.material["illum_info"]
@@ -51,9 +49,7 @@ class IllumShader:
             intensity.default_value = info["intensity"]
 
             self.get_textures(shader)
-            material_output = create_node(
-                self.tree.nodes, 0, 0, ShaderNodeOutputMaterial
-            )
+            material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)
             material_output.target = "ALL"
             material_output.location = (200, 0)
             _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])

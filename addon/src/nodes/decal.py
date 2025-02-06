@@ -8,17 +8,19 @@ from bpy.types import (
     NodeSocketFloat,
     NodeSocketShader,
     ShaderNodeBsdfPrincipled,
+    ShaderNodeBsdfTransparent,
     ShaderNodeGroup,
     ShaderNodeMix,
     ShaderNodeMixRGB,
+    ShaderNodeMixShader,
+    ShaderNodeNewGeometry,
     ShaderNodeNormalMap,
     ShaderNodeSeparateColor,
     ShaderNodeValToRGB,
 )
 
-from .norm_normalize import NormNormalize
-
 from ..utils import create_node, create_socket
+from .norm_normalize import NormNormalize
 
 
 class Decal:
@@ -70,6 +72,10 @@ class Decal:
         invert: NodeSocketFloat = normalize.inputs[1]
         invert.default_value = 1.0
 
+        geometry = create_node(nodes, 0, 0, ShaderNodeNewGeometry)
+        mix_shader = create_node(nodes, 0, 0, ShaderNodeMixShader)
+        transparent = create_node(nodes, 0, 0, ShaderNodeBsdfTransparent)
+
         _ = self.node_tree.links.new(input.outputs[0], srgb.inputs[0])
         _ = self.node_tree.links.new(srgb.outputs[0], color_ramp.inputs[0])
         _ = self.node_tree.links.new(srgb.outputs[0], color_ramp2.inputs[0])
@@ -89,4 +95,7 @@ class Decal:
         _ = self.node_tree.links.new(input.outputs[1], normalize.inputs[0])
         _ = self.node_tree.links.new(normalize.outputs[0], normal_map.inputs[1])
         _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
-        _ = self.node_tree.links.new(bsdf.outputs[0], output.inputs[0])
+        _ = self.node_tree.links.new(geometry.outputs[6], mix_shader.inputs[0])
+        _ = self.node_tree.links.new(bsdf.outputs[0], mix_shader.inputs[1])
+        _ = self.node_tree.links.new(transparent.outputs[0], mix_shader.inputs[2])
+        _ = self.node_tree.links.new(mix_shader.outputs[0], output.inputs[0])
