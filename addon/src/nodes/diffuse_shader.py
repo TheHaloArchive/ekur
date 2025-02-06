@@ -47,6 +47,7 @@ class DiffuseShader:
         _ = create_socket(interface, "Emission Amount", NodeSocketFloat)
         _ = create_socket(interface, "Emission Intensity", NodeSocketFloat)
         _ = create_socket(interface, "Color Tint", NodeSocketColor)
+        _ = create_socket(interface, "Color Alpha", NodeSocketFloat)
 
     def create_nodes(self) -> None:
         nodes = self.node_tree.nodes
@@ -100,4 +101,5 @@ class DiffuseShader:
         _ = links.new(input.outputs[2], normalize.inputs[0])
         _ = links.new(normalize.outputs[0], normal_map.inputs[1])
         _ = links.new(normal_map.outputs[0], bsdf.inputs[5])
+        _ = links.new(input.outputs[11], bsdf.inputs[4])
         _ = links.new(bsdf.outputs[0], output.inputs[0])

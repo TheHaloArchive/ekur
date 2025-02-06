@@ -21,7 +21,7 @@ const DECAL_CONTROL_MAP: i32 = -699244700;
 const DECAL_NORMAL_MAP: i32 = 723636081;
 
 const DIFFUSE_SHADER: i32 = 1102829229;
-const DIFFUSE_SI_SHADER: i32 = -1051699871;
+const DIFFUSE_SI_SHADERS: &[i32; 2] = &[-1051699871, -1659664443];
 const KNOWN_DECALS: &[i32; 6] = &[
     -51713036,
     -131335022,
@@ -246,7 +246,7 @@ fn handle_diffuse_shader(mat: &MaterialTag, material: &mut Material) -> Result<(
         material.shader_type = ShaderType::Diffuse;
     }
 
-    if mat.material_shader.global_id == DIFFUSE_SI_SHADER {
+    if DIFFUSE_SI_SHADERS.contains(&mat.material_shader.global_id) {
         let post_process = mat.post_process_definition.elements.first();
         let mut diffuse_info = DiffuseInfo::default();
         if let Some(post_process) = post_process {

@@ -25,6 +25,7 @@ class DiffuseShaderType:
             img = self.create_image(0, str(self.material["textures"]["Color"]))
             img.image.colorspace_settings.name = "sRGB"  # pyright: ignore[reportAttributeAccessIssue]
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
+            _ = self.tree.links.new(img.outputs[1], nodes.inputs[11])
 
         if self.material["textures"].get("Control"):
             img = self.create_image(-100, str(self.material["textures"]["Control"]))
