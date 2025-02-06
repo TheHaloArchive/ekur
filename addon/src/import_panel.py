@@ -120,6 +120,7 @@ class ImportProperties(PropertyGroup):
     coat_id: IntProperty(name="Coating ID Override", default=0)
     toggle_damage: BoolProperty(name="Disable Damage", default=False)
     selected_only: BoolProperty(name="Selected Only", default=True)
+    recalculate_normals: BoolProperty(name="Recalculate Face Orientation", default=False)
     sort_by_name: BoolProperty(name="Sort by Name", default=True)
     coatings: EnumProperty(name="Coating", items=GrabStrings.common_styles)
     toggle_visors: BoolProperty(name="Override Visor", default=False)
@@ -146,6 +147,7 @@ class CoatingImportPanel(Panel):
             box2.prop(context.scene.import_properties, "sort_by_name")  # pyright: ignore[reportAttributeAccessIssue]
             _ = box2.operator("ekur.randomize")
         options.prop(context.scene.import_properties, "toggle_damage")  # pyright: ignore[reportAttributeAccessIssue]
+        options.prop(context.scene.import_properties, "recalculate_normals")  # pyright: ignore[reportAttributeAccessIssue]
         options.prop(context.scene.import_properties, "selected_only")  # pyright: ignore[reportAttributeAccessIssue]
         options.prop(context.scene.import_properties, "toggle_visors")  # pyright: ignore[reportAttributeAccessIssue]
         if context.scene.import_properties.toggle_visors:  # pyright: ignore[reportAttributeAccessIssue]

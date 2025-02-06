@@ -21,22 +21,22 @@ class IllumShader:
         self.create_nodes()
 
     def get_textures(self, nodes: ShaderNodeGroup) -> None:
-        if self.material["textures"].get("Color"):
-            col = self.create_image(-100, str(self.material["textures"]["Color"]))
+        col = self.material["textures"].get("Color")
+        if col:
+            col = self.create_image(-100, str(col))
             _ = self.tree.links.new(col.outputs[0], nodes.inputs[0])
 
-        if self.material["textures"].get("AlphaMap"):
-            img = self.create_image(-200, str(self.material["textures"]["AlphaMap"]))
-            if self.material["textures"]["AlphaMap"] == 10098 and "col" in locals():
+        alpha_map = self.material["textures"].get("AlphaMap")
+        if alpha_map:
+            img = self.create_image(-200, str(alpha_map))
+            if (alpha_map == 10098 or alpha_map == 580203186) and col:
                 _ = self.tree.links.new(col.outputs[0], nodes.inputs[1])
             else:
                 _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
 
     def create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)
-        shader.node_tree = (
-            SelfIllum().node_tree
-        )  # pyright: ignore[reportAttributeAccessIssue]
+        shader.node_tree = SelfIllum().node_tree  # pyright: ignore[reportAttributeAccessIssue]
 
         if self.material["illum_info"]:
             info = self.material["illum_info"]
@@ -51,9 +51,7 @@ class IllumShader:
             intensity.default_value = info["intensity"]
 
             self.get_textures(shader)
-            material_output = create_node(
-                self.tree.nodes, 0, 0, ShaderNodeOutputMaterial
-            )
+            material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)
             material_output.target = "ALL"
             material_output.location = (200, 0)
             _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])

@@ -43,6 +43,10 @@ class DiffuseShader:
         _ = create_socket(interface, "Roughness Black", NodeSocketFloat)
         _ = create_socket(interface, "Metallic White", NodeSocketFloat)
         _ = create_socket(interface, "Metallic Black", NodeSocketFloat)
+        _ = create_socket(interface, "Emission Tint", NodeSocketColor)
+        _ = create_socket(interface, "Emission Amount", NodeSocketFloat)
+        _ = create_socket(interface, "Emission Intensity", NodeSocketFloat)
+        _ = create_socket(interface, "Color Tint", NodeSocketColor)
 
     def create_nodes(self) -> None:
         nodes = self.node_tree.nodes
@@ -65,8 +69,23 @@ class DiffuseShader:
         invert: NodeSocketFloat = normalize.inputs[1]
         invert.default_value = 1.0
 
+        color_tint = create_node(nodes, 0, 0, ShaderNodeMix)
+        color_tint.data_type = "RGBA"
+        color_tint.blend_type = "COLOR"
+
+        em_tint = create_node(nodes, 0, 0, ShaderNodeMix)
+        em_tint.data_type = "RGBA"
+        em_tint.blend_type = "COLOR"
+
         links = self.node_tree.links
-        _ = links.new(input.outputs[0], ao_multiply.inputs[1])
+        _ = links.new(input.outputs[0], color_tint.inputs[6])
+        _ = links.new(input.outputs[10], color_tint.inputs[7])
+        _ = links.new(color_tint.outputs[2], ao_multiply.inputs[1])
+        _ = links.new(input.outputs[0], em_tint.inputs[6])
+        _ = links.new(input.outputs[7], em_tint.inputs[7])
+        _ = links.new(em_tint.outputs[2], bsdf.inputs[27])
+        _ = links.new(input.outputs[8], bsdf.inputs[28])
+        _ = links.new(color_tint.outputs[2], ao_multiply.inputs[1])
         _ = links.new(input.outputs[1], srgb.inputs[0])
         _ = links.new(srgb.outputs[1], ao_multiply.inputs[2])
         _ = links.new(ao_multiply.outputs[0], bsdf.inputs[0])

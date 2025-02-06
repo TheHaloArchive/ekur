@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 from bpy.types import (
+    NodeSocketColor,
     NodeSocketFloat,
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
@@ -51,6 +52,18 @@ class DiffuseShaderType:
 
             metallic_black: NodeSocketFloat = shader.inputs[6]
             metallic_black.default_value = info["metallic_black"]
+
+            em_tint: NodeSocketColor = shader.inputs[7]
+            em_tint.default_value = (*info["si_color_tint"], 1.0)
+
+            em_intensity: NodeSocketFloat = shader.inputs[9]
+            em_intensity.default_value = info["si_intensity"]
+
+            em_amount: NodeSocketFloat = shader.inputs[8]
+            em_amount.default_value = info["si_amount"]
+
+            color_tint: NodeSocketColor = shader.inputs[10]
+            color_tint.default_value = (*info["color_tint"], 1.0)
 
             self.get_textures(shader)
             material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)

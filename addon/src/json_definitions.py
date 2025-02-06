@@ -46,6 +46,10 @@ class DiffuseInfo(TypedDict):
     metallic_black: float
     roughness_white: float
     roughness_black: float
+    si_color_tint: tuple[float, float, float]
+    si_intensity: float
+    si_amount: float
+    color_tint: tuple[float, float, float]
 
 
 class SelfIllum(TypedDict):

@@ -1,9 +1,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
-from bpy.types import (NodeGroupInput, NodeGroupOutput, NodeSocketColor,
-                       NodeSocketFloat, NodeSocketShader,
-                       ShaderNodeBsdfPrincipled, ShaderNodeMath, ShaderNodeMix)
+from bpy.types import (
+    NodeGroupInput,
+    NodeGroupOutput,
+    NodeSocketColor,
+    NodeSocketFloat,
+    NodeSocketShader,
+    ShaderNodeBsdfPrincipled,
+    ShaderNodeBsdfTransparent,
+    ShaderNodeInvert,
+    ShaderNodeMath,
+    ShaderNodeMix,
+    ShaderNodeMixShader,
+    ShaderNodeNewGeometry,
+)
 
 from ..utils import create_node, create_socket
 
@@ -44,6 +55,11 @@ class SelfIllum:
         _: NodeSocketFloat = mult_2.inputs[0]
         _.default_value = 1.0
 
+        geometry = create_node(nodes, 0, 0, ShaderNodeNewGeometry)
+        mix_shader = create_node(nodes, 0, 0, ShaderNodeMixShader)
+        transparent = create_node(nodes, 0, 0, ShaderNodeBsdfTransparent)
+        invert = create_node(nodes, 0, 0, ShaderNodeInvert)
+
         links = self.node_tree.links
         _ = links.new(input.outputs[0], mult_2.inputs[6])
         _ = links.new(input.outputs[2], mult_2.inputs[7])
@@ -53,4 +69,8 @@ class SelfIllum:
         _ = links.new(input.outputs[3], mult.inputs[1])
         _ = links.new(input.outputs[4], bsdf.inputs[28])
         _ = links.new(mult.outputs[0], bsdf.inputs[4])
-        _ = links.new(bsdf.outputs[0], output.inputs[0])
+        _ = links.new(geometry.outputs[6], invert.inputs[1])
+        _ = links.new(invert.outputs[0], mix_shader.inputs[0])
+        _ = links.new(transparent.outputs[0], mix_shader.inputs[1])
+        _ = links.new(bsdf.outputs[0], mix_shader.inputs[2])
+        _ = links.new(mix_shader.outputs[0], output.inputs[0])

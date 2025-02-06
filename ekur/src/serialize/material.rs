@@ -21,6 +21,7 @@ const DECAL_CONTROL_MAP: i32 = -699244700;
 const DECAL_NORMAL_MAP: i32 = 723636081;
 
 const DIFFUSE_SHADER: i32 = 1102829229;
+const DIFFUSE_SI_SHADER: i32 = -1051699871;
 const KNOWN_DECALS: &[i32; 6] = &[
     -51713036,
     -131335022,
@@ -82,6 +83,10 @@ pub struct DiffuseInfo {
     metallic_black: f32,
     roughness_white: f32,
     roughness_black: f32,
+    si_color_tint: (f32, f32, f32),
+    si_intensity: f32,
+    si_amount: f32,
+    color_tint: (f32, f32, f32),
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -236,6 +241,35 @@ fn handle_diffuse_shader(mat: &MaterialTag, material: &mut Material) -> Result<(
             diffuse_info.metallic_black = f32_from_const(material, 100)?;
             diffuse_info.roughness_white = f32_from_const(material, 104)?;
             diffuse_info.roughness_black = f32_from_const(material, 108)?;
+            material.diffuse_info = Some(diffuse_info);
+        }
+        material.shader_type = ShaderType::Diffuse;
+    }
+
+    if mat.material_shader.global_id == DIFFUSE_SI_SHADER {
+        let post_process = mat.post_process_definition.elements.first();
+        let mut diffuse_info = DiffuseInfo::default();
+        if let Some(post_process) = post_process {
+            material.shader_type = ShaderType::Diffuse;
+            get_post_texture(post_process, material, 20, TextureType::Color)?;
+            get_post_texture(post_process, material, 76, TextureType::Control)?;
+            get_post_texture(post_process, material, 132, TextureType::Normal)?;
+            diffuse_info.metallic_white = f32_from_const(material, 112)?;
+            diffuse_info.metallic_black = f32_from_const(material, 116)?;
+            diffuse_info.roughness_white = f32_from_const(material, 120)?;
+            diffuse_info.roughness_black = f32_from_const(material, 124)?;
+            diffuse_info.si_color_tint = (
+                f32_from_const(material, 0)?,
+                f32_from_const(material, 4)?,
+                f32_from_const(material, 8)?,
+            );
+            diffuse_info.si_intensity = f32_from_const(material, 12)?;
+            diffuse_info.si_amount = f32_from_const(material, 16)?;
+            diffuse_info.color_tint = (
+                f32_from_const(material, 48)?,
+                f32_from_const(material, 52)?,
+                f32_from_const(material, 56)?,
+            );
             material.diffuse_info = Some(diffuse_info);
         }
         material.shader_type = ShaderType::Diffuse;
