@@ -11,7 +11,7 @@ use infinite_rs::{
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
 
-pub fn load_modules<P: AsRef<Path>>(deploy_path: P) -> infinite_rs::Result<Vec<ModuleFile>> {
+pub fn load_modules<P: AsRef<Path>>(deploy_path: P) -> Result<Vec<ModuleFile>> {
     let mut modules = Vec::new();
     for entry in walkdir::WalkDir::new(deploy_path)
         .into_iter()
@@ -28,7 +28,7 @@ pub fn load_modules<P: AsRef<Path>>(deploy_path: P) -> infinite_rs::Result<Vec<M
                     }
                     Err(err) => {
                         println!("Failed on file: {}", file_path);
-                        return Err(err);
+                        return Err(err.into());
                     }
                 };
             }

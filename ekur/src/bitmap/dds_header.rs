@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
 use crate::definitions::bitmap::{BitmapData, BitmapFormat, BitmapType};
-use anyhow::Result;
+use anyhow::{bail, Result};
 use ddsfile::{AlphaMode, Caps2, D3D10ResourceDimension, Dds, DxgiFormat, NewDxgiParams};
 
-fn dxgi_from_bitmap_format(form: &BitmapFormat) -> Option<DxgiFormat> {
-    match form {
+fn dxgi_from_bitmap_format(form: &BitmapFormat) -> Result<Option<DxgiFormat>> {
+    Ok(match form {
         BitmapFormat::Bc1UnormDxt1 => Some(DxgiFormat::BC1_UNorm),
         BitmapFormat::Bc5SnormDxn | BitmapFormat::Bc5SnormRrrgDxnMonoAlphaSigned => {
             Some(DxgiFormat::BC5_SNorm)
@@ -42,38 +42,41 @@ fn dxgi_from_bitmap_format(form: &BitmapFormat) -> Option<DxgiFormat> {
         BitmapFormat::Bc6hSf16 => Some(DxgiFormat::BC6H_SF16),
         BitmapFormat::D24UnormS8UintDepth24 => Some(DxgiFormat::D24_UNorm_S8_UInt),
         _ => {
-            println!("this should never happen.");
-            None
+            bail!("Unsupported format: {:?}", form);
         }
-    }
+    })
 }
 
-pub fn construct_dds_header(bitmap: &BitmapData, data: &[u8]) -> Result<Dds> {
-    let format = dxgi_from_bitmap_format(&bitmap.format.0);
-    let caps = if bitmap.bitmap_type.0 == BitmapType::CubeMap {
-        Some(Caps2::CUBEMAP)
+pub(super) fn construct_dds_header(bitmap: &BitmapData, data: &[u8]) -> Result<Dds> {
+    let format = dxgi_from_bitmap_format(&bitmap.format.0)?;
+    if let Some(format) = format {
+        let caps = if bitmap.bitmap_type.0 == BitmapType::CubeMap {
+            Some(Caps2::CUBEMAP)
+        } else {
+            None
+        };
+        let resource_dimension = match bitmap.bitmap_type.0 {
+            BitmapType::Texture2D | BitmapType::CubeMap | BitmapType::Array => {
+                D3D10ResourceDimension::Texture2D
+            }
+            BitmapType::Texture3D => D3D10ResourceDimension::Texture3D,
+        };
+        let new_dxgi = NewDxgiParams {
+            height: u32::try_from(bitmap.height.0)?,
+            width: u32::try_from(bitmap.width.0)?,
+            depth: Some(u32::try_from(bitmap.depth.0)?),
+            format,
+            mipmap_levels: Some(u32::from(bitmap.mipmap_count.0)),
+            array_layers: Some(u32::try_from(bitmap.depth.0)?),
+            alpha_mode: AlphaMode::Straight,
+            caps2: caps,
+            is_cubemap: bitmap.bitmap_type.0 == BitmapType::CubeMap,
+            resource_dimension,
+        };
+        let mut dds = Dds::new_dxgi(new_dxgi)?;
+        dds.data = data.to_vec();
+        Ok(dds)
     } else {
-        None
-    };
-    let resource_dimension = match bitmap.bitmap_type.0 {
-        BitmapType::Texture2D | BitmapType::CubeMap | BitmapType::Array => {
-            D3D10ResourceDimension::Texture2D
-        }
-        BitmapType::Texture3D => D3D10ResourceDimension::Texture3D,
-    };
-    let new_dxgi = NewDxgiParams {
-        height: u32::try_from(bitmap.height.0)?,
-        width: u32::try_from(bitmap.width.0)?,
-        depth: Some(u32::try_from(bitmap.depth.0)?),
-        format: format.unwrap(),
-        mipmap_levels: Some(u32::from(bitmap.mipmap_count.0)),
-        array_layers: Some(u32::try_from(bitmap.depth.0)?),
-        alpha_mode: AlphaMode::Straight,
-        caps2: caps,
-        is_cubemap: bitmap.bitmap_type.0 == BitmapType::CubeMap,
-        resource_dimension,
-    };
-    let mut dds = Dds::new_dxgi(new_dxgi)?;
-    dds.data = data.to_vec();
-    Ok(dds)
+        bail!("Unsupported format: {:?}", bitmap.format.0);
+    }
 }

@@ -8,9 +8,9 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..utils import create_node, read_texture
 from ..json_definitions import CommonMaterial
 from ..nodes.diffuse_shader import DiffuseShader
+from ..utils import create_node, read_texture
 
 
 class DiffuseShaderType:
@@ -20,13 +20,13 @@ class DiffuseShaderType:
         self.create_nodes()
 
     def get_textures(self, nodes: ShaderNodeGroup) -> None:
-        if self.material["textures"].get("ColorTexture"):
-            img = self.create_image(0, str(self.material["textures"]["ColorTexture"]))
+        if self.material["textures"].get("Color"):
+            img = self.create_image(0, str(self.material["textures"]["Color"]))
             img.image.colorspace_settings.name = "sRGB"  # pyright: ignore[reportAttributeAccessIssue]
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
 
-        if self.material["textures"].get("ControlTexture"):
-            img = self.create_image(-100, str(self.material["textures"]["ControlTexture"]))
+        if self.material["textures"].get("Control"):
+            img = self.create_image(-100, str(self.material["textures"]["Control"]))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
 
         if self.material["textures"].get("Normal"):

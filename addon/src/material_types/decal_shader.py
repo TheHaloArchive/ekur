@@ -22,8 +22,8 @@ class DecalShader:
         self.create_nodes()
 
     def get_textures(self, nodes: ShaderNodeGroup) -> None:
-        if self.material["textures"].get("ControlTexture"):
-            img = self.create_image(-100, str(self.material["textures"]["ControlTexture"]))
+        if self.material["textures"].get("Control"):
+            img = self.create_image(-100, str(self.material["textures"]["Control"]))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
 
         if self.material["textures"].get("Normal"):
@@ -38,28 +38,11 @@ class DecalShader:
             info = self.material["decal_slots"]
 
             top_color: NodeSocketColor = shader.inputs[4]
-            top_color.default_value = (
-                info["top_color"][0],
-                info["top_color"][1],
-                info["top_color"][2],
-                1.0,
-            )
-
+            top_color.default_value = (*info["top_color"], 1.0)
             mid_color: NodeSocketColor = shader.inputs[3]
-            mid_color.default_value = (
-                info["mid_color"][0],
-                info["mid_color"][1],
-                info["mid_color"][2],
-                1.0,
-            )
-
+            mid_color.default_value = (*info["mid_color"], 1.0)
             bot_color: NodeSocketColor = shader.inputs[2]
-            bot_color.default_value = (
-                info["bot_color"][0],
-                info["bot_color"][1],
-                info["bot_color"][2],
-                1.0,
-            )
+            bot_color.default_value = (*info["bot_color"], 1.0)
 
             roughness_white: NodeSocketFloat = shader.inputs[5]
             roughness_white.default_value = info["roughness_white"]

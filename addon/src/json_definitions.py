@@ -48,11 +48,18 @@ class DiffuseInfo(TypedDict):
     roughness_black: float
 
 
+class SelfIllum(TypedDict):
+    color: tuple[float, float, float]
+    intensity: float
+    opacity: float
+
+
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
     shader_type: str
     style_info: StyleInfo | None
     diffuse_info: DiffuseInfo | None
+    illum_info: SelfIllum | None
     decal_slots: DecalSlot | None
     material_constants: str
 
