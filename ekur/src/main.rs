@@ -84,27 +84,27 @@ fn main() -> Result<()> {
         runtime_styles.extend(get_tags::<RuntimeCoatingStyles>("rucs", module)?);
         render_models.extend(get_tags::<RenderModel>("mode", module)?);
     }
-
-    let textures = process_materials(&materials, &args.save_path)?;
-    process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
-    process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
-    process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
-    process_material_coatings(
-        &material_styles,
-        &material_palette,
-        &material_swatch,
-        &args.save_path,
-        &string_mappings,
-    )?;
-    process_visor(&visor, &material_swatch, &args.save_path)?;
-    extract_all_bitmaps(
-        &mut modules,
-        textures,
-        &coating_swatches,
-        &material_swatch,
-        &args.save_path,
-    )?;
-
+    /*
+        let textures = process_materials(&materials, &args.save_path)?;
+        process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
+        process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
+        process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
+        process_material_coatings(
+            &material_styles,
+            &material_palette,
+            &material_swatch,
+            &args.save_path,
+            &string_mappings,
+        )?;
+        process_visor(&visor, &material_swatch, &args.save_path)?;
+        extract_all_bitmaps(
+            &mut modules,
+            textures,
+            &coating_swatches,
+            &material_swatch,
+            &args.save_path,
+        )?;
+    */
     process_models(&render_models, &args.save_path)?;
     Ok(())
 }

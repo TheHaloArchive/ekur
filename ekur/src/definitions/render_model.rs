@@ -1,7 +1,7 @@
 use infinite_rs::tag::types::common_types::{
-    AnyTag, FieldBlock, FieldLongEnum, FieldReal, FieldRealPoint3D, FieldRealQuaternion,
-    FieldRealVector2D, FieldRealVector3D, FieldShortBlockIndex, FieldShortInteger, FieldStringId,
-    FieldWordInteger,
+    AnyTag, FieldBlock, FieldCharInteger, FieldLongEnum, FieldLongInteger, FieldReal,
+    FieldRealPoint3D, FieldRealQuaternion, FieldRealVector3D, FieldReference, FieldShortBlockIndex,
+    FieldShortInteger, FieldStringId, FieldWordInteger,
 };
 use infinite_rs::TagStructure;
 use num_enum::TryFromPrimitive;
@@ -18,11 +18,11 @@ pub enum ResourcePackingPolicy {
 #[data(size(0xC))]
 pub struct PermutationBlock {
     #[data(offset(0x00))]
-    name: FieldStringId,
+    pub name: FieldStringId,
     #[data(offset(0x04))]
-    section_index: FieldShortInteger,
+    pub section_index: FieldShortInteger,
     #[data(offset(0x06))]
-    section_count: FieldWordInteger,
+    pub section_count: FieldWordInteger,
 }
 
 #[derive(Default, Debug, TagStructure)]
@@ -58,9 +58,55 @@ pub struct NodeBlock {
 #[data(size(0x18))]
 pub struct RegionBlock {
     #[data(offset(0x00))]
-    name: FieldStringId,
+    pub name: FieldStringId,
     #[data(offset(0x04))]
-    permutations: FieldBlock<PermutationBlock>,
+    pub permutations: FieldBlock<PermutationBlock>,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(0x38))]
+pub struct MarkerBlock {
+    #[data(offset(0x00))]
+    pub region_index: FieldCharInteger,
+    #[data(offset(0x04))]
+    pub permutation_index: FieldLongInteger,
+    #[data(offset(0x08))]
+    pub node_index: FieldCharInteger,
+    #[data(offset(0x0C))]
+    pub translation: FieldRealPoint3D,
+    #[data(offset(0x18))]
+    pub rotation: FieldRealQuaternion,
+    #[data(offset(0x28))]
+    pub scale: FieldReal,
+    #[data(offset(0x2C))]
+    pub direction: FieldRealVector3D,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(0x18))]
+pub struct MarkerGroupBlock {
+    #[data(offset(0x00))]
+    pub name: FieldStringId,
+    #[data(offset(0x04))]
+    pub markers: FieldBlock<MarkerBlock>,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(0x1C))]
+pub struct MaterialBlock {
+    #[data(offset(0x00))]
+    pub material: FieldReference,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(0x94))]
+pub struct SectionLods {}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(0x3C))]
+pub struct SectionBlock {
+    #[data(offset(0x00))]
+    pub section_lods: FieldBlock<SectionLods>,
 }
 
 #[derive(Default, Debug, TagStructure)]
@@ -74,4 +120,8 @@ pub struct RenderModel {
     pub regions: FieldBlock<RegionBlock>,
     #[data(offset(0x40))]
     pub nodes: FieldBlock<NodeBlock>,
+    #[data(offset(0x68))]
+    pub marker_groups: FieldBlock<MarkerGroupBlock>,
+    #[data(offset(0x7C))]
+    pub materials: FieldBlock<MaterialBlock>,
 }
