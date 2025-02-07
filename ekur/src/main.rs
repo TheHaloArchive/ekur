@@ -14,13 +14,14 @@ use clap::Parser;
 use definitions::{
     coating_globals::CoatingGlobalsTag, coating_swatch::CoatingSwatchPODTag, material::MaterialTag,
     material_palette::MaterialPaletteTag, material_styles::MaterialStylesTag,
-    material_swatch::MaterialSwatchTag, runtime_style::RuntimeCoatingStyle,
-    runtime_styles::RuntimeCoatingStyles, visor::MaterialVisorSwatchTag,
+    material_swatch::MaterialSwatchTag, render_model::RenderModel,
+    runtime_style::RuntimeCoatingStyle, runtime_styles::RuntimeCoatingStyles,
+    visor::MaterialVisorSwatchTag,
 };
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
     material::process_materials, material_coating::process_material_coatings,
-    runtime_coating::process_runtime_coatings, visor::process_visor,
+    model::process_models, runtime_coating::process_runtime_coatings, visor::process_visor,
 };
 
 mod bitmap;
@@ -50,10 +51,12 @@ fn main() -> Result<()> {
     let mut runtime_styles = HashMap::new();
     let mut cogl = CoatingGlobalsTag::default();
     let mut visor = MaterialVisorSwatchTag::default();
+    let mut render_models = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
     create_dir_all(format!("{}/bitmaps/", args.save_path))?;
+    create_dir_all(format!("{}/models/", args.save_path))?;
 
     let string_file = File::open(args.strings_path)?;
     let strings = BufReader::new(string_file);
@@ -79,7 +82,9 @@ fn main() -> Result<()> {
         material_swatch.extend(get_tags::<MaterialSwatchTag>("mwsw", module)?);
         runtime_style.extend(get_tags::<RuntimeCoatingStyle>("rucy", module)?);
         runtime_styles.extend(get_tags::<RuntimeCoatingStyles>("rucs", module)?);
+        render_models.extend(get_tags::<RenderModel>("mode", module)?);
     }
+
     let textures = process_materials(&materials, &args.save_path)?;
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
@@ -99,5 +104,7 @@ fn main() -> Result<()> {
         &material_swatch,
         &args.save_path,
     )?;
+
+    process_models(&render_models, &args.save_path)?;
     Ok(())
 }
