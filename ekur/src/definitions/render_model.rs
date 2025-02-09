@@ -1,9 +1,11 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 use bitflags::bitflags;
 use infinite_rs::tag::types::common_types::{
     AnyTag, FieldBlock, FieldByteInteger, FieldCharEnum, FieldCharInteger, FieldLongEnum,
-    FieldLongInteger, FieldReal, FieldRealPoint3D, FieldRealQuaternion, FieldRealVector3D,
-    FieldReference, FieldShortBlockIndex, FieldShortInteger, FieldStringId, FieldWordFlags,
-    FieldWordInteger,
+    FieldLongInteger, FieldReal, FieldRealBounds, FieldRealPoint3D, FieldRealQuaternion,
+    FieldRealVector3D, FieldReference, FieldShortBlockIndex, FieldShortInteger, FieldStringId,
+    FieldTagResource, FieldWordFlags, FieldWordInteger,
 };
 use infinite_rs::TagStructure;
 use num_enum::TryFromPrimitive;
@@ -297,6 +299,131 @@ pub struct SectionBlock {
 }
 
 #[derive(Default, Debug, TagStructure)]
+#[data(size(84))]
+pub struct BoundingBoxBlock {
+    #[data(offset(4))]
+    pub x_bounds: FieldRealBounds,
+    #[data(offset(12))]
+    pub y_bounds: FieldRealBounds,
+    #[data(offset(20))]
+    pub z_bounds: FieldRealBounds,
+    #[data(offset(28))]
+    pub u_bounds: FieldRealBounds,
+    #[data(offset(36))]
+    pub v_bounds: FieldRealBounds,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(1))]
+pub struct Index {
+    #[data(offset(0))]
+    pub index: FieldByteInteger,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(20))]
+pub struct NodeMapBlock {
+    #[data(offset(0))]
+    pub indices: FieldBlock<Index>,
+}
+
+#[derive(Default, Debug, TryFromPrimitive)]
+#[repr(u32)]
+pub enum VertexBufferUsage {
+    #[default]
+    Position,
+    UV0,
+    UV1,
+    UV2,
+    Color,
+    Normal,
+    Tangent,
+    BlendIndices0,
+    BlendWeights0,
+    BlendIndices1,
+    BlendWeights1,
+    PrevPosition,
+    InstanceData,
+    BlendshapePosition,
+    BlendshapeNormal,
+    BlendshapeIndex,
+    Edge,
+    EdgeIndex,
+    EdgeIndexInfo,
+}
+
+#[derive(Default, Debug, TryFromPrimitive)]
+#[repr(u32)]
+pub enum RasterizerVertexFormat {
+    #[default]
+    Real,
+    RealVector2D,
+    RealVector3D,
+    RealVector4D,
+    ByteVector4D,
+    ByteARGBColor,
+    ShortVector2D,
+    ShortVector2DNormalized,
+    ShortVector4DNormalized,
+    WordVector2DNormalized,
+    WordVector4DNormalized,
+    Real16Vector2D,
+    Real16Vector4D,
+    Normalized101010,
+    _1010102,
+    _1010102SignedNormalizedPackedAsUnorm,
+    Dword,
+    DwordVector2D,
+    _111110Float,
+    ByteUnitVector3D,
+    WordVector3DNormalizedWith4Word,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(80))]
+pub struct RasterizerVertexBuffer {
+    #[data(offset(0))]
+    pub vertex_buffer_usage: FieldLongEnum<VertexBufferUsage>,
+    #[data(offset(4))]
+    pub format: FieldLongEnum<RasterizerVertexFormat>,
+    #[data(offset(8))]
+    pub stride: FieldByteInteger,
+    #[data(offset(12))]
+    pub count: FieldLongInteger,
+    #[data(offset(16))]
+    pub offset: FieldLongInteger,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(72))]
+pub struct RasterizerIndexBuffer {
+    #[data(offset(0))]
+    pub declaration_type: FieldCharEnum<IndexFormat>,
+    #[data(offset(1))]
+    pub stride: FieldCharInteger,
+    #[data(offset(4))]
+    pub count: FieldLongInteger,
+    #[data(offset(8))]
+    pub offset: FieldLongInteger,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(312))]
+pub struct RenderGeometryApiResource {
+    #[data(offset(0))]
+    pub vertex_buffers: FieldBlock<RasterizerVertexBuffer>,
+    #[data(offset(16))]
+    pub index_buffers: FieldBlock<RasterizerIndexBuffer>,
+}
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(16))]
+pub struct MeshResourceGroupBlock {
+    #[data(offset(0))]
+    pub resource: FieldTagResource<RenderGeometryApiResource>,
+}
+
+#[derive(Default, Debug, TagStructure)]
 #[data(size(0x298))]
 pub struct RenderModel {
     #[data(offset(0x00))]
@@ -313,4 +440,14 @@ pub struct RenderModel {
     pub materials: FieldBlock<MaterialBlock>,
     #[data(offset(0xC0))]
     pub sections: FieldBlock<SectionBlock>,
+    #[data(offset(232))]
+    pub bounding_boxes: FieldBlock<BoundingBoxBlock>,
+    #[data(offset(252))]
+    pub node_maps: FieldBlock<NodeMapBlock>,
+    #[data(offset(316))]
+    pub total_index_buffer_count: FieldLongInteger,
+    #[data(offset(320))]
+    pub total_vertex_buffer_count: FieldLongInteger,
+    #[data(offset(324))]
+    pub resources: FieldBlock<MeshResourceGroupBlock>,
 }
