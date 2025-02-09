@@ -3,7 +3,7 @@
 use std::{collections::HashMap, fs::File, io::BufWriter, path::PathBuf};
 
 use anyhow::Result;
-use infinite_rs::tag::types::common_types::FieldRealQuaternion;
+use infinite_rs::{tag::types::common_types::FieldRealQuaternion, ModuleFile};
 use nalgebra::{Matrix4, Vector4};
 use serde::Serialize;
 
@@ -150,38 +150,96 @@ fn create_region(region: &RegionBlock) -> Region {
     reg
 }
 
-pub fn process_models(models: &HashMap<i32, RenderModel>, save_path: &str) -> Result<()> {
+pub fn process_models(
+    models: &HashMap<i32, RenderModel>,
+    save_path: &str,
+    modules: &mut [ModuleFile],
+) -> Result<()> {
     for model in models {
-        let mut ser_model = Model::default();
-        for region in &model.1.regions.elements {
-            let reg = create_region(region);
-            ser_model.regions.push(reg);
-        }
+        let module = modules
+            .iter_mut()
+            .find(|x| x.files.iter().any(|m| &m.tag_id == model.0));
+        if let Some(module) = module {
+            let tag = module.files.iter().find(|m| &m.tag_id == model.0).unwrap();
+            let mut buffers = Vec::with_capacity(tag.resource_count as usize);
+            let resources = module.resource_indices[tag.resource_index as usize
+                ..tag.resource_index as usize + tag.resource_count as usize]
+                .to_vec();
 
-        for node in &model.1.nodes.elements {
-            let bone = create_node(node);
-            ser_model.bones.push(bone);
+            for resource in resources {
+                let tag_thing = module.read_tag(resource)?;
+                buffers.push(tag_thing.unwrap().get_raw_data(true)?);
+            }
+
+            fn get_resource_data(
+                offset: usize,
+                length: usize,
+                resource_buffers: &Vec<Vec<u8>>,
+            ) -> Vec<u8> {
+                let mut output = vec![0u8; length];
+                let mut resource_index = 0;
+                let mut resource_position = 0;
+                let mut output_position = 0;
+
+                while output_position < length && resource_index < resource_buffers.len() {
+                    let resource_buffer = &resource_buffers[resource_index];
+
+                    if offset >= resource_position + resource_buffer.len() {
+                        resource_position += resource_buffer.len();
+                        resource_index += 1;
+                        continue;
+                    }
+
+                    let mut offset_in_block = 0;
+                    if offset > resource_position {
+                        offset_in_block += offset - resource_position;
+                        resource_position += offset_in_block;
+                    }
+
+                    let bytes_to_copy =
+                        length.min(resource_buffer.len() - offset_in_block) - output_position;
+                    output[output_position..output_position + bytes_to_copy].copy_from_slice(
+                        &resource_buffer[offset_in_block..offset_in_block + bytes_to_copy],
+                    );
+
+                    output_position += bytes_to_copy;
+                    resource_position += bytes_to_copy;
+                    resource_index += 1;
+                }
+
+                output
+            }
+
+            let mut ser_model = Model::default();
+            for region in &model.1.regions.elements {
+                let reg = create_region(region);
+                ser_model.regions.push(reg);
+            }
+            for node in &model.1.nodes.elements {
+                let bone = create_node(node);
+                ser_model.bones.push(bone);
+            }
+            for marker in &model.1.marker_groups.elements {
+                let mark = MarkerGroup {
+                    name: marker.name.0,
+                    markers: create_markers(marker),
+                };
+                ser_model.markers.push(mark);
+            }
+            ser_model.materials = model
+                .1
+                .materials
+                .elements
+                .iter()
+                .map(|x| x.material.global_id)
+                .collect();
+            let mut path = PathBuf::from(format!("{save_path}/models/"));
+            path.push(model.0.to_string());
+            path.set_extension("json");
+            let file = File::create(path)?;
+            let writer = BufWriter::new(file);
+            serde_json::to_writer(writer, &ser_model)?;
         }
-        for marker in &model.1.marker_groups.elements {
-            let mark = MarkerGroup {
-                name: marker.name.0,
-                markers: create_markers(marker),
-            };
-            ser_model.markers.push(mark);
-        }
-        ser_model.materials = model
-            .1
-            .materials
-            .elements
-            .iter()
-            .map(|x| x.material.global_id)
-            .collect();
-        let mut path = PathBuf::from(format!("{save_path}/models/"));
-        path.push(model.0.to_string());
-        path.set_extension("json");
-        let file = File::create(path)?;
-        let writer = BufWriter::new(file);
-        serde_json::to_writer(writer, &ser_model)?;
     }
 
     Ok(())

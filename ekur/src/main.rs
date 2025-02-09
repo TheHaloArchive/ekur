@@ -105,6 +105,6 @@ fn main() -> Result<()> {
             &args.save_path,
         )?;
     */
-    process_models(&render_models, &args.save_path)?;
+    process_models(&render_models, &args.save_path, &mut modules)?;
     Ok(())
 }
