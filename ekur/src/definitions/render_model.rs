@@ -412,7 +412,7 @@ pub struct RasterizerIndexBuffer {
 pub struct RenderGeometryApiResource {
     #[data(offset(0))]
     pub vertex_buffers: FieldBlock<RasterizerVertexBuffer>,
-    #[data(offset(16))]
+    #[data(offset(20))]
     pub index_buffers: FieldBlock<RasterizerIndexBuffer>,
 }
 
