@@ -232,9 +232,9 @@ checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
 name = "cmake"
-version = "0.1.53"
+version = "0.1.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e24a03c8b52922d68a1589ad61032f2c1aa5a8158d2aa0d93c6e9534944bbad6"
+checksum = "e7caa3f9de89ddbe2c607f4101924c5abec803763ae9534e4f4d7d8f84aa81f0"
 dependencies = [
  "cc",
 ]
@@ -552,9 +552,9 @@ dependencies = [
 
 [[package]]
 name = "infinite-rs"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65cdc2d8fd8983a085ce829bc0279dcdda62e8e311e5c4526c3f8a5ccd9db121"
+checksum = "645622b9dd43d5837d3b4438d736983027f6bf0aa43857963c5f9da88e38438e"
 dependencies = [
  "bitflags 2.8.0",
  "byteorder",
@@ -566,9 +566,9 @@ dependencies = [
 
 [[package]]
 name = "infinite-rs-derive"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d3da66d2e1ebd99b3a7fc908d521deee2e153f08c47fb88733235958d8ee217"
+checksum = "33909772c9d4613af6bab2e3e679a0b715f23d4018f1f0e79e949604c9883293"
 dependencies = [
  "deluxe",
  "proc-macro2",

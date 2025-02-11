@@ -2,10 +2,10 @@
 /* Copyright © 2025 Surasia */
 use bitflags::bitflags;
 use infinite_rs::tag::types::common_types::{
-    AnyTag, FieldBlock, FieldByteInteger, FieldCharEnum, FieldCharInteger, FieldLongEnum,
-    FieldLongInteger, FieldReal, FieldRealBounds, FieldRealPoint3D, FieldRealQuaternion,
-    FieldRealVector3D, FieldReference, FieldShortBlockIndex, FieldShortInteger, FieldStringId,
-    FieldTagResource, FieldWordFlags, FieldWordInteger,
+    AnyTag, FieldArray, FieldBlock, FieldByteInteger, FieldCharEnum, FieldCharInteger,
+    FieldLongEnum, FieldLongInteger, FieldReal, FieldRealBounds, FieldRealPoint3D,
+    FieldRealQuaternion, FieldRealVector3D, FieldReference, FieldShortBlockIndex,
+    FieldShortInteger, FieldStringId, FieldTagResource, FieldWordFlags, FieldWordInteger,
 };
 use infinite_rs::TagStructure;
 use num_enum::TryFromPrimitive;
@@ -132,49 +132,6 @@ pub struct SubsetBlock {
     pub vertex_count: FieldWordInteger,
 }
 
-#[derive(Default, Debug, TagStructure)]
-#[data(size(38))]
-pub struct VertexBufferIndexArray {
-    #[data(offset(0))]
-    pub vertex_buffer_index: FieldShortInteger,
-    #[data(offset(2))]
-    pub vertex_buffer_index2: FieldShortInteger,
-    #[data(offset(4))]
-    pub vertex_buffer_index3: FieldShortInteger,
-    #[data(offset(6))]
-    pub vertex_buffer_index4: FieldShortInteger,
-    #[data(offset(8))]
-    pub vertex_buffer_index5: FieldShortInteger,
-    #[data(offset(10))]
-    pub vertex_buffer_index6: FieldShortInteger,
-    #[data(offset(12))]
-    pub vertex_buffer_index7: FieldShortInteger,
-    #[data(offset(14))]
-    pub vertex_buffer_index8: FieldShortInteger,
-    #[data(offset(16))]
-    pub vertex_buffer_index9: FieldShortInteger,
-    #[data(offset(18))]
-    pub vertex_buffer_index10: FieldShortInteger,
-    #[data(offset(20))]
-    pub vertex_buffer_index11: FieldShortInteger,
-    #[data(offset(22))]
-    pub vertex_buffer_index12: FieldShortInteger,
-    #[data(offset(24))]
-    pub vertex_buffer_index13: FieldShortInteger,
-    #[data(offset(26))]
-    pub vertex_buffer_index14: FieldShortInteger,
-    #[data(offset(28))]
-    pub vertex_buffer_index15: FieldShortInteger,
-    #[data(offset(30))]
-    pub vertex_buffer_index16: FieldShortInteger,
-    #[data(offset(32))]
-    pub vertex_buffer_index17: FieldShortInteger,
-    #[data(offset(34))]
-    pub vertex_buffer_index18: FieldShortInteger,
-    #[data(offset(36))]
-    pub vertex_buffer_index19: FieldShortInteger,
-}
-
 bitflags! {
     #[derive(Default, Debug)]
     pub struct LodFlags : u16 {
@@ -198,6 +155,13 @@ bitflags! {
 }
 
 #[derive(Default, Debug, TagStructure)]
+#[data(size(0x2))]
+pub struct VertexBufferIndex {
+    #[data(offset(0))]
+    pub vertex_buffer_index: FieldShortInteger,
+}
+
+#[derive(Default, Debug, TagStructure)]
 #[data(size(0x94))]
 pub struct SectionLods {
     #[data(offset(40))]
@@ -205,7 +169,8 @@ pub struct SectionLods {
     #[data(offset(60))]
     pub subsections: FieldBlock<SubsetBlock>,
     #[data(offset(100))]
-    pub vertex_buffer_indices: VertexBufferIndexArray,
+    #[data(count(19))]
+    pub vertex_buffer_indices: FieldArray<VertexBufferIndex>,
     #[data(offset(138))]
     pub index_buffer_index: FieldShortInteger,
     #[data(offset(140))]
@@ -272,13 +237,27 @@ pub enum VertexType {
 #[repr(u8)]
 pub enum IndexFormat {
     #[default]
-    Default,
-    LineList,
-    LineStrip,
-    TriangleList,
-    TrianglePatch,
-    TriangleStrip,
-    QuadList,
+    Default = 0,
+    LineList = 1,
+    LineStrip = 2,
+    TriangleList = 3,
+    TrianglePatch = 4,
+    TriangleStrip = 5,
+    QuadList = 6,
+}
+
+impl IndexFormat {
+    pub fn to_int(&self) -> u8 {
+        match self {
+            IndexFormat::Default => 0,
+            IndexFormat::LineList => 1,
+            IndexFormat::LineStrip => 2,
+            IndexFormat::TriangleList => 3,
+            IndexFormat::TrianglePatch => 4,
+            IndexFormat::TriangleStrip => 5,
+            IndexFormat::QuadList => 6,
+        }
+    }
 }
 
 #[derive(Default, Debug, TagStructure)]
@@ -299,21 +278,6 @@ pub struct SectionBlock {
 }
 
 #[derive(Default, Debug, TagStructure)]
-#[data(size(84))]
-pub struct BoundingBoxBlock {
-    #[data(offset(4))]
-    pub x_bounds: FieldRealBounds,
-    #[data(offset(12))]
-    pub y_bounds: FieldRealBounds,
-    #[data(offset(20))]
-    pub z_bounds: FieldRealBounds,
-    #[data(offset(28))]
-    pub u_bounds: FieldRealBounds,
-    #[data(offset(36))]
-    pub v_bounds: FieldRealBounds,
-}
-
-#[derive(Default, Debug, TagStructure)]
 #[data(size(1))]
 pub struct Index {
     #[data(offset(0))]
@@ -327,7 +291,7 @@ pub struct NodeMapBlock {
     pub indices: FieldBlock<Index>,
 }
 
-#[derive(Default, Debug, TryFromPrimitive)]
+#[derive(Default, Debug, TryFromPrimitive, PartialEq, Eq)]
 #[repr(u32)]
 pub enum VertexBufferUsage {
     #[default]
@@ -424,10 +388,25 @@ pub struct MeshResourceGroupBlock {
 }
 
 #[derive(Default, Debug, TagStructure)]
+#[data(size(84))]
+pub struct BoundingBoxBlock {
+    #[data(offset(4))]
+    pub x_bounds: FieldRealBounds,
+    #[data(offset(12))]
+    pub y_bounds: FieldRealBounds,
+    #[data(offset(20))]
+    pub z_bounds: FieldRealBounds,
+    #[data(offset(28))]
+    pub u_bounds: FieldRealBounds,
+    #[data(offset(36))]
+    pub v_bounds: FieldRealBounds,
+}
+
+#[derive(Default, Debug, TagStructure)]
 #[data(size(0x298))]
 pub struct RenderModel {
     #[data(offset(0x00))]
-    any_tag: AnyTag,
+    pub any_tag: AnyTag,
     #[data(offset(0x18))]
     pub mesh_resource_packing_policy: FieldLongEnum<ResourcePackingPolicy>,
     #[data(offset(0x28))]
