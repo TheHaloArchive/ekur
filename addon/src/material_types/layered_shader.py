@@ -136,6 +136,8 @@ class LayeredShader:
                 self.shader.inputs[7].default_value = 0.0
             self.shader.inputs[16].default_value = style["scratch_amount"]
             self.shader.inputs[12].default_value = 1.0
+            self.shader.inputs[135].default_value = style_info["texel_density"][0]
+            self.shader.inputs[136].default_value = style_info["texel_density"][1]
 
             self.index = 109
             top = style["grime_swatch"]["top_color"]

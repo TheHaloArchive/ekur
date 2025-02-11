@@ -10,6 +10,7 @@ from bpy.types import (
     NodeSocketVector,
     ShaderNodeBsdfPrincipled,
     ShaderNodeCombineColor,
+    ShaderNodeCombineXYZ,
     ShaderNodeGamma,
     ShaderNodeGroup,
     ShaderNodeMath,
@@ -87,7 +88,7 @@ class HIMS:
         grime_height_scale = create_socket(
             interface, "Grime Height Scale", NodeSocketFloat, panel=settings
         )
-        grime_height_scale.default_value = 100.0
+        grime_height_scale.default_value = 50.0
         ao_amount = create_socket(interface, "AO Amount", NodeSocketFloat, panel=settings)
         ao_amount.default_value = 1.0
         scratch_height = create_socket(
@@ -241,6 +242,9 @@ class HIMS:
             interface, "Color Override Toggle", NodeSocketFloat, panel=overrides
         )
         override_toggle.default_value = 0.0
+        scale_options = interface.new_panel("Scale Options")
+        _ = create_socket(interface, "Base Scale X", NodeSocketFloat, panel=scale_options)
+        _ = create_socket(interface, "Base Scale Y", NodeSocketFloat, panel=scale_options)
 
     def create_nodes(self) -> None:
         nodes = self.node_tree.nodes
@@ -463,6 +467,7 @@ class HIMS:
         gamma_004.inputs[1].default_value = 2.2
 
         mix_004_7 = nodes.new("ShaderNodeMix")
+        mix_004_7.data_type = "RGBA"
         mix_004_7.clamp_result = True
         mix_004_7.inputs[7].default_value = (
             0.24701076745986938,
@@ -525,6 +530,7 @@ class HIMS:
         mix_11 = create_node(nodes, 2478, 560, ShaderNodeMix)
         mix_11.blend_type = "MULTIPLY"
         mix_11.data_type = "RGBA"
+        mix_11.inputs[0].default_value = 1.0
 
         math_001_4 = create_node(nodes, 1747, 329, ShaderNodeMath)
         math_001_4.operation = "POWER"
@@ -607,6 +613,21 @@ class HIMS:
         addtovoronoi = create_node(nodes, 1321, 1613, ShaderNodeMath)
         _: NodeSocketFloat = addtovoronoi.inputs[1]
         _.default_value = 0.5600000023841858
+
+        mult_yscale = create_node(nodes, 0, 0, ShaderNodeMath)
+        mult_yscale.operation = "MULTIPLY"
+
+        mult_xscale = create_node(nodes, 0, 0, ShaderNodeMath)
+        mult_xscale.operation = "MULTIPLY"
+
+        combinemult = create_node(nodes, 0, 0, ShaderNodeCombineXYZ)
+        _ = self.node_tree.links.new(group_input.outputs[9], mult_yscale.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[136], mult_yscale.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[9], mult_xscale.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[135], mult_xscale.inputs[1])
+        _ = self.node_tree.links.new(mult_xscale.outputs[0], combinemult.inputs[0])
+        _ = self.node_tree.links.new(mult_yscale.outputs[0], combinemult.inputs[1])
+        _ = self.node_tree.links.new(combinemult.outputs[0], mapping_1.inputs[3])
 
         srgb.location = (1210.0343017578125, 366.75048828125)
         mult.location = (2175.57666015625, 167.1549072265625)
