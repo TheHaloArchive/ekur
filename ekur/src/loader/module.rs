@@ -53,6 +53,22 @@ pub fn get_tags<T: TagStructure + Default>(
     Ok(tags)
 }
 
+pub fn get_models<T: TagStructure + Default>(
+    module: &mut ModuleFile,
+    module_index: usize,
+) -> Result<HashMap<(usize, usize, i32), T>> {
+    let mut tags = HashMap::new();
+    for idx in 0..module.files.len() {
+        if module.files[idx].tag_group == "mode" {
+            let tag = module.read_tag(idx as u32)?.unwrap();
+            let mut mat = T::default();
+            tag.read_metadata(&mut mat)?;
+            tags.insert((module_index, idx, tag.tag_id), mat);
+        }
+    }
+    Ok(tags)
+}
+
 pub fn decompress_file(index: i32, module: &mut ModuleFile) -> Result<Vec<u8>> {
     let file = &mut module.files[usize::try_from(index)?];
     let capacity = if file.uncompressed_actual_resource_size != 0 {

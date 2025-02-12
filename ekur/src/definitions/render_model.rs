@@ -108,9 +108,9 @@ pub struct SubmeshBlock {
     #[data(offset(0x00))]
     pub shader_index: FieldShortBlockIndex,
     #[data(offset(0x04))]
-    pub index_start: FieldLongInteger,
-    #[data(offset(0x08))]
     pub index_count: FieldLongInteger,
+    #[data(offset(0x08))]
+    pub index_start: FieldLongInteger,
     #[data(offset(12))]
     pub subset_index: FieldShortBlockIndex,
     #[data(offset(14))]
@@ -196,7 +196,7 @@ bitflags! {
     }
 }
 
-#[derive(Default, Debug, TryFromPrimitive)]
+#[derive(Default, Debug, TryFromPrimitive, PartialEq, Eq)]
 #[repr(u8)]
 pub enum VertexType {
     #[default]

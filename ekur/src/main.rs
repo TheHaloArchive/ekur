@@ -1,12 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
 use crate::loader::module::get_tags;
-use std::{
-    collections::HashMap,
-    fs::{create_dir_all, File},
-    io::{BufRead, BufReader},
-};
-
 use crate::loader::module::load_modules;
 use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
@@ -18,15 +12,23 @@ use definitions::{
     runtime_style::RuntimeCoatingStyle, runtime_styles::RuntimeCoatingStyles,
     visor::MaterialVisorSwatchTag,
 };
+use loader::module::get_models;
+use model::serialize::process_models;
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
     material::process_materials, material_coating::process_material_coatings,
-    model::process_models, runtime_coating::process_runtime_coatings, visor::process_visor,
+    runtime_coating::process_runtime_coatings, visor::process_visor,
+};
+use std::{
+    collections::HashMap,
+    fs::{create_dir_all, File},
+    io::{BufRead, BufReader},
 };
 
 mod bitmap;
 mod definitions;
 mod loader;
+mod model;
 mod serialize;
 
 #[derive(Debug, Parser)]
@@ -66,7 +68,7 @@ fn main() -> Result<()> {
         string_mappings.insert(id.parse::<i32>()?, string.to_string());
     }
 
-    for module in &mut modules {
+    for (index, module) in modules.iter_mut().enumerate() {
         let m = module.read_tag_from_id(680672300)?;
         if let Some(m) = m {
             m.read_metadata(&mut cogl)?;
@@ -82,29 +84,27 @@ fn main() -> Result<()> {
         material_swatch.extend(get_tags::<MaterialSwatchTag>("mwsw", module)?);
         runtime_style.extend(get_tags::<RuntimeCoatingStyle>("rucy", module)?);
         runtime_styles.extend(get_tags::<RuntimeCoatingStyles>("rucs", module)?);
-        render_models.extend(get_tags::<RenderModel>("mode", module)?);
+        render_models.extend(get_models::<RenderModel>(module, index)?);
     }
-    /*
-        let textures = process_materials(&materials, &args.save_path)?;
-        process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
-        process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
-        process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
-        process_material_coatings(
-            &material_styles,
-            &material_palette,
-            &material_swatch,
-            &args.save_path,
-            &string_mappings,
-        )?;
-        process_visor(&visor, &material_swatch, &args.save_path)?;
-        extract_all_bitmaps(
-            &mut modules,
-            textures,
-            &coating_swatches,
-            &material_swatch,
-            &args.save_path,
-        )?;
-    */
+    let textures = process_materials(&materials, &args.save_path)?;
+    process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
+    process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
+    process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
+    process_material_coatings(
+        &material_styles,
+        &material_palette,
+        &material_swatch,
+        &args.save_path,
+        &string_mappings,
+    )?;
+    process_visor(&visor, &material_swatch, &args.save_path)?;
+    extract_all_bitmaps(
+        &mut modules,
+        textures,
+        &coating_swatches,
+        &material_swatch,
+        &args.save_path,
+    )?;
     process_models(&render_models, &args.save_path, &mut modules)?;
     Ok(())
 }
