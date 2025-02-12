@@ -33,12 +33,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ekur-${{ matrix.profile }}-${{ matrix.os }}
-          path: ./ekur/target/${{ matrix.profile }}/ekur.exe
+          path: ekur/target/${{ matrix.profile }}/ekur.exe
 
       - name: Upload artifact (Linux)
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ekur-${{ matrix.profile }}-${{ matrix.os }}
-          path: ./ekur/target/${{ matrix.profile }}/ekur
+          path: ekur/target/${{ matrix.profile }}/ekur
 
