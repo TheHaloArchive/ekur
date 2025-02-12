@@ -21,11 +21,8 @@ class ImportModelOperator(Operator):
             self.model.read(f)
         if context.scene.import_properties.import_bones:  # pyright: ignore[reportAttributeAccessIssue]
             armature = import_bones(self.model)
-        if (
-            context.scene.import_properties.import_bones  # pyright: ignore[reportAttributeAccessIssue]
-            and context.scene.import_properties.import_markers  # pyright: ignore[reportAttributeAccessIssue]
-        ):
-            import_markers(self.model, armature)  # pyright: ignore[reportPossiblyUnboundVariable]
+            if context.scene.import_properties.import_markers:  # pyright: ignore[reportAttributeAccessIssue]
+                import_markers(self.model, armature)
         self.import_model()
         return {"FINISHED"}
 
