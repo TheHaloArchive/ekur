@@ -5,7 +5,6 @@ import re
 import random
 from pathlib import Path
 
-import bpy
 from bpy.props import BoolProperty, EnumProperty, StringProperty
 from bpy.types import Context, Panel, PropertyGroup, UILayout, Operator
 
