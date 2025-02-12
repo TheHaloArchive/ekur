@@ -11,7 +11,9 @@ use anyhow::Result;
 use byteorder::{WriteBytesExt, LE};
 use infinite_rs::ModuleFile;
 
-use crate::definitions::render_model::{LodFlags, RenderModel, VertexBufferUsage as VU};
+use crate::definitions::render_model::{
+    LodFlags, RenderModel, VertexBufferUsage as VU, VertexType,
+};
 
 use super::{
     index_buffer::write_index_buffer,
@@ -111,6 +113,9 @@ pub fn process_models(
             writer.write_i32::<LE>(region_name)?;
             writer.write_i32::<LE>(permutation_name)?;
             writer.write_u32::<LE>(lod_data.submeshes.size)?;
+            writer.write_u8(section.node_index.0)?;
+            let has_implied_weights = section.vertex_type.0 != VertexType::Skinned8Weights;
+            writer.write_u8(if has_implied_weights { 1 } else { 0 })?;
             write_submeshes(&mut writer, lod_data)?;
             write_index_buffer(&mut writer, api_resource, lod_data, &buffers)?;
 
@@ -145,17 +150,15 @@ pub fn process_models(
             if let Some(ref color) = model.color {
                 writer.write_all(color.as_slice())?;
             }
-            /*
-                        if let Some(ref blend0) = model.blend_indices {
-                            writer.write_all(blend0.as_slice())?;
-                        }
-                        if let Some(ref blend0w) = model.blend_weights {
-                            writer.write_all(blend0w.as_slice())?;
-                        }
-                        if let Some(ref blend1w) = model.blend_weights_extra {
-                            writer.write_all(blend1w.as_slice())?;
-                        }
-            */
+            if let Some(ref blend0) = model.blend_indices {
+                writer.write_all(blend0.as_slice())?;
+            }
+            if let Some(ref blend0w) = model.blend_weights {
+                writer.write_all(blend0w.as_slice())?;
+            }
+            if let Some(ref blend1w) = model.blend_weights_extra {
+                writer.write_all(blend1w.as_slice())?;
+            }
         }
     }
 

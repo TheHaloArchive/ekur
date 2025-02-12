@@ -85,7 +85,6 @@ pub(super) fn get_vertex_buffer(
                 VertexBufferUsage::Color => {
                     vertex_buffers.color = Some(write_buffer(vertex_buffer, &resource_buffer)?);
                 }
-
                 VertexBufferUsage::BlendIndices0 => {
                     vertex_buffers.blend_indices =
                         Some(write_buffer(vertex_buffer, &resource_buffer)?);

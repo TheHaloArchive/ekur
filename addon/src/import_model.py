@@ -1,5 +1,5 @@
 import bpy
-from bpy.types import Context, Mesh, Operator
+from bpy.types import Context, Mesh, Object, Operator
 
 from .model.section import Section
 from .model.vectors import NormalizedVector2
@@ -104,7 +104,6 @@ class ImportModelOperator(Operator):
             normals = [x.to_vector() for x in section.vertex_buffer.normal_buffer.normals]
             mesh.normals_split_custom_set([[0, 0, 0] for _ in mesh.loops])
             mesh.normals_split_custom_set_from_vertices(normals)
-
             _ = mesh.validate()
             mesh.update()
 

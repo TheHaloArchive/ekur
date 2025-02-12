@@ -92,6 +92,22 @@ class NormalizedVector2:
         return [self.x, self.y]
 
 
+class NormalizedVector101010:
+    def __init__(self) -> None:
+        self.x: float = 0.0
+        self.y: float = 0.0
+        self.z: float = 0.0
+
+    def read(self, reader: BufferedReader) -> None:
+        val = int.from_bytes(reader.read(4), "little")
+        self.x = (val & 0x3FF) / 1023.0
+        self.y = (val >> 10 & 0x3FF) / 1023.0
+        self.z = (val >> 20 & 0x3FF) / 1023.0
+
+    def to_vector(self) -> list[float]:
+        return [self.x, self.y, self.z]
+
+
 class Bounds:
     def __init__(self) -> None:
         self.min: float = 0.0
