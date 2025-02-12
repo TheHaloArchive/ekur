@@ -1,5 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
 import bpy
-from bpy.types import Context, Mesh, Object, Operator
+from bpy.types import Context, Mesh, Operator
 
 from .model.section import Section
 from .model.vectors import NormalizedVector2
