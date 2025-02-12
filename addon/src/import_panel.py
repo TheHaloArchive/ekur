@@ -5,7 +5,7 @@ import re
 import random
 from pathlib import Path
 
-from bpy.props import BoolProperty, EnumProperty, IntProperty
+from bpy.props import BoolProperty, EnumProperty, StringProperty
 from bpy.types import Context, Panel, PropertyGroup, UILayout, Operator
 
 from .json_definitions import CommonMaterial, CommonStyleList, CommonLayer
@@ -110,21 +110,27 @@ class RandomizeCoatingOperator(Operator):
         styles = get_styles(context)
         if styles:
             props = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]
-            props.coat_id = int(random.choice(list(styles["styles"].keys())))
+            props.coat_id = random.choice(list(styles["styles"].keys()))
 
         return {"FINISHED"}
 
 
 class ImportProperties(PropertyGroup):
     use_default: BoolProperty(name="Use Default Coating", default=True)
-    coat_id: IntProperty(name="Coating ID Override", default=0)
+    coat_id: StringProperty(name="Coating ID Override", default="")
     toggle_damage: BoolProperty(name="Disable Damage", default=False)
     selected_only: BoolProperty(name="Selected Only", default=True)
-    recalculate_normals: BoolProperty(name="Recalculate Face Orientation", default=False)
     sort_by_name: BoolProperty(name="Sort by Name", default=True)
     coatings: EnumProperty(name="Coating", items=GrabStrings.common_styles)
     toggle_visors: BoolProperty(name="Override Visor", default=False)
     visors: EnumProperty(name="Visor", items=GrabStrings.visors)
+    model_path: StringProperty(
+        name="Model Path",
+        subtype="FILE_PATH",
+    )
+    import_materials: BoolProperty(name="Import Materials", default=True)
+    import_markers: BoolProperty(name="Import Markers", default=True)
+    import_bones: BoolProperty(name="Import Bones", default=True)
 
 
 class CoatingImportPanel(Panel):
@@ -147,12 +153,19 @@ class CoatingImportPanel(Panel):
             box2.prop(context.scene.import_properties, "sort_by_name")  # pyright: ignore[reportAttributeAccessIssue]
             _ = box2.operator("ekur.randomize")
         options.prop(context.scene.import_properties, "toggle_damage")  # pyright: ignore[reportAttributeAccessIssue]
-        options.prop(context.scene.import_properties, "recalculate_normals")  # pyright: ignore[reportAttributeAccessIssue]
         options.prop(context.scene.import_properties, "selected_only")  # pyright: ignore[reportAttributeAccessIssue]
         options.prop(context.scene.import_properties, "toggle_visors")  # pyright: ignore[reportAttributeAccessIssue]
         if context.scene.import_properties.toggle_visors:  # pyright: ignore[reportAttributeAccessIssue]
             options.prop(context.scene.import_properties, "visors")  # pyright: ignore[reportAttributeAccessIssue]
         _ = box.operator("ekur.importmaterial")
+
+        model_box: UILayout = layout.box()
+        model_box.label(icon="FILE", text="Import Model")
+        model_box.prop(context.scene.import_properties, "model_path")  # pyright: ignore[reportAttributeAccessIssue]
+        model_box.prop(context.scene.import_properties, "import_markers")  # pyright: ignore[reportAttributeAccessIssue]
+        model_box.prop(context.scene.import_properties, "import_bones")  # pyright: ignore[reportAttributeAccessIssue]
+        model_box.prop(context.scene.import_properties, "import_materials")  # pyright: ignore[reportAttributeAccessIssue]
+        _ = model_box.operator("ekur.importmodel")
 
     @classmethod
     def poll(cls, context: Context | None) -> bool:

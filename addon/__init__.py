@@ -17,12 +17,13 @@ from bpy.utils import register_class, unregister_class
 
 from .src.import_logic import ImportMaterialOperator
 from .src.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
+from .src.import_model import ImportModelOperator
 
 bl_info = {
     "name": "Ekur",
     "description": "A multi-purpose importer for Halo Infinite.",
     "author": "Surasia",
-    "version": (0, 1, 2),
+    "version": (0, 2, 0),
     "blender": (4, 3, 0),
     "category": "Import-Export",
     "support": "COMMUNITY",
@@ -80,8 +81,6 @@ class DumpFilesOperator(Operator):
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
             ekur_url = f"{ekur_url}.exe"
-
-        print(ekur_url)
 
         if not ekur_save_path.exists():
             try:
@@ -145,6 +144,7 @@ def register():
     register_class(RandomizeCoatingOperator)
     register_class(DownloadFilesOperator)
     register_class(DumpFilesOperator)
+    register_class(ImportModelOperator)
     bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -156,4 +156,5 @@ def unregister():
     unregister_class(RandomizeCoatingOperator)
     unregister_class(DownloadFilesOperator)
     unregister_class(DumpFilesOperator)
+    unregister_class(ImportModelOperator)
     del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

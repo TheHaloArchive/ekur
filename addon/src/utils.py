@@ -47,15 +47,6 @@ def get_materials() -> list[MaterialSlot]:
     if bpy.context.scene.import_properties.selected_only:  # pyright: ignore[reportAttributeAccessIssue]
         data_source = bpy.context.selected_objects
     meshes = [obj for obj in data_source if obj.type == "MESH"]
-    bpy.ops.object.select_all(action="DESELECT")
-    if bpy.context.scene.import_properties.recalculate_normals:
-        for mesh in meshes:
-            mesh.select_set(True)
-            bpy.context.view_layer.objects.active = mesh
-            bpy.ops.object.mode_set(mode="EDIT")
-            bpy.ops.mesh.select_all(action="SELECT")
-            bpy.ops.mesh.normals_make_consistent(inside=False)
-            bpy.ops.object.mode_set(mode="OBJECT")
     return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
 
 

@@ -91,13 +91,13 @@ class LayeredShader:
 
     def process_styles(self) -> None:
         style = self.styles["default_style"]["reference"]
-        custom_style = bpy.context.scene.import_properties.coat_id
+        custom_style = str(bpy.context.scene.import_properties.coat_id)
         items_func = bpy.context.scene.import_properties.coatings
         use_default = bpy.context.scene.import_properties.use_default
 
-        if custom_style != 0 and not use_default and self.styles["styles"].get(str(custom_style)):
+        if custom_style != "" and not use_default and self.styles["styles"].get(custom_style):
             style = self.styles["styles"][str(custom_style)]["reference"]
-        if custom_style == 0 and not use_default and self.styles["styles"].get(str(items_func)):
+        if custom_style == "" and not use_default and self.styles["styles"].get(str(items_func)):
             style = self.styles["styles"][str(items_func)]["reference"]
 
         style_path = Path(f"{self.data_folder}/styles/{style}.json")
@@ -136,6 +136,8 @@ class LayeredShader:
                 self.shader.inputs[7].default_value = 0.0
             self.shader.inputs[16].default_value = style["scratch_amount"]
             self.shader.inputs[12].default_value = 1.0
+            self.shader.inputs[135].default_value = style_info["texel_density"][0]
+            self.shader.inputs[136].default_value = style_info["texel_density"][1]
 
             self.index = 109
             top = style["grime_swatch"]["top_color"]
