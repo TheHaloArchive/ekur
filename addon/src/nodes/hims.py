@@ -35,14 +35,14 @@ from ..utils import create_node, create_socket
 class HIMS:
     def __init__(self) -> None:
         self.node_tree = bpy.data.node_groups.get(
-            "Halo Infinite Shader 3.0 by Chunch and ChromaCore"
+            "Halo Infinite Shader 3.1 by Chunch and ChromaCore"
         )
         if self.node_tree:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
                 type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Halo Infinite Shader 3.0 by Chunch and ChromaCore",
+                name="Halo Infinite Shader 3.1 by Chunch and ChromaCore",
             )
         self.create_sockets()
         self.create_nodes()
