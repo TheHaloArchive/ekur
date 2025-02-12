@@ -22,8 +22,22 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build
-        run: cargo build --manifest-path "./ekur/Cargo.toml" --profile ${{ matrix.profile }}
-
       - name: Check clippy
         run: cargo clippy --manifest-path "./ekur/Cargo.toml"
+      
+      - name: Compile
+        id: compile
+        uses: rust-build/rust-build.action@v1.4.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          SRC_DIR: /ekur
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Binary
+          path: |
+            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
+            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+       
