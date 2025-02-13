@@ -123,7 +123,7 @@ impl CommonLayer {
             roughness_white: swatch.roughness_white.0,
             metallic: swatch.metallic.0,
             emissive_amount: (palette_swatch.emissive_amount.0
-                * palette_swatch.emissive_intensity.0),
+                + palette_swatch.emissive_intensity.0),
             top_color: (
                 color.gradient_top_color.r,
                 color.gradient_top_color.g,
