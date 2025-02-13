@@ -69,6 +69,10 @@ pub struct CoatingPaletteInfo {
     pub scratch_roughness_offset: FieldReal,
     #[data(offset(0x68))]
     pub use_emissive: FieldCharEnum<MaterialState>,
+    #[data(offset(0x6C))]
+    pub emissive_intensity: FieldReal,
+    #[data(offset(0x70))]
+    pub emissive_amount: FieldReal,
     #[data(offset(0x76))]
     pub subsurface_usage: FieldShortEnum<UseSSSEnum>,
 }

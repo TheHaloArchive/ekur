@@ -67,6 +67,7 @@ class LayeredShader:
         textures = self.material["textures"]
         if textures.get("Asg"):
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
+            tex.interpolation = "Cubic"
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         else:
             asg_node = self.node_tree.nodes.new("ShaderNodeRGB")

@@ -187,7 +187,7 @@ impl CommonLayer {
             roughness_white: swatch.roughness_white.0,
             metallic: swatch.metallic.0,
             emissive_amount: match info.use_emissive.0 {
-                MaterialState::Enabled => swatch.emissive_amount.0 + swatch.emissive_intensity.0,
+                MaterialState::Enabled => info.emissive_amount.0 + info.emissive_intensity.0,
                 MaterialState::Disabled => 0.0,
             },
             top_color: color[0],
