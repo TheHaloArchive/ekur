@@ -8,7 +8,7 @@ use infinite_rs::tag::types::common_types::{
     FieldShortInteger, FieldStringId, FieldTagResource, FieldWordFlags, FieldWordInteger,
 };
 use infinite_rs::TagStructure;
-use num_enum::TryFromPrimitive;
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 #[derive(Default, Debug, TryFromPrimitive)]
 #[repr(u32)]
@@ -196,7 +196,7 @@ bitflags! {
     }
 }
 
-#[derive(Default, Debug, TryFromPrimitive, PartialEq, Eq)]
+#[derive(Default, Debug, TryFromPrimitive, PartialEq, Eq, IntoPrimitive, Clone)]
 #[repr(u8)]
 pub enum VertexType {
     #[default]

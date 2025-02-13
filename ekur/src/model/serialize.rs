@@ -11,9 +11,7 @@ use anyhow::Result;
 use byteorder::{WriteBytesExt, LE};
 use infinite_rs::ModuleFile;
 
-use crate::definitions::render_model::{
-    LodFlags, RenderModel, VertexBufferUsage as VU, VertexType,
-};
+use crate::definitions::render_model::{LodFlags, RenderModel, VertexBufferUsage as VU};
 
 use super::{
     index_buffer::write_index_buffer,
@@ -114,8 +112,8 @@ pub fn process_models(
             writer.write_i32::<LE>(permutation_name)?;
             writer.write_u32::<LE>(lod_data.submeshes.size)?;
             writer.write_u8(section.node_index.0)?;
-            let has_implied_weights = section.vertex_type.0 != VertexType::Skinned8Weights;
-            writer.write_u8(if has_implied_weights { 1 } else { 0 })?;
+            writer.write_u8(section.vertex_type.0.clone().into())?;
+            writer.write_i8(section.use_dual_quat.0)?;
             write_submeshes(&mut writer, lod_data)?;
             write_index_buffer(&mut writer, api_resource, lod_data, &buffers)?;
 

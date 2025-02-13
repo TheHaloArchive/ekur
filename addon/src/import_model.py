@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
-from bpy.types import Context, Mesh, Operator
+from bpy.types import ArmatureModifier, Context, Mesh, Object, Operator
 
 from .model.section import Section
 from .model.vectors import NormalizedVector2
@@ -21,9 +21,12 @@ class ImportModelOperator(Operator):
             self.model.read(f)
         if context.scene.import_properties.import_bones:  # pyright: ignore[reportAttributeAccessIssue]
             armature = import_bones(self.model)
+            armature.scale = (3.048, 3.048, 3.048)
             if context.scene.import_properties.import_markers:  # pyright: ignore[reportAttributeAccessIssue]
                 import_markers(self.model, armature)
-        self.import_model()
+            self.import_model(armature)
+        else:
+            self.import_model()
         return {"FINISHED"}
 
     def create_uv(
@@ -61,7 +64,7 @@ class ImportModelOperator(Operator):
             for face in part_faces:
                 face.material_index = material_slot_indices[section.submeshes[submesh].shader_index]
 
-    def import_model(self) -> None:
+    def import_model(self, armature_obj: Object | None = None) -> None:
         materials = []
         if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue]
             for mat in self.model.materials:
@@ -89,6 +92,7 @@ class ImportModelOperator(Operator):
             faces = [(ind[x], ind[x + 1], ind[x + 2]) for x in range(0, len(ind), 3)]
             mesh = bpy.data.meshes.new(collection_name)
             obj = bpy.data.objects.new(collection_name, mesh)
+            obj.scale = (3.048, 3.048, 3.048)
             mesh.from_pydata(verts, [], faces)
 
             if section.vertex_flags.has_uv0:
@@ -100,6 +104,37 @@ class ImportModelOperator(Operator):
 
             if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue]
                 self.create_material_indices(section, mesh)
+
+            vertex_count = len(section.vertex_buffer.position_buffer.positions)
+            modifier: ArmatureModifier = obj.modifiers.new(
+                f"{collection_name}::armature", "ARMATURE"
+            )
+            if section.use_dual_quat:
+                modifier.use_deform_preserve_volume = True
+
+            modifier.object = armature_obj
+
+            if section.node_index >= 0:
+                # only need one vertex group
+                bone = self.model.bones[section.node_index]
+                group = obj.vertex_groups.new(name=str(bone.name))
+                group.add(range(vertex_count), 1.0, "ADD")  # set every vertex to 1.0 in one go
+            else:
+                # create a vertex group for each bone so the bone indices are 1:1 with the vertex groups
+                for bone in self.model.bones:
+                    _ = obj.vertex_groups.new(name=str(bone.name))
+                for (
+                    vi,
+                    blend_indicies,
+                    blend_weights,
+                ) in section.vertex_buffer.enumerate_blendpairs(section.vertex_type):
+                    for bi, bw in zip(blend_indicies, blend_weights):
+                        if bi <= len(obj.vertex_groups):
+                            obj.vertex_groups[bi].add([vi], bw, "ADD")
+
+            for p in mesh.polygons:
+                p.use_smooth = True
+
             normals = [x.to_vector() for x in section.vertex_buffer.normal_buffer.normals]
             mesh.normals_split_custom_set([[0, 0, 0] for _ in mesh.loops])
             mesh.normals_split_custom_set_from_vertices(normals)

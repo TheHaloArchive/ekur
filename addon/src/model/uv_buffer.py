@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 from io import BufferedReader
+
+from ..exceptions import IncorrectStrideValue
 from .vectors import NormalizedVector2
 
 
@@ -12,9 +14,9 @@ class UVBuffer:
 
     def read(self, reader: BufferedReader) -> None:
         self.stride = int.from_bytes(reader.read(1), "little", signed=True)
+        if self.stride != 4:
+            raise IncorrectStrideValue("UV buffer stride was not 4!")
         self.count = int.from_bytes(reader.read(4), "little")
-        if self.stride % 4 != 0:
-            raise ValueError("Invalid UV buffer stride")
         for _ in range(self.count):
             uv = NormalizedVector2()
             uv.read(reader)

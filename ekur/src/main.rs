@@ -86,6 +86,7 @@ fn main() -> Result<()> {
         runtime_styles.extend(get_tags::<RuntimeCoatingStyles>("rucs", module)?);
         render_models.extend(get_models::<RenderModel>(module, index)?);
     }
+    process_models(&render_models, &args.save_path, &mut modules)?;
     let textures = process_materials(&materials, &args.save_path)?;
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
@@ -105,6 +106,5 @@ fn main() -> Result<()> {
         &material_swatch,
         &args.save_path,
     )?;
-    process_models(&render_models, &args.save_path, &mut modules)?;
     Ok(())
 }

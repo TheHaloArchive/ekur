@@ -3,6 +3,8 @@
 from enum import IntEnum
 from io import BufferedReader
 
+from ..exceptions import IncorrectStrideValue
+
 
 class IndexBufferType(IntEnum):
     Default = 0
@@ -24,6 +26,9 @@ class IndexBuffer:
     def read(self, reader: BufferedReader) -> None:
         self.index_buffer_type = IndexBufferType(int.from_bytes(reader.read(1), "little"))
         self.stride = int.from_bytes(reader.read(1), "little", signed=True)
+        if self.stride % 2 != 0:
+            raise IncorrectStrideValue("Index buffer stride was not a multiple of 2!")
+
         self.count = int.from_bytes(reader.read(4), "little")
         for _ in range(self.count):
             index = int.from_bytes(reader.read(self.stride), "little")

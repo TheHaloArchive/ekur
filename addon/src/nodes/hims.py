@@ -887,7 +887,6 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[7], nogrimecol.inputs[3])
         _ = self.node_tree.links.new(bump.outputs[0], bump_001.inputs[3])
         _ = self.node_tree.links.new(texture_coordinate.outputs[2], mapping_1.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[9], mapping_1.inputs[3])
         _ = self.node_tree.links.new(reroute_016_3.outputs[0], colorramp_001.inputs[0])
         _ = self.node_tree.links.new(mult2.outputs[0], bump_001.inputs[2])
         _ = self.node_tree.links.new(colorramp_001.outputs[0], mult.inputs[0])

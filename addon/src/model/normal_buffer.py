@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 from io import BufferedReader
+
+from ..exceptions import IncorrectStrideValue
 from .vectors import NormalizedVector1010102PackedAsUnorm
 
 
@@ -12,6 +14,8 @@ class NormalBuffer:
 
     def read(self, reader: BufferedReader) -> None:
         self.stride = int.from_bytes(reader.read(1), "little", signed=True)
+        if self.stride != 4:
+            raise IncorrectStrideValue("Normal buffer stride was not 4!")
         self.count = int.from_bytes(reader.read(4), "little")
         for _ in range(self.count):
             normal = NormalizedVector1010102PackedAsUnorm()

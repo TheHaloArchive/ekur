@@ -31,6 +31,7 @@ def import_markers(model: Model, armature: Object) -> None:
             marker_obj = bpy.data.objects.new(str(name), None)
             marker_obj.empty_display_type = "SPHERE"
             marker_obj.empty_display_size = MARKER_SIZE
+            marker_obj.scale = (3.048, 3.048, 3.048)
 
             world_transform = (
                 Matrix.Translation([v for v in instance.position.to_vector()])
