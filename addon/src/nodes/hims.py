@@ -370,9 +370,9 @@ class HIMS:
         musgrave_texture.normalize = False
         musgrave_texture.inputs[1].default_value = 0.0
         musgrave_texture.inputs[2].default_value = 3.0
-        musgrave_texture.inputs[3].default_value = 0.0
+        musgrave_texture.inputs[3].default_value = 2.0
         musgrave_texture.inputs[4].default_value = 0.6944444179534912
-        musgrave_texture.inputs[5].default_value = 1.2000000476837158
+        musgrave_texture.inputs[5].default_value = 1.6000000476837158
         musgrave_texture.inputs[6].default_value = 0.0
         musgrave_texture.inputs[7].default_value = 1.0
         musgrave_texture.inputs[8].default_value = 0.0
@@ -613,6 +613,11 @@ class HIMS:
         addtovoronoi = create_node(nodes, 1321, 1613, ShaderNodeMath)
         _: NodeSocketFloat = addtovoronoi.inputs[1]
         _.default_value = 0.5600000023841858
+
+        multvoronoi2 = create_node(nodes, 1321, 1613, ShaderNodeMath)
+        multvoronoi2.operation = "MULTIPLY"
+        _: NodeSocketFloat = multvoronoi2.inputs[1]
+        _.default_value = 0.5
 
         mult_yscale = create_node(nodes, 0, 0, ShaderNodeMath)
         mult_yscale.operation = "MULTIPLY"
@@ -1137,6 +1142,7 @@ class HIMS:
         _ = self.node_tree.links.new(reroute_033.outputs[0], mixemission.inputs[0])
         _ = self.node_tree.links.new(reroute_033.outputs[0], principled_bsdf.inputs[9])
         _ = self.node_tree.links.new(mixemission.outputs[2], principled_bsdf.inputs[0])
-        _ = self.node_tree.links.new(addtovoronoi.outputs[0], reroute_054.inputs[0])
+        _ = self.node_tree.links.new(addtovoronoi.outputs[0], multvoronoi2.inputs[0])
         _ = self.node_tree.links.new(multvoronoi.outputs[0], addtovoronoi.inputs[0])
+        _ = self.node_tree.links.new(multvoronoi2.outputs[0], reroute_054.inputs[0])
         _ = self.node_tree.links.new(musgrave_texture.outputs[0], multvoronoi.inputs[0])
