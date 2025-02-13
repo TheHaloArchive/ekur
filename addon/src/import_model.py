@@ -41,7 +41,7 @@ class ImportModelOperator(Operator):
         for loop in range(len(mesh.loops)):
             uv_layer.data[mesh.loops[loop].index].uv = (
                 uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
-                -(uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
+                1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
             )
 
     def create_material_indices(self, section: Section, mesh: Mesh) -> None:
@@ -75,7 +75,8 @@ class ImportModelOperator(Operator):
 
         model_scale = self.model.bounding_boxes[0].get_model_scale()
         uv_scale = self.model.bounding_boxes[0].get_uv_scale()
-
+        model_collection = bpy.data.collections.new(str(self.model.header.tag_id))
+        bpy.context.scene.collection.children.link(model_collection)
         collections = {}
 
         for section in self.model.sections:
@@ -143,7 +144,7 @@ class ImportModelOperator(Operator):
 
             if permutation_name not in collections:
                 permutation_collection = bpy.data.collections.new(str(permutation_name))
-                bpy.context.scene.collection.children.link(permutation_collection)
+                model_collection.children.link(permutation_collection)
                 collections[permutation_name] = permutation_collection
             else:
                 permutation_collection = collections[permutation_name]
