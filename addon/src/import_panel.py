@@ -166,7 +166,3 @@ class CoatingImportPanel(Panel):
         model_box.prop(context.scene.import_properties, "import_bones")  # pyright: ignore[reportAttributeAccessIssue]
         model_box.prop(context.scene.import_properties, "import_materials")  # pyright: ignore[reportAttributeAccessIssue]
         _ = model_box.operator("ekur.importmodel")
-
-    @classmethod
-    def poll(cls, context: Context | None) -> bool:
-        return context.object is not None
