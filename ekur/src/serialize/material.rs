@@ -20,16 +20,9 @@ const TEXEL_DENSITY: i32 = 523899303;
 const DECAL_CONTROL_MAP: i32 = -699244700;
 const DECAL_NORMAL_MAP: i32 = 723636081;
 
-const DIFFUSE_SHADER: i32 = 1102829229;
+const DIFFUSE_SHADER: &[i32; 2] = &[1102829229, 52809748];
 const DIFFUSE_SI_SHADERS: &[i32; 2] = &[-1051699871, -1659664443];
-const KNOWN_DECALS: &[i32; 6] = &[
-    -51713036,
-    -131335022,
-    690034699,
-    2003821059,
-    1996403871,
-    -2003821059,
-];
+const KNOWN_DECALS: &[i32; 5] = &[-51713036, -131335022, 690034699, 2003821059, -2003821059];
 const DECAL_MP: i32 = -131335022;
 const PARALLAX_DECAL: i32 = -93074746;
 const SELF_ILLUM: i32 = -79437929;
@@ -229,7 +222,7 @@ fn get_post_texture(
 }
 
 fn handle_diffuse_shader(mat: &MaterialTag, material: &mut Material) -> Result<()> {
-    if mat.material_shader.global_id == DIFFUSE_SHADER {
+    if DIFFUSE_SHADER.contains(&mat.material_shader.global_id) {
         let post_process = mat.post_process_definition.elements.first();
         let mut diffuse_info = DiffuseInfo::default();
         if let Some(post_process) = post_process {

@@ -30,17 +30,20 @@ fn get_buffers<T: TagStructure>(
     modules: &mut [ModuleFile],
 ) -> Result<Vec<Vec<u8>>> {
     let module = &mut modules[model.0 .0];
-    let tag = &module.files[model.0 .1];
-    let mut buffers = Vec::with_capacity(tag.resource_count as usize);
-    let resources = module.resource_indices
-        [tag.resource_index as usize..tag.resource_index as usize + tag.resource_count as usize]
-        .to_vec();
-    for resource in resources {
-        let tag_thing = module.read_tag(resource)?;
-        if let Some(tag_thing) = tag_thing {
-            buffers.push(tag_thing.get_raw_data(true)?);
+    let mut buffers = Vec::new();
+    {
+        let tag = &module.files[model.0 .1];
+        let resources = module.resource_indices[tag.resource_index as usize
+            ..tag.resource_index as usize + tag.resource_count as usize]
+            .to_vec();
+        for resource in resources {
+            let tag_thing = module.read_tag(resource)?;
+            if let Some(tag_thing) = tag_thing {
+                buffers.push(tag_thing.get_raw_data(true)?);
+            }
         }
     }
+    module.files[model.0 .1].data_stream = None;
     Ok(buffers)
 }
 

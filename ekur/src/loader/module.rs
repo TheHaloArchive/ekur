@@ -49,6 +49,7 @@ pub fn get_tags<T: TagStructure + Default>(
             tag.read_metadata(&mut mat)?;
             tags.insert(tag.tag_id, mat);
         }
+        module.files[idx].data_stream = None;
     }
     Ok(tags)
 }
@@ -84,6 +85,7 @@ pub fn decompress_file(index: i32, module: &mut ModuleFile) -> Result<Vec<u8>> {
         ))?;
         reader.read_to_end(&mut buffer)?;
     }
+    file.data_stream = None;
     Ok(buffer)
 }
 

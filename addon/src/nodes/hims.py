@@ -84,7 +84,7 @@ class HIMS:
         grime_height = create_socket(
             interface, "Grime Height Toggle", NodeSocketFloat, panel=settings
         )
-        grime_height.default_value = 1.0
+        grime_height.default_value = 3.048
         grime_height_scale = create_socket(
             interface, "Grime Height Scale", NodeSocketFloat, panel=settings
         )
@@ -94,7 +94,7 @@ class HIMS:
         scratch_height = create_socket(
             interface, "Scratch Height Amount", NodeSocketFloat, panel=settings
         )
-        scratch_height.default_value = 1.0
+        scratch_height.default_value = 3.048
         global_scratch = create_socket(
             interface, "Global Scratch Toggle", NodeSocketFloat, panel=settings
         )
