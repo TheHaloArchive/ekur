@@ -51,6 +51,8 @@ class ImportModelOperator(Operator):
             first_face = section.submeshes[submesh].index_start
             face_count = section.submeshes[submesh].index_count
             part_faces = mesh.polygons[first_face // 3 : (first_face + face_count) // 3]
+            if section.submeshes[submesh].shader_index >= len(self.model.materials):
+                continue
             mat_name = str(self.model.materials[section.submeshes[submesh].shader_index])
             m = bpy.data.materials.get(mat_name)
             if not m:
@@ -114,7 +116,7 @@ class ImportModelOperator(Operator):
 
             modifier.object = armature_obj
 
-            if section.node_index >= 0:
+            if section.node_index >= 0 and section.node_index < len(self.model.bones):
                 # only need one vertex group
                 bone = self.model.bones[section.node_index]
                 group = obj.vertex_groups.new(name=str(bone.name))

@@ -12,7 +12,7 @@ from ..metadata import Model
 
 def get_name(marker: Marker, instance: MarkerInstance, model: Model):
     name = str(marker.name)
-    if instance.region_index >= 0:
+    if instance.region_index >= 0 and len(model.regions) > instance.region_index:
         name += f"_{model.regions[instance.region_index].name}"
         if instance.permutation_index >= 0:
             name += f"_{model.regions[instance.region_index].permutations[instance.permutation_index].name}"
@@ -38,7 +38,7 @@ def import_markers(model: Model, armature: Object) -> None:
                 @ Quaternion(instance.rotation.to_vector()).to_matrix().to_4x4()
             )
 
-            if instance.node_index >= 0:
+            if instance.node_index >= 0 and len(bone_transforms) > instance.node_index:
                 world_transform = bone_transforms[instance.node_index] @ world_transform
                 marker_obj.parent = armature
                 marker_obj.parent_type = "BONE"

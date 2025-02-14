@@ -5,6 +5,7 @@ use crate::loader::module::load_modules;
 use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
+use definitions::runtime_geo::RuntimeGeo;
 use definitions::{
     coating_globals::CoatingGlobalsTag, coating_swatch::CoatingSwatchPODTag, material::MaterialTag,
     material_palette::MaterialPaletteTag, material_styles::MaterialStylesTag,
@@ -54,11 +55,13 @@ fn main() -> Result<()> {
     let mut cogl = CoatingGlobalsTag::default();
     let mut visor = MaterialVisorSwatchTag::default();
     let mut render_models = HashMap::new();
+    let mut render_geometry = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
     create_dir_all(format!("{}/bitmaps/", args.save_path))?;
     create_dir_all(format!("{}/models/", args.save_path))?;
+    create_dir_all(format!("{}/runtime_geo/", args.save_path))?;
 
     let string_file = File::open(args.strings_path)?;
     let strings = BufReader::new(string_file);
@@ -84,9 +87,15 @@ fn main() -> Result<()> {
         material_swatch.extend(get_tags::<MaterialSwatchTag>("mwsw", module)?);
         runtime_style.extend(get_tags::<RuntimeCoatingStyle>("rucy", module)?);
         runtime_styles.extend(get_tags::<RuntimeCoatingStyles>("rucs", module)?);
-        render_models.extend(get_models::<RenderModel>(module, index)?);
+        render_models.extend(get_models::<RenderModel>("mode", module, index)?);
+        render_geometry.extend(get_models::<RuntimeGeo>("rtgo", module, index)?);
     }
-    process_models(&render_models, &args.save_path, &mut modules)?;
+    process_models(
+        &render_models,
+        &render_geometry,
+        &args.save_path,
+        &mut modules,
+    )?;
     let textures = process_materials(&materials, &args.save_path)?;
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
