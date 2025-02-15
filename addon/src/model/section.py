@@ -17,6 +17,7 @@ class Section:
         self.submesh_count: int = 0
         self.node_index: int = 0
         self.vertex_type: VertexType = VertexType.World
+        self.use_dual_quat: bool = False
         self.submeshes: list[Submesh] = []
         self.index_buffer: IndexBuffer = IndexBuffer()
         self.vertex_flags: BufferFlags = BufferFlags()

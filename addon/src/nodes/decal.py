@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+from typing import cast
 import bpy
 from bpy.types import (
     NodeGroupInput,
@@ -7,6 +8,7 @@ from bpy.types import (
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketShader,
+    NodeTree,
     ShaderNodeBsdfPrincipled,
     ShaderNodeBsdfTransparent,
     ShaderNodeGroup,
@@ -16,16 +18,17 @@ from bpy.types import (
     ShaderNodeNewGeometry,
     ShaderNodeNormalMap,
     ShaderNodeSeparateColor,
+    ShaderNodeTree,
     ShaderNodeValToRGB,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 from .norm_normalize import NormNormalize
 
 
 class Decal:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Decal Shader")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Decal Shader")
         if self.node_tree:
             return
         else:
@@ -37,6 +40,8 @@ class Decal:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "BSDF", NodeSocketShader, False)
         _ = create_socket(interface, "Control Texture", NodeSocketColor)
@@ -49,6 +54,8 @@ class Decal:
         _ = create_socket(interface, "Metallic", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         nodes = self.node_tree.nodes
         input = create_node(nodes, 0, 0, NodeGroupInput)
         output = create_node(nodes, 0, 0, NodeGroupOutput)
@@ -68,9 +75,8 @@ class Decal:
 
         normal_map = create_node(nodes, 0, 0, ShaderNodeNormalMap)
         normalize = create_node(nodes, 0, 0, ShaderNodeGroup)
-        normalize.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
-        invert: NodeSocketFloat = normalize.inputs[1]
-        invert.default_value = 1.0
+        normalize.node_tree = cast(ShaderNodeTree, NormNormalize().node_tree)
+        assign_value(normalize, 1, 1.0)
 
         geometry = create_node(nodes, 0, 0, ShaderNodeNewGeometry)
         mix_shader = create_node(nodes, 0, 0, ShaderNodeMixShader)

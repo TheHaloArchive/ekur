@@ -16,6 +16,7 @@ from .position_buffer import PositionBuffer
 
 class VertexBuffers:
     def __init__(self) -> None:
+        self.flags: BufferFlags = BufferFlags()
         self.position_buffer: PositionBuffer = PositionBuffer()
         self.uv0_buffer: UVBuffer = UVBuffer()
         self.uv1_buffer: UVBuffer = UVBuffer()

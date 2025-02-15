@@ -46,4 +46,4 @@ def import_markers(model: Model, armature: Object) -> None:
 
             marker_obj.hide_render = True
             marker_obj.matrix_world = world_transform
-            bpy.context.scene.collection.objects.link(marker_obj)
+            bpy.context.scene.collection.objects.link(marker_obj)  # pyright: ignore[reportUnknownMemberType]

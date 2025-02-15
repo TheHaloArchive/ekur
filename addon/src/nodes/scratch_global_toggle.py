@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
-from bpy.types import NodeGroupInput, NodeGroupOutput, NodeSocketFloat, ShaderNodeMix
+from bpy.types import NodeGroupInput, NodeGroupOutput, NodeSocketFloat, NodeTree, ShaderNodeMix
 
 from ..utils import create_node, create_socket
 
 
 class ScratchGlobalToggle:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Scratch Global Toggle")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Scratch Global Toggle")
         if self.node_tree:
             return
         else:
@@ -20,6 +20,8 @@ class ScratchGlobalToggle:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if not self.node_tree:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Zone 2", NodeSocketFloat, False)
         _ = create_socket(interface, "Zone 3", NodeSocketFloat, False)
@@ -37,6 +39,8 @@ class ScratchGlobalToggle:
         _ = create_socket(interface, "Scratch Global", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if not self.node_tree:
+            return
         nodes = self.node_tree.nodes
 
         output = create_node(nodes, 312, 177, NodeGroupOutput)

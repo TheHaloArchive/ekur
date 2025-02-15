@@ -5,18 +5,19 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeCombineColor,
     ShaderNodeMath,
     ShaderNodeSeparateColor,
     NodeGroupInput,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class MaskToggles:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Mask Toggles")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Mask Toggles")
         if self.node_tree:
             return
         else:
@@ -28,6 +29,8 @@ class MaskToggles:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if not self.node_tree:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Mask_0", NodeSocketColor, False)
         _ = create_socket(interface, "Mask_1", NodeSocketColor, False)
@@ -41,6 +44,8 @@ class MaskToggles:
         _ = create_socket(interface, "Zone 7 Toggle", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if not self.node_tree:
+            return
         nodes = self.node_tree.nodes
 
         combine_mask0 = create_node(nodes, 575, 5, ShaderNodeCombineColor)
@@ -53,8 +58,7 @@ class MaskToggles:
 
         subtract_r = create_node(nodes, 136, 20, ShaderNodeMath)
         subtract_r.operation = "SUBTRACT"
-        r: NodeSocketFloat = subtract_r.inputs[1]
-        r.default_value = 1.0
+        assign_value(subtract_r, 1, 1.0)
 
         add_r = create_node(nodes, 318, 25, ShaderNodeMath)
         add_r.operation = "ADD"
@@ -62,8 +66,7 @@ class MaskToggles:
 
         subtract_g = create_node(nodes, 139, -20, ShaderNodeMath)
         subtract_g.operation = "SUBTRACT"
-        g: NodeSocketFloat = subtract_g.inputs[1]
-        g.default_value = 1.0
+        assign_value(subtract_g, 1, 1.0)
 
         add_g = create_node(nodes, 322, -18, ShaderNodeMath)
         add_g.operation = "ADD"
@@ -71,8 +74,7 @@ class MaskToggles:
 
         subtract_b = create_node(nodes, 135, -63, ShaderNodeMath)
         subtract_b.operation = "SUBTRACT"
-        b: NodeSocketFloat = subtract_b.inputs[1]
-        b.default_value = 1.0
+        assign_value(subtract_b, 1, 1.0)
 
         add_b = create_node(nodes, 321, -56, ShaderNodeMath)
         add_b.operation = "ADD"
@@ -80,8 +82,7 @@ class MaskToggles:
 
         subtract_r2 = create_node(nodes, 119, -285, ShaderNodeMath)
         subtract_r2.operation = "SUBTRACT"
-        r2: NodeSocketFloat = subtract_r2.inputs[1]
-        r2.default_value = 1.0
+        assign_value(subtract_r2, 1, 1.0)
 
         add_r2 = create_node(nodes, 318, -281, ShaderNodeMath)
         add_r2.operation = "ADD"
@@ -89,8 +90,7 @@ class MaskToggles:
 
         subtract_g2 = create_node(nodes, 124, -322, ShaderNodeMath)
         subtract_g2.operation = "SUBTRACT"
-        g2: NodeSocketFloat = subtract_g2.inputs[1]
-        g2.default_value = 1.0
+        assign_value(subtract_g2, 1, 1.0)
 
         add_g2 = create_node(nodes, 336, -346, ShaderNodeMath)
         add_g2.operation = "ADD"
@@ -98,8 +98,7 @@ class MaskToggles:
 
         subtract_b2 = create_node(nodes, 108, -420, ShaderNodeMath)
         subtract_b2.operation = "SUBTRACT"
-        b2: NodeSocketFloat = subtract_b2.inputs[1]
-        b2.default_value = 1.0
+        assign_value(subtract_b2, 1, 1.0)
 
         add_b2 = create_node(nodes, 336, -424, ShaderNodeMath)
         add_b2.operation = "ADD"

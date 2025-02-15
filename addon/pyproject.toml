@@ -10,17 +10,9 @@ dependencies = ["fake-bpy-module-latest"]
 venvPath = "."
 venv = ".venv"
 exclude = [".venv"]
-reportUnannotatedClassAttribute = false
-reportImplicitOverride = false
-reportOptionalMemberAccess = false
-reportIncompatibleMethodOverride = false
-reportAssignmentType = false
 reportInvalidTypeForm = false
-reportAny = false
-reportUnknownVariableType = false
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
-reportUninitializedInstanceVariable = false
+reportIncompatibleMethodOverride = false
+
 
 [tool.ruff]
 line-length = 100

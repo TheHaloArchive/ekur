@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+from typing import cast
 import bpy
 from bpy.types import (
     NodeGroupInput,
@@ -7,22 +8,24 @@ from bpy.types import (
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketShader,
+    NodeTree,
     ShaderNodeBsdfPrincipled,
     ShaderNodeGroup,
     ShaderNodeMix,
     ShaderNodeMixRGB,
     ShaderNodeNormalMap,
     ShaderNodeSeparateColor,
+    ShaderNodeTree,
 )
 
 from .norm_normalize import NormNormalize
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class DiffuseShader:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Diffuse Shader")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Diffuse Shader")
         if self.node_tree:
             return
         else:
@@ -34,6 +37,8 @@ class DiffuseShader:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "BSDF", NodeSocketShader, False)
         _ = create_socket(interface, "Color Texture", NodeSocketColor)
@@ -50,12 +55,13 @@ class DiffuseShader:
         _ = create_socket(interface, "Color Alpha", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         nodes = self.node_tree.nodes
 
         ao_multiply = create_node(nodes, 0, 0, ShaderNodeMixRGB)
         ao_multiply.blend_type = "MULTIPLY"
-        fac: NodeSocketFloat = ao_multiply.inputs[0]
-        fac.default_value = 1.0
+        assign_value(ao_multiply, 0, 1.0)
 
         input = create_node(nodes, 0, 0, NodeGroupInput)
         output = create_node(nodes, 0, 0, NodeGroupOutput)
@@ -66,9 +72,8 @@ class DiffuseShader:
         normal_map = create_node(nodes, 0, 0, ShaderNodeNormalMap)
 
         normalize = create_node(nodes, 0, 0, ShaderNodeGroup)
-        normalize.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
-        invert: NodeSocketFloat = normalize.inputs[1]
-        invert.default_value = 1.0
+        normalize.node_tree = cast(ShaderNodeTree, NormNormalize().node_tree)
+        assign_value(normalize, 1, 1.0)
 
         color_tint = create_node(nodes, 0, 0, ShaderNodeMix)
         color_tint.data_type = "RGBA"

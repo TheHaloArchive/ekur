@@ -7,6 +7,7 @@ from bpy.types import (
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketShader,
+    NodeTree,
     ShaderNodeBsdfPrincipled,
     ShaderNodeBsdfTransparent,
     ShaderNodeInvert,
@@ -16,12 +17,12 @@ from bpy.types import (
     ShaderNodeNewGeometry,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class SelfIllum:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Self-Illumination Shader")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Self-Illumination Shader")
         if self.node_tree:
             return
         else:
@@ -33,6 +34,8 @@ class SelfIllum:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "BSDF", NodeSocketShader, False)
         _ = create_socket(interface, "Color Texture", NodeSocketColor)
@@ -42,6 +45,8 @@ class SelfIllum:
         _ = create_socket(interface, "Intensity", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         nodes = self.node_tree.nodes
         input = create_node(nodes, 0, 0, NodeGroupInput)
         output = create_node(nodes, 0, 0, NodeGroupOutput)
@@ -52,8 +57,7 @@ class SelfIllum:
         mult_2 = create_node(nodes, 0, 0, ShaderNodeMix)
         mult_2.data_type = "RGBA"
         mult_2.blend_type = "MULTIPLY"
-        _: NodeSocketFloat = mult_2.inputs[0]
-        _.default_value = 1.0
+        assign_value(mult_2, 0, 1.0)
 
         geometry = create_node(nodes, 0, 0, ShaderNodeNewGeometry)
         mix_shader = create_node(nodes, 0, 0, ShaderNodeMixShader)

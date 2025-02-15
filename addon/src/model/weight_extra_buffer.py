@@ -17,5 +17,5 @@ class WeightExtraBuffer:
             raise IncorrectStrideValue("Invalid WeightExtra buffer stride")
         self.count = int.from_bytes(reader.read(4), "little")
         for _ in range(self.count):
-            value = struct.unpack("f", reader.read(4))[0]
+            value: float = struct.unpack("f", reader.read(4))[0]
             self.values.append(value)

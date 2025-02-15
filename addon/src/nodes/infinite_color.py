@@ -5,18 +5,19 @@ from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
     NodeSocketColor,
+    NodeTree,
     ShaderNodeMath,
     ShaderNodeMix,
     ShaderNodeSeparateColor,
     NodeSocketFloat,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class InfiniteColor:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Infinite Color")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Infinite Color")
         if self.node_tree:
             return
         else:
@@ -28,6 +29,8 @@ class InfiniteColor:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Color", NodeSocketColor, False)
         _ = create_socket(interface, "ASG Control", NodeSocketColor)
@@ -48,6 +51,8 @@ class InfiniteColor:
         _ = create_socket(interface, "Scratch Amount", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         input = create_node(self.node_tree.nodes, -1253, -12, NodeGroupInput)
         output = create_node(self.node_tree.nodes, 2253, 11, NodeGroupOutput)
 
@@ -99,13 +104,11 @@ class InfiniteColor:
 
         subtract = create_node(self.node_tree.nodes, -613, -604, ShaderNodeMath)
         subtract.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract, 1, 1.0)
 
         subtract2 = create_node(self.node_tree.nodes, -640, -426, ShaderNodeMath)
         subtract2.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract2.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract2, 1, 1.0)
 
         math1 = create_node(self.node_tree.nodes, -426, -607, ShaderNodeMath)
         math1.use_clamp = True

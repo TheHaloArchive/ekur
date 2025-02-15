@@ -6,17 +6,18 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeMath,
     ShaderNodeMix,
     ShaderNodeSeparateColor,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class Emission:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Emission")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Emission")
         if self.node_tree:
             return
         else:
@@ -28,6 +29,8 @@ class Emission:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Color", NodeSocketFloat, False)
         _ = create_socket(interface, "ASG", NodeSocketColor)
@@ -44,6 +47,8 @@ class Emission:
         _ = create_socket(interface, "Grime Amount", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         input = create_node(self.node_tree.nodes, -1330, 52, NodeGroupInput)
         output = create_node(self.node_tree.nodes, 1149, -237, NodeGroupOutput)
         srgb1 = create_node(self.node_tree.nodes, -330, 0, ShaderNodeSeparateColor)
@@ -80,8 +85,7 @@ class Emission:
 
         subtract = create_node(self.node_tree.nodes, -500, -720, ShaderNodeMath)
         subtract.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract, 1, 1.0)
 
         add = create_node(self.node_tree.nodes, -250, -720, ShaderNodeMath)
         add.operation = "ADD"

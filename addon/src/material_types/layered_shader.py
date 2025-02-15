@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-
-# pyright: reportAttributeAccessIssue=false
 import json
 import logging
 from pathlib import Path
+from typing import cast
 
 import bpy
 from bpy.types import (
@@ -27,7 +26,7 @@ from ..json_definitions import (
 )
 from ..nodes.hims import HIMS
 from ..nodes.layer import Layer
-from ..utils import create_node, read_json_file, read_texture
+from ..utils import assign_value, create_node, read_json_file, read_texture
 
 MP_VISOR: int = 1420626520
 ANY_REGION: int = 192819851
@@ -51,13 +50,13 @@ class LayeredShader:
 
     def create_nodes(self):
         self.shader = create_node(self.node_tree.nodes, 700, 600, ShaderNodeGroup)
-        self.shader.node_tree = HIMS().node_tree
+        self.shader.node_tree = cast(ShaderNodeTree, HIMS().node_tree)
         self.shader.width = 400
         material_output = create_node(self.node_tree.nodes, 2000, 150, ShaderNodeOutputMaterial)
         _ = self.node_tree.links.new(self.shader.outputs[0], material_output.inputs[0])
 
-    def create_image(self, shader: NodeTree | None, name: int, y: int) -> ShaderNodeTexImage:
-        texture: ShaderNodeTexImage = shader.nodes.new("ShaderNodeTexImage")
+    def create_image(self, shader: NodeTree, name: int, y: int) -> ShaderNodeTexImage:
+        texture = cast(ShaderNodeTexImage, shader.nodes.new("ShaderNodeTexImage"))
         texture.hide = True
         texture.location = (0, y)
         texture.image = read_texture(str(name))
@@ -71,7 +70,7 @@ class LayeredShader:
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         else:
             asg_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            inp: NodeSocketColor = asg_node.outputs[0]
+            inp = cast(NodeSocketColor, asg_node.outputs[0])
             inp.default_value = (1.0, 0.0, 0.0, 1.0)
             asg_node.location = (0, 120)
             _ = self.node_tree.links.new(asg_node.outputs[0], self.shader.inputs[3])
@@ -86,18 +85,19 @@ class LayeredShader:
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[3])
         else:
             normal_value_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            inp = normal_value_node.outputs[0]
+            inp = cast(NodeSocketColor, normal_value_node.outputs[0])
             inp.default_value = (0.5, 0.5, 1.0, 1.0)
             _ = self.node_tree.links.new(normal_value_node.outputs[0], self.shader.inputs[3])
 
     def process_styles(self) -> None:
         style = self.styles["default_style"]["reference"]
-        custom_style = str(bpy.context.scene.import_properties.coat_id)
-        items_func = bpy.context.scene.import_properties.coatings
-        use_default = bpy.context.scene.import_properties.use_default
+        import_props = bpy.context.scene.import_properties  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue, reportUnknownVariableType]
+        custom_style: str = cast(str, import_props.coat_id)
+        items_func = cast(int, import_props.coatings)
+        use_default: str = import_props.use_default  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
         if custom_style != "" and not use_default and self.styles["styles"].get(custom_style):
-            style = self.styles["styles"][str(custom_style)]["reference"]
+            style = self.styles["styles"][custom_style]["reference"]
         if custom_style == "" and not use_default and self.styles["styles"].get(str(items_func)):
             style = self.styles["styles"][str(items_func)]["reference"]
 
@@ -105,20 +105,20 @@ class LayeredShader:
         if not style_path.exists():
             logging.warning(f"Style path does not exist!: {style_path}")
             return
-        style_json: CommonCoating = read_json_file(style_path)
+        style_json = read_json_file(style_path, CommonCoating)
 
         globals_path = Path(f"{self.data_folder}/globals.json")
         if not globals_path.exists():
             logging.warning(f"Style path does not exist!: {globals_path}")
             return
-        globals_json: CoatingGlobalEntries = read_json_file(globals_path)
+        globals_json = read_json_file(globals_path, CoatingGlobalEntries)
         self.create_style(style_json, globals_json)
 
     def create_style(self, style: CommonCoating, globals: CoatingGlobalEntries):
         style_info = self.material["style_info"]
         if style_info:
             all = style["regions"].get(str(ANY_REGION))
-            reg: CommonRegion = None
+            reg: CommonRegion | None = None
             if style["regions"].get(str(style_info["region_name"])):
                 reg = style["regions"][str(style_info["region_name"])]
 
@@ -132,24 +132,24 @@ class LayeredShader:
                     diff = 16
                 self.find_intention(intention, reg, all, globals, diff, i)
 
-            self.shader.inputs[7].default_value = style["grime_amount"]
+            assign_value(self.shader, 7, style["grime_amount"])
             if style["grime_swatch"]["disabled"]:
-                self.shader.inputs[7].default_value = 0.0
-            self.shader.inputs[16].default_value = style["scratch_amount"]
-            self.shader.inputs[12].default_value = 1.0
-            self.shader.inputs[135].default_value = style_info["texel_density"][0]
-            self.shader.inputs[136].default_value = style_info["texel_density"][1]
+                assign_value(self.shader, 7, 0.0)
+            assign_value(self.shader, 16, style["scratch_amount"])
+            assign_value(self.shader, 12, 1.0)
+            assign_value(self.shader, 135, style_info["texel_density"][0])
+            assign_value(self.shader, 136, style_info["texel_density"][1])
 
             self.index = 109
             top = style["grime_swatch"]["top_color"]
-            swatch: ShaderNodeTree = Layer(style["grime_swatch"], f"g_{top}").node_tree
+            swatch = cast(ShaderNodeTree, Layer(style["grime_swatch"], f"g_{top}").node_tree)
             emissive_amount = style["grime_swatch"]["emissive_amount"]
             self.create_swatch(swatch, top, 7, emissive_amount, is_grime=True)
-            toggle_damage = bpy.context.scene.import_properties.toggle_damage
+            toggle_damage = cast(bool, bpy.context.scene.import_properties.toggle_damage)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
             if toggle_damage and style_info["supported_layers"] == 7:
-                self.shader.inputs[106].default_value = 0.0
+                assign_value(self.shader, 106, 0.0)
             if toggle_damage and style_info["supported_layers"] == 4:
-                self.shader.inputs[58].default_value = 0.0
+                assign_value(self.shader, 58, 0.0)
             self.index = 0
 
     def create_swatch(
@@ -167,17 +167,17 @@ class LayeredShader:
             self.index -= 15
             redo2 = True
 
-        swatch: ShaderNodeGroup = self.node_tree.nodes.new("ShaderNodeGroup")
+        swatch = cast(ShaderNodeGroup, self.node_tree.nodes.new("ShaderNodeGroup"))
         swatch.hide = True
         swatch.use_custom_color = True
         swatch.color = color
         swatch.node_tree = shader_group
         swatch.location = (500, -232 + location * -350)
         if self.material["style_info"]:
-            swatch.inputs[0].default_value = self.material["style_info"]["texel_density"][0]
-            swatch.inputs[1].default_value = self.material["style_info"]["texel_density"][1]
-            swatch.inputs[6].default_value = self.material["style_info"]["material_offset"][0]
-            swatch.inputs[7].default_value = self.material["style_info"]["material_offset"][1]
+            assign_value(swatch, 0, self.material["style_info"]["texel_density"][0])
+            assign_value(swatch, 1, self.material["style_info"]["texel_density"][1])
+            assign_value(swatch, 6, self.material["style_info"]["material_offset"][0])
+            assign_value(swatch, 7, self.material["style_info"]["material_offset"][1])
 
         _ = self.node_tree.links.new(swatch.outputs[0], self.shader.inputs[13 + self.index])
         _ = self.node_tree.links.new(swatch.outputs[1], self.shader.inputs[14 + self.index])
@@ -189,8 +189,8 @@ class LayeredShader:
             _ = self.node_tree.links.new(swatch.outputs[8], self.shader.inputs[22 + self.index])
         else:
             if self.index != 0 and not disabled:
-                self.shader.inputs[12 + self.index].default_value = 1.0
-            self.shader.inputs[22 + self.index].default_value = emissive
+                assign_value(self.shader, 12 + self.index, 1.0)
+            assign_value(self.shader, 22 + self.index, emissive)
             _ = self.node_tree.links.new(swatch.outputs[3], self.shader.inputs[17 + self.index])
             _ = self.node_tree.links.new(swatch.outputs[4], self.shader.inputs[18 + self.index])
             _ = self.node_tree.links.new(swatch.outputs[5], self.shader.inputs[19 + self.index])
@@ -241,21 +241,23 @@ class LayeredShader:
             i: Index of the intention.
         """
         layer = self.get_intention(intention, mat_reg, any_reg, globals)
+        toggle_visors = cast(bool, bpy.context.scene.import_properties.toggle_visors)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+        visor = cast(str, bpy.context.scene.import_properties.visors)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
         if (
             i == 0
             and self.material["style_info"]
             and self.material["style_info"]["region_name"] == MP_VISOR
-            and bpy.context.scene.import_properties.toggle_visors
+            and toggle_visors
         ):
             visors_path = Path(f"{self.data_folder}/all_visors.json")
             if not visors_path.exists():
                 return
-            visors: dict[str, CommonLayer] = read_json_file(visors_path)
-            layer = visors[bpy.context.scene.import_properties.visors]
+            visors = read_json_file(visors_path, dict[str, CommonLayer])
+            layer = visors[visor]
         if layer:
-            swatch: ShaderNodeTree = Layer(
-                layer, f"{intention}_{hash(json.dumps(layer))}"
-            ).node_tree
+            swatch = cast(
+                ShaderNodeTree, Layer(layer, f"{intention}_{hash(json.dumps(layer))}").node_tree
+            )
             emissive = layer["emissive_amount"]
             self.create_swatch(swatch, layer["mid_color"], i, emissive, layer["disabled"])
         self.index += difference

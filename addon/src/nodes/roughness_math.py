@@ -6,16 +6,17 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeMath,
     ShaderNodeMix,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class RoughnessMath:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Roughness Math")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Roughness Math")
         if self.node_tree:
             return
         else:
@@ -27,6 +28,8 @@ class RoughnessMath:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if not self.node_tree:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Color", NodeSocketColor, False)
         _ = create_socket(interface, "Base", NodeSocketFloat)
@@ -35,6 +38,8 @@ class RoughnessMath:
         _ = create_socket(interface, "Roughness White", NodeSocketColor)
 
     def create_nodes(self) -> None:
+        if not self.node_tree:
+            return
         nodes = self.node_tree.nodes
         output = create_node(nodes, 538, 0, NodeGroupOutput)
         input = create_node(nodes, -422, 0, NodeGroupInput)
@@ -44,8 +49,7 @@ class RoughnessMath:
 
         divide = create_node(nodes, -90, 15, ShaderNodeMath)
         divide.operation = "DIVIDE"
-        _: NodeSocketFloat = divide.inputs[1]
-        _.default_value = 4.0
+        assign_value(divide, 1, 4.0)
 
         multiply2 = create_node(nodes, 73, -132, ShaderNodeMath)
         multiply2.operation = "MULTIPLY"

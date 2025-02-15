@@ -6,16 +6,17 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeMath,
     ShaderNodeMix,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class ColorMixer:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Color Mixer")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Color Mixer")
         if self.node_tree:
             return
         else:
@@ -27,6 +28,8 @@ class ColorMixer:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Color", NodeSocketColor, False)
         _ = create_socket(interface, "Gradient Out", NodeSocketFloat)
@@ -35,23 +38,21 @@ class ColorMixer:
         _ = create_socket(interface, "Bot", NodeSocketColor)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         input = create_node(self.node_tree.nodes, -474, 0, NodeGroupInput)
         output = create_node(self.node_tree.nodes, 530, 4, NodeGroupOutput)
 
         madd = create_node(self.node_tree.nodes, -239, 316, ShaderNodeMath)
         madd.operation = "MULTIPLY_ADD"
-        _: NodeSocketFloat = madd.inputs[1]
-        _.default_value = 2.0
-        _: NodeSocketFloat = madd.inputs[2]
-        _.default_value = -1.0
+        assign_value(madd, 1, 2.0)
+        assign_value(madd, 2, -1.0)
         madd.location = (-239, 316)
 
         madd2 = create_node(self.node_tree.nodes, -240, 125, ShaderNodeMath)
         madd2.operation = "MULTIPLY_ADD"
-        _: NodeSocketFloat = madd2.inputs[1]
-        _.default_value = -2.0
-        _: NodeSocketFloat = madd2.inputs[2]
-        _.default_value = 1.0
+        assign_value(madd2, 1, -2.0)
+        assign_value(madd2, 2, 1.0)
 
         mix = create_node(self.node_tree.nodes, 300, 80, ShaderNodeMix)
         mix.clamp_factor = True
