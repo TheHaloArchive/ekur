@@ -41,9 +41,9 @@ fn get_buffers<T: TagStructure>(
             if let Some(tag_thing) = tag_thing {
                 buffers.push(tag_thing.get_raw_data(true)?);
             }
+            module.files[resource as usize].data_stream = None;
         }
     }
-    module.files[model.0 .1].data_stream = None;
     Ok(buffers)
 }
 
