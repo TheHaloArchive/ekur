@@ -77,7 +77,7 @@ class DumpFilesOperator(Operator):
 
     def execute(self, context: Context | None) -> set[str]:
         data: EkurPreferences = context.preferences.addons["bl_ext.user_default.ekur"].preferences
-        ekur_save_path = Path(f"{data.data_folder}/ekur")
+        ekur_save_path = Path(f"{data.data_folder}/ekur-{package_version_string}")
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{package_version_string}/ekur-{package_version_string}"
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
