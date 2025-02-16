@@ -67,6 +67,7 @@ pub fn get_models<T: TagStructure + Default>(
             tag.read_metadata(&mut mat)?;
             tags.insert((module_index, idx, tag.tag_id), mat);
         }
+        module.files[idx].data_stream = None;
     }
     Ok(tags)
 }

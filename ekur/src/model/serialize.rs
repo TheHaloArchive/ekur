@@ -51,18 +51,19 @@ fn get_region_permutation(model: &RenderModel, section_index: usize) -> Result<(
     let mut region_name = 0;
     let mut permutation_name = 0;
     let region = model.regions.elements.iter().find(|x| {
-        x.permutations
-            .elements
-            .iter()
-            .any(|y| y.section_index.0 as usize == section_index)
+        x.permutations.elements.iter().any(|y| {
+            let start = y.section_index.0 as usize;
+            let end = start + y.section_count.0 as usize;
+            section_index >= start && section_index < end
+        })
     });
     if let Some(region) = region {
         region_name = region.name.0;
-        let permutation = region
-            .permutations
-            .elements
-            .iter()
-            .find(|x| x.section_index.0 as usize == section_index);
+        let permutation = region.permutations.elements.iter().find(|x| {
+            let start = x.section_index.0 as usize;
+            let end = start + x.section_count.0 as usize;
+            section_index >= start && section_index < end
+        });
         if let Some(permutation) = permutation {
             permutation_name = permutation.name.0;
         }

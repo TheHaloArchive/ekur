@@ -118,7 +118,7 @@ class ModelImporter:
             permutation_name = section.permutation_name
             region_name = section.region_name
             collection_name = f"{self.model.header.tag_id}_{permutation_name}_{region_name}"
-
+            region_collection_name = f"{region_name}_{permutation_name}"
             verts = [x.to_vector() for x in section.vertex_buffer.position_buffer.positions]
             it = len(verts[0])
             for i in range(len(verts)):
@@ -151,10 +151,10 @@ class ModelImporter:
             else:
                 permutation_collection = collections[permutation_name]
 
-            if permutation_collection.children.get(f"{region_name}_{permutation_name}") is None:
-                region_collection = bpy.data.collections.new(f"{region_name}_{permutation_name}")
+            if permutation_collection.children.get(region_collection_name) is None:
+                region_collection = bpy.data.collections.new(region_collection_name)
                 permutation_collection.children.link(region_collection)  # pyright: ignore[reportUnknownMemberType]
             else:
-                region_collection = permutation_collection.children[region_name]
-
-            region_collection.objects.link(obj)  # pyright: ignore[reportUnknownMemberType]
+                region_collection = permutation_collection.children.get(region_collection_name)
+            if region_collection is not None:
+                region_collection.objects.link(obj)  # pyright: ignore[reportUnknownMemberType]
