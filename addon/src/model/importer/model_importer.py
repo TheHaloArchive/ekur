@@ -1,32 +1,21 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-from typing import cast, final, override
+from typing import cast
 import bpy
-from bpy.types import ArmatureModifier, Collection, Context, Material, Mesh, Object, Operator
-
-from .model.section import Section
-from .model.vectors import NormalizedVector2
-from .model.importer.bone import import_bones
-from .model.importer.markers import import_markers
-from .model.metadata import Model
+from bpy.types import ArmatureModifier, Collection, Context, Material, Mesh, Object
+from .bone import import_bones
+from .markers import import_markers
+from ..metadata import Model
+from ..section import Section
+from ..vectors import NormalizedVector2
 
 MESH_SCALE = (3.048, 3.048, 3.048)
 
 
-@final
-class ImportModelOperator(Operator):
-    bl_idname = "ekur.importmodel"
-    bl_label = "Import"
+class ModelImporter:
+    def __init__(self):
+        self.model: Model = Model()
 
-    def __init__(self) -> None:
-        self.model = Model()
-
-    @override
-    def execute(self, context: Context | None) -> set[str]:
-        if context is None:
-            return {"CANCELLED"}
+    def start_import(self, context: Context, model_path: str) -> None:
         properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownVariableType, reportUnknownMemberType]
-        model_path = cast(str, properties.model_path)
         with open(model_path, "rb") as f:
             self.model.read(f)
         if cast(bool, properties.import_bones):
@@ -37,7 +26,6 @@ class ImportModelOperator(Operator):
             self.import_model(armature)
         else:
             self.import_model()
-        return {"FINISHED"}
 
     def create_uv(
         self,

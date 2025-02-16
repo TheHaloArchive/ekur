@@ -11,8 +11,8 @@ from typing import cast, final, override
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, UILayout, Operator
 
-from .json_definitions import CommonMaterial, CommonStyleList, CommonLayer
-from .utils import read_json_file
+from ..json_definitions import CommonMaterial, CommonStyleList, CommonLayer
+from ..utils import read_json_file
 
 _nsre = re.compile("([0-9]+)")
 
@@ -187,3 +187,4 @@ class CoatingImportPanel(Panel):
 
         ocgd_box = layout.box()
         ocgd_box.label(icon="ARMATURE_DATA", text="Import Spartan")
+        _ = ocgd_box.operator("ekur.importspartan")

@@ -5,6 +5,8 @@ use crate::loader::module::load_modules;
 use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
+use definitions::customization_globals::CustomizationGlobals;
+use definitions::object_theme::ObjectTheme;
 use definitions::runtime_geo::RuntimeGeo;
 use definitions::{
     coating_globals::CoatingGlobalsTag, coating_swatch::CoatingSwatchPODTag, material::MaterialTag,
@@ -15,6 +17,7 @@ use definitions::{
 };
 use loader::module::get_models;
 use model::serialize::process_models;
+use serialize::customization_globals::process_object_globals;
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
     material::process_materials, material_coating::process_material_coatings,
@@ -36,9 +39,9 @@ mod serialize;
 struct EkurArgs {
     #[clap(short, long)]
     module_path: String,
-    #[clap(short, long)]
+    #[clap(long)]
     save_path: String,
-    #[clap(short, long)]
+    #[clap(long)]
     strings_path: String,
 }
 
@@ -54,8 +57,10 @@ fn main() -> Result<()> {
     let mut runtime_styles = HashMap::new();
     let mut cogl = CoatingGlobalsTag::default();
     let mut visor = MaterialVisorSwatchTag::default();
+    let mut ocgd = CustomizationGlobals::default();
     let mut render_models = HashMap::new();
     let mut render_geometry = HashMap::new();
+    let mut themes = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
@@ -72,6 +77,10 @@ fn main() -> Result<()> {
     }
 
     for (index, module) in modules.iter_mut().enumerate() {
+        let m = module.read_tag_from_id(1672913609)?;
+        if let Some(m) = m {
+            m.read_metadata(&mut ocgd)?;
+        }
         let m = module.read_tag_from_id(680672300)?;
         if let Some(m) = m {
             m.read_metadata(&mut cogl)?;
@@ -87,6 +96,7 @@ fn main() -> Result<()> {
         material_swatch.extend(get_tags::<MaterialSwatchTag>("mwsw", module)?);
         runtime_style.extend(get_tags::<RuntimeCoatingStyle>("rucy", module)?);
         runtime_styles.extend(get_tags::<RuntimeCoatingStyles>("rucs", module)?);
+        themes.extend(get_tags::<ObjectTheme>("ocur", module)?);
         render_models.extend(get_models::<RenderModel>("mode", module, index)?);
         render_geometry.extend(get_models::<RuntimeGeo>("rtgo", module, index)?);
     }
@@ -96,10 +106,12 @@ fn main() -> Result<()> {
         &args.save_path,
         &mut modules,
     )?;
+
+    process_object_globals(&ocgd, &themes, &args.save_path)?;
+    process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
     let textures = process_materials(&materials, &args.save_path)?;
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
-    process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
     process_material_coatings(
         &material_styles,
         &material_palette,

@@ -115,3 +115,27 @@ class CommonStyleListEntry(TypedDict):
 class CommonStyleList(TypedDict):
     default_style: CommonStyleListEntry
     styles: OrderedDict[str, CommonStyleListEntry]
+
+
+class CustomizationPermutation(TypedDict):
+    name: int
+    attachment: int
+
+
+class CustomizationRegion(TypedDict):
+    name: int
+    permutations: list[CustomizationPermutation]
+
+
+class CustomizationTheme(TypedDict):
+    name: int
+    variant_name: int
+    regions: list[CustomizationRegion]
+    attachments: list[int]
+    prosthetics: list[CustomizationRegion]
+    body_types: list[CustomizationRegion]
+
+
+class CustomizationGlobals(TypedDict):
+    model: int
+    themes: list[CustomizationTheme]

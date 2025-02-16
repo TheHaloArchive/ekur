@@ -16,8 +16,9 @@ from bpy.types import AddonPreferences, Context, Operator
 from bpy.utils import register_class, unregister_class
 
 from .src.import_logic import ImportMaterialOperator
-from .src.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
-from .src.import_model import ImportModelOperator
+from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
+from .src.operators.model_operator import ImportModelOperator
+from .src.import_spartan import ImportSpartanOperator
 
 bl_info = {
     "name": "Ekur",
@@ -145,6 +146,7 @@ def register():
     register_class(DownloadFilesOperator)
     register_class(DumpFilesOperator)
     register_class(ImportModelOperator)
+    register_class(ImportSpartanOperator)
     bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -157,4 +159,5 @@ def unregister():
     unregister_class(DownloadFilesOperator)
     unregister_class(DumpFilesOperator)
     unregister_class(ImportModelOperator)
+    unregister_class(ImportSpartanOperator)
     del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]
