@@ -2,7 +2,7 @@
 # Copyright © 2025 Surasia
 import logging
 from pathlib import Path
-from typing import cast, final, override
+from typing import cast, final
 
 from bpy.types import Context, Operator, ShaderNodeTree
 
@@ -19,7 +19,6 @@ class ImportMaterialOperator(Operator):
     bl_idname = "ekur.importmaterial"
     bl_label = "Import"
 
-    @override
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
             return {"CANCELLED"}

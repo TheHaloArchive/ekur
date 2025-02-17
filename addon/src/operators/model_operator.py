@@ -1,4 +1,4 @@
-from typing import cast, final, override
+from typing import cast, final
 
 import bpy
 from bpy.types import Collection, Context, Operator
@@ -11,7 +11,6 @@ class ImportModelOperator(Operator):
     bl_idname = "ekur.importmodel"
     bl_label = "Import"
 
-    @override
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
             return {"CANCELLED"}

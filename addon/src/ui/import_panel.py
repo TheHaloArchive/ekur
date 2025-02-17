@@ -6,7 +6,7 @@ import logging
 import re
 import random
 from pathlib import Path
-from typing import cast, final, override
+from typing import cast, final
 
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, UILayout, Operator
@@ -112,7 +112,6 @@ class RandomizeCoatingOperator(Operator):
     bl_idname = "ekur.randomize"
     bl_label = "Surprise Me"
 
-    @override
     def execute(self, context: Context) -> set[str]:
         """Select a random style from the available styles.
 
@@ -154,7 +153,6 @@ class CoatingImportPanel(Panel):
     bl_region_type = "UI"
     bl_category = "Ekur"
 
-    @override
     def draw(self, context: Context | None) -> None:
         if context is None:
             return

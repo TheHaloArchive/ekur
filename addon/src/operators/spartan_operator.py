@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import cast, final, override
+from typing import cast, final
 
 import bpy
 from bpy.types import Collection, Context, Object, Operator
@@ -16,7 +16,6 @@ class ImportSpartanOperator(Operator):
     bl_idname = "ekur.importspartan"
     bl_label = "Import Spartan"
 
-    @override
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
             return {"CANCELLED"}
