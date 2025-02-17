@@ -2,6 +2,7 @@
 # Copyright © 2025 Surasia
 from functools import reduce
 import operator
+from typing import cast
 import bpy
 from bpy.types import EditBone, Object
 from mathutils import Matrix
@@ -30,11 +31,12 @@ def get_bone_lineage(model: Model, bone: Bone) -> list[Bone]:
 
 
 def get_bone_transforms(model: Model) -> list[Matrix]:
-    result = []
+    result: list[Matrix] = []
     for bone in model.bones:
         lineage = get_bone_lineage(model, bone)
         transforms = [create_transform(x.local_transform.to_matrix(), True) for x in lineage]
-        result.append(reduce(operator.matmul, transforms))
+        res = cast(Matrix, reduce(operator.matmul, transforms))
+        result.append(res)
     return result
 
 
@@ -42,12 +44,12 @@ def import_bones(model: Model) -> Object:
     armature_data = bpy.data.armatures.new(f"{model.header.tag_id}_Armature")
     armature_obj = bpy.data.objects.new(f"{model.header.tag_id}_Armature", armature_data)
 
-    bpy.context.scene.collection.objects.link(armature_obj)
+    bpy.context.scene.collection.objects.link(armature_obj)  # pyright: ignore[reportUnknownMemberType]
 
-    bpy.ops.object.select_all(action="DESELECT")
-    armature_obj.select_set(True)
+    bpy.ops.object.select_all(action="DESELECT")  # pyright: ignore[reportUnknownMemberType]
+    armature_obj.select_set(True)  # pyright: ignore[reportUnknownMemberType]
     bpy.context.view_layer.objects.active = armature_obj
-    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.object.mode_set(mode="EDIT")  # pyright: ignore[reportUnknownMemberType]
 
     bone_transforms = get_bone_transforms(model)
 
@@ -63,5 +65,5 @@ def import_bones(model: Model) -> Object:
         if bone.parent_index >= 0:
             editbone.parent = editbones[bone.parent_index]
 
-    bpy.ops.object.mode_set(mode="OBJECT")
+    bpy.ops.object.mode_set(mode="OBJECT")  # pyright: ignore[reportUnknownMemberType]
     return armature_obj

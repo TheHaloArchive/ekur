@@ -6,18 +6,19 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeClamp,
     ShaderNodeMath,
     ShaderNodeMix,
     ShaderNodeSeparateColor,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class InfiniteMatts:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Infinite Matts")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Infinite Matts")
         if self.node_tree:
             return
         else:
@@ -29,6 +30,8 @@ class InfiniteMatts:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Color", NodeSocketFloat, False)
         _ = create_socket(interface, "ASG Control", NodeSocketColor)
@@ -47,6 +50,8 @@ class InfiniteMatts:
         _ = create_socket(interface, "Grime Amount", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         slot1_2 = create_node(self.node_tree.nodes, -708, 11, ShaderNodeMix)
         slot1_2.clamp_factor = False
         slot3 = create_node(self.node_tree.nodes, -490, 11, ShaderNodeMix)
@@ -65,25 +70,20 @@ class InfiniteMatts:
 
         clamp = create_node(self.node_tree.nodes, 1134, 11, ShaderNodeClamp)
         clamp.clamp_type = "MINMAX"
-        _: NodeSocketFloat = clamp.inputs[1]
-        _.default_value = 0.0
-        _: NodeSocketFloat = clamp.inputs[2]
-        _.default_value = 1.0
+        assign_value(clamp, 1, 0.0)
+        assign_value(clamp, 2, 1.0)
 
         add = create_node(self.node_tree.nodes, -436, -718, ShaderNodeMath)
         add.use_clamp = True
-        _: NodeSocketFloat = add.inputs[2]
-        _.default_value = 0.5
+        assign_value(add, 2, 0.5)
 
         subtract = create_node(self.node_tree.nodes, -700, -710, ShaderNodeMath)
         subtract.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract, 1, 1.0)
 
         subtract2 = create_node(self.node_tree.nodes, -700, -900, ShaderNodeMath)
         subtract2.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract2.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract2, 1, 1.0)
 
         add2 = create_node(self.node_tree.nodes, -450, -900, ShaderNodeMath)
         add2.use_clamp = True

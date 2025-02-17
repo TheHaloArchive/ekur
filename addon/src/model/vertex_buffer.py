@@ -16,6 +16,7 @@ from .position_buffer import PositionBuffer
 
 class VertexBuffers:
     def __init__(self) -> None:
+        self.flags: BufferFlags = BufferFlags()
         self.position_buffer: PositionBuffer = PositionBuffer()
         self.uv0_buffer: UVBuffer = UVBuffer()
         self.uv1_buffer: UVBuffer = UVBuffer()
@@ -64,6 +65,12 @@ class VertexBuffers:
             blend_weights = self.weight_buffer.weights
 
         for i in range(len(self.position_buffer.positions)):
+            if i >= len(blend_indicies):
+                continue
+            if not rigid:
+                if i >= len(blend_weights):
+                    continue
+
             indices = blend_indicies[i].to_vector()
             weights = dummy_weights if rigid else blend_weights[i].to_vector()
 

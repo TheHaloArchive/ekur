@@ -9,21 +9,24 @@ use std::{
 
 use anyhow::Result;
 use byteorder::{WriteBytesExt, LE};
-use infinite_rs::ModuleFile;
+use infinite_rs::{module::file::TagStructure, ModuleFile};
 
-use crate::definitions::render_model::{LodFlags, RenderModel, VertexBufferUsage as VU};
+use crate::definitions::{
+    render_model::{LodFlags, RenderModel, VertexBufferUsage as VU},
+    runtime_geo::RuntimeGeo,
+};
 
 use super::{
     index_buffer::write_index_buffer,
     metadata::{
-        write_bones, write_bounding_boxes, write_header, write_markers, write_materials,
-        write_regions, write_submeshes,
+        write_bones, write_bounding_boxes, write_header, write_header_rtgo, write_markers,
+        write_markers_rtgo, write_materials, write_regions, write_submeshes, write_submeshes_rtgo,
     },
     vertex_buffer::{data_exists, get_vertex_buffer},
 };
 
-fn get_buffers(
-    model: (&(usize, usize, i32), &RenderModel),
+fn get_buffers<T: TagStructure>(
+    model: (&(usize, usize, i32), &T),
     modules: &mut [ModuleFile],
 ) -> Result<Vec<Vec<u8>>> {
     let module = &mut modules[model.0 .0];
@@ -38,9 +41,9 @@ fn get_buffers(
             if let Some(tag_thing) = tag_thing {
                 buffers.push(tag_thing.get_raw_data(true)?);
             }
+            module.files[resource as usize].data_stream = None;
         }
     }
-    module.files[model.0 .1].data_stream = None;
     Ok(buffers)
 }
 
@@ -48,18 +51,19 @@ fn get_region_permutation(model: &RenderModel, section_index: usize) -> Result<(
     let mut region_name = 0;
     let mut permutation_name = 0;
     let region = model.regions.elements.iter().find(|x| {
-        x.permutations
-            .elements
-            .iter()
-            .any(|y| y.section_index.0 as usize == section_index)
+        x.permutations.elements.iter().any(|y| {
+            let start = y.section_index.0 as usize;
+            let end = start + y.section_count.0 as usize;
+            section_index >= start && section_index < end
+        })
     });
     if let Some(region) = region {
         region_name = region.name.0;
-        let permutation = region
-            .permutations
-            .elements
-            .iter()
-            .find(|x| x.section_index.0 as usize == section_index);
+        let permutation = region.permutations.elements.iter().find(|x| {
+            let start = x.section_index.0 as usize;
+            let end = start + x.section_count.0 as usize;
+            section_index >= start && section_index < end
+        });
         if let Some(permutation) = permutation {
             permutation_name = permutation.name.0;
         }
@@ -82,6 +86,7 @@ pub(super) struct VertexBuffers {
 
 pub fn process_models(
     models: &HashMap<(usize, usize, i32), RenderModel>,
+    runtime_geo: &HashMap<(usize, usize, i32), RuntimeGeo>,
     save_path: &str,
     modules: &mut [ModuleFile],
 ) -> Result<()> {
@@ -96,7 +101,7 @@ pub fn process_models(
         write_regions(&mut writer, model.1)?;
         write_bones(&mut writer, model.1)?;
         write_markers(&mut writer, model.1)?;
-        write_bounding_boxes(&mut writer, model.1)?;
+        write_bounding_boxes(&mut writer, &model.1.bounding_boxes)?;
         write_materials(&mut writer, model.1)?;
 
         let buffers = get_buffers(model, modules)?;
@@ -159,6 +164,71 @@ pub fn process_models(
             }
             if let Some(ref blend1w) = model.blend_weights_extra {
                 writer.write_all(blend1w.as_slice())?;
+            }
+        }
+    }
+
+    for model in runtime_geo {
+        let mut path = PathBuf::from(format!("{save_path}/runtime_geo/"));
+        path.push(model.0 .2.to_string());
+        path.set_extension("ekur");
+        let file = File::create(path)?;
+        let mut writer = BufWriter::new(file);
+
+        write_header_rtgo(&mut writer, model.1)?;
+        write_markers_rtgo(&mut writer, model.1)?;
+        write_bounding_boxes(&mut writer, &model.1.bounding_boxes)?;
+
+        let buffers = get_buffers(model, modules)?;
+        let api_resource = model.1.mesh_resource_groups.elements.first();
+        for section in model.1.sections.elements.iter() {
+            let lod_data = &section.section_lods.elements[0];
+            if lod_data.lod_has_shadow_proxies.0 == 1 {
+                continue;
+            }
+            if !lod_data.lod_flags.0.contains(LodFlags::LOD0) {
+                continue;
+            }
+
+            writer.write_i32::<LE>(0)?;
+            writer.write_i32::<LE>(0)?;
+            writer.write_u32::<LE>(lod_data.submeshes.size)?;
+            writer.write_u8(section.node_index.0)?;
+            writer.write_u8(section.vertex_type.0.clone().into())?;
+            writer.write_i8(section.use_dual_quat.0)?;
+            write_submeshes_rtgo(&mut writer, lod_data)?;
+            write_index_buffer(&mut writer, api_resource, lod_data, &buffers)?;
+
+            data_exists(lod_data, api_resource, &mut writer, VU::Position)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::UV0)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::UV1)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::UV2)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::Normal)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::Color)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::BlendIndices0)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::BlendWeights0)?;
+            data_exists(lod_data, api_resource, &mut writer, VU::BlendWeights1)?;
+
+            let mut model = VertexBuffers::default();
+            get_vertex_buffer(api_resource, lod_data, &buffers, &mut model)?;
+
+            if let Some(ref position) = model.position {
+                writer.write_all(position.as_slice())?;
+            }
+            if let Some(ref uv0) = model.uv0 {
+                writer.write_all(uv0.as_slice())?;
+            }
+            if let Some(ref uv1) = model.uv1 {
+                writer.write_all(uv1.as_slice())?;
+            }
+            if let Some(ref uv2) = model.uv2 {
+                writer.write_all(uv2.as_slice())?;
+            }
+            if let Some(ref normal) = model.normal {
+                writer.write_all(normal.as_slice())?;
+            }
+            if let Some(ref color) = model.color {
+                writer.write_all(color.as_slice())?;
             }
         }
     }

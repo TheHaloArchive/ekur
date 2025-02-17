@@ -7,6 +7,7 @@ from bpy.types import (
     NodeReroute,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeGroup,
     ShaderNodeSeparateColor,
     ShaderNodeTexImage,
@@ -21,9 +22,9 @@ from ..utils import create_node, create_socket, read_texture
 
 class Layer:
     def __init__(self, intention: CommonLayer, name: str) -> None:
-        self.node_tree = bpy.data.node_groups.get(name)
-        self.intention = intention
-        self.name = name
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get(name)
+        self.intention: CommonLayer = intention
+        self.name: str = name
         if self.node_tree:
             return
         else:
@@ -35,6 +36,8 @@ class Layer:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if not self.node_tree:
+            return
         interface = self.node_tree.interface
 
         outputs = interface.new_panel("Outputs")
@@ -96,6 +99,8 @@ class Layer:
         rough.default_value = self.intention["scratch_roughness"]
 
     def create_nodes(self) -> None:
+        if not self.node_tree:
+            return
         nodes = self.node_tree.nodes
         reroute = create_node(nodes, 392, 392, NodeReroute)
         reroute1 = create_node(nodes, 621, 259, NodeReroute)

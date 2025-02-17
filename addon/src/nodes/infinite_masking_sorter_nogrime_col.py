@@ -6,6 +6,7 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeMix,
     ShaderNodeSeparateColor,
 )
@@ -15,7 +16,9 @@ from ..utils import create_node, create_socket
 
 class InfiniteMaskingSorterNoGrimeCol:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Infinite Masking Sorter noGrime Col")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get(
+            "Infinite Masking Sorter noGrime Col"
+        )
         if self.node_tree:
             return
         else:
@@ -27,6 +30,8 @@ class InfiniteMaskingSorterNoGrimeCol:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Color", NodeSocketColor, False)
         _ = create_socket(interface, "ASG", NodeSocketColor)
@@ -42,6 +47,8 @@ class InfiniteMaskingSorterNoGrimeCol:
         _ = create_socket(interface, "Slot 7", NodeSocketColor)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         input = create_node(self.node_tree.nodes, -1320, 140, NodeGroupInput)
         output = create_node(self.node_tree.nodes, 988, 12, NodeGroupOutput)
         srgb1 = create_node(self.node_tree.nodes, -1080, 340, ShaderNodeSeparateColor)

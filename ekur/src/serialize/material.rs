@@ -47,7 +47,6 @@ pub enum TextureType {
     Color,
     Control,
     AlphaMap,
-    Unknown,
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -142,9 +141,7 @@ fn collect_textures(
             DECAL_NORMAL_MAP => {
                 material.textures.insert(TextureType::Normal, Texture(id));
             }
-            _ => {
-                material.textures.insert(TextureType::Unknown, Texture(id));
-            }
+            _ => {}
         };
     }
     Ok(())

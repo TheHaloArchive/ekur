@@ -2,17 +2,21 @@
 # Copyright © 2025 Surasia
 import json
 from pathlib import Path
-from typing import TypeVar
+from typing import TypeVar, cast
 
 import bpy
 from bpy.types import (
     Image,
     MaterialSlot,
     Node,
-    Nodes,
     NodeSocket,
+    NodeSocketColor,
+    NodeSocketFloat,
+    NodeSocketVector,
+    Nodes,
     NodeTreeInterface,
     NodeTreeInterfacePanel,
+    ShaderNodeTree,
 )
 
 
@@ -32,7 +36,7 @@ def read_texture(texturepath: str) -> Image:
 
     image = bpy.data.images.new(texturepath.split("\\")[-1], 1, 1)
     image.source = "FILE"
-    image.filepath = f"{preferences.data_folder}/bitmaps/{texturepath}_0.png"  # pyright: ignore[reportAttributeAccessIssue]
+    image.filepath = f"{preferences.data_folder}/bitmaps/{texturepath}_0.png"  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
     image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
     return image
 
@@ -44,13 +48,16 @@ def get_materials() -> list[MaterialSlot]:
         A list of all material slots.
     """
     data_source = bpy.data.objects
-    if bpy.context.scene.import_properties.selected_only:  # pyright: ignore[reportAttributeAccessIssue]
+    if bpy.context.scene.import_properties.selected_only:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
         data_source = bpy.context.selected_objects
     meshes = [obj for obj in data_source if obj.type == "MESH"]
     return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
 
 
-def read_json_file(file_path: Path):
+JsonT = TypeVar("JsonT")
+
+
+def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT:
     """Load a json file from the given path.
 
     Args:
@@ -60,17 +67,18 @@ def read_json_file(file_path: Path):
         The loaded json data.
     """
     with open(file_path, "r") as file:
-        return json.load(file)
+        data: T = json.load(file)
+        return data
 
 
-def remove_nodes(node_tree: bpy.types.NodeTree | None) -> None:
+def remove_nodes(node_tree: ShaderNodeTree) -> None:
     """Remove all nodes from the given node tree.
 
     Args:
         node_tree: Node tree to remove all nodes from.
     """
     for node in node_tree.nodes:
-        node_tree.nodes.remove(node)
+        node_tree.nodes.remove(node)  # pyright: ignore[reportUnknownMemberType]
 
 
 NodeSocketT = TypeVar("NodeSocketT", bound=NodeSocket)
@@ -79,7 +87,7 @@ NodeSocketT = TypeVar("NodeSocketT", bound=NodeSocket)
 def create_socket(
     interface: NodeTreeInterface,
     name: str,
-    type: type[NodeSocketT],
+    _type: type[NodeSocketT],
     is_input: bool = True,
     panel: NodeTreeInterfacePanel | None = None,
 ) -> NodeSocketT:
@@ -95,9 +103,11 @@ def create_socket(
         The created socket.
     """
     in_out = "INPUT" if is_input else "OUTPUT"
-    out: NodeSocketT = interface.new_socket(
-        name=name, in_out=in_out, socket_type=type.__name__, parent=panel
-    )
+
+    out = cast(
+        _type,
+        interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),
+    )  # pyright: ignore[reportInvalidCast]
     return out
 
 
@@ -116,6 +126,19 @@ def create_node(nodes: Nodes, x: int, y: int, _type: type[NodeT]) -> NodeT:
     Returns:
         Returns the created node of the same type provided.
     """
-    node: NodeT = nodes.new(type=_type.__name__)
+    node = cast(_type, nodes.new(type=_type.__name__))
     node.location = (x, y)
     return node
+
+
+def assign_value(
+    node: Node,
+    index: int,
+    value: float | tuple[float, float, float] | tuple[float, float, float, float],
+) -> None:
+    if type(value) is tuple and len(value) == 3:
+        cast(NodeSocketVector, node.inputs[index]).default_value = value
+    if type(value) is float:
+        cast(NodeSocketFloat, node.inputs[index]).default_value = value
+    if type(value) is tuple and len(value) == 4:
+        cast(NodeSocketColor, node.inputs[index]).default_value = value

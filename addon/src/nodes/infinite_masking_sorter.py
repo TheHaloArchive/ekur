@@ -5,18 +5,19 @@ from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
     NodeSocketColor,
+    NodeTree,
     ShaderNodeMath,
     ShaderNodeMix,
     ShaderNodeSeparateColor,
     NodeSocketFloat,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class InfiniteMaskingSorter:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Infinite Masking Sorter")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Infinite Masking Sorter")
         if self.node_tree:
             return
         else:
@@ -28,6 +29,8 @@ class InfiniteMaskingSorter:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Color", NodeSocketFloat, False)
         _ = create_socket(interface, "ASG", NodeSocketColor)
@@ -44,6 +47,8 @@ class InfiniteMaskingSorter:
         _ = create_socket(interface, "Grime", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         input = create_node(self.node_tree.nodes, -1320, 140, NodeGroupInput)
         output = create_node(self.node_tree.nodes, 967, -89, NodeGroupOutput)
 
@@ -53,8 +58,7 @@ class InfiniteMaskingSorter:
 
         subtract = create_node(self.node_tree.nodes, -271, 502, ShaderNodeMath)
         subtract.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract, 1, 1.0)
 
         add = create_node(self.node_tree.nodes, -41, 500, ShaderNodeMath)
         add.operation = "ADD"

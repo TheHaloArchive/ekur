@@ -7,19 +7,19 @@ from bpy.types import (
     NodeReroute,
     NodeSocketColor,
     NodeSocketFloat,
-    NodeSocketVector,
+    NodeTree,
     ShaderNodeCombineXYZ,
     ShaderNodeMix,
     ShaderNodeSeparateXYZ,
     ShaderNodeVectorMath,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class NormalMapCombineOrientation:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Normal Map Combine-Orientation")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Normal Map Combine-Orientation")
         if self.node_tree:
             return
         else:
@@ -31,6 +31,8 @@ class NormalMapCombineOrientation:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if not self.node_tree:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Combined Normal Map", NodeSocketColor, False)
         _ = create_socket(interface, "Factor", NodeSocketFloat)
@@ -38,6 +40,8 @@ class NormalMapCombineOrientation:
         _ = create_socket(interface, "Detail", NodeSocketColor)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         nodes = self.node_tree.nodes
         input = create_node(nodes, -680, 0, NodeGroupInput)
         reroute = create_node(nodes, -473, -55, NodeReroute)
@@ -47,23 +51,19 @@ class NormalMapCombineOrientation:
 
         vectormult = create_node(nodes, -361, 166, ShaderNodeVectorMath)
         vectormult.operation = "MULTIPLY"
-        factor: NodeSocketVector = vectormult.inputs[1]
-        factor.default_value = (-2.0, -2.0, 2.0)
+        assign_value(vectormult, 1, (-2.0, -2.0, 2.0))
 
         vectorscale = create_node(nodes, -352, 240, ShaderNodeVectorMath)
         vectorscale.operation = "SCALE"
-        scale: NodeSocketFloat = vectorscale.inputs[3]
-        scale.default_value = 2.0
+        assign_value(vectorscale, 3, 2.0)
 
         vectoradd = create_node(nodes, -357, 205, ShaderNodeVectorMath)
         vectoradd.operation = "ADD"
-        add: NodeSocketVector = vectoradd.inputs[1]
-        add.default_value = (-1.0, -1.0, 0.0)
+        assign_value(vectoradd, 1, (-1.0, -1.0, 0.0))
 
         vectoradd2 = create_node(nodes, -366, 131, ShaderNodeVectorMath)
         vectoradd2.operation = "ADD"
-        add2: NodeSocketVector = vectoradd2.inputs[1]
-        add2.default_value = (1.0, 1.0, -1.0)
+        assign_value(vectoradd2, 1, (1.0, 1.0, -1.0))
 
         vectorscale2 = create_node(nodes, -115, 165, ShaderNodeVectorMath)
         vectorscale2.operation = "SCALE"
@@ -82,16 +82,14 @@ class NormalMapCombineOrientation:
 
         vectorscale3 = create_node(nodes, 214, 77, ShaderNodeVectorMath)
         vectorscale3.operation = "SCALE"
-        scale3: NodeSocketFloat = vectorscale3.inputs[3]
-        scale3.default_value = 0.5
+        assign_value(vectorscale3, 3, 0.5)
 
         vectornormz = create_node(nodes, 213, 112, ShaderNodeVectorMath)
         vectornormz.operation = "NORMALIZE"
 
         vectoradd3 = create_node(nodes, 216, 43, ShaderNodeVectorMath)
         vectoradd3.operation = "ADD"
-        add3: NodeSocketVector = vectoradd3.inputs[1]
-        add3.default_value = (0.5, 0.5, 0.5)
+        assign_value(vectoradd3, 1, (0.5, 0.5, 0.5))
 
         reroute4 = create_node(nodes, 383, -64, NodeReroute)
         mix = create_node(nodes, 415, 89, ShaderNodeMix)

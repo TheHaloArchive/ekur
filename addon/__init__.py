@@ -15,15 +15,16 @@ import bpy
 from bpy.types import AddonPreferences, Context, Operator
 from bpy.utils import register_class, unregister_class
 
-from .src.import_logic import ImportMaterialOperator
-from .src.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
-from .src.import_model import ImportModelOperator
+from .src.operators.material_operator import ImportMaterialOperator
+from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
+from .src.operators.model_operator import ImportModelOperator
+from .src.operators.spartan_operator import ImportSpartanOperator
 
 bl_info = {
     "name": "Ekur",
     "description": "A multi-purpose importer for Halo Infinite.",
     "author": "Surasia",
-    "version": (0, 2, 1),
+    "version": (0, 3, 0),
     "blender": (4, 3, 0),
     "category": "Import-Export",
     "support": "COMMUNITY",
@@ -76,7 +77,7 @@ class DumpFilesOperator(Operator):
 
     def execute(self, context: Context | None) -> set[str]:
         data: EkurPreferences = context.preferences.addons["bl_ext.user_default.ekur"].preferences
-        ekur_save_path = Path(f"{data.data_folder}/ekur")
+        ekur_save_path = Path(f"{data.data_folder}/ekur-{package_version_string}")
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{package_version_string}/ekur-{package_version_string}"
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
@@ -145,6 +146,7 @@ def register():
     register_class(DownloadFilesOperator)
     register_class(DumpFilesOperator)
     register_class(ImportModelOperator)
+    register_class(ImportSpartanOperator)
     bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -157,4 +159,5 @@ def unregister():
     unregister_class(DownloadFilesOperator)
     unregister_class(DumpFilesOperator)
     unregister_class(ImportModelOperator)
+    unregister_class(ImportSpartanOperator)
     del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

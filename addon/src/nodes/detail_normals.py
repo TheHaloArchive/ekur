@@ -6,20 +6,21 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     ShaderNodeGroup,
     ShaderNodeMath,
     ShaderNodeMix,
     ShaderNodeSeparateColor,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 from .norm_normalize import NormNormalize
 from .normal_map_combine_orientation import NormalMapCombineOrientation
 
 
 class DetailNormals:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Detail Normals")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Detail Normals")
         if self.node_tree:
             return
         else:
@@ -31,6 +32,8 @@ class DetailNormals:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Normal", NodeSocketColor, False)
         _ = create_socket(interface, "ASG", NodeSocketColor)
@@ -52,10 +55,11 @@ class DetailNormals:
         _ = create_socket(interface, "Detail Normal Flip", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         subtract = create_node(self.node_tree.nodes, -400, 1083, ShaderNodeMath)
         subtract.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract, 1, 1.0)
 
         mix = create_node(self.node_tree.nodes, -670, 367, ShaderNodeMix)
         mix.data_type = "RGBA"
@@ -83,8 +87,7 @@ class DetailNormals:
 
         subtract2 = create_node(self.node_tree.nodes, -400, 1270, ShaderNodeMath)
         subtract2.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract2.inputs[1]
-        _.default_value = 1.0
+        assign_value(subtract2, 1, 1.0)
 
         grimemath = create_node(self.node_tree.nodes, 0, 1105, ShaderNodeMath)
         grimemath.label = "Grime"

@@ -7,6 +7,7 @@ from bpy.types import (
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketVector,
+    NodeTree,
     ShaderNodeCombineXYZ,
     ShaderNodeMath,
     ShaderNodeMix,
@@ -14,12 +15,12 @@ from bpy.types import (
     ShaderNodeVectorMath,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class NormNormalize:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("Norm Normalize")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("Norm Normalize")
         if self.node_tree:
             return
         else:
@@ -31,12 +32,16 @@ class NormNormalize:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if not self.node_tree:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Normal", NodeSocketVector)
         _ = create_socket(interface, "Normal Flip", NodeSocketFloat)
         _ = create_socket(interface, "Normal Normalized", NodeSocketColor, False)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         nodes = self.node_tree.nodes
 
         output = create_node(nodes, 1507, 0, NodeGroupOutput)
@@ -46,30 +51,24 @@ class NormNormalize:
 
         normal_remap = create_node(nodes, 220, 0, ShaderNodeMath)
         normal_remap.operation = "MULTIPLY_ADD"
-        multiplier: NodeSocketFloat = normal_remap.inputs[1]
-        multiplier.default_value = 2.0
-        adder: NodeSocketFloat = normal_remap.inputs[2]
-        adder.default_value = -1.0
+        assign_value(normal_remap, 1, 2.0)
+        assign_value(normal_remap, 2, -1.0)
 
         sqrt = create_node(nodes, 1363, -100, ShaderNodeMath)
         sqrt.operation = "SQRT"
 
         normalize = create_node(nodes, 1743, -140, ShaderNodeVectorMath)
-
         normalize.operation = "NORMALIZE"
 
         add = create_node(nodes, 1923, -140, ShaderNodeMix)
         add.blend_type = "ADD"
         add.data_type = "RGBA"
-        fac: NodeSocketFloat = add.inputs[0]
-        fac.default_value = 1.0
-        addval: NodeSocketColor = add.inputs[7]
-        addval.default_value = (1.0, 1.0, 1.0, 1.0)
+        assign_value(add, 0, 1.0)
+        assign_value(add, 7, (1.0, 1.0, 1.0, 1.0))
 
         one_minus = create_node(nodes, 1183, -80, ShaderNodeMath)
         one_minus.operation = "SUBTRACT"
-        sub: NodeSocketFloat = one_minus.inputs[0]
-        sub.default_value = 1.0
+        assign_value(one_minus, 1, 1.0)
 
         clamp_mult = create_node(nodes, 1003, -80, ShaderNodeMath)
         clamp_mult.operation = "MULTIPLY_ADD"
@@ -81,10 +80,8 @@ class NormNormalize:
         divide = create_node(nodes, 2103, -140, ShaderNodeMix)
         divide.blend_type = "DIVIDE"
         divide.data_type = "RGBA"
-        fac = divide.inputs[0]
-        fac.default_value = 1.0
-        div: NodeSocketColor = divide.inputs[7]
-        div.default_value = (2.0, 2.0, 2.0, 1.0)
+        assign_value(divide, 0, 1.0)
+        assign_value(divide, 7, (2.0, 2.0, 2.0, 1.0))
 
         mix_flip = create_node(nodes, 399, -350, ShaderNodeMix)
         mix_flip.blend_type = "MIX"
@@ -92,15 +89,12 @@ class NormNormalize:
 
         mult_add = create_node(nodes, 588, -198, ShaderNodeMath)
         mult_add.operation = "MULTIPLY_ADD"
-        multiplier = mult_add.inputs[1]
-        multiplier.default_value = 2.0
-        adder = mult_add.inputs[2]
-        adder.default_value = -1.0
+        assign_value(mult_add, 1, 2.0)
+        assign_value(mult_add, 2, -1.0)
 
         one_minus_y = create_node(nodes, 154, -413, ShaderNodeMath)
         one_minus_y.operation = "SUBTRACT"
-        y: NodeSocketFloat = one_minus_y.inputs[0]
-        y.default_value = 1.0
+        assign_value(one_minus_y, 0, 1.0)
 
         links = self.node_tree.links
         _ = links.new(input.outputs[0], separate_xyz.inputs[0])

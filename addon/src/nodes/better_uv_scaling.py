@@ -6,6 +6,7 @@ from bpy.types import (
     NodeGroupOutput,
     NodeSocketFloat,
     NodeSocketVector,
+    NodeTree,
     ShaderNodeCombineXYZ,
     ShaderNodeMapping,
     ShaderNodeMath,
@@ -13,12 +14,12 @@ from bpy.types import (
     ShaderNodeUVMap,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
 
 
 class BetterUVScaling:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get("BetterUVScaling")
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get("BetterUVScaling")
         if self.node_tree:
             return
         else:
@@ -30,6 +31,8 @@ class BetterUVScaling:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         _ = create_socket(interface, "Finalized Scale", NodeSocketVector, False)
         _ = create_socket(interface, "Base Scale X", NodeSocketFloat)
@@ -40,6 +43,8 @@ class BetterUVScaling:
         _ = create_socket(interface, "Alternative Transform Y", NodeSocketFloat)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         output = create_node(self.node_tree.nodes, 961, 158, NodeGroupOutput)
         mapping = create_node(self.node_tree.nodes, 796, 250, ShaderNodeMapping)
         combinexyz = create_node(self.node_tree.nodes, 208, 466, ShaderNodeCombineXYZ)
@@ -52,15 +57,12 @@ class BetterUVScaling:
 
         math_8 = create_node(self.node_tree.nodes, -393, -342, ShaderNodeMath)
         math_8.operation = "WRAP"
-        _: NodeSocketFloat = math_8.inputs[1]
-        _.default_value = 1.0
-        _: NodeSocketFloat = math_8.inputs[2]
-        _.default_value = 0.0
+        assign_value(math_8, 1, 1.0)
+        assign_value(math_8, 2, 0.0)
 
         subtract = create_node(self.node_tree.nodes, -214, -225, ShaderNodeMath)
         subtract.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract.inputs[0]
-        _.default_value = 1.0
+        assign_value(subtract, 0, 1.0)
 
         multiply = create_node(self.node_tree.nodes, -588, -428, ShaderNodeMath)
         multiply.operation = "MULTIPLY"
@@ -70,22 +72,17 @@ class BetterUVScaling:
 
         subtract2 = create_node(self.node_tree.nodes, -424, 59, ShaderNodeMath)
         subtract2.operation = "SUBTRACT"
-        _: NodeSocketFloat = subtract2.inputs[0]
-        _.default_value = 1.0
+        assign_value(subtract2, 0, 1.0)
 
         compare = create_node(self.node_tree.nodes, -402, 488, ShaderNodeMath)
         compare.operation = "COMPARE"
-        _: NodeSocketFloat = compare.inputs[1]
-        _.default_value = 0.5
-        _: NodeSocketFloat = compare.inputs[2]
-        _.default_value = 0.0
+        assign_value(compare, 1, 0.5)
+        assign_value(compare, 2, 0.0)
 
         compare2 = create_node(self.node_tree.nodes, -165, 522, ShaderNodeMath)
         compare2.operation = "COMPARE"
-        _: NodeSocketFloat = compare2.inputs[1]
-        _.default_value = 1.0
-        _: NodeSocketFloat = compare2.inputs[2]
-        _.default_value = 0.0
+        assign_value(compare2, 1, 1.0)
+        assign_value(compare2, 2, 0.0)
 
         links = self.node_tree.links
         _ = links.new(math_8.outputs[0], subtract.inputs[1])

@@ -88,6 +88,7 @@ pub fn extract_all_bitmaps(
                 let index = extract_bitmaps(module, index, bitmidx, bitmap, m.bitmaps.size)?;
                 if let Some(index) = index {
                     let data = decompress_file(index, module)?;
+                    module.files[index as usize].data_stream = None;
                     save_bitmap(
                         &data,
                         &format!("{}_{}", m.any_tag.internal_struct.tag_id, bitmidx),
