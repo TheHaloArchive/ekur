@@ -146,10 +146,22 @@ class NormalizedVector1010102PackedAsUnorm:
 
     def read(self, reader: BufferedReader) -> None:
         packed = int.from_bytes(reader.read(4), "little")
-        self.x = ((packed & 0x3FF) / 1023.0) * 2 - 1.0
-        self.y = (((packed >> 10) & 0x3FF) / 1023.0) * 2 - 1.0
-        self.z = (((packed >> 20) & 0x3FF) / 1023.0) * 2 - 1.0
-        self.w = (((packed >> 30) & 0x3) / 3.0) * 2 - 1.0
+
+        max_10_bit = (1 << 10) - 1  # 1023
+        max_2_bit = (1 << 2) - 1  # 3
+
+        self.x = (packed & max_10_bit) / max_10_bit * 2.0 - 1.0
+        self.y = ((packed >> 10) & max_10_bit) / max_10_bit * 2.0 - 1.0
+        self.z = ((packed >> 20) & max_10_bit) / max_10_bit * 2.0 - 1.0
+        self.w = ((packed >> 30) & max_2_bit) / max_2_bit * 2.0 - 1.0
+
+        length_sq = self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w
+        if abs(length_sq) > 1e-6:
+            length: float = (length_sq) ** 0.5
+            self.x /= length
+            self.y /= length
+            self.z /= length
+            self.w /= length
 
     def to_vector(self) -> list[float]:
         return [self.x, self.y, self.z]

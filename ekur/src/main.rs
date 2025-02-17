@@ -10,6 +10,7 @@ use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
 use definitions::runtime_geo::RuntimeGeo;
+use definitions::scenario::ScenarioStructureBsp;
 use definitions::{
     coating_globals::CoatingGlobalsTag, coating_swatch::CoatingSwatchPODTag, material::MaterialTag,
     material_palette::MaterialPaletteTag, material_styles::MaterialStylesTag,
@@ -20,6 +21,7 @@ use definitions::{
 use loader::module::get_models;
 use model::serialize::process_models;
 use serialize::customization_globals::process_object_globals;
+use serialize::scenario_bsp::process_scenarios;
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
     material::process_materials, material_coating::process_material_coatings,
@@ -65,12 +67,14 @@ fn main() -> Result<()> {
     let mut themes = HashMap::new();
     let mut attachments = HashMap::new();
     let mut models = HashMap::new();
+    let mut scenarios = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
     create_dir_all(format!("{}/bitmaps/", args.save_path))?;
     create_dir_all(format!("{}/models/", args.save_path))?;
     create_dir_all(format!("{}/runtime_geo/", args.save_path))?;
+    create_dir_all(format!("{}/levels/", args.save_path))?;
 
     let string_file = File::open(args.strings_path)?;
     let strings = BufReader::new(string_file);
@@ -105,6 +109,7 @@ fn main() -> Result<()> {
         render_geometry.extend(get_models::<RuntimeGeo>("rtgo", module, index)?);
         attachments.extend(get_tags::<AttachmentConfiguration>("ocad", module)?);
         models.extend(get_tags::<ModelDefinition>("hlmt", module)?);
+        scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
     }
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
     process_models(
@@ -125,6 +130,7 @@ fn main() -> Result<()> {
         &string_mappings,
     )?;
     process_visor(&visor, &material_swatch, &args.save_path)?;
+    process_scenarios(&scenarios, &args.save_path)?;
     extract_all_bitmaps(
         &mut modules,
         textures,

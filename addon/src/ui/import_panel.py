@@ -143,6 +143,10 @@ class ImportProperties(PropertyGroup):
     import_markers: BoolProperty(name="Import Markers", default=True)
     import_bones: BoolProperty(name="Import Bones", default=True)
     import_collections: BoolProperty(name="Import Collections", default=True)
+    level_path: StringProperty(
+        name="Level Path",
+        subtype="FILE_PATH",
+    )
 
 
 @final
@@ -188,3 +192,9 @@ class CoatingImportPanel(Panel):
         ocgd_box = layout.box()
         ocgd_box.label(icon="ARMATURE_DATA", text="Import Spartan")
         _ = ocgd_box.operator("ekur.importspartan")
+
+        level_box = layout.box()
+        level_box.label(icon="MESH_GRID", text="Import Level")
+        level_opts = level_box.box()
+        level_opts.prop(import_properties, "level_path")
+        _ = level_box.operator("ekur.importlevel")

@@ -68,7 +68,7 @@ class NormNormalize:
 
         one_minus = create_node(nodes, 1183, -80, ShaderNodeMath)
         one_minus.operation = "SUBTRACT"
-        assign_value(one_minus, 1, 1.0)
+        assign_value(one_minus, 0, 1.0)
 
         clamp_mult = create_node(nodes, 1003, -80, ShaderNodeMath)
         clamp_mult.operation = "MULTIPLY_ADD"

@@ -18,7 +18,13 @@ class ModelImporter:
         self.markers: list[Object] = []
         self.rig: Object | None = None
 
-    def start_import(self, context: Context, model_path: str, bones: bool = True) -> list[Object]:
+    def start_import(
+        self,
+        context: Context,
+        model_path: str,
+        bones: bool = True,
+        materials: list[int] | None = None,
+    ) -> list[Object]:
         properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownVariableType, reportUnknownMemberType]
         model = Path(model_path)
         if not model.exists():
@@ -26,6 +32,8 @@ class ModelImporter:
             return []
         with open(model_path, "rb") as f:
             self.model.read(f)
+        if materials:
+            self.model.materials = materials
         if cast(bool, properties.import_bones) and bones:
             self.rig = import_bones(self.model)
             self.rig.scale = MESH_SCALE

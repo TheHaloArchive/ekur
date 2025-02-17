@@ -15,4 +15,5 @@ pub mod render_model;
 pub mod runtime_geo;
 pub mod runtime_style;
 pub mod runtime_styles;
+pub mod scenario;
 pub mod visor;

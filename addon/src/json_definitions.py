@@ -145,3 +145,15 @@ class CustomizationTheme(TypedDict):
 class CustomizationGlobals(TypedDict):
     model: int
     themes: list[CustomizationTheme]
+
+
+class Instance(TypedDict):
+    global_id: int
+    scale: tuple[float, float, float]
+    position: tuple[float, float, float]
+    rotation: tuple[float, float, float, float]
+    material: list[int]
+
+
+class Level(TypedDict):
+    instances: list[Instance]
