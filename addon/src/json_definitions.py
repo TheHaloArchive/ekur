@@ -117,21 +117,27 @@ class CommonStyleList(TypedDict):
     styles: OrderedDict[str, CommonStyleListEntry]
 
 
+class CustomizationAttachment(TypedDict):
+    marker_name: int
+    model: int
+
+
 class CustomizationPermutation(TypedDict):
     name: int
-    attachment: int
+    attachment: CustomizationAttachment | None
 
 
 class CustomizationRegion(TypedDict):
     name: int
     permutations: list[CustomizationPermutation]
+    permutation_regions: list[int]
 
 
 class CustomizationTheme(TypedDict):
     name: int
     variant_name: int
+    attachments: list[CustomizationAttachment]
     regions: list[CustomizationRegion]
-    attachments: list[int]
     prosthetics: list[CustomizationRegion]
     body_types: list[CustomizationRegion]
 

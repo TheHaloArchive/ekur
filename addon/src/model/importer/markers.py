@@ -19,10 +19,11 @@ def get_name(marker: Marker, instance: MarkerInstance, model: Model):
     return name
 
 
-def import_markers(model: Model, armature: Object) -> None:
+def import_markers(model: Model, armature: Object) -> list[Object]:
     MARKER_SIZE = 0.01
 
     bone_transforms = get_bone_transforms(model)
+    markers: list[Object] = []
 
     for marker in model.markers:
         for instance in marker.instances:
@@ -47,3 +48,5 @@ def import_markers(model: Model, armature: Object) -> None:
             marker_obj.hide_render = True
             marker_obj.matrix_world = world_transform
             bpy.context.scene.collection.objects.link(marker_obj)  # pyright: ignore[reportUnknownMemberType]
+            markers.append(marker_obj)
+    return markers

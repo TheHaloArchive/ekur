@@ -15,16 +15,16 @@ import bpy
 from bpy.types import AddonPreferences, Context, Operator
 from bpy.utils import register_class, unregister_class
 
-from .src.import_logic import ImportMaterialOperator
+from .src.operators.material_operator import ImportMaterialOperator
 from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
 from .src.operators.model_operator import ImportModelOperator
-from .src.import_spartan import ImportSpartanOperator
+from .src.operators.spartan_operator import ImportSpartanOperator
 
 bl_info = {
     "name": "Ekur",
     "description": "A multi-purpose importer for Halo Infinite.",
     "author": "Surasia",
-    "version": (0, 2, 1),
+    "version": (0, 3, 0),
     "blender": (4, 3, 0),
     "category": "Import-Export",
     "support": "COMMUNITY",

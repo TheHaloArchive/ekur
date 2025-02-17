@@ -1,6 +1,8 @@
+import logging
+from pathlib import Path
 from typing import cast
 import bpy
-from bpy.types import ArmatureModifier, Collection, Context, Material, Mesh, Object
+from bpy.types import ArmatureModifier, Context, Material, Mesh, Object
 from .bone import import_bones
 from .markers import import_markers
 from ..metadata import Model
@@ -13,19 +15,26 @@ MESH_SCALE = (3.048, 3.048, 3.048)
 class ModelImporter:
     def __init__(self):
         self.model: Model = Model()
+        self.markers: list[Object] = []
+        self.rig: Object | None = None
 
-    def start_import(self, context: Context, model_path: str) -> None:
+    def start_import(self, context: Context, model_path: str, bones: bool = True) -> list[Object]:
         properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownVariableType, reportUnknownMemberType]
+        model = Path(model_path)
+        if not model.exists():
+            logging.warning(f"Model path does not exist: {model}")
+            return []
         with open(model_path, "rb") as f:
             self.model.read(f)
-        if cast(bool, properties.import_bones):
-            armature = import_bones(self.model)
-            armature.scale = MESH_SCALE
+        if cast(bool, properties.import_bones) and bones:
+            self.rig = import_bones(self.model)
+            self.rig.scale = MESH_SCALE
             if cast(bool, properties.import_markers):
-                import_markers(self.model, armature)
-            self.import_model(armature)
+                self.markers = import_markers(self.model, self.rig)
+            objects = self.import_model()
         else:
-            self.import_model()
+            objects = self.import_model()
+        return objects
 
     def create_uv(
         self,
@@ -93,13 +102,51 @@ class ModelImporter:
         for p in mesh.polygons:
             p.use_smooth = True
 
+    def create_normals(self, section: Section, mesh: Mesh) -> None:
         normals = [x.to_vector() for x in section.vertex_buffer.normal_buffer.normals]
         mesh.normals_split_custom_set([[0, 0, 0] for _ in mesh.loops])  # pyright: ignore[reportUnknownMemberType]
         mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportUnknownMemberType]
         _ = mesh.validate()
         mesh.update()  # pyright: ignore[reportUnknownMemberType]
 
-    def import_model(self, armature_obj: Object | None = None) -> None:
+    def create_section(self, section: Section) -> Object:
+        permutation_name = section.permutation_name
+        region_name = section.region_name
+        collection_name = f"{self.model.header.tag_id}_{permutation_name}_{region_name}"
+
+        model_scale = self.model.bounding_boxes[0].get_model_scale()
+        uv_scale = self.model.bounding_boxes[0].get_uv_scale()
+
+        verts = [x.to_vector() for x in section.vertex_buffer.position_buffer.positions]
+        it = len(verts[0])
+        for i in range(len(verts)):
+            verts[i] = [verts[i][j] * model_scale[j][-1] + model_scale[j][0] for j in range(it)]
+
+        ind = section.index_buffer.indices
+        faces = [(ind[x], ind[x + 1], ind[x + 2]) for x in range(0, len(ind), 3)]
+        mesh = bpy.data.meshes.new(collection_name)
+        obj = bpy.data.objects.new(collection_name, mesh)
+        obj["region_name"] = region_name
+        obj["permutation_name"] = permutation_name
+        obj.scale = MESH_SCALE
+        mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportUnknownMemberType]
+
+        if section.vertex_flags.has_uv0:
+            self.create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
+        if section.vertex_flags.has_uv1:
+            self.create_uv(mesh, section.vertex_buffer.uv1_buffer.uv, uv_scale, 1)
+        if section.vertex_flags.has_uv2:
+            self.create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale, 2)
+
+        if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+            self.create_material_indices(section, mesh)
+
+        if self.rig:
+            self.create_skinning(obj, collection_name, self.rig, section, mesh)
+
+        return obj
+
+    def import_model(self) -> list[Object]:
         materials: list[Material] = []
         if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
             for mat in self.model.materials:
@@ -107,54 +154,10 @@ class ModelImporter:
                 if not mat:
                     mat = bpy.data.materials.new(str(mat))
                 materials.append(mat)
-
-        model_scale = self.model.bounding_boxes[0].get_model_scale()
-        uv_scale = self.model.bounding_boxes[0].get_uv_scale()
-        model_collection = bpy.data.collections.new(str(self.model.header.tag_id))
-        bpy.context.scene.collection.children.link(model_collection)  # pyright: ignore[reportUnknownMemberType]
-        collections: dict[int, Collection] = {}
+        objects: list[Object] = []
 
         for section in self.model.sections:
-            permutation_name = section.permutation_name
-            region_name = section.region_name
-            collection_name = f"{self.model.header.tag_id}_{permutation_name}_{region_name}"
-            region_collection_name = f"{region_name}_{permutation_name}"
-            verts = [x.to_vector() for x in section.vertex_buffer.position_buffer.positions]
-            it = len(verts[0])
-            for i in range(len(verts)):
-                verts[i] = [verts[i][j] * model_scale[j][-1] + model_scale[j][0] for j in range(it)]
-
-            ind = section.index_buffer.indices
-            faces = [(ind[x], ind[x + 1], ind[x + 2]) for x in range(0, len(ind), 3)]
-            mesh = bpy.data.meshes.new(collection_name)
-            obj = bpy.data.objects.new(collection_name, mesh)
-            obj.scale = MESH_SCALE
-            mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportUnknownMemberType]
-
-            if section.vertex_flags.has_uv0:
-                self.create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
-            if section.vertex_flags.has_uv1:
-                self.create_uv(mesh, section.vertex_buffer.uv1_buffer.uv, uv_scale, 1)
-            if section.vertex_flags.has_uv2:
-                self.create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale, 2)
-
-            if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
-                self.create_material_indices(section, mesh)
-
-            if armature_obj:
-                self.create_skinning(obj, collection_name, armature_obj, section, mesh)
-
-            if permutation_name not in collections:
-                permutation_collection: Collection = bpy.data.collections.new(str(permutation_name))
-                model_collection.children.link(permutation_collection)  # pyright: ignore[reportUnknownMemberType]
-                collections[permutation_name] = permutation_collection
-            else:
-                permutation_collection = collections[permutation_name]
-
-            if permutation_collection.children.get(region_collection_name) is None:
-                region_collection = bpy.data.collections.new(region_collection_name)
-                permutation_collection.children.link(region_collection)  # pyright: ignore[reportUnknownMemberType]
-            else:
-                region_collection = permutation_collection.children.get(region_collection_name)
-            if region_collection is not None:
-                region_collection.objects.link(obj)  # pyright: ignore[reportUnknownMemberType]
+            obj = self.create_section(section)
+            self.create_normals(section, cast(Mesh, obj.data))
+            objects.append(obj)
+        return objects

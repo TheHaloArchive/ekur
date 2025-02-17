@@ -6,12 +6,12 @@ from typing import cast, final, override
 
 from bpy.types import Context, Operator, ShaderNodeTree
 
-from .json_definitions import CommonMaterial, CommonStyleList
-from .material_types.decal_shader import DecalShader
-from .material_types.diffuse_shader import DiffuseShaderType
-from .material_types.layered_shader import LayeredShader
-from .material_types.illum_shader import IllumShader
-from .utils import get_materials, read_json_file, remove_nodes
+from ..json_definitions import CommonMaterial, CommonStyleList
+from ..material_types.decal_shader import DecalShader
+from ..material_types.diffuse_shader import DiffuseShaderType
+from ..material_types.layered_shader import LayeredShader
+from ..material_types.illum_shader import IllumShader
+from ..utils import get_materials, read_json_file, remove_nodes
 
 
 @final
@@ -76,9 +76,9 @@ class ImportMaterialOperator(Operator):
                 _ = DiffuseShaderType(material, node_tree)
             case "Decal":
                 _ = DecalShader(material, node_tree)
-            case "Unknown":
-                pass
             case "SelfIllum":
                 _ = IllumShader(material, node_tree)
+            case "Unknown":
+                pass
             case _:
                 logging.error(f"Unknown shader type!: {material['shader_type']}")

@@ -143,6 +143,7 @@ class ImportProperties(PropertyGroup):
     import_materials: BoolProperty(name="Import Materials", default=True)
     import_markers: BoolProperty(name="Import Markers", default=True)
     import_bones: BoolProperty(name="Import Bones", default=True)
+    import_collections: BoolProperty(name="Import Collections", default=True)
 
 
 @final
@@ -183,6 +184,7 @@ class CoatingImportPanel(Panel):
         model_opts.prop(import_properties, "import_markers")
         model_opts.prop(import_properties, "import_bones")
         model_opts.prop(import_properties, "import_materials")
+        model_opts.prop(import_properties, "import_collections")
         _ = model_box.operator("ekur.importmodel")
 
         ocgd_box = layout.box()
