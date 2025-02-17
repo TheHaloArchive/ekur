@@ -35,7 +35,7 @@ pub struct RegionBlock {
 }
 
 #[derive(Default, Debug, TagStructure)]
-#[data(size(28))]
+#[data(size(0x1c))]
 pub struct Attachment {
     #[data(offset(0x00))]
     pub attachment: FieldReference,
@@ -48,10 +48,10 @@ pub struct ObjectTheme {
     pub any_tag: AnyTag,
     #[data(offset(0x10))]
     pub regions: FieldBlock<RegionBlock>,
-    #[data(offset(0x20))]
+    #[data(offset(0x24))]
     pub attachments: FieldBlock<Attachment>,
-    #[data(offset(56))]
+    #[data(offset(0x38))]
     pub prosthetics: FieldBlock<RegionBlock>,
-    #[data(offset(76))]
+    #[data(offset(0x4c))]
     pub body_types: FieldBlock<RegionBlock>,
 }

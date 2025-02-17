@@ -8,6 +8,8 @@ pub mod material;
 pub mod material_palette;
 pub mod material_styles;
 pub mod material_swatch;
+pub mod model;
+pub mod object_attachment;
 pub mod object_theme;
 pub mod render_model;
 pub mod runtime_geo;

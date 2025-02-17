@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
-use crate::definitions::{customization_globals::CustomizationGlobals, object_theme::ObjectTheme};
+use crate::definitions::{
+    customization_globals::CustomizationGlobals,
+    model::ModelDefinition,
+    object_attachment::AttachmentConfiguration,
+    object_theme::{ObjectTheme, RegionBlock},
+};
 use anyhow::Result;
 use serde::Serialize;
 use std::{
@@ -11,23 +16,30 @@ use std::{
 };
 
 #[derive(Debug, Default, Serialize)]
+pub struct Attachment {
+    pub marker_name: i32,
+    pub model: i32,
+}
+
+#[derive(Debug, Default, Serialize)]
 pub struct Permutation {
     pub name: i32,
-    pub attachment: i32,
+    pub attachment: Option<Attachment>,
 }
 
 #[derive(Debug, Default, Serialize)]
 pub struct Region {
     pub name: i32,
     pub permutations: Vec<Permutation>,
+    pub permutation_regions: Vec<i32>,
 }
 
 #[derive(Debug, Default, Serialize)]
 pub struct Theme {
     pub name: i32,
     pub variant_name: i32,
+    pub attachments: Vec<Attachment>,
     pub regions: Vec<Region>,
-    pub attachments: Vec<i32>,
     pub prosthetics: Vec<Region>,
     pub body_types: Vec<Region>,
 }
@@ -38,10 +50,55 @@ pub struct SpartanGlobals {
     pub themes: Vec<Theme>,
 }
 
+fn get_attachment(
+    attachment: i32,
+    attachments: &HashMap<i32, AttachmentConfiguration>,
+    models: &HashMap<i32, ModelDefinition>,
+) -> Option<Attachment> {
+    let attachment = attachments.get(&attachment);
+    if let Some(attachment) = attachment {
+        let marker = attachment.model_attachments.elements.first();
+        if let Some(marker) = marker {
+            let model_definition = models.get(&marker.model.global_id);
+            if let Some(model_definition) = model_definition {
+                return Some(Attachment {
+                    marker_name: marker.markers.elements.first().unwrap().marker_name.0,
+                    model: model_definition.render_model.global_id,
+                });
+            }
+        }
+    }
+    None
+}
+
+fn add_region(
+    region: &RegionBlock,
+    attachments: &HashMap<i32, AttachmentConfiguration>,
+    models: &HashMap<i32, ModelDefinition>,
+) -> Region {
+    let mut reg = Region {
+        name: region.region_name.0,
+        ..Default::default()
+    };
+    for permutation in &region.permutation_regions.elements {
+        reg.permutation_regions.push(permutation.name.0)
+    }
+    for permutation in &region.permutation_settings.elements {
+        let perm = get_attachment(permutation.attachment.global_id, attachments, models);
+        reg.permutations.push(Permutation {
+            name: permutation.name.0,
+            attachment: perm,
+        });
+    }
+    reg
+}
+
 pub fn process_object_globals(
     globals: &CustomizationGlobals,
     themes: &HashMap<i32, ObjectTheme>,
     save_path: &str,
+    attachments: &HashMap<i32, AttachmentConfiguration>,
+    models: &HashMap<i32, ModelDefinition>,
 ) -> Result<()> {
     let mut spartan_globals = SpartanGlobals::default();
     let first_theme = globals.themes.elements.first();
@@ -50,7 +107,7 @@ pub fn process_object_globals(
         spartan_globals.model = first_theme.model.global_id;
         for configs in &first_theme.theme_configurations.elements {
             let theme_config = themes.get(&configs.theme_configs.global_id);
-            if !theme_names.insert(configs.name.0) {
+            if !theme_names.insert(configs.theme_configs.global_id) {
                 continue;
             }
             let mut theme = Theme {
@@ -59,47 +116,24 @@ pub fn process_object_globals(
                 ..Default::default()
             };
             if let Some(theme_config) = theme_config {
-                for region in &theme_config.regions.elements {
-                    let mut reg = Region {
-                        name: region.region_name.0,
-                        ..Default::default()
-                    };
-                    for permutation in &region.permutation_settings.elements {
-                        reg.permutations.push(Permutation {
-                            name: permutation.name.0,
-                            attachment: permutation.attachment.global_id,
-                        });
+                for attachment in &theme_config.attachments.elements {
+                    let attach =
+                        get_attachment(attachment.attachment.global_id, attachments, models);
+                    if let Some(attach) = attach {
+                        theme.attachments.push(attach);
                     }
+                }
+                for region in &theme_config.regions.elements {
+                    let reg = add_region(region, attachments, models);
                     theme.regions.push(reg);
                 }
-                for attachment in &theme_config.attachments.elements {
-                    theme.attachments.push(attachment.attachment.global_id);
+                for region in &theme_config.body_types.elements {
+                    let reg = add_region(region, attachments, models);
+                    theme.regions.push(reg);
                 }
-                for prosthetic in &theme_config.prosthetics.elements {
-                    let mut reg = Region {
-                        name: prosthetic.region_name.0,
-                        ..Default::default()
-                    };
-                    for permutation in &prosthetic.permutation_settings.elements {
-                        reg.permutations.push(Permutation {
-                            name: permutation.name.0,
-                            attachment: permutation.attachment.global_id,
-                        });
-                    }
-                    theme.prosthetics.push(reg);
-                }
-                for body_type in &theme_config.body_types.elements {
-                    let mut reg = Region {
-                        name: body_type.region_name.0,
-                        ..Default::default()
-                    };
-                    for permutation in &body_type.permutation_settings.elements {
-                        reg.permutations.push(Permutation {
-                            name: permutation.name.0,
-                            attachment: permutation.attachment.global_id,
-                        });
-                    }
-                    theme.body_types.push(reg);
+                for region in &theme_config.prosthetics.elements {
+                    let reg = add_region(region, attachments, models);
+                    theme.regions.push(reg);
                 }
             }
             spartan_globals.themes.push(theme);

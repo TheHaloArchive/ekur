@@ -6,6 +6,8 @@ use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
 use definitions::customization_globals::CustomizationGlobals;
+use definitions::model::ModelDefinition;
+use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
 use definitions::runtime_geo::RuntimeGeo;
 use definitions::{
@@ -61,6 +63,8 @@ fn main() -> Result<()> {
     let mut render_models = HashMap::new();
     let mut render_geometry = HashMap::new();
     let mut themes = HashMap::new();
+    let mut attachments = HashMap::new();
+    let mut models = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
@@ -99,15 +103,16 @@ fn main() -> Result<()> {
         themes.extend(get_tags::<ObjectTheme>("ocur", module)?);
         render_models.extend(get_models::<RenderModel>("mode", module, index)?);
         render_geometry.extend(get_models::<RuntimeGeo>("rtgo", module, index)?);
+        attachments.extend(get_tags::<AttachmentConfiguration>("ocad", module)?);
+        models.extend(get_tags::<ModelDefinition>("hlmt", module)?);
     }
+    process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
     process_models(
         &render_models,
         &render_geometry,
         &args.save_path,
         &mut modules,
     )?;
-
-    process_object_globals(&ocgd, &themes, &args.save_path)?;
     process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
     let textures = process_materials(&materials, &args.save_path)?;
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
