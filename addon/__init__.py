@@ -7,13 +7,14 @@ Ekur - A multi-purpose importer for Halo Infinite.
 import logging
 import platform
 import subprocess
+from typing import cast, final
 import urllib.error
 import urllib.request
 from pathlib import Path
 
 import bpy
 from bpy.types import AddonPreferences, Context, Operator
-from bpy.utils import register_class, unregister_class
+from bpy.utils import register_class, unregister_class  # pyright: ignore[reportUnknownVariableType]
 
 from .src.operators.material_operator import ImportMaterialOperator
 from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
@@ -39,12 +40,18 @@ STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/s
 VISORS_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/all_visors.json"
 
 
+@final
 class DownloadFilesOperator(Operator):
     bl_idname = "ekur.downloadfiles"
     bl_label = "Download Required Files"
 
     def execute(self, context: Context | None) -> set[str]:
-        data = context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder  # pyright: ignore[reportAttributeAccessIssue]
+        if context is None:
+            return {"CANCELLED"}
+        data = cast(
+            str,
+            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        )
         save_path = f"{data}/strings.txt"
         visors_path = f"{data}/all_visors.json"
         try:
@@ -72,13 +79,18 @@ class DownloadFilesOperator(Operator):
         return {"FINISHED"}
 
 
+@final
 class DumpFilesOperator(Operator):
     bl_idname = "ekur.dumpfiles"
     bl_label = "Dump Required Files"
 
     def execute(self, context: Context | None) -> set[str]:
-        data: EkurPreferences = context.preferences.addons["bl_ext.user_default.ekur"].preferences
-        ekur_save_path = Path(f"{data.data_folder}/ekur-{package_version_string}")
+        if context is None:
+            return {"CANCELLED"}
+        data = cast(
+            EkurPreferences, context.preferences.addons["bl_ext.user_default.ekur"].preferences
+        )
+        ekur_save_path = Path(f"{cast(str, data.data_folder)}/ekur-{package_version_string}")
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{package_version_string}/ekur-{package_version_string}"
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
@@ -95,14 +107,14 @@ class DumpFilesOperator(Operator):
                 logging.error(f"Failed to download ekur: {e.status}")
                 return {"CANCELLED"}
 
-        save_path = f"{data.data_folder}/strings.txt"
+        save_path = f"{cast(str, data.data_folder)}/strings.txt"
         _ = subprocess.run(
             [
                 ekur_save_path,
                 "--save-path",
-                data.data_folder,
+                cast(str, data.data_folder),
                 "--module-path",
-                data.deploy_folder,
+                cast(str, data.deploy_folder),
                 "--strings-path",
                 save_path,
             ]
@@ -110,6 +122,7 @@ class DumpFilesOperator(Operator):
         return {"FINISHED"}
 
 
+@final
 class EkurPreferences(AddonPreferences):
     bl_idname = __name__
 
@@ -130,9 +143,9 @@ class EkurPreferences(AddonPreferences):
     def draw(self, _context: Context | None):
         layout = self.layout
         box = layout.box()
-        box.label(text="Paths", icon="FILE_FOLDER")
-        box.prop(self, "data_folder")
-        box.prop(self, "deploy_folder")
+        box.label(text="Paths", icon="FILE_FOLDER")  # pyright: ignore[reportUnknownMemberType]
+        box.prop(self, "data_folder")  # pyright: ignore[reportUnknownMemberType]
+        box.prop(self, "deploy_folder")  # pyright: ignore[reportUnknownMemberType]
         box2 = layout.box()
         _ = box2.operator("ekur.downloadfiles")
         _ = box2.operator("ekur.dumpfiles")
@@ -149,7 +162,7 @@ def register():
     register_class(ImportModelOperator)
     register_class(ImportSpartanOperator)
     register_class(ImportLevelOperator)
-    bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
+    bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
 
 
 def unregister():
@@ -163,4 +176,4 @@ def unregister():
     unregister_class(ImportModelOperator)
     unregister_class(ImportSpartanOperator)
     unregister_class(ImportLevelOperator)
-    del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]
+    del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]

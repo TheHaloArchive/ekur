@@ -149,9 +149,11 @@ class CustomizationGlobals(TypedDict):
 
 class Instance(TypedDict):
     global_id: int
-    scale: tuple[float, float, float]
     position: tuple[float, float, float]
-    rotation: tuple[float, float, float, float]
+    scale: tuple[float, float, float]
+    forward: tuple[float, float, float]
+    left: tuple[float, float, float]
+    up: tuple[float, float, float]
     material: list[int]
 
 

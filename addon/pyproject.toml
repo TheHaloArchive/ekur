@@ -12,7 +12,7 @@ venv = ".venv"
 exclude = [".venv"]
 reportInvalidTypeForm = false
 reportIncompatibleMethodOverride = false
-
+reportImplicitOverride = false
 
 [tool.ruff]
 line-length = 100

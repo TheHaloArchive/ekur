@@ -1,7 +1,6 @@
 use std::{collections::HashMap, fs::File, io::BufWriter, path::PathBuf};
 
 use anyhow::Result;
-use nalgebra::{Matrix4, Vector4};
 use serde::Serialize;
 
 use crate::definitions::{render_model::MeshFlags, scenario::ScenarioStructureBsp};
@@ -9,9 +8,11 @@ use crate::definitions::{render_model::MeshFlags, scenario::ScenarioStructureBsp
 #[derive(Default, Debug, Serialize)]
 pub struct Instance {
     pub global_id: i32,
-    pub scale: [f32; 3],
     pub position: [f32; 3],
-    pub rotation: [f32; 4],
+    pub scale: [f32; 3],
+    pub forward: [f32; 3],
+    pub left: [f32; 3],
+    pub up: [f32; 3],
     pub material: Vec<i32>,
 }
 
@@ -20,42 +21,6 @@ pub struct Level {
     pub instances: Vec<Instance>,
 }
 
-fn create_quat_from_rotation_matrix(matrix: &Matrix4<f32>) -> [f32; 4] {
-    let trace = matrix[(0, 0)] + matrix[(1, 1)] + matrix[(2, 2)];
-    let mut q = [0.0f32; 4]; // [x, y, z, w]
-
-    if trace > 0.0 {
-        let s = (trace + 1.0).sqrt();
-        q[3] = s * 0.5; // w
-        let s = 0.5 / s;
-        q[0] = (matrix[(2, 1)] - matrix[(1, 2)]) * s; // x
-        q[1] = (matrix[(0, 2)] - matrix[(2, 0)]) * s; // y
-        q[2] = (matrix[(1, 0)] - matrix[(0, 1)]) * s; // z
-    } else if matrix[(0, 0)] >= matrix[(1, 1)] && matrix[(0, 0)] >= matrix[(2, 2)] {
-        let s = (1.0 + matrix[(0, 0)] - matrix[(1, 1)] - matrix[(2, 2)]).sqrt();
-        let inv_s = 0.5 / s;
-        q[0] = 0.5 * s; // x
-        q[1] = (matrix[(1, 0)] + matrix[(0, 1)]) * inv_s; // y
-        q[2] = (matrix[(2, 0)] + matrix[(0, 2)]) * inv_s; // z
-        q[3] = (matrix[(2, 1)] - matrix[(1, 2)]) * inv_s; // w
-    } else if matrix[(1, 1)] > matrix[(2, 2)] {
-        let s = (1.0 + matrix[(1, 1)] - matrix[(0, 0)] - matrix[(2, 2)]).sqrt();
-        let inv_s = 0.5 / s;
-        q[0] = (matrix[(1, 0)] + matrix[(0, 1)]) * inv_s; // x
-        q[1] = 0.5 * s; // y
-        q[2] = (matrix[(2, 1)] + matrix[(1, 2)]) * inv_s; // z
-        q[3] = (matrix[(0, 2)] - matrix[(2, 0)]) * inv_s; // w
-    } else {
-        let s = (1.0 + matrix[(2, 2)] - matrix[(0, 0)] - matrix[(1, 1)]).sqrt();
-        let inv_s = 0.5 / s;
-        q[0] = (matrix[(2, 0)] + matrix[(0, 2)]) * inv_s; // x
-        q[1] = (matrix[(2, 1)] + matrix[(1, 2)]) * inv_s; // y
-        q[2] = 0.5 * s; // z
-        q[3] = (matrix[(1, 0)] - matrix[(0, 1)]) * inv_s; // w
-    }
-
-    q
-}
 pub fn process_scenarios(
     scenarios: &HashMap<i32, ScenarioStructureBsp>,
     save_path: &str,
@@ -77,20 +42,6 @@ pub fn process_scenarios(
             }
             inst.global_id = instance.runtime_geo.global_id;
 
-            let rotmat = Matrix4::from_columns(&[
-                Vector4::new(
-                    instance.forward.x,
-                    instance.forward.y,
-                    instance.forward.z,
-                    0.0,
-                ),
-                Vector4::new(instance.left.x, instance.left.y, instance.left.z, 0.0),
-                Vector4::new(instance.up.x, instance.up.y, instance.up.z, 0.0),
-                Vector4::new(0.0, 0.0, 0.0, 1.0),
-            ]);
-
-            let rotation = create_quat_from_rotation_matrix(&rotmat);
-            inst.rotation = rotation;
             inst.position = [
                 instance.position.x,
                 instance.position.y,
@@ -101,6 +52,9 @@ pub fn process_scenarios(
                 instance.transform_scale.y,
                 instance.transform_scale.z,
             ];
+            inst.forward = [instance.forward.x, instance.forward.y, instance.forward.z];
+            inst.left = [instance.left.x, instance.left.y, instance.left.z];
+            inst.up = [instance.up.x, instance.up.y, instance.up.z];
 
             inst.material = instance
                 .material
