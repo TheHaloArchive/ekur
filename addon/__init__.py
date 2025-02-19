@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+
+# pyright: reportUnknownMemberType=false, reportUninitializedInstanceVariable=false
 """
 Ekur - A multi-purpose importer for Halo Infinite.
 """
@@ -50,26 +52,26 @@ class DownloadFilesOperator(Operator):
             return {"CANCELLED"}
         data = cast(
             str,
-            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
         )
         save_path = f"{data}/strings.txt"
         visors_path = f"{data}/all_visors.json"
         try:
             with (
-                urllib.request.urlopen(STRINGS_URL) as response,
+                urllib.request.urlopen(STRINGS_URL) as response,  # pyright: ignore[reportAny]
                 open(save_path, "wb") as out_file,
             ):
-                _ = out_file.write(response.read())
+                _ = out_file.write(response.read())  # pyright: ignore[reportAny]
         except urllib.error.HTTPError as e:
             logging.error(f"Failed to download strings.txt: {e}")
             return {"CANCELLED"}
 
         try:
             with (
-                urllib.request.urlopen(VISORS_URL) as response,
+                urllib.request.urlopen(VISORS_URL) as response,  # pyright: ignore[reportAny]
                 open(visors_path, "w") as out_file,
             ):
-                _ = out_file.write(response.read().decode("utf-8"))
+                _ = out_file.write(response.read().decode("utf-8"))  # pyright: ignore[reportAny]
         except urllib.error.HTTPError as e:
             logging.error(f"Failed to download all_visors.json: {e.status}")
             return {"CANCELLED"}
@@ -99,10 +101,10 @@ class DumpFilesOperator(Operator):
         if not ekur_save_path.exists():
             try:
                 with (
-                    urllib.request.urlopen(ekur_url) as response,
+                    urllib.request.urlopen(ekur_url) as response,  # pyright: ignore[reportAny]
                     open(ekur_save_path, "wb") as out_file,
                 ):
-                    _ = out_file.write(response.read())
+                    _ = out_file.write(response.read())  # pyright: ignore[reportAny]
             except urllib.error.HTTPError as e:
                 logging.error(f"Failed to download ekur: {e.status}")
                 return {"CANCELLED"}
@@ -143,9 +145,9 @@ class EkurPreferences(AddonPreferences):
     def draw(self, _context: Context | None):
         layout = self.layout
         box = layout.box()
-        box.label(text="Paths", icon="FILE_FOLDER")  # pyright: ignore[reportUnknownMemberType]
-        box.prop(self, "data_folder")  # pyright: ignore[reportUnknownMemberType]
-        box.prop(self, "deploy_folder")  # pyright: ignore[reportUnknownMemberType]
+        box.label(text="Paths", icon="FILE_FOLDER")
+        box.prop(self, "data_folder")
+        box.prop(self, "deploy_folder")
         box2 = layout.box()
         _ = box2.operator("ekur.downloadfiles")
         _ = box2.operator("ekur.dumpfiles")
@@ -162,7 +164,7 @@ def register():
     register_class(ImportModelOperator)
     register_class(ImportSpartanOperator)
     register_class(ImportLevelOperator)
-    bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
 def unregister():
@@ -176,4 +178,4 @@ def unregister():
     unregister_class(ImportModelOperator)
     unregister_class(ImportSpartanOperator)
     unregister_class(ImportLevelOperator)
-    del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

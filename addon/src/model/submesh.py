@@ -2,6 +2,8 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 
+__all__ = ["Submesh"]
+
 
 class Submesh:
     def __init__(self) -> None:

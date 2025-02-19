@@ -4,6 +4,8 @@ from io import BufferedReader
 from ..exceptions import IncorrectStrideValue
 import struct
 
+__all__ = ["WeightExtraBuffer"]
+
 
 class WeightExtraBuffer:
     def __init__(self) -> None:

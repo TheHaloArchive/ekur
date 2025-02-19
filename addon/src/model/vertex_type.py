@@ -1,5 +1,7 @@
 from enum import IntEnum, auto
 
+__all__ = ["VertexType"]
+
 
 class VertexType(IntEnum):
     World = 0

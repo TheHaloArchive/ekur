@@ -4,6 +4,8 @@ from io import BufferedReader
 from .vectors import NormalizedVector4
 from ..exceptions import IncorrectStrideValue
 
+__all__ = ["PositionBuffer"]
+
 
 class PositionBuffer:
     def __init__(self) -> None:

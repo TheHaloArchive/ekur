@@ -5,6 +5,8 @@ from io import BufferedReader
 
 from .vectors import Vector3, Vector4
 
+__all__ = ["MarkerInstance", "Marker"]
+
 
 class MarkerInstance:
     def __init__(self) -> None:

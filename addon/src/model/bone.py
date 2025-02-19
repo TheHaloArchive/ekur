@@ -3,6 +3,8 @@
 from io import BufferedReader
 from .vectors import Matrix4x4
 
+__all__ = ["Bone"]
+
 
 class Bone:
     def __init__(self) -> None:

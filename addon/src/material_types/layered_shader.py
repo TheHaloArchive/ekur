@@ -31,6 +31,8 @@ from ..utils import assign_value, create_node, read_json_file, read_texture
 MP_VISOR: int = 1420626520
 ANY_REGION: int = 192819851
 
+__all__ = ["LayeredShader"]
+
 
 class LayeredShader:
     def __init__(

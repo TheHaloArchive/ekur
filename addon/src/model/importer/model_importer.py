@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import cast
 import bpy
 from bpy.types import ArmatureModifier, Context, Material, Mesh, Object
+from mathutils import Vector
 from .bone import import_bones
 from .markers import import_markers
 from ..metadata import Model
@@ -10,6 +11,8 @@ from ..section import Section
 from ..vectors import NormalizedVector2
 
 MESH_SCALE = (3.048, 3.048, 3.048)
+
+__all__ = ["ModelImporter"]
 
 
 class ModelImporter:
@@ -51,7 +54,7 @@ class ModelImporter:
         uv_scale: list[tuple[float, float, float]],
         index: int,
     ) -> None:
-        uv0 = [x.to_vector() for x in uv]
+        uv0 = [x.vector for x in uv]
         uv_layer = mesh.uv_layers.new(name=f"UV{index}")
         for loop in range(len(mesh.loops)):
             uv_layer.data[mesh.loops[loop].index].uv = (
@@ -111,9 +114,9 @@ class ModelImporter:
             p.use_smooth = True
 
     def create_normals(self, section: Section, mesh: Mesh) -> None:
-        normals = [x.to_vector() for x in section.vertex_buffer.normal_buffer.normals]
+        normals = [x.vector.to_tuple() for x in section.vertex_buffer.normal_buffer.normals]
         mesh.normals_split_custom_set([[0, 0, 0] for _ in mesh.loops])  # pyright: ignore[reportUnknownMemberType]
-        mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportUnknownMemberType]
+        mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportUnknownMemberType, reportArgumentType]
         _ = mesh.validate()
         mesh.update()  # pyright: ignore[reportUnknownMemberType]
 
@@ -122,13 +125,15 @@ class ModelImporter:
         region_name = section.region_name
         collection_name = f"{self.model.header.tag_id}_{permutation_name}_{region_name}"
 
-        model_scale = self.model.bounding_boxes[0].get_model_scale()
-        uv_scale = self.model.bounding_boxes[0].get_uv_scale()
+        model_scale = self.model.bounding_boxes[0].model_scale
+        uv_scale = self.model.bounding_boxes[0].uv_scale
 
-        verts = [x.to_vector() for x in section.vertex_buffer.position_buffer.positions]
+        verts = [x.vector for x in section.vertex_buffer.position_buffer.positions]
         it = len(verts[0])
         for i in range(len(verts)):
-            verts[i] = [verts[i][j] * model_scale[j][-1] + model_scale[j][0] for j in range(it)]
+            verts[i] = Vector(
+                [verts[i][j] * model_scale[j][-1] + model_scale[j][0] for j in range(it)]
+            )
 
         ind = section.index_buffer.indices
         faces = [(ind[x], ind[x + 1], ind[x + 2]) for x in range(0, len(ind), 3)]

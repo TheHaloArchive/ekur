@@ -5,6 +5,8 @@ from io import BufferedReader
 from ..exceptions import IncorrectStrideValue
 from .vectors import NormalizedVector2
 
+__all__ = ["UVBuffer"]
+
 
 class UVBuffer:
     def __init__(self) -> None:

@@ -3,6 +3,8 @@
 from io import BufferedReader
 import logging
 
+__all__ = ["ModelHeader"]
+
 
 class ModelHeader:
     def __init__(self) -> None:

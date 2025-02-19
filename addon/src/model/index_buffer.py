@@ -5,6 +5,8 @@ from io import BufferedReader
 
 from ..exceptions import IncorrectStrideValue
 
+__all__ = ["IndexBuffer", "IndexBufferType"]
+
 
 class IndexBufferType(IntEnum):
     Default = 0

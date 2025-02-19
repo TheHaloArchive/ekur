@@ -9,6 +9,8 @@ from .vertex_type import VertexType
 from .index_buffer import IndexBuffer
 from .submesh import Submesh
 
+__all__ = ["Section"]
+
 
 class Section:
     def __init__(self) -> None:

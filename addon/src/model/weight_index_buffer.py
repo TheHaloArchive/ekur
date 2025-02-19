@@ -5,6 +5,8 @@ from io import BufferedReader
 from .vectors import ByteVector4
 from ..exceptions import IncorrectStrideValue
 
+__all__ = ["WeightIndexBuffer"]
+
 
 class WeightIndexBuffer:
     def __init__(self) -> None:

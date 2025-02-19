@@ -35,11 +35,13 @@ pub fn process_styles(
             };
             list.styles.insert(reference.name.0, entry);
         }
-        let default_style = style
+        let Some(default_style) = style
             .styles
             .elements
             .get(style.default_style_index.0 as usize)
-            .unwrap();
+        else {
+            continue;
+        };
         list.default_style = CommonStyleListEntry {
             reference: default_style.style_ref.global_id.to_string(),
             name: strings

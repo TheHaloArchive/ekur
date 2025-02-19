@@ -3,7 +3,19 @@
 from io import BufferedReader
 import struct
 
-from mathutils import Matrix
+from mathutils import Matrix, Vector
+
+__all__ = [
+    "Vector4",
+    "NormalizedVector4",
+    "Matrix4x4",
+    "Vector3",
+    "NormalizedVector2",
+    "NormalizedVector101010",
+    "ByteVector4",
+    "Bounds",
+    "NormalizedVector1010102PackedAsUnorm",
+]
 
 
 class Vector4:
@@ -19,8 +31,9 @@ class Vector4:
         self.z = struct.unpack("f", reader.read(4))[0]
         self.w = struct.unpack("f", reader.read(4))[0]
 
-    def to_vector(self) -> list[float]:
-        return [self.x, self.y, self.z, self.w]
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z, self.w))
 
 
 class NormalizedVector4:
@@ -40,8 +53,9 @@ class NormalizedVector4:
         self.z = z / 65535.0
         self.w = w / 65535.0
 
-    def to_vector(self) -> list[float]:
-        return [self.x, self.y, self.z]
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z))
 
 
 class Matrix4x4:
@@ -57,11 +71,16 @@ class Matrix4x4:
         self.m3.read(reader)
         self.m4.read(reader)
 
-    def to_matrix(self) -> Matrix:
-        matrix = Matrix(
-            (self.m1.to_vector(), self.m2.to_vector(), self.m3.to_vector(), self.m4.to_vector())
+    @property
+    def matrix(self) -> Matrix:
+        return Matrix(
+            (
+                self.m1.vector.to_tuple(),
+                self.m2.vector.to_tuple(),
+                self.m3.vector.to_tuple(),
+                self.m4.vector.to_tuple(),
+            )
         )
-        return matrix
 
 
 class Vector3:
@@ -75,8 +94,9 @@ class Vector3:
         self.y = struct.unpack("f", reader.read(4))[0]
         self.z = struct.unpack("f", reader.read(4))[0]
 
-    def to_vector(self) -> list[float]:
-        return [self.x, self.y, self.z]
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z))
 
 
 class NormalizedVector2:
@@ -90,8 +110,9 @@ class NormalizedVector2:
         self.x = x / 65535.0
         self.y = y / 65535.0
 
-    def to_vector(self) -> list[float]:
-        return [self.x, self.y]
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y))
 
 
 class NormalizedVector101010:
@@ -106,8 +127,9 @@ class NormalizedVector101010:
         self.y = (val >> 10 & 0x3FF) / 1023.0
         self.z = (val >> 20 & 0x3FF) / 1023.0
 
-    def to_vector(self) -> list[float]:
-        return [self.x, self.y, self.z]
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z))
 
 
 class ByteVector4:
@@ -123,8 +145,9 @@ class ByteVector4:
         self.z = int.from_bytes(reader.read(1))
         self.w = int.from_bytes(reader.read(1))
 
-    def to_vector(self) -> list[int]:
-        return [self.x, self.y, self.z, self.w]
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z, self.w))
 
 
 class Bounds:
@@ -163,5 +186,6 @@ class NormalizedVector1010102PackedAsUnorm:
             self.z /= length
             self.w /= length
 
-    def to_vector(self) -> list[float]:
-        return [self.x, self.y, self.z]
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z))

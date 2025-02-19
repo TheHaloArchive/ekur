@@ -37,8 +37,14 @@ class ImportSpartanOperator(Operator):
         importer = ModelImporter()
         objects = importer.start_import(context, str(model_path))
         global_collection = bpy.data.collections.new("Spartans")
+        themes = customization_globals["themes"]
+        import_properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType]
+        if cast(bool, import_properties.import_specific_core):
+            themes = [
+                theme for theme in themes if str(theme["name"]) == cast(str, import_properties.core)
+            ]
 
-        for theme in customization_globals["themes"]:
+        for theme in themes:
             theme_collection = bpy.data.collections.new(str(theme["name"]))
             global_collection.children.link(theme_collection)  # pyright: ignore[reportUnknownMemberType]
             for region in theme["regions"]:

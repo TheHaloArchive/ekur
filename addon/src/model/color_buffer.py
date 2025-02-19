@@ -4,6 +4,8 @@ from io import BufferedReader
 
 from ..exceptions import IncorrectStrideValue
 
+__all__ = ["ColorBuffer"]
+
 
 class ColorBuffer:
     def __init__(self) -> None:

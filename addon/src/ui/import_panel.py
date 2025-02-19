@@ -11,7 +11,7 @@ from typing import cast, final
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, UILayout, Operator
 
-from ..json_definitions import CommonMaterial, CommonStyleList, CommonLayer
+from ..json_definitions import CommonMaterial, CommonStyleList, CommonLayer, CustomizationGlobals
 from ..utils import read_json_file
 
 _nsre = re.compile("([0-9]+)")
@@ -89,20 +89,37 @@ class GrabStrings:
             List of all visors available to be used on the import panel.
         """
         all_visors: list[tuple[str, str, str]] = []
-        if context:
-            data = cast(
-                str,
-                context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
-            )
-            visors_path = Path(f"{data}/all_visors.json")
-            if not visors_path.exists():
-                return all_visors
-            visors = read_json_file(visors_path, dict[str, CommonLayer])
-            for name, _ in visors.items():
-                all_visors.append((name, name, ""))
-            if context.scene.import_properties.sort_by_name:  # pyright: ignore[reportAttributeAccessIssue]
-                all_visors.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+        if context is None:
+            return all_visors
+        data = cast(
+            str,
+            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
+        )
+        visors_path = Path(f"{data}/all_visors.json")
+        if not visors_path.exists():
+            return all_visors
+        visors = read_json_file(visors_path, dict[str, CommonLayer])
+        for name, _ in visors.items():
+            all_visors.append((name, name, ""))
+        if context.scene.import_properties.sort_by_name:  # pyright: ignore[reportAttributeAccessIssue]
+            all_visors.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
         return all_visors
+
+    def cores(self, context: Context | None) -> list[tuple[str, str, str]]:
+        all_cores: list[tuple[str, str, str]] = []
+        if context is None:
+            return all_cores
+        data = cast(
+            str,
+            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
+        )
+        globals_path = Path(f"{data}/customization_globals.json")
+        if not globals_path.exists():
+            return all_cores
+        globals = read_json_file(globals_path, CustomizationGlobals)
+        for entry in globals["themes"]:
+            all_cores.append((str(entry["name"]), str(entry["name"]), ""))
+        return all_cores
 
 
 @final
@@ -147,6 +164,8 @@ class ImportProperties(PropertyGroup):
         name="Level Path",
         subtype="FILE_PATH",
     )
+    import_specific_core: BoolProperty(name="Import Specific Core", default=False)
+    core: EnumProperty(name="Core", items=GrabStrings.cores)
 
 
 @final
@@ -164,7 +183,7 @@ class CoatingImportPanel(Panel):
         box: UILayout = layout.box()
         box.label(icon="MATERIAL", text="Import Material")
         options = box.box()
-        import_properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownVariableType]
+        import_properties = cast(ImportProperties, context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
         options.prop(import_properties, "use_default")
         if not import_properties.use_default:
             box2 = options.box()
@@ -191,6 +210,10 @@ class CoatingImportPanel(Panel):
 
         ocgd_box = layout.box()
         ocgd_box.label(icon="ARMATURE_DATA", text="Import Spartan")
+        ocgd_opts = ocgd_box.box()
+        ocgd_opts.prop(import_properties, "import_specific_core")
+        if import_properties.import_specific_core:
+            ocgd_opts.prop(import_properties, "core")
         _ = ocgd_box.operator("ekur.importspartan")
 
         level_box = layout.box()
