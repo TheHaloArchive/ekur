@@ -5,6 +5,8 @@ from io import BufferedReader
 from ..exceptions import IncorrectStrideValue
 from .vectors import NormalizedVector1010102PackedAsUnorm
 
+__all__ = ["NormalBuffer"]
+
 
 class NormalBuffer:
     def __init__(self) -> None:

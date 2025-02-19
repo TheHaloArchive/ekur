@@ -16,6 +16,8 @@ from bpy.types import (
 
 from ..utils import assign_value, create_node, create_socket
 
+__all__ = ["NormalMapCombineOrientation"]
+
 
 class NormalMapCombineOrientation:
     def __init__(self) -> None:

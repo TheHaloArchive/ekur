@@ -13,6 +13,8 @@ from ..material_types.layered_shader import LayeredShader
 from ..material_types.illum_shader import IllumShader
 from ..utils import get_materials, read_json_file, remove_nodes
 
+__all__ = ["ImportMaterialOperator"]
+
 
 @final
 class ImportMaterialOperator(Operator):

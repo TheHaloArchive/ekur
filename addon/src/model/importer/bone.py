@@ -10,6 +10,8 @@ from mathutils import Matrix
 from ..bone import Bone
 from ..metadata import Model
 
+__all__ = ["import_bones", "get_bone_transforms"]
+
 
 def create_transform(transform: Matrix, bone_mode: bool = False) -> Matrix:
     if not bone_mode:
@@ -34,7 +36,7 @@ def get_bone_transforms(model: Model) -> list[Matrix]:
     result: list[Matrix] = []
     for bone in model.bones:
         lineage = get_bone_lineage(model, bone)
-        transforms = [create_transform(x.local_transform.to_matrix(), True) for x in lineage]
+        transforms = [create_transform(x.local_transform.matrix, True) for x in lineage]
         res = cast(Matrix, reduce(operator.matmul, transforms))
         result.append(res)
     return result

@@ -1,6 +1,6 @@
 [project]
 name = "ekuraddon"
-version = "0.3.0"
+version = "0.4.0"
 description = "A multi-purpose importer for Halo Infinite."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -12,7 +12,7 @@ venv = ".venv"
 exclude = [".venv"]
 reportInvalidTypeForm = false
 reportIncompatibleMethodOverride = false
-
+reportImplicitOverride = false
 
 [tool.ruff]
 line-length = 100

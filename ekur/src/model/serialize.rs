@@ -186,7 +186,9 @@ pub fn process_models(
             if lod_data.lod_has_shadow_proxies.0 == 1 {
                 continue;
             }
-            if !lod_data.lod_flags.0.contains(LodFlags::LOD0) {
+            if !lod_data.lod_flags.0.contains(LodFlags::LOD0)
+                || lod_data.lod_has_shadow_proxies.0 == 1
+            {
                 continue;
             }
 

@@ -129,11 +129,11 @@ pub fn process_object_globals(
                 }
                 for region in &theme_config.body_types.elements {
                     let reg = add_region(region, attachments, models);
-                    theme.regions.push(reg);
+                    theme.body_types.push(reg);
                 }
                 for region in &theme_config.prosthetics.elements {
                     let reg = add_region(region, attachments, models);
-                    theme.regions.push(reg);
+                    theme.prosthetics.push(reg);
                 }
             }
             spartan_globals.themes.push(theme);

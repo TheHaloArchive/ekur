@@ -49,7 +49,7 @@ pub(super) fn write_header_rtgo(reader: &mut BufWriter<File>, model: &RuntimeGeo
     reader.write_i32::<LE>(model.any_tag.internal_struct.tag_id)?;
     reader.write_u32::<LE>(0)?;
     reader.write_u32::<LE>(0)?;
-    reader.write_u32::<LE>(0)?;
+    reader.write_u32::<LE>(model.markers.size)?;
     reader.write_u32::<LE>(0)?;
     let section_size = model
         .sections
@@ -190,7 +190,7 @@ pub(super) fn write_submeshes_rtgo(
         writer.write_all(&submesh.vertex_count.0.to_ne_bytes())?;
         writer.write_all(&submesh.subset_count.0.to_ne_bytes())?;
         writer.write_all(&submesh.subset_index.0.to_ne_bytes())?;
-        writer.write_i16::<LE>(0)?;
+        writer.write_all(&submesh.shader_index.0.to_ne_bytes())?;
     }
     Ok(())
 }

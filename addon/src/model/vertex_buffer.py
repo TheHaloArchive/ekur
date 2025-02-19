@@ -13,6 +13,8 @@ from .buffer_flags import BufferFlags
 from .uv_buffer import UVBuffer
 from .position_buffer import PositionBuffer
 
+__all__ = ["VertexBuffers"]
+
 
 class VertexBuffers:
     def __init__(self) -> None:
@@ -71,8 +73,8 @@ class VertexBuffers:
                 if i >= len(blend_weights):
                     continue
 
-            indices = blend_indicies[i].to_vector()
-            weights = dummy_weights if rigid else blend_weights[i].to_vector()
+            indices = [int(x) for x in blend_indicies[i].vector]
+            weights = dummy_weights if rigid else blend_weights[i].vector.to_tuple()
 
             # append a 1 to the end of the weights list
             if implied:

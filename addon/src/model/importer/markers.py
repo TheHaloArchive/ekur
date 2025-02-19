@@ -9,6 +9,8 @@ from ..marker import Marker, MarkerInstance
 from .bone import get_bone_transforms
 from ..metadata import Model
 
+__all__ = ["import_markers"]
+
 
 def get_name(marker: Marker, instance: MarkerInstance, model: Model):
     name = str(marker.name)
@@ -35,8 +37,8 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
             marker_obj.scale = (3.048, 3.048, 3.048)
 
             world_transform = (
-                Matrix.Translation([v for v in instance.position.to_vector()])
-                @ Quaternion(instance.rotation.to_vector()).to_matrix().to_4x4()
+                Matrix.Translation([v for v in instance.position.vector])
+                @ Quaternion(instance.rotation.vector).to_matrix().to_4x4()
             )
 
             if instance.node_index >= 0 and len(bone_transforms) > instance.node_index:

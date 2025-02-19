@@ -2,8 +2,6 @@
 # Copyright © 2025 Surasia
 from typing import cast
 from bpy.types import (
-    NodeSocketColor,
-    NodeSocketFloat,
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
     ShaderNodeTexImage,
@@ -12,7 +10,9 @@ from bpy.types import (
 
 from ..json_definitions import CommonMaterial
 from ..nodes.diffuse_shader import DiffuseShader
-from ..utils import create_node, read_texture
+from ..utils import assign_value, create_node, read_texture
+
+__all__ = ["DiffuseShaderType"]
 
 
 class DiffuseShaderType:
@@ -43,30 +43,14 @@ class DiffuseShaderType:
 
         if self.material["diffuse_info"]:
             info = self.material["diffuse_info"]
-
-            roughness_white = cast(NodeSocketFloat, shader.inputs[3])
-            roughness_white.default_value = info["roughness_white"]
-
-            roughness_black = cast(NodeSocketFloat, shader.inputs[4])
-            roughness_black.default_value = info["roughness_black"]
-
-            metallic_white = cast(NodeSocketFloat, shader.inputs[5])
-            metallic_white.default_value = info["metallic_white"]
-
-            metallic_black = cast(NodeSocketFloat, shader.inputs[6])
-            metallic_black.default_value = info["metallic_black"]
-
-            em_tint = cast(NodeSocketColor, shader.inputs[7])
-            em_tint.default_value = (*info["si_color_tint"], 1.0)
-
-            em_intensity = cast(NodeSocketFloat, shader.inputs[9])
-            em_intensity.default_value = info["si_intensity"]
-
-            em_amount = cast(NodeSocketFloat, shader.inputs[8])
-            em_amount.default_value = info["si_amount"]
-
-            color_tint = cast(NodeSocketColor, shader.inputs[10])
-            color_tint.default_value = (*info["color_tint"], 1.0)
+            assign_value(shader, 3, info["roughness_white"])
+            assign_value(shader, 4, info["roughness_black"])
+            assign_value(shader, 5, info["metallic_white"])
+            assign_value(shader, 6, info["metallic_black"])
+            assign_value(shader, 7, (*info["si_color_tint"], 1.0))
+            assign_value(shader, 8, info["si_amount"])
+            assign_value(shader, 9, info["si_intensity"])
+            assign_value(shader, 10, (*info["color_tint"], 1.0))
 
             self.get_textures(shader)
             material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)

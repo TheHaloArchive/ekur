@@ -2,8 +2,6 @@
 # Copyright © 2025 Surasia
 from typing import cast
 from bpy.types import (
-    NodeSocketColor,
-    NodeSocketFloat,
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
     ShaderNodeTexImage,
@@ -12,7 +10,11 @@ from bpy.types import (
 
 from ..json_definitions import CommonMaterial
 from ..nodes.illum import SelfIllum
-from ..utils import create_node, read_texture
+from ..utils import assign_value, create_node, read_texture
+
+EMPTY_TEXTURES = [10098, 580203186]
+
+__all__ = ["IllumShader"]
 
 
 class IllumShader:
@@ -36,7 +38,7 @@ class IllumShader:
         alpha_map = self.material["textures"].get("AlphaMap")
         if alpha_map:
             img = self.create_image(-200, str(alpha_map))
-            if (alpha_map == 10098 or alpha_map == 580203186) and col:
+            if alpha_map in EMPTY_TEXTURES and col:
                 _ = self.tree.links.new(col.outputs[0], nodes.inputs[1])
             else:
                 _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
@@ -47,15 +49,9 @@ class IllumShader:
 
         if self.material["illum_info"]:
             info = self.material["illum_info"]
-
-            opacity = cast(NodeSocketFloat, shader.inputs[3])
-            opacity.default_value = info["opacity"]
-
-            color = cast(NodeSocketColor, shader.inputs[2])
-            color.default_value = (*info["color"], 1.0)
-
-            intensity = cast(NodeSocketFloat, shader.inputs[4])
-            intensity.default_value = info["intensity"]
+            assign_value(shader, 3, info["opacity"])
+            assign_value(shader, 2, (*info["color"], 1.0))
+            assign_value(shader, 4, info["intensity"])
 
             self.get_textures(shader)
             material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)

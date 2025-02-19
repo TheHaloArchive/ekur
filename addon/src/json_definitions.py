@@ -3,6 +3,29 @@
 from collections import OrderedDict
 from typing import TypedDict
 
+__all__ = [
+    "StyleInfo",
+    "get_intentions",
+    "DecalSlot",
+    "DiffuseInfo",
+    "SelfIllum",
+    "CommonMaterial",
+    "CommonLayer",
+    "CommonRegion",
+    "CommonCoating",
+    "CoatingGlobalEntry",
+    "CoatingGlobalEntries",
+    "CommonStyleListEntry",
+    "CommonStyleList",
+    "CustomizationAttachment",
+    "CustomizationPermutation",
+    "CustomizationRegion",
+    "CustomizationTheme",
+    "CustomizationGlobals",
+    "Instance",
+    "Level",
+]
+
 
 class StyleInfo(TypedDict):
     texel_density: tuple[float, float]
@@ -145,3 +168,17 @@ class CustomizationTheme(TypedDict):
 class CustomizationGlobals(TypedDict):
     model: int
     themes: list[CustomizationTheme]
+
+
+class Instance(TypedDict):
+    global_id: int
+    position: tuple[float, float, float]
+    scale: tuple[float, float, float]
+    forward: tuple[float, float, float]
+    left: tuple[float, float, float]
+    up: tuple[float, float, float]
+    material: list[int]
+
+
+class Level(TypedDict):
+    instances: list[Instance]

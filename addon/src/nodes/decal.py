@@ -25,6 +25,8 @@ from bpy.types import (
 from ..utils import assign_value, create_node, create_socket
 from .norm_normalize import NormNormalize
 
+__all__ = ["Decal"]
+
 
 class Decal:
     def __init__(self) -> None:

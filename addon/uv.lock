@@ -3,7 +3,7 @@ requires-python = ">=3.13"
 
 [[package]]
 name = "ekuraddon"
-version = "0.3.0"
+version = "0.4.0"
 source = { virtual = "." }
 dependencies = [
     { name = "fake-bpy-module-latest" },
@@ -14,9 +14,9 @@ requires-dist = [{ name = "fake-bpy-module-latest" }]
 
 [[package]]
 name = "fake-bpy-module-latest"
-version = "20250217"
+version = "20250219"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/35/1e/05e227973abe51c2ded9ac0a7bb530b04b7858963b7c1d8497449ba46e7d/fake_bpy_module_latest-20250217.tar.gz", hash = "sha256:abc648221d64b8374233350a0a3f8e64a24297abb784ba46ecfd83999523831b", size = 946721 }
+sdist = { url = "https://files.pythonhosted.org/packages/07/5d/47d397df9b341caf3197583e507dcbe7a99c5742acbc6bd879f41d15ebed/fake_bpy_module_latest-20250219.tar.gz", hash = "sha256:41a5cc1df1c8cb5e5cc70160acb50756ce1c4d3d54f1dfe6f63530ce2cd0728a", size = 947471 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/da/96/51bd0e3f0f0627113008ca5fd7b59c1c27aaf105e1b96ecc252033060af3/fake_bpy_module_latest-20250217-py3-none-any.whl", hash = "sha256:8e7356673d84cebceecabde942a479029feeda053436659738815704e160b1b2", size = 1068954 },
+    { url = "https://files.pythonhosted.org/packages/27/16/a55759c0d7acc019ee1c900df998bb58a4cd37252a054ec83047c72f4d34/fake_bpy_module_latest-20250219-py3-none-any.whl", hash = "sha256:8c0fce1fb75dc3c634315bfe3b6cc182916d08d21b49cbc27e1a5bd014de9340", size = 1069870 },
 ]

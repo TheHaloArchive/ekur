@@ -1,21 +1,35 @@
-# pyright: reportAttributeAccessIssue=false
-
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+from typing import cast
 import bpy
 from bpy.types import (
+    NodeGroupInput,
+    NodeGroupOutput,
+    NodeLink,
+    NodeReroute,
+    NodeSocket,
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketShader,
     NodeSocketVector,
+    NodeTree,
     ShaderNodeBsdfPrincipled,
+    ShaderNodeBump,
+    ShaderNodeClamp,
     ShaderNodeCombineColor,
     ShaderNodeCombineXYZ,
     ShaderNodeGamma,
     ShaderNodeGroup,
+    ShaderNodeInvert,
+    ShaderNodeMapping,
     ShaderNodeMath,
     ShaderNodeMix,
+    ShaderNodeNormalMap,
     ShaderNodeSeparateColor,
+    ShaderNodeTexCoord,
+    ShaderNodeTexNoise,
+    ShaderNodeTree,
+    ShaderNodeValToRGB,
 )
 
 from .detail_normals import DetailNormals
@@ -29,12 +43,14 @@ from .scratch_global_toggle import ScratchGlobalToggle
 from .infinite_masking_sorter import InfiniteMaskingSorter
 from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
 
-from ..utils import create_node, create_socket
+from ..utils import assign_value, create_node, create_socket
+
+__all__ = ["HIMS"]
 
 
 class HIMS:
     def __init__(self) -> None:
-        self.node_tree = bpy.data.node_groups.get(
+        self.node_tree: NodeTree | None = bpy.data.node_groups.get(
             "Halo Infinite Shader 3.1 by Chunch and ChromaCore"
         )
         if self.node_tree:
@@ -48,8 +64,11 @@ class HIMS:
         self.create_nodes()
 
     def create_sockets(self) -> None:
+        if self.node_tree is None:
+            return
         interface = self.node_tree.interface
         outputs = interface.new_panel("Outputs")
+        _: NodeSocket
         _ = create_socket(interface, "BSDF", NodeSocketShader, False, outputs)
         _ = create_socket(interface, "Bake Color", NodeSocketColor, False, outputs)
         _ = create_socket(interface, "Bake Metallic", NodeSocketColor, False, outputs)
@@ -247,6 +266,8 @@ class HIMS:
         _ = create_socket(interface, "Base Scale Y", NodeSocketFloat, panel=scale_options)
 
     def create_nodes(self) -> None:
+        if self.node_tree is None:
+            return
         nodes = self.node_tree.nodes
 
         srgb = create_node(nodes, 1210, 366, ShaderNodeSeparateColor)
@@ -263,126 +284,126 @@ class HIMS:
         math_003_2 = create_node(nodes, 2395, -17, ShaderNodeMath)
         math_003_2.operation = "MULTIPLY"
 
-        normal_map = nodes.new("ShaderNodeNormalMap")
-        reroute_002_4 = nodes.new("NodeReroute")
-        reroute_011_3 = nodes.new("NodeReroute")
-        reroute_010_3 = nodes.new("NodeReroute")
-        reroute_014_3 = nodes.new("NodeReroute")
-        reroute_015_3 = nodes.new("NodeReroute")
-        reroute_018_3 = nodes.new("NodeReroute")
-        reroute_003_1 = nodes.new("NodeReroute")
-        reroute_021 = nodes.new("NodeReroute")
-        invert = nodes.new("ShaderNodeInvert")
-        reroute_023 = nodes.new("NodeReroute")
-        reroute_020 = nodes.new("NodeReroute")
-        reroute_026 = nodes.new("NodeReroute")
-        reroute_027 = nodes.new("NodeReroute")
-        reroute_028 = nodes.new("NodeReroute")
-        reroute_019_3 = nodes.new("NodeReroute")
-        reroute_025 = nodes.new("NodeReroute")
-        reroute_013_3 = nodes.new("NodeReroute")
-        reroute_022 = nodes.new("NodeReroute")
-        reroute_032 = nodes.new("NodeReroute")
-        reroute_033 = nodes.new("NodeReroute")
-        reroute_034 = nodes.new("NodeReroute")
-        reroute_035 = nodes.new("NodeReroute")
-        reroute_037 = nodes.new("NodeReroute")
-        reroute_016_3 = nodes.new("NodeReroute")
-        reroute_040 = nodes.new("NodeReroute")
-        reroute_045 = nodes.new("NodeReroute")
-        reroute_047 = nodes.new("NodeReroute")
-        reroute_050 = nodes.new("NodeReroute")
-        reroute_049 = nodes.new("NodeReroute")
-        reroute_012 = nodes.new("NodeReroute")
-        reroute_051 = nodes.new("NodeReroute")
-        reroute_053 = nodes.new("NodeReroute")
-        reroute_024 = nodes.new("NodeReroute")
-        reroute_029 = nodes.new("NodeReroute")
-        reroute_030 = nodes.new("NodeReroute")
-        reroute_054 = nodes.new("NodeReroute")
-        reroute_055 = nodes.new("NodeReroute")
-        reroute_057 = nodes.new("NodeReroute")
-        reroute_056 = nodes.new("NodeReroute")
-        reroute_060 = nodes.new("NodeReroute")
-        reroute_061 = nodes.new("NodeReroute")
-        reroute_059 = nodes.new("NodeReroute")
-        reroute_006_3 = nodes.new("NodeReroute")
-        reroute_063 = nodes.new("NodeReroute")
-        reroute_065 = nodes.new("NodeReroute")
-        reroute_064 = nodes.new("NodeReroute")
-        reroute_031 = nodes.new("NodeReroute")
-        reroute_004_4 = nodes.new("NodeReroute")
-        reroute_039 = nodes.new("NodeReroute")
-        reroute_042 = nodes.new("NodeReroute")
-        reroute_1 = nodes.new("NodeReroute")
-        reroute_001_4 = nodes.new("NodeReroute")
-        reroute_041 = nodes.new("NodeReroute")
-        reroute_043 = nodes.new("NodeReroute")
-        reroute_044 = nodes.new("NodeReroute")
-        reroute_062 = nodes.new("NodeReroute")
+        normal_map = create_node(nodes, 0, 0, ShaderNodeNormalMap)
+        reroute_002_4 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_011_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_010_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_014_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_015_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_018_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_003_1 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_021 = create_node(nodes, 0, 0, NodeReroute)
+        invert = create_node(nodes, 0, 0, ShaderNodeInvert)
+        reroute_023 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_020 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_026 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_027 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_028 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_019_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_025 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_013_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_022 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_032 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_033 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_034 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_035 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_037 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_016_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_040 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_045 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_047 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_050 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_049 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_012 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_051 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_053 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_024 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_029 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_030 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_054 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_055 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_057 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_056 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_060 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_061 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_059 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_006_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_063 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_065 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_064 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_031 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_004_4 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_039 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_042 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_1 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_001_4 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_041 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_043 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_044 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_062 = create_node(nodes, 0, 0, NodeReroute)
 
         zone3 = create_node(nodes, -1609, 1866, ShaderNodeGroup)
-        zone3.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        zone3.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
-        group_input = nodes.new("NodeGroupInput")
+        group_input = create_node(nodes, 0, 0, NodeGroupInput)
 
-        group_016 = nodes.new("ShaderNodeGroup")
-        group_016.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        group_016 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_016.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
-        group_017 = nodes.new("ShaderNodeGroup")
-        group_017.node_tree = InfiniteMaskingSorterNoGrime().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        group_017 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_017.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorterNoGrime().node_tree)
 
-        group_020 = nodes.new("ShaderNodeGroup")
-        group_020.node_tree = InfiniteMaskingSorterNoGrime().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        group_020 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_020.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorterNoGrime().node_tree)
 
-        clamp_1 = nodes.new("ShaderNodeClamp")
-        clamp_001 = nodes.new("ShaderNodeClamp")
-        clamp_002 = nodes.new("ShaderNodeClamp")
-        clamp_003 = nodes.new("ShaderNodeClamp")
-        clamp_004 = nodes.new("ShaderNodeClamp")
-        clamp_005 = nodes.new("ShaderNodeClamp")
-        clamp_006 = nodes.new("ShaderNodeClamp")
-        clamp_007 = nodes.new("ShaderNodeClamp")
+        clamp_1 = create_node(nodes, 0, 0, ShaderNodeClamp)
+        clamp_001 = create_node(nodes, 0, 0, ShaderNodeClamp)
+        clamp_002 = create_node(nodes, 0, 0, ShaderNodeClamp)
+        clamp_003 = create_node(nodes, 0, 0, ShaderNodeClamp)
+        clamp_004 = create_node(nodes, 0, 0, ShaderNodeClamp)
+        clamp_005 = create_node(nodes, 0, 0, ShaderNodeClamp)
+        clamp_006 = create_node(nodes, 0, 0, ShaderNodeClamp)
+        clamp_007 = create_node(nodes, 0, 0, ShaderNodeClamp)
 
         mix_005_6 = create_node(nodes, 2505, -803, ShaderNodeMix)
         mix_005_6.blend_type = "MULTIPLY"
         mix_005_6.clamp_result = True
         mix_005_6.data_type = "RGBA"
 
-        gamma = nodes.new("ShaderNodeGamma")
-        gamma.inputs[1].default_value = 2.2
+        gamma = create_node(nodes, 0, 0, ShaderNodeGamma)
+        assign_value(gamma, 1, 2.2)
 
-        math_006_1 = nodes.new("ShaderNodeMath")
+        math_006_1 = create_node(nodes, 0, 0, ShaderNodeMath)
         math_006_1.operation = "SUBTRACT"
         math_006_1.use_clamp = True
-        math_006_1.inputs[0].default_value = 1.0
-        math_006_1.inputs[2].default_value = 0.5
-        texture_coordinate = nodes.new("ShaderNodeTexCoord")
-        texture_coordinate.from_instancer = False
+        assign_value(math_006_1, 0, 1.0)
+        assign_value(math_006_1, 2, 0.5)
 
-        mapping_1 = nodes.new("ShaderNodeMapping")
+        texture_coordinate = create_node(nodes, 0, 0, ShaderNodeTexCoord)
+
+        mapping_1 = create_node(nodes, 0, 0, ShaderNodeMapping)
         mapping_1.vector_type = "POINT"
-        mapping_1.inputs[1].default_value = (0.0, 0.0, 0.0)
-        mapping_1.inputs[2].default_value = (0.0, 0.0, 0.0)
+        assign_value(mapping_1, 1, (0.0, 0.0, 0.0))
+        assign_value(mapping_1, 2, (0.0, 0.0, 0.0))
 
-        musgrave_texture = nodes.new("ShaderNodeTexNoise")
+        musgrave_texture = create_node(nodes, 0, 0, ShaderNodeTexNoise)
         musgrave_texture.noise_dimensions = "2D"
         musgrave_texture.normalize = False
-        musgrave_texture.inputs[1].default_value = 0.0
-        musgrave_texture.inputs[2].default_value = 3.0
-        musgrave_texture.inputs[3].default_value = 2.0
-        musgrave_texture.inputs[4].default_value = 0.6944444179534912
-        musgrave_texture.inputs[5].default_value = 1.6000000476837158
-        musgrave_texture.inputs[6].default_value = 0.0
-        musgrave_texture.inputs[7].default_value = 1.0
-        musgrave_texture.inputs[8].default_value = 0.0
+        assign_value(musgrave_texture, 1, 0.0)
+        assign_value(musgrave_texture, 2, 3.0)
+        assign_value(musgrave_texture, 3, 2.0)
+        assign_value(musgrave_texture, 4, 0.695)
+        assign_value(musgrave_texture, 5, 1.6)
+        assign_value(musgrave_texture, 6, 0.0)
+        assign_value(musgrave_texture, 7, 1.0)
+        assign_value(musgrave_texture, 8, 0.0)
 
-        colorramp_001 = nodes.new("ShaderNodeValToRGB")
+        colorramp_001 = create_node(nodes, 0, 0, ShaderNodeValToRGB)
         colorramp_001.color_ramp.color_mode = "RGB"
         colorramp_001.color_ramp.hue_interpolation = "NEAR"
         colorramp_001.color_ramp.interpolation = "LINEAR"
 
-        colorramp_001.color_ramp.elements.remove(colorramp_001.color_ramp.elements[0])
+        colorramp_001.color_ramp.elements.remove(colorramp_001.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
         colorramp_001_cre_0 = colorramp_001.color_ramp.elements[0]
         colorramp_001_cre_0.position = 0.5
         colorramp_001_cre_0.alpha = 1.0
@@ -406,16 +427,16 @@ class HIMS:
             1.0,
         )
 
-        bump = nodes.new("ShaderNodeBump")
+        bump = create_node(nodes, 0, 0, ShaderNodeBump)
         bump.invert = True
-        bump.inputs[1].default_value = 0.004000000189989805
+        assign_value(bump, 1, 0.004)
 
-        colorramp = nodes.new("ShaderNodeValToRGB")
+        colorramp = create_node(nodes, 0, 0, ShaderNodeValToRGB)
         colorramp.color_ramp.color_mode = "RGB"
         colorramp.color_ramp.hue_interpolation = "NEAR"
         colorramp.color_ramp.interpolation = "LINEAR"
 
-        colorramp.color_ramp.elements.remove(colorramp.color_ramp.elements[0])
+        colorramp.color_ramp.elements.remove(colorramp.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
         colorramp_cre_0 = colorramp.color_ramp.elements[0]
         colorramp_cre_0.position = 0.13939400017261505
         colorramp_cre_0.alpha = 1.0
@@ -439,161 +460,157 @@ class HIMS:
             1.0,
         )
 
-        group_006 = nodes.new("ShaderNodeGroup")
-        group_006.node_tree = ScratchGlobalToggle().node_tree
+        group_006 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_006.node_tree = cast(ShaderNodeTree, ScratchGlobalToggle().node_tree)
 
-        group_012 = nodes.new("ShaderNodeGroup")
-        group_012.node_tree = ColorMixer().node_tree
+        group_012 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_012.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
-        group_018 = nodes.new("ShaderNodeGroup")
-        group_018.node_tree = InfiniteMaskingSorterNoGrime().node_tree
+        group_018 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_018.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorterNoGrime().node_tree)
 
-        group_023 = nodes.new("ShaderNodeGroup")
-        group_023.node_tree = InfiniteMaskingSorter().node_tree
+        group_023 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_023.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorter().node_tree)
 
-        group_019 = nodes.new("ShaderNodeGroup")
-        group_019.node_tree = InfiniteMaskingSorter().node_tree
+        group_019 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_019.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorter().node_tree)
 
-        group_004 = nodes.new("ShaderNodeGroup")
-        group_004.node_tree = ColorMixer().node_tree
+        group_004 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_004.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
-        group_013 = nodes.new("ShaderNodeGroup")
-        group_013.node_tree = Emission().node_tree
+        group_013 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_013.node_tree = cast(ShaderNodeTree, Emission().node_tree)
 
-        group_022 = nodes.new("ShaderNodeGroup")
-        group_022.node_tree = Emission().node_tree
+        group_022 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_022.node_tree = cast(ShaderNodeTree, Emission().node_tree)
 
-        gamma_004 = nodes.new("ShaderNodeGamma")
-        gamma_004.inputs[1].default_value = 2.2
+        gamma_004 = create_node(nodes, 0, 0, ShaderNodeGamma)
+        assign_value(gamma_004, 1, 2.2)
 
-        mix_004_7 = nodes.new("ShaderNodeMix")
+        mix_004_7 = create_node(nodes, 0, 0, ShaderNodeMix)
         mix_004_7.data_type = "RGBA"
         mix_004_7.clamp_result = True
-        mix_004_7.inputs[7].default_value = (
-            0.24701076745986938,
-            0.24701084196567535,
-            0.24701106548309326,
-            1.0,
+        assign_value(
+            mix_004_7,
+            7,
+            (
+                0.24701076745986938,
+                0.24701084196567535,
+                0.24701106548309326,
+                1.0,
+            ),
         )
 
-        mix_006_7 = nodes.new("ShaderNodeMix")
+        mix_006_7 = create_node(nodes, 0, 0, ShaderNodeMix)
         mix_006_7.blend_type = "MULTIPLY"
         mix_006_7.clamp_result = True
         mix_006_7.data_type = "RGBA"
-        mix_006_7.inputs[7].default_value = (0.0, 0.0, 0.0, 1.0)
+        assign_value(mix_006_7, 7, (0.0, 0.0, 0.0, 1.0))
 
-        gamma_002 = nodes.new("ShaderNodeGamma")
-        gamma_002.inputs[1].default_value = 2.2
+        gamma_002 = create_node(nodes, 0, 0, ShaderNodeGamma)
+        assign_value(gamma_002, 1, 2.2)
 
-        reroute_009 = nodes.new("NodeReroute")
-        reroute_066 = nodes.new("NodeReroute")
-        reroute_068 = nodes.new("NodeReroute")
-        reroute_067 = nodes.new("NodeReroute")
-        reroute_069 = nodes.new("NodeReroute")
-        reroute_070 = nodes.new("NodeReroute")
-        reroute_071 = nodes.new("NodeReroute")
-        reroute_072 = nodes.new("NodeReroute")
-        reroute_074 = nodes.new("NodeReroute")
-        reroute_073 = nodes.new("NodeReroute")
-        group_011 = nodes.new("ShaderNodeGroup")
-        group_011.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        reroute_009 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_066 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_068 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_067 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_069 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_070 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_071 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_072 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_074 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_073 = create_node(nodes, 0, 0, NodeReroute)
 
-        group_010 = nodes.new("ShaderNodeGroup")
-        group_010.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        group_011 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_011.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
-        reroute_058 = nodes.new("NodeReroute")
-        bump_001 = nodes.new("ShaderNodeBump")
-        strength: NodeSocketFloat = bump_001.inputs[0]
-        strength.default_value = 1.0
-        distance: NodeSocketFloat = bump_001.inputs[1]
-        distance.default_value = 0.0075
+        group_010 = create_node(nodes, 0, 0, ShaderNodeGroup)
+        group_010.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
-        group_output_17 = nodes.new("NodeGroupOutput")
+        reroute_058 = create_node(nodes, 0, 0, NodeReroute)
+        bump_001 = create_node(nodes, 0, 0, ShaderNodeBump)
+        assign_value(bump_001, 0, 1.0)
+        assign_value(bump_001, 1, 0.0075)
 
-        reroute_075 = nodes.new("NodeReroute")
-        reroute_007_3 = nodes.new("NodeReroute")
-        reroute_076 = nodes.new("NodeReroute")
-        reroute_077 = nodes.new("NodeReroute")
-        reroute_078 = nodes.new("NodeReroute")
-        reroute_005_4 = nodes.new("NodeReroute")
-        reroute_079 = nodes.new("NodeReroute")
-        reroute_008 = nodes.new("NodeReroute")
-        reroute_052 = nodes.new("NodeReroute")
+        group_output_17 = create_node(nodes, 0, 0, NodeGroupOutput)
 
-        gamma_003 = nodes.new("ShaderNodeGamma")
-        gam: NodeSocketFloat = gamma_003.inputs[1]
-        gam.default_value = 2.2
+        reroute_075 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_007_3 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_076 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_077 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_078 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_005_4 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_079 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_008 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_052 = create_node(nodes, 0, 0, NodeReroute)
 
-        reroute_048 = nodes.new("NodeReroute")
-        reroute_046 = nodes.new("NodeReroute")
+        gamma_003 = create_node(nodes, 0, 0, ShaderNodeGamma)
+        assign_value(gamma_003, 1, 2.2)
+
+        reroute_048 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_046 = create_node(nodes, 0, 0, NodeReroute)
 
         mix_11 = create_node(nodes, 2478, 560, ShaderNodeMix)
         mix_11.blend_type = "MULTIPLY"
         mix_11.data_type = "RGBA"
-        mix_11.inputs[0].default_value = 1.0
+        assign_value(mix_11, 0, 1.0)
 
         math_001_4 = create_node(nodes, 1747, 329, ShaderNodeMath)
         math_001_4.operation = "POWER"
 
-        reroute_080 = nodes.new("NodeReroute")
-        reroute_083 = nodes.new("NodeReroute")
-        reroute_084 = nodes.new("NodeReroute")
-        reroute_081 = nodes.new("NodeReroute")
-        reroute_017 = nodes.new("NodeReroute")
+        reroute_080 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_083 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_084 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_081 = create_node(nodes, 0, 0, NodeReroute)
+        reroute_017 = create_node(nodes, 0, 0, NodeReroute)
 
         math_007_1 = create_node(nodes, 3092, 35, ShaderNodeMath)
         math_007_1.operation = "SUBTRACT"
-        sub: NodeSocketFloat = math_007_1.inputs[0]
-        sub.default_value = 1.0
+        assign_value(math_007_1, 0, 1.0)
 
         gamma_001 = create_node(nodes, 4111, -118, ShaderNodeGamma)
-        gam_val: NodeSocketFloat = gamma_001.inputs[1]
-        gam_val.default_value = 2.2
+        assign_value(gamma_001, 1, 2.2)
 
         combine_color = create_node(nodes, 4491, -5, ShaderNodeCombineColor)
-        zero: NodeSocketFloat = combine_color.inputs[2]
-        zero.default_value = 0.0
+        assign_value(combine_color, 2, 0.0)
 
         group_009 = create_node(nodes, -50, 306, ShaderNodeGroup)
-        group_009.node_tree = InfiniteMatts().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        group_009.node_tree = cast(ShaderNodeTree, InfiniteMatts().node_tree)
 
         group_001_4 = create_node(nodes, -50, 800, ShaderNodeGroup)
-        group_001_4.node_tree = InfiniteMatts().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        group_001_4.node_tree = cast(ShaderNodeTree, InfiniteMatts().node_tree)
 
         nogrimecol = create_node(nodes, -1688, 753, ShaderNodeGroup)
-        nogrimecol.node_tree = InfiniteMaskingSorterNoGrimeCol().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        nogrimecol.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorterNoGrimeCol().node_tree)
 
         masktoggles = create_node(nodes, -3035, -233, ShaderNodeGroup)
-        masktoggles.node_tree = MaskToggles().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        masktoggles.node_tree = cast(ShaderNodeTree, MaskToggles().node_tree)
 
         zone7 = create_node(nodes, -1609, 1146, ShaderNodeGroup)
-        zone7.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        zone7.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
         separate_color_001 = create_node(nodes, 4255, -1000, ShaderNodeSeparateColor)
 
         cyan = create_node(nodes, 4436, -963, ShaderNodeMix)
         cyan.data_type = "RGBA"
-        col: NodeSocketColor = cyan.inputs[7]
-        col.default_value = (0.0, 1.0, 1.0, 1.0)
+        assign_value(cyan, 7, (0.0, 1.0, 1.0, 1.0))
 
         magenta = create_node(nodes, 4847, -963, ShaderNodeMix)
         magenta.data_type = "RGBA"
-        col = magenta.inputs[7]
-        col.default_value = (1.0, 0.0, 1.0, 1.0)
+        assign_value(magenta, 7, (1.0, 0.0, 1.0, 1.0))
 
         yellow = create_node(nodes, 4649, -963, ShaderNodeMix)
         yellow.data_type = "RGBA"
-        col = yellow.inputs[7]
-        col.default_value = (1.0, 1.0, 0.0, 1.0)
+        assign_value(yellow, 7, (1.0, 1.0, 1.0, 1.0))
 
         math_5 = create_node(nodes, 3287, 127, ShaderNodeMath)
         math_5.operation = "MULTIPLY"
 
         detailnormals = create_node(nodes, -30, -142, ShaderNodeGroup)
-        detailnormals.node_tree = DetailNormals().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        detailnormals.node_tree = cast(ShaderNodeTree, DetailNormals().node_tree)
 
         group_002_4 = create_node(nodes, -1609, 2226, ShaderNodeGroup)
-        group_002_4.node_tree = ColorMixer().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        group_002_4.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
 
         principled_bsdf = create_node(nodes, 3693, 316, ShaderNodeBsdfPrincipled)
         principled_bsdf.distribution = "GGX"
@@ -603,21 +620,18 @@ class HIMS:
         mixemission.data_type = "RGBA"
 
         infinite_color = create_node(nodes, 1210, 366, ShaderNodeGroup)
-        infinite_color.node_tree = InfiniteColor().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        infinite_color.node_tree = cast(ShaderNodeTree, InfiniteColor().node_tree)
 
         multvoronoi = create_node(nodes, 1321, 1613, ShaderNodeMath)
         multvoronoi.operation = "MULTIPLY"
-        _: NodeSocketFloat = multvoronoi.inputs[1]
-        _.default_value = 0.44
+        assign_value(multvoronoi, 1, 0.44)
 
         addtovoronoi = create_node(nodes, 1321, 1613, ShaderNodeMath)
-        _: NodeSocketFloat = addtovoronoi.inputs[1]
-        _.default_value = 0.5600000023841858
+        assign_value(addtovoronoi, 1, 0.56)
 
         multvoronoi2 = create_node(nodes, 1321, 1613, ShaderNodeMath)
         multvoronoi2.operation = "MULTIPLY"
-        _: NodeSocketFloat = multvoronoi2.inputs[1]
-        _.default_value = 0.5
+        assign_value(multvoronoi2, 1, 0.5)
 
         mult_yscale = create_node(nodes, 0, 0, ShaderNodeMath)
         mult_yscale.operation = "MULTIPLY"
@@ -784,6 +798,7 @@ class HIMS:
         multvoronoi.location = (1321.500244140625, 1573.3026123046875)
         addtovoronoi.location = (1321.500244140625, 1613.3026123046875)
 
+        _: NodeLink
         _ = self.node_tree.links.new(group_002_4.outputs[0], infinite_color.inputs[3])
         _ = self.node_tree.links.new(group_004.outputs[0], infinite_color.inputs[4])
         _ = self.node_tree.links.new(zone3.outputs[0], infinite_color.inputs[5])

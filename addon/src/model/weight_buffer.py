@@ -5,6 +5,8 @@ from io import BufferedReader
 from ..exceptions import IncorrectStrideValue
 from .vectors import NormalizedVector101010
 
+__all__ = ["WeightBuffer"]
+
 
 class WeightBuffer:
     def __init__(self) -> None:

@@ -2,8 +2,6 @@
 # Copyright © 2025 Surasia
 from typing import cast
 from bpy.types import (
-    NodeSocketColor,
-    NodeSocketFloat,
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
     ShaderNodeTexImage,
@@ -12,8 +10,10 @@ from bpy.types import (
 
 from ..nodes.decal import Decal
 
-from ..utils import create_node, read_texture
+from ..utils import assign_value, create_node, read_texture
 from ..json_definitions import CommonMaterial
+
+__all__ = ["DecalShader"]
 
 
 class DecalShader:
@@ -22,19 +22,19 @@ class DecalShader:
         self.tree: ShaderNodeTree = material_tree
         self.create_nodes()
 
-    def create_image(self, y: int, name: str) -> ShaderNodeTexImage:
+    def _create_image(self, y: int, name: str) -> ShaderNodeTexImage:
         texture = create_node(self.tree.nodes, -300, y, ShaderNodeTexImage)
         texture.hide = True
         texture.image = read_texture(name)
         return texture
 
-    def get_textures(self, nodes: ShaderNodeGroup) -> None:
+    def _get_textures(self, nodes: ShaderNodeGroup) -> None:
         if self.material["textures"].get("Control"):
-            img = self.create_image(-100, str(self.material["textures"]["Control"]))
+            img = self._create_image(-100, str(self.material["textures"]["Control"]))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
 
         if self.material["textures"].get("Normal"):
-            img = self.create_image(-200, str(self.material["textures"]["Normal"]))
+            img = self._create_image(-200, str(self.material["textures"]["Normal"]))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
 
     def create_nodes(self) -> None:
@@ -43,24 +43,14 @@ class DecalShader:
 
         if self.material["decal_slots"]:
             info = self.material["decal_slots"]
+            assign_value(shader, 4, (*info["top_color"], 1.0))
+            assign_value(shader, 3, (*info["mid_color"], 1.0))
+            assign_value(shader, 2, (*info["bot_color"], 1.0))
+            assign_value(shader, 5, info["roughness_white"])
+            assign_value(shader, 6, info["roughness_black"])
+            assign_value(shader, 7, info["metallic"])
 
-            top_color = cast(NodeSocketColor, shader.inputs[4])
-            top_color.default_value = (*info["top_color"], 1.0)
-            mid_color = cast(NodeSocketColor, shader.inputs[3])
-            mid_color.default_value = (*info["mid_color"], 1.0)
-            bot_color = cast(NodeSocketColor, shader.inputs[2])
-            bot_color.default_value = (*info["bot_color"], 1.0)
-
-            roughness_white = cast(NodeSocketFloat, shader.inputs[5])
-            roughness_white.default_value = info["roughness_white"]
-
-            roughness_black = cast(NodeSocketFloat, shader.inputs[6])
-            roughness_black.default_value = info["roughness_black"]
-
-            metallic = cast(NodeSocketFloat, shader.inputs[7])
-            metallic.default_value = info["metallic"]
-
-            self.get_textures(shader)
+            self._get_textures(shader)
             material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)
             material_output.target = "ALL"
             material_output.location = (200, 0)

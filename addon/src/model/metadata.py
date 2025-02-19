@@ -9,6 +9,8 @@ from .bone import Bone
 from .region import Region
 from .header import ModelHeader
 
+__all__ = ["Model"]
+
 
 class Model:
     def __init__(self) -> None:

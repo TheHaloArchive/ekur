@@ -5,11 +5,15 @@ use crate::loader::module::load_modules;
 use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
+use definitions::crates::CrateDefinition;
 use definitions::customization_globals::CustomizationGlobals;
+use definitions::forge_object_definition::ForgeObjectData;
+use definitions::forge_object_manifest::ForgeObjectManifest;
 use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
 use definitions::runtime_geo::RuntimeGeo;
+use definitions::scenario::ScenarioStructureBsp;
 use definitions::{
     coating_globals::CoatingGlobalsTag, coating_swatch::CoatingSwatchPODTag, material::MaterialTag,
     material_palette::MaterialPaletteTag, material_styles::MaterialStylesTag,
@@ -20,6 +24,8 @@ use definitions::{
 use loader::module::get_models;
 use model::serialize::process_models;
 use serialize::customization_globals::process_object_globals;
+use serialize::forge_objects::process_forge_objects;
+use serialize::scenario_bsp::process_scenarios;
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
     material::process_materials, material_coating::process_material_coatings,
@@ -60,17 +66,23 @@ fn main() -> Result<()> {
     let mut cogl = CoatingGlobalsTag::default();
     let mut visor = MaterialVisorSwatchTag::default();
     let mut ocgd = CustomizationGlobals::default();
+    let mut foom = ForgeObjectManifest::default();
     let mut render_models = HashMap::new();
     let mut render_geometry = HashMap::new();
     let mut themes = HashMap::new();
     let mut attachments = HashMap::new();
     let mut models = HashMap::new();
+    let mut scenarios = HashMap::new();
+    let mut forge_objects = HashMap::new();
+    let mut crates = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
     create_dir_all(format!("{}/bitmaps/", args.save_path))?;
     create_dir_all(format!("{}/models/", args.save_path))?;
     create_dir_all(format!("{}/runtime_geo/", args.save_path))?;
+    create_dir_all(format!("{}/levels/", args.save_path))?;
+    create_dir_all(format!("{}/forge_objects/", args.save_path))?;
 
     let string_file = File::open(args.strings_path)?;
     let strings = BufReader::new(string_file);
@@ -93,6 +105,11 @@ fn main() -> Result<()> {
         if let Some(m) = m {
             m.read_metadata(&mut visor)?;
         }
+        let m = module.read_tag_from_id(-117678174)?;
+        if let Some(m) = m {
+            m.read_metadata(&mut foom)?;
+        }
+
         materials.extend(get_tags::<MaterialTag>("mat ", module)?);
         coating_swatches.extend(get_tags::<CoatingSwatchPODTag>("cmsw", module)?);
         material_palette.extend(get_tags::<MaterialPaletteTag>("mwpl", module)?);
@@ -105,7 +122,12 @@ fn main() -> Result<()> {
         render_geometry.extend(get_models::<RuntimeGeo>("rtgo", module, index)?);
         attachments.extend(get_tags::<AttachmentConfiguration>("ocad", module)?);
         models.extend(get_tags::<ModelDefinition>("hlmt", module)?);
+        scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
+        forge_objects.extend(get_tags::<ForgeObjectData>("food", module)?);
+        crates.extend(get_tags::<CrateDefinition>("bloc", module)?);
     }
+
+    process_forge_objects(&forge_objects, &foom, &crates, &models)?;
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
     process_models(
         &render_models,
@@ -125,6 +147,7 @@ fn main() -> Result<()> {
         &string_mappings,
     )?;
     process_visor(&visor, &material_swatch, &args.save_path)?;
+    process_scenarios(&scenarios, &args.save_path)?;
     extract_all_bitmaps(
         &mut modules,
         textures,

@@ -19,6 +19,16 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+__all__ = [
+    "read_texture",
+    "get_materials",
+    "read_json_file",
+    "remove_nodes",
+    "create_socket",
+    "create_node",
+    "assign_value",
+]
+
 
 def read_texture(texturepath: str) -> Image:
     """Load a texture from the given path. If the texture is already loaded, it will return the existing texture.
