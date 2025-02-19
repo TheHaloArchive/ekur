@@ -19,6 +19,8 @@ from .roughness_math import RoughnessMath
 from ..json_definitions import CommonLayer
 from ..utils import create_node, create_socket, read_texture
 
+__all__ = ["Layer"]
+
 
 class Layer:
     def __init__(self, intention: CommonLayer, name: str) -> None:

@@ -5,6 +5,8 @@ from bpy.types import NodeGroupInput, NodeGroupOutput, NodeSocketFloat, NodeTree
 
 from ..utils import create_node, create_socket
 
+__all__ = ["ScratchGlobalToggle"]
+
 
 class ScratchGlobalToggle:
     def __init__(self) -> None:

@@ -22,6 +22,8 @@ from .norm_normalize import NormNormalize
 
 from ..utils import assign_value, create_node, create_socket
 
+__all__ = ["DiffuseShader"]
+
 
 class DiffuseShader:
     def __init__(self) -> None:

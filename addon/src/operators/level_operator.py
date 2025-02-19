@@ -2,11 +2,13 @@ from pathlib import Path
 from typing import cast, final
 import bpy
 from bpy.types import Context, Operator, Object
-from mathutils import Matrix, Vector
+from mathutils import Matrix
 
 from ..json_definitions import Level
 from ..model.importer.model_importer import ModelImporter
 from ..utils import read_json_file
+
+__all__ = ["ImportLevelOperator"]
 
 
 @final
@@ -14,11 +16,11 @@ class ImportLevelOperator(Operator):
     bl_idname = "ekur.importlevel"
     bl_label = "Import"
 
-    _geometry_cache: dict[str, Object] = {}
+    _geometry_cache: dict[str, list[Object]] = {}
 
     def _get_or_create_geometry(
         self, context: Context, global_id: str, data_folder: str, materials: list[int]
-    ) -> Object:
+    ) -> list[Object]:
         if global_id in self._geometry_cache:
             return self._geometry_cache[global_id]
 
@@ -28,18 +30,22 @@ class ImportLevelOperator(Operator):
             context, path, materials=materials, bones=False
         )
 
-        source_object = imported_objects[0]
         master_collection = bpy.data.collections.get("Master Geometries")
         if not master_collection:
             master_collection = bpy.data.collections.new("Master Geometries")
             bpy.context.scene.collection.children.link(master_collection)  # pyright: ignore[reportUnknownMemberType]
 
-        if source_object.name in bpy.context.collection.objects:
-            bpy.context.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
-        master_collection.objects.link(source_object)  # pyright: ignore[reportUnknownMemberType]
+        master_collection.hide_viewport = True
+        master_collection.hide_render = True
 
-        self._geometry_cache[global_id] = source_object
-        return source_object
+        source_objects = imported_objects
+        for source_object in source_objects:
+            if source_object.name in bpy.context.collection.objects:
+                bpy.context.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
+            master_collection.objects.link(source_object)  # pyright: ignore[reportUnknownMemberType]
+
+        self._geometry_cache[global_id] = source_objects
+        return source_objects
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
@@ -53,26 +59,25 @@ class ImportLevelOperator(Operator):
         )
 
         for instance in level["instances"]:
-            source_object = self._get_or_create_geometry(
+            source_objects = self._get_or_create_geometry(
                 context, str(instance["global_id"]), data, instance["material"]
             )
-
-            instance_obj = bpy.data.objects.new(
-                name=f"{source_object.name}_instance", object_data=source_object.data
-            )
-            rotmat = Matrix(
-                (
-                    (*instance["forward"], 0.0),
-                    (*instance["left"], 0.0),
-                    (*instance["up"], 0.0),
-                    (0.0, 0.0, 0.0, 1.0),
+            for source_object in source_objects:
+                instance_obj = bpy.data.objects.new(
+                    name=f"{source_object.name}_instance", object_data=source_object.data
                 )
-            )
-            instance_obj.scale = Vector(instance["scale"])
-            instance_obj.location = Vector(instance["position"])
-            instance_obj.rotation_mode = "QUATERNION"
-            instance_obj.rotation_quaternion = rotmat.to_quaternion()
+                rotmat = Matrix(
+                    (
+                        (instance["forward"][0], instance["left"][0], instance["up"][0], 0.0),
+                        (instance["forward"][1], instance["left"][1], instance["up"][1], 0.0),
+                        (instance["forward"][2], instance["left"][2], instance["up"][2], 0.0),
+                        (0.0, 0.0, 0.0, 1.0),
+                    )
+                )
+                instance_obj.matrix_world = Matrix.LocRotScale(
+                    instance["position"], rotmat.to_quaternion(), instance["scale"]
+                )
 
-            bpy.context.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                bpy.context.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
 
         return {"FINISHED"}

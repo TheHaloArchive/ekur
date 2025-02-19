@@ -45,6 +45,8 @@ from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
 
 from ..utils import assign_value, create_node, create_socket
 
+__all__ = ["HIMS"]
+
 
 class HIMS:
     def __init__(self) -> None:

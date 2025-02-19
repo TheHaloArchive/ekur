@@ -21,7 +21,8 @@ pub fn process_forge_objects(
         let crate_obj = crates.get(&rep.object_definition.global_id);
         let Some(crat) = crate_obj else { continue };
         let model = models.get(&crat.model.global_id);
-        let Some(mode) = model else { continue };
+        let Some(_) = model else { continue };
+        // will continue later..
     }
     Ok(())
 }

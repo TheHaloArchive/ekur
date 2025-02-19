@@ -17,6 +17,8 @@ from ..utils import assign_value, create_node, create_socket
 from .norm_normalize import NormNormalize
 from .normal_map_combine_orientation import NormalMapCombineOrientation
 
+__all__ = ["DetailNormals"]
+
 
 class DetailNormals:
     def __init__(self) -> None:

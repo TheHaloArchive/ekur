@@ -10,6 +10,8 @@ from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import CustomizationGlobals, CustomizationRegion, CustomizationTheme
 from ..utils import read_json_file
 
+__all__ = ["ImportSpartanOperator"]
+
 
 @final
 class ImportSpartanOperator(Operator):

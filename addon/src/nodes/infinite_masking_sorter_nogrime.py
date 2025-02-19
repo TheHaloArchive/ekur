@@ -13,6 +13,8 @@ from bpy.types import (
 
 from ..utils import create_node, create_socket
 
+__all__ = ["InfiniteMaskingSorterNoGrime"]
+
 
 class InfiniteMaskingSorterNoGrime:
     def __init__(self) -> None:

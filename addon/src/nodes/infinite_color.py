@@ -14,6 +14,8 @@ from bpy.types import (
 
 from ..utils import assign_value, create_node, create_socket
 
+__all__ = ["InfiniteColor"]
+
 
 class InfiniteColor:
     def __init__(self) -> None:

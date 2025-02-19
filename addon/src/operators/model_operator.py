@@ -5,6 +5,8 @@ from bpy.types import Collection, Context, Operator
 
 from ..model.importer.model_importer import ModelImporter
 
+__all__ = ["ImportModelOperator"]
+
 
 @final
 class ImportModelOperator(Operator):
