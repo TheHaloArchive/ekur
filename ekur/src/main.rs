@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
 
-#[cfg(target_os = "linux")]
+#[cfg(not(target_env = "msvc"))]
 #[global_allocator]
 static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
@@ -12,8 +12,6 @@ use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
 use definitions::crates::CrateDefinition;
 use definitions::customization_globals::CustomizationGlobals;
-use definitions::forge_object_definition::ForgeObjectData;
-use definitions::forge_object_manifest::ForgeObjectManifest;
 use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
@@ -72,14 +70,12 @@ fn main() -> Result<()> {
     let mut cogl = CoatingGlobalsTag::default();
     let mut visor = MaterialVisorSwatchTag::default();
     let mut ocgd = CustomizationGlobals::default();
-    let mut foom = ForgeObjectManifest::default();
     let mut render_models = HashMap::new();
     let mut render_geometry = HashMap::new();
     let mut themes = HashMap::new();
     let mut attachments = HashMap::new();
     let mut models = HashMap::new();
     let mut scenarios = HashMap::new();
-    let mut forge_objects = HashMap::new();
     let mut crates = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
@@ -88,7 +84,6 @@ fn main() -> Result<()> {
     create_dir_all(format!("{}/models/", args.save_path))?;
     create_dir_all(format!("{}/runtime_geo/", args.save_path))?;
     create_dir_all(format!("{}/levels/", args.save_path))?;
-    create_dir_all(format!("{}/forge_objects/", args.save_path))?;
 
     let string_file = File::open(args.strings_path)?;
     let strings = BufReader::new(string_file);
@@ -129,11 +124,9 @@ fn main() -> Result<()> {
         attachments.extend(get_tags::<AttachmentConfiguration>("ocad", module)?);
         models.extend(get_tags::<ModelDefinition>("hlmt", module)?);
         scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
-        forge_objects.extend(get_tags::<ForgeObjectData>("food", module)?);
         crates.extend(get_tags::<CrateDefinition>("bloc", module)?);
     }
 
-    process_forge_objects(&forge_objects, &foom, &crates, &models, &string_mappings)?;
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
     process_scenarios(&scenarios, &args.save_path)?;
     let textures = process_materials(&materials, &args.save_path)?;
