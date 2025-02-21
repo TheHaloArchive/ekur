@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
 use bitflags::bitflags;
+use infinite_rs::TagStructure;
 use infinite_rs::tag::types::common_types::{
     AnyTag, FieldArray, FieldBlock, FieldByteInteger, FieldCharEnum, FieldCharInteger,
     FieldLongEnum, FieldLongInteger, FieldReal, FieldRealBounds, FieldRealPoint3D,
     FieldRealQuaternion, FieldRealVector3D, FieldReference, FieldShortBlockIndex,
     FieldShortInteger, FieldStringId, FieldTagResource, FieldWordFlags, FieldWordInteger,
 };
-use infinite_rs::TagStructure;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 #[derive(Default, Debug, TryFromPrimitive)]

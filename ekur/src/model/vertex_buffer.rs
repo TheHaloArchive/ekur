@@ -1,12 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-};
+use std::io::Write;
 
 use anyhow::Result;
-use byteorder::{WriteBytesExt, LE};
+use byteorder::{LE, WriteBytesExt};
 
 use crate::definitions::render_model::{
     MeshResourceGroupBlock, RasterizerVertexBuffer, SectionLods, VertexBufferUsage,
@@ -23,28 +20,6 @@ fn write_buffer(vertex_buffer: &RasterizerVertexBuffer, resource: &[u8]) -> Resu
         buffer.write_all(&resource[i as usize * stride..i as usize * stride + stride])?;
     }
     Ok(buffer)
-}
-
-pub(super) fn data_exists(
-    lod_data: &SectionLods,
-    api_resource: Option<&MeshResourceGroupBlock>,
-    writer: &mut BufWriter<File>,
-    usage: VertexBufferUsage,
-) -> Result<()> {
-    let mut vert = false;
-    if let Some(api_resource) = api_resource {
-        vert = lod_data.vertex_buffer_indices.elements.iter().any(|x| {
-            if x.vertex_buffer_index.0 == -1 {
-                return false;
-            }
-            api_resource.resource.data.vertex_buffers.elements[x.vertex_buffer_index.0 as usize]
-                .vertex_buffer_usage
-                .0
-                == usage
-        });
-    }
-    writer.write_u8(if vert { 1 } else { 0 })?;
-    Ok(())
 }
 
 pub(super) fn get_vertex_buffer(

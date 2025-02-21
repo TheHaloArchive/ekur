@@ -2,8 +2,8 @@
 /* Copyright © 2025 Surasia */
 use crate::definitions::runtime_style::CoatingPaletteInfo;
 use infinite_rs::{
-    tag::types::common_types::{AnyTag, FieldBlock, FieldStringId},
     TagStructure,
+    tag::types::common_types::{AnyTag, FieldBlock, FieldStringId},
 };
 
 #[derive(Debug, Default, TagStructure)]

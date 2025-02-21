@@ -72,33 +72,37 @@ pub fn extract_all_bitmaps(
         let module = modules
             .iter_mut()
             .find(|x| x.files.iter().any(|m| m.tag_id == idx));
-        if let Some(module) = module {
-            let index = module.files.iter().position(|m| m.tag_id == idx).unwrap();
-            let tag = module.read_tag(index as u32)?;
-            let mut m = Bitmap::default();
-            tag.unwrap().read_metadata(&mut m)?;
-            for (bitmidx, bitmap) in m.bitmaps.elements.iter_mut().enumerate() {
-                if m.flags
-                    .0
-                    .contains(TextureFlags::VALIDATE_HAS_CUSTOM_MIPMAPS)
-                    | (bitmap.bitmap_type.0 == BitmapType::CubeMap)
-                {
-                    bitmap.mipmap_count.0 = 1;
-                }
-                let index = extract_bitmaps(module, index, bitmidx, bitmap, m.bitmaps.size)?;
-                if let Some(index) = index {
-                    let data = decompress_file(index, module)?;
-                    module.files[index as usize].data_stream = None;
-                    save_bitmap(
-                        &data,
-                        &format!("{}_{}", m.any_tag.internal_struct.tag_id, bitmidx),
-                        bitmap,
-                        save_path,
-                    )?;
-                }
-            }
-        } else {
+        let Some(module) = module else {
             continue;
+        };
+
+        let index = module.files.iter().position(|m| m.tag_id == idx).unwrap();
+        let tag = module.read_tag(index as u32)?;
+        let Some(tag) = tag else {
+            continue;
+        };
+        let mut bitmap = Bitmap::default();
+        tag.read_metadata(&mut bitmap)?;
+        for (bitmidx, bitm) in bitmap.bitmaps.elements.iter_mut().enumerate() {
+            if bitmap
+                .flags
+                .0
+                .contains(TextureFlags::VALIDATE_HAS_CUSTOM_MIPMAPS)
+                | (bitm.bitmap_type.0 == BitmapType::CubeMap)
+            {
+                bitm.mipmap_count.0 = 1;
+            }
+            let index = extract_bitmaps(module, index, bitmidx, bitm, bitmap.bitmaps.size)?;
+            let Some(index) = index else {
+                continue;
+            };
+            let data = decompress_file(index, module)?;
+            save_bitmap(
+                &data,
+                &format!("{}_{}", bitmap.any_tag.internal_struct.tag_id, bitmidx),
+                bitm,
+                save_path,
+            )?;
         }
     }
     Ok(())

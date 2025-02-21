@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
-
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
 static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
@@ -10,7 +9,6 @@ use crate::loader::module::load_modules;
 use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
-use definitions::crates::CrateDefinition;
 use definitions::customization_globals::CustomizationGlobals;
 use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
@@ -25,17 +23,18 @@ use definitions::{
     visor::MaterialVisorSwatchTag,
 };
 use loader::module::get_models;
+use materials::process_material::process_materials;
 use model::serialize::process_models;
 use serialize::customization_globals::process_object_globals;
 use serialize::scenario_bsp::process_scenarios;
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
-    material::process_materials, material_coating::process_material_coatings,
-    runtime_coating::process_runtime_coatings, visor::process_visor,
+    material_coating::process_material_coatings, runtime_coating::process_runtime_coatings,
+    visor::process_visor,
 };
 use std::{
     collections::HashMap,
-    fs::{create_dir_all, File},
+    fs::{File, create_dir_all},
     io::{BufRead, BufReader},
 };
 
@@ -75,7 +74,6 @@ fn main() -> Result<()> {
     let mut attachments = HashMap::new();
     let mut models = HashMap::new();
     let mut scenarios = HashMap::new();
-    let mut crates = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
@@ -119,7 +117,6 @@ fn main() -> Result<()> {
         attachments.extend(get_tags::<AttachmentConfiguration>("ocad", module)?);
         models.extend(get_tags::<ModelDefinition>("hlmt", module)?);
         scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
-        crates.extend(get_tags::<CrateDefinition>("bloc", module)?);
     }
 
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;

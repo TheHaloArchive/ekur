@@ -5,8 +5,8 @@ use std::{collections::HashMap, path::Path};
 
 use anyhow::Result;
 use infinite_rs::{
-    module::file::{DataOffsetType, TagStructure},
     ModuleFile,
+    module::file::{DataOffsetType, TagStructure},
 };
 use std::io::SeekFrom;
 use std::io::{Read, Seek};

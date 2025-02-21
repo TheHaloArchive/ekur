@@ -13,7 +13,7 @@ pub(super) struct Bone {
     pub(super) world_transform: [[f32; 4]; 4],
 }
 
-pub fn create_matrix_from_quaternion(quaternion: &FieldRealQuaternion) -> [[f32; 4]; 4] {
+pub(super) fn create_matrix_from_quaternion(quaternion: &FieldRealQuaternion) -> [[f32; 4]; 4] {
     let xx = quaternion.x * quaternion.x;
     let yy = quaternion.y * quaternion.y;
     let zz = quaternion.z * quaternion.z;

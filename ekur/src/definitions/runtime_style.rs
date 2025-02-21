@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
+use infinite_rs::TagStructure;
 use infinite_rs::tag::types::common_types::{
     AnyTag, FieldBlock, FieldCharEnum, FieldInt64Integer, FieldReal, FieldRealRGBColor,
     FieldReference, FieldShortEnum, FieldStringId,
 };
-use infinite_rs::TagStructure;
 use num_enum::TryFromPrimitive;
 
 #[derive(Default, Debug, TryFromPrimitive)]

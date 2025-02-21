@@ -44,17 +44,16 @@ class BoundingBox:
             (self.v_bounds.min, self.v_bounds.max, self.v_bounds.max - self.v_bounds.min),
         ]
 
-
     @property
     def uv1_scale(self) -> list[tuple[float, float, float]]:
-            return [
-                (self.u_bounds1.min, self.u_bounds1.max, self.u_bounds1.max - self.u_bounds1.min),
-                (self.v_bounds1.min, self.v_bounds1.max, self.v_bounds1.max - self.v_bounds1.min),
-            ]
+        return [
+            (self.u_bounds1.min, self.u_bounds1.max, self.u_bounds1.max - self.u_bounds1.min),
+            (self.v_bounds1.min, self.v_bounds1.max, self.v_bounds1.max - self.v_bounds1.min),
+        ]
 
     @property
     def uv2_scale(self) -> list[tuple[float, float, float]]:
-            return [
-                (self.u_bounds2.min, self.u_bounds2.max, self.u_bounds2.max - self.u_bounds2.min),
-                (self.v_bounds2.min, self.v_bounds2.max, self.v_bounds2.max - self.v_bounds2.min),
-            ]
+        return [
+            (self.u_bounds2.min, self.u_bounds2.max, self.u_bounds2.max - self.u_bounds2.min),
+            (self.v_bounds2.min, self.v_bounds2.max, self.v_bounds2.max - self.v_bounds2.min),
+        ]

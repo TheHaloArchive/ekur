@@ -3,7 +3,6 @@
 pub mod bitmap;
 pub mod coating_globals;
 pub mod coating_swatch;
-pub mod crates;
 pub mod customization_globals;
 pub mod material;
 pub mod material_palette;
