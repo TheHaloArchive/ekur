@@ -27,7 +27,6 @@ use definitions::{
 use loader::module::get_models;
 use model::serialize::process_models;
 use serialize::customization_globals::process_object_globals;
-use serialize::forge_objects::process_forge_objects;
 use serialize::scenario_bsp::process_scenarios;
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
@@ -105,10 +104,6 @@ fn main() -> Result<()> {
         let m = module.read_tag_from_id(-1260457915)?;
         if let Some(m) = m {
             m.read_metadata(&mut visor)?;
-        }
-        let m = module.read_tag_from_id(-117678174)?;
-        if let Some(m) = m {
-            m.read_metadata(&mut foom)?;
         }
 
         materials.extend(get_tags::<MaterialTag>("mat ", module)?);
