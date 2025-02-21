@@ -6,6 +6,19 @@ use infinite_rs::{
 };
 
 #[derive(Default, Debug, TagStructure)]
+#[data(size(0x18))]
+pub struct ForgeObjectCategoryEntry {
+    #[data(offset(0x08))]
+    pub title: FieldStringId,
+    #[data(offset(0x0C))]
+    pub description: FieldStringId,
+    #[data(offset(0x10))]
+    pub category_id: FieldStringId,
+    #[data(offset(0x14))]
+    pub parent_category_id: FieldStringId,
+}
+
+#[derive(Default, Debug, TagStructure)]
 #[data(size(0x60))]
 pub struct ForgeObjectManifestEntry {
     #[data(offset(0x00))]
@@ -16,6 +29,8 @@ pub struct ForgeObjectManifestEntry {
     pub name: FieldStringId,
     #[data(offset(0x28))]
     pub description: FieldStringId,
+    #[data(offset(0x48))]
+    pub object_metadata: FieldBlock<ForgeObjectCategoryEntry>,
 }
 
 #[derive(Default, Debug, TagStructure)]
