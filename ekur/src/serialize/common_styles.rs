@@ -2,7 +2,6 @@
 /* Copyright © 2025 Surasia */
 use crate::definitions::runtime_styles::RuntimeCoatingStyles;
 use anyhow::Result;
-use indexmap::IndexMap;
 use serde::Serialize;
 use std::{collections::HashMap, fs::File, io::BufWriter, path::PathBuf};
 
@@ -15,7 +14,7 @@ pub struct CommonStyleListEntry {
 #[derive(Debug, Default, Serialize)]
 pub struct CommonStyleList {
     pub default_style: CommonStyleListEntry,
-    pub styles: IndexMap<i32, CommonStyleListEntry>,
+    pub styles: HashMap<i32, CommonStyleListEntry>,
 }
 
 pub fn process_styles(

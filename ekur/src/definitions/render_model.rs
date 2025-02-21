@@ -316,7 +316,7 @@ pub enum VertexBufferUsage {
     EdgeIndexInfo,
 }
 
-#[derive(Default, Debug, TryFromPrimitive)]
+#[derive(Default, Debug, TryFromPrimitive, PartialEq)]
 #[repr(u32)]
 pub enum RasterizerVertexFormat {
     #[default]
@@ -400,6 +400,14 @@ pub struct BoundingBoxBlock {
     pub u_bounds: FieldRealBounds,
     #[data(offset(36))]
     pub v_bounds: FieldRealBounds,
+    #[data(offset(0x2c))]
+    pub u_bounds_1: FieldRealBounds,
+    #[data(offset(0x34))]
+    pub v_bounds_1: FieldRealBounds,
+    #[data(offset(0x3C))]
+    pub u_bounds_2: FieldRealBounds,
+    #[data(offset(0x44))]
+    pub v_bounds_2: FieldRealBounds,
 }
 
 #[derive(Default, Debug, TagStructure)]

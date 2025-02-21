@@ -86,7 +86,12 @@ pub(super) fn write_bones(writer: &mut BufWriter<File>, model: &RenderModel) -> 
         let bone = create_node(node);
         writer.write_i32::<LE>(bone.name)?;
         writer.write_i32::<LE>(bone.parent_index)?;
-        for row in &bone.local_transform {
+        for row in &bone.rotation_matrix {
+            for val in row {
+                writer.write_f32::<LE>(*val)?;
+            }
+        }
+        for row in &bone.transformation_matrix {
             for val in row {
                 writer.write_f32::<LE>(*val)?;
             }
@@ -157,6 +162,14 @@ pub(super) fn write_bounding_boxes(
         writer.write_all(&bounding_box.u_bounds.max.to_ne_bytes())?;
         writer.write_all(&bounding_box.v_bounds.min.to_ne_bytes())?;
         writer.write_all(&bounding_box.v_bounds.max.to_ne_bytes())?;
+        writer.write_all(&bounding_box.u_bounds_1.min.to_ne_bytes())?;
+        writer.write_all(&bounding_box.u_bounds_1.max.to_ne_bytes())?;
+        writer.write_all(&bounding_box.v_bounds_1.min.to_ne_bytes())?;
+        writer.write_all(&bounding_box.v_bounds_1.max.to_ne_bytes())?;
+        writer.write_all(&bounding_box.u_bounds_2.min.to_ne_bytes())?;
+        writer.write_all(&bounding_box.u_bounds_2.max.to_ne_bytes())?;
+        writer.write_all(&bounding_box.v_bounds_2.min.to_ne_bytes())?;
+        writer.write_all(&bounding_box.v_bounds_2.max.to_ne_bytes())?;
     }
     Ok(())
 }

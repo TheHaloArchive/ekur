@@ -178,6 +178,7 @@ class Instance(TypedDict):
     left: tuple[float, float, float]
     up: tuple[float, float, float]
     material: list[int]
+    bounding_box_index: int
 
 
 class Level(TypedDict):

@@ -19,7 +19,11 @@ class ImportLevelOperator(Operator):
     _geometry_cache: dict[str, list[Object]] = {}
 
     def _get_or_create_geometry(
-        self, context: Context, global_id: str, data_folder: str, materials: list[int]
+        self,
+        context: Context,
+        global_id: str,
+        data_folder: str,
+        materials: list[int],
     ) -> list[Object]:
         if global_id in self._geometry_cache:
             return self._geometry_cache[global_id]
@@ -80,4 +84,5 @@ class ImportLevelOperator(Operator):
 
                 bpy.context.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
 
+        self._geometry_cache = {}
         return {"FINISHED"}

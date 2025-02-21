@@ -12,8 +12,11 @@ pub fn process_forge_objects(
     manifest: &ForgeObjectManifest,
     crates: &HashMap<i32, CrateDefinition>,
     models: &HashMap<i32, ModelDefinition>,
+    strings: &HashMap<i32, String>,
 ) -> Result<()> {
     for entries in &manifest.entries.elements {
+        let name = strings.get(&entries.name.0);
+        let category = &entries.object_metadata.elements;
         let definition = objects.get(&entries.forge_object.global_id);
         let Some(def) = definition else { continue };
         let object = def.object_representations.elements.first();

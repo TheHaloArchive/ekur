@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
+
+#[cfg(target_os = "linux")]
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
 use crate::loader::module::get_tags;
 use crate::loader::module::load_modules;
 use anyhow::Result;
@@ -40,6 +45,7 @@ use std::{
 mod bitmap;
 mod definitions;
 mod loader;
+mod materials;
 mod model;
 mod serialize;
 
@@ -127,8 +133,10 @@ fn main() -> Result<()> {
         crates.extend(get_tags::<CrateDefinition>("bloc", module)?);
     }
 
-    process_forge_objects(&forge_objects, &foom, &crates, &models)?;
+    process_forge_objects(&forge_objects, &foom, &crates, &models, &string_mappings)?;
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
+    process_scenarios(&scenarios, &args.save_path)?;
+    let textures = process_materials(&materials, &args.save_path)?;
     process_models(
         &render_models,
         &render_geometry,
@@ -136,7 +144,6 @@ fn main() -> Result<()> {
         &mut modules,
     )?;
     process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
-    let textures = process_materials(&materials, &args.save_path)?;
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
     process_material_coatings(
@@ -147,7 +154,6 @@ fn main() -> Result<()> {
         &string_mappings,
     )?;
     process_visor(&visor, &material_swatch, &args.save_path)?;
-    process_scenarios(&scenarios, &args.save_path)?;
     extract_all_bitmaps(
         &mut modules,
         textures,
