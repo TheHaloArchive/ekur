@@ -8,6 +8,7 @@ use crate::definitions::material::MaterialTag;
 
 use super::{
     banished_metal::handle_banished_metal,
+    color_decal::handle_color_decal,
     common_utils::collect_constants,
     const_decal::handle_const_decal,
     decal_mp::handle_mp_decal,
@@ -15,13 +16,13 @@ use super::{
     layered_shader::{add_style_info, collect_textures},
     parallax_decal::handle_parallax_decal,
     self_illum::handle_illum,
-    serde_definitions::Material,
+    serde_definitions::{Material, TextureType},
 };
 
 pub fn process_materials(
     materials: &HashMap<i32, MaterialTag>,
     save_path: &str,
-) -> Result<Vec<i32>> {
+) -> Result<Vec<(TextureType, i32)>> {
     let mut all_textures = Vec::new();
     for (id, mat) in materials.iter() {
         let mut material = Material::default();
@@ -38,16 +39,17 @@ pub fn process_materials(
             -93074746 => handle_parallax_decal(mat, &mut material)?,
             -79437929 => handle_illum(mat, &mut material)?,
             -232573636 => handle_banished_metal(mat, &mut material)?,
+            317783742 => handle_color_decal(mat, &mut material)?,
             _ => {}
         };
 
-        all_textures.extend(material.textures.values());
         let mut path = PathBuf::from(format!("{save_path}/materials"));
         path.push(id.to_string());
         path.set_extension("json");
         let file = File::create(path)?;
         let writer = BufWriter::new(file);
         serde_json::to_writer(writer, &material)?;
+        all_textures.extend(material.textures);
     }
     Ok(all_textures)
 }

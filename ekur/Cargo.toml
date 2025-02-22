@@ -21,9 +21,6 @@ serde_json = { version = "1.0.139" }
 walkdir = "2.5.0"
 byteorder = "1.5.0"
 
-[target.'cfg(not(target_env = "msvc"))'.dependencies]
-tikv-jemallocator = "0.6.0"
-
 [profile.release]
 lto = "fat"
 codegen-units = 1

@@ -1,4 +1,5 @@
 mod banished_metal;
+mod color_decal;
 mod common_utils;
 mod const_decal;
 mod decal_mp;
@@ -7,4 +8,4 @@ mod layered_shader;
 mod parallax_decal;
 pub mod process_material;
 mod self_illum;
-mod serde_definitions;
+pub mod serde_definitions;

@@ -13,10 +13,11 @@ pub(crate) enum ShaderType {
     Decal,
     SelfIllum,
     ConesteppedLevel,
+    ColorDecal,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
-pub(crate) enum TextureType {
+pub enum TextureType {
     #[default]
     Normal,
     Asg,
@@ -151,6 +152,13 @@ pub struct ConemappedLevel {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct ColorDecal {
+    pub opacity: f32,
+    pub metallic: f32,
+    pub roughness: f32,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Material {
     pub shader: i32,
     pub textures: HashMap<TextureType, i32>,
@@ -160,6 +168,7 @@ pub struct Material {
     pub illum_info: Option<SelfIllum>,
     pub decal_slots: Option<DecalSlot>,
     pub conemapped_level: Option<ConemappedLevel>,
+    pub color_decal: Option<ColorDecal>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }

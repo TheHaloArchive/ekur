@@ -20,17 +20,8 @@ pub fn load_modules<P: AsRef<Path>>(deploy_path: P) -> Result<Vec<ModuleFile>> {
         if entry.file_type().is_file() {
             let file_path = entry.path().to_str().unwrap();
             if file_path.ends_with(".module") && !file_path.contains("ds") {
-                let module = ModuleFile::from_path(file_path);
-                match module {
-                    Ok(_) => {
-                        modules.push(module?);
-                        println!("Read module: {}", file_path);
-                    }
-                    Err(err) => {
-                        println!("Failed on file: {}", file_path);
-                        return Err(err.into());
-                    }
-                };
+                let module = ModuleFile::from_path(file_path)?;
+                modules.push(module);
             }
         }
     }

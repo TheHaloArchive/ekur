@@ -1,9 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
-#[cfg(not(target_env = "msvc"))]
-#[global_allocator]
-static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
-
 use crate::loader::module::get_tags;
 use crate::loader::module::load_modules;
 use anyhow::Result;
@@ -57,7 +53,9 @@ struct EkurArgs {
 
 fn main() -> Result<()> {
     let args = EkurArgs::parse();
+    print!("Loading all modules...");
     let mut modules = load_modules(args.module_path)?;
+    println!("Done");
     let mut coating_swatches = HashMap::new();
     let mut materials = HashMap::new();
     let mut material_palette = HashMap::new();
@@ -89,18 +87,22 @@ fn main() -> Result<()> {
         let (id, string) = line.split_once(":").unwrap();
         string_mappings.insert(id.parse::<i32>()?, string.to_string());
     }
-
+    println!("Mapped strings!");
+    println!("Reading metadata...");
     for (index, module) in modules.iter_mut().enumerate() {
         let m = module.read_tag_from_id(1672913609)?;
         if let Some(m) = m {
+            println!("Read metadata for object customization!");
             m.read_metadata(&mut ocgd)?;
         }
         let m = module.read_tag_from_id(680672300)?;
         if let Some(m) = m {
+            println!("Read metadata for coating globals!");
             m.read_metadata(&mut cogl)?;
         }
         let m = module.read_tag_from_id(-1260457915)?;
         if let Some(m) = m {
+            println!("Read metadata for visor swatches!");
             m.read_metadata(&mut visor)?;
         }
 
@@ -119,18 +121,26 @@ fn main() -> Result<()> {
         scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
     }
 
+    println!("Processing all data...");
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
+    println!("Processed object globals!");
     process_scenarios(&scenarios, &args.save_path)?;
+    println!("Processed scenarios!");
     let textures = process_materials(&materials, &args.save_path)?;
+    println!("Processed materials!");
     process_models(
         &render_models,
         &render_geometry,
         &args.save_path,
         &mut modules,
     )?;
+    println!("Processed models!");
     process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
+    println!("Processed coating globals!");
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
+    println!("Processed styles!");
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
+    println!("Processed runtime coatings!");
     process_material_coatings(
         &material_styles,
         &material_palette,
@@ -138,7 +148,10 @@ fn main() -> Result<()> {
         &args.save_path,
         &string_mappings,
     )?;
+    println!("Processed material coatings!");
     process_visor(&visor, &material_swatch, &args.save_path)?;
+    println!("Processed visor swatches!");
+    println!("Extracting bitmaps...");
     extract_all_bitmaps(
         &mut modules,
         textures,
@@ -146,5 +159,6 @@ fn main() -> Result<()> {
         &material_swatch,
         &args.save_path,
     )?;
+    println!("Extracted bitmaps!");
     Ok(())
 }

@@ -39,7 +39,11 @@ def get_styles(context: Context) -> CommonStyleList | None:
         Return a list of styles for the current material slot selected if it exists.
     """
     data = cast(str, context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder)  # pyright: ignore[reportAttributeAccessIssue]
-    if context.object is not None and context.object.active_material_index is not None:
+    if (
+        context.object is not None
+        and context.object.active_material_index is not None
+        and context.object.active_material_index < len(context.object.material_slots)
+    ):
         bl_material = context.object.material_slots[context.object.active_material_index]
         definition_path = Path(f"{data}/materials/{bl_material.name}.json")
         if not definition_path.exists():

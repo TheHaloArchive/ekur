@@ -46,7 +46,13 @@ def read_texture(texturepath: str) -> Image:
 
     image = bpy.data.images.new(texturepath.split("\\")[-1], 1, 1)
     image.source = "FILE"
-    image.filepath = f"{preferences.data_folder}/bitmaps/{texturepath}_0.png"  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    tex_path = Path(f"{preferences.data_folder}/bitmaps/{texturepath}_0.png")  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    if not tex_path.exists():
+        tex_path = Path(f"{preferences.data_folder}/bitmaps/{texturepath}_0_t.png")  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        image["use_alpha"] = True
+    else:
+        image["use_alpha"] = False
+    image.filepath = str(tex_path)
     image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
     return image
 
@@ -117,7 +123,7 @@ def create_socket(
     out = cast(
         _type,
         interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),
-    )  # pyright: ignore[reportInvalidCast]
+    )
     return out
 
 
