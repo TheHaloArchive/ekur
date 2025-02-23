@@ -14,6 +14,7 @@ pub(crate) enum ShaderType {
     SelfIllum,
     ConesteppedLevel,
     ColorDecal,
+    ConesteppedDecal,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -159,6 +160,13 @@ pub struct ColorDecal {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct ConesteppedDecal {
+    pub parallax_depth: f32,
+    pub parallax_height_offset: f32,
+    pub normal_intensity: f32,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Material {
     pub shader: i32,
     pub textures: HashMap<TextureType, i32>,
@@ -169,6 +177,7 @@ pub struct Material {
     pub decal_slots: Option<DecalSlot>,
     pub conemapped_level: Option<ConemappedLevel>,
     pub color_decal: Option<ColorDecal>,
+    pub conestepped_decal: Option<ConesteppedDecal>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }

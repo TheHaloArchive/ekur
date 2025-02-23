@@ -11,6 +11,7 @@ from ..material_types.decal_shader import DecalShader
 from ..material_types.diffuse_shader import DiffuseShaderType
 from ..material_types.layered_shader import LayeredShader
 from ..material_types.illum_shader import IllumShader
+from ..material_types.color_decal import ColorDecalShader
 from ..utils import get_materials, read_json_file, remove_nodes
 
 __all__ = ["ImportMaterialOperator"]
@@ -79,6 +80,8 @@ class ImportMaterialOperator(Operator):
                 _ = DecalShader(material, node_tree)
             case "SelfIllum":
                 _ = IllumShader(material, node_tree)
+            case "ColorDecal":
+                _ = ColorDecalShader(material, node_tree)
             case "Unknown":
                 pass
             case _:

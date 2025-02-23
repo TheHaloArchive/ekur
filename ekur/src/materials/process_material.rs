@@ -10,6 +10,7 @@ use super::{
     banished_metal::handle_banished_metal,
     color_decal::handle_color_decal,
     common_utils::collect_constants,
+    conestepped_decal::handle_conestepped_decal,
     const_decal::handle_const_decal,
     decal_mp::handle_mp_decal,
     diffuse_shader::{handle_diffuse_shader, handle_diffuse_si_shader},
@@ -40,6 +41,7 @@ pub fn process_materials(
             -79437929 => handle_illum(mat, &mut material)?,
             -232573636 => handle_banished_metal(mat, &mut material)?,
             317783742 => handle_color_decal(mat, &mut material)?,
+            -557915351 => handle_conestepped_decal(mat, &mut material)?,
             _ => {}
         };
 

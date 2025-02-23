@@ -121,26 +121,33 @@ fn main() -> Result<()> {
         scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
     }
 
-    println!("Processing all data...");
+    print!("Processing all data...");
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
-    println!("Processed object globals!");
+    println!("Done!");
+    print!("Processing scenarios...");
     process_scenarios(&scenarios, &args.save_path)?;
-    println!("Processed scenarios!");
+    println!("Done!");
+    print!("Processing materials...");
     let textures = process_materials(&materials, &args.save_path)?;
-    println!("Processed materials!");
+    println!("Done!");
+    print!("Processing models...");
     process_models(
         &render_models,
         &render_geometry,
         &args.save_path,
         &mut modules,
     )?;
-    println!("Processed models!");
+    println!("Done!");
+    print!("Processing coating globals...");
     process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
-    println!("Processed coating globals!");
+    println!("Done!");
+    print!("Processing styles...");
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
-    println!("Processed styles!");
+    println!("Done!");
+    print!("Processing runtime coatings...");
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
-    println!("Processed runtime coatings!");
+    println!("Done!");
+    print!("Processing material coatings...");
     process_material_coatings(
         &material_styles,
         &material_palette,
@@ -148,10 +155,11 @@ fn main() -> Result<()> {
         &args.save_path,
         &string_mappings,
     )?;
-    println!("Processed material coatings!");
+    println!("Done!");
+    print!("Processing visors...");
     process_visor(&visor, &material_swatch, &args.save_path)?;
-    println!("Processed visor swatches!");
-    println!("Extracting bitmaps...");
+    println!("Done!");
+    print!("Extracting bitmaps...");
     extract_all_bitmaps(
         &mut modules,
         textures,
@@ -159,6 +167,6 @@ fn main() -> Result<()> {
         &material_swatch,
         &args.save_path,
     )?;
-    println!("Extracted bitmaps!");
+    println!("Done!");
     Ok(())
 }

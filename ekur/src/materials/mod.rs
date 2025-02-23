@@ -1,6 +1,9 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 mod banished_metal;
 mod color_decal;
 mod common_utils;
+mod conestepped_decal;
 mod const_decal;
 mod decal_mp;
 mod diffuse_shader;

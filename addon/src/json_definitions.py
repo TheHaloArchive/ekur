@@ -24,6 +24,7 @@ __all__ = [
     "CustomizationGlobals",
     "Instance",
     "Level",
+    "ColorDecal",
 ]
 
 
@@ -81,6 +82,12 @@ class SelfIllum(TypedDict):
     opacity: float
 
 
+class ColorDecal(TypedDict):
+    opacity: float
+    metallic: float
+    roughness: float
+
+
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
     shader_type: str
@@ -88,7 +95,7 @@ class CommonMaterial(TypedDict):
     diffuse_info: DiffuseInfo | None
     illum_info: SelfIllum | None
     decal_slots: DecalSlot | None
-    material_constants: str
+    color_decal: ColorDecal | None
 
 
 class CommonLayer(TypedDict):
