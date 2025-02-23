@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
 import logging
 from pathlib import Path
 from typing import cast
@@ -16,7 +18,7 @@ __all__ = ["ModelImporter"]
 
 
 class ModelImporter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.model: Model = Model()
         self.markers: list[Object] = []
         self.rig: Object | None = None
@@ -127,6 +129,8 @@ class ModelImporter:
 
         model_scale = self.model.bounding_boxes[0].model_scale
         uv_scale = self.model.bounding_boxes[0].uv_scale
+        uv_scale1 = self.model.bounding_boxes[0].uv1_scale
+        uv_scale2 = self.model.bounding_boxes[0].uv2_scale
 
         verts = [x.vector for x in section.vertex_buffer.position_buffer.positions]
         it = len(verts[0])
@@ -147,9 +151,9 @@ class ModelImporter:
         if section.vertex_flags.has_uv0:
             self.create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
         if section.vertex_flags.has_uv1:
-            self.create_uv(mesh, section.vertex_buffer.uv1_buffer.uv, uv_scale, 1)
+            self.create_uv(mesh, section.vertex_buffer.uv1_buffer.uv, uv_scale1, 1)
         if section.vertex_flags.has_uv2:
-            self.create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale, 2)
+            self.create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale2, 2)
 
         if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
             self.create_material_indices(section, mesh)

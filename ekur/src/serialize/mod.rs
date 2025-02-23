@@ -3,8 +3,6 @@
 pub mod common_coating;
 pub mod common_styles;
 pub mod customization_globals;
-pub mod forge_objects;
-pub mod material;
 pub mod material_coating;
 pub mod runtime_coating;
 pub mod scenario_bsp;

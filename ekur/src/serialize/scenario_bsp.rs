@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright © 2025 Surasia */
 use std::{collections::HashMap, fs::File, io::BufWriter, path::PathBuf};
 
 use anyhow::Result;
@@ -14,6 +16,7 @@ pub struct Instance {
     pub left: [f32; 3],
     pub up: [f32; 3],
     pub material: Vec<i32>,
+    pub bounding_box_index: i32,
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -40,6 +43,7 @@ pub fn process_scenarios(
             {
                 continue;
             }
+            inst.bounding_box_index = instance.bounds_index.0 as i32;
             inst.global_id = instance.runtime_geo.global_id;
 
             inst.position = [

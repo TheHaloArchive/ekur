@@ -1,28 +1,27 @@
 [package]
 name = "ekur"
-version = "0.4.0"
-edition = "2021"
+version = "0.5.0"
+edition = "2024"
 license = "GPL-3.0-or-later"
 
 [dependencies]
-anyhow = "1.0.95"
+anyhow = "1.0.96"
 bitflags = "2.8.0"
-clap = { version = "4.5.29", features = ["derive"] }
+clap = { version = "4.5.30", features = ["derive"] }
 ddsfile = "0.5.2"
 image = { version = "0.25.5", features = ["png"], default-features = false }
 image_dds = { version = "0.7.1", default-features = false, features = [
   "image",
   "ddsfile",
 ] }
-infinite-rs = { version = "0.10.1", features = ["derive"] }
+infinite-rs = { version = "0.11.0", features = ["derive"] }
 num_enum = "0.7.3"
-serde = { version = "1.0.217", features = ["derive"] }
-serde_json = { version = "1.0.138", features = ["preserve_order"] }
+serde = { version = "1.0.218", features = ["derive"] }
+serde_json = { version = "1.0.139" }
 walkdir = "2.5.0"
-indexmap = { version = "2.7.1", features = ["serde"] }
-serde_with = { version = "3.12.0", features = ["base64"] }
-nalgebra = "0.33.2"
 byteorder = "1.5.0"
 
 [profile.release]
 lto = "fat"
+codegen-units = 1
+strip = "symbols"

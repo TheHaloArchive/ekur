@@ -13,7 +13,8 @@ from ..metadata import Model
 __all__ = ["import_bones", "get_bone_transforms"]
 
 
-def create_transform(transform: Matrix, bone_mode: bool = False) -> Matrix:
+def create_transform(rot_matrix: Matrix, trans_matrix: Matrix, bone_mode: bool = False) -> Matrix:
+    transform = rot_matrix @ trans_matrix
     if not bone_mode:
         return Matrix.Scale(1, 4) @ transform.transposed()
 
@@ -36,7 +37,10 @@ def get_bone_transforms(model: Model) -> list[Matrix]:
     result: list[Matrix] = []
     for bone in model.bones:
         lineage = get_bone_lineage(model, bone)
-        transforms = [create_transform(x.local_transform.matrix, True) for x in lineage]
+        transforms = [
+            create_transform(x.rotation_matrix.matrix, x.transformation_matrix.matrix, True)
+            for x in lineage
+        ]
         res = cast(Matrix, reduce(operator.matmul, transforms))
         result.append(res)
     return result

@@ -5,10 +5,7 @@ use crate::loader::module::load_modules;
 use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
-use definitions::crates::CrateDefinition;
 use definitions::customization_globals::CustomizationGlobals;
-use definitions::forge_object_definition::ForgeObjectData;
-use definitions::forge_object_manifest::ForgeObjectManifest;
 use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
@@ -22,24 +19,25 @@ use definitions::{
     visor::MaterialVisorSwatchTag,
 };
 use loader::module::get_models;
+use materials::process_material::process_materials;
 use model::serialize::process_models;
 use serialize::customization_globals::process_object_globals;
-use serialize::forge_objects::process_forge_objects;
 use serialize::scenario_bsp::process_scenarios;
 use serialize::{
     common_coating::process_coating_global, common_styles::process_styles,
-    material::process_materials, material_coating::process_material_coatings,
-    runtime_coating::process_runtime_coatings, visor::process_visor,
+    material_coating::process_material_coatings, runtime_coating::process_runtime_coatings,
+    visor::process_visor,
 };
 use std::{
     collections::HashMap,
-    fs::{create_dir_all, File},
+    fs::{File, create_dir_all},
     io::{BufRead, BufReader},
 };
 
 mod bitmap;
 mod definitions;
 mod loader;
+mod materials;
 mod model;
 mod serialize;
 
@@ -55,7 +53,9 @@ struct EkurArgs {
 
 fn main() -> Result<()> {
     let args = EkurArgs::parse();
+    print!("Loading all modules...");
     let mut modules = load_modules(args.module_path)?;
+    println!("Done");
     let mut coating_swatches = HashMap::new();
     let mut materials = HashMap::new();
     let mut material_palette = HashMap::new();
@@ -66,15 +66,12 @@ fn main() -> Result<()> {
     let mut cogl = CoatingGlobalsTag::default();
     let mut visor = MaterialVisorSwatchTag::default();
     let mut ocgd = CustomizationGlobals::default();
-    let mut foom = ForgeObjectManifest::default();
     let mut render_models = HashMap::new();
     let mut render_geometry = HashMap::new();
     let mut themes = HashMap::new();
     let mut attachments = HashMap::new();
     let mut models = HashMap::new();
     let mut scenarios = HashMap::new();
-    let mut forge_objects = HashMap::new();
-    let mut crates = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
@@ -82,7 +79,6 @@ fn main() -> Result<()> {
     create_dir_all(format!("{}/models/", args.save_path))?;
     create_dir_all(format!("{}/runtime_geo/", args.save_path))?;
     create_dir_all(format!("{}/levels/", args.save_path))?;
-    create_dir_all(format!("{}/forge_objects/", args.save_path))?;
 
     let string_file = File::open(args.strings_path)?;
     let strings = BufReader::new(string_file);
@@ -91,23 +87,23 @@ fn main() -> Result<()> {
         let (id, string) = line.split_once(":").unwrap();
         string_mappings.insert(id.parse::<i32>()?, string.to_string());
     }
-
+    println!("Mapped strings!");
+    println!("Reading metadata...");
     for (index, module) in modules.iter_mut().enumerate() {
         let m = module.read_tag_from_id(1672913609)?;
         if let Some(m) = m {
+            println!("Read metadata for object customization!");
             m.read_metadata(&mut ocgd)?;
         }
         let m = module.read_tag_from_id(680672300)?;
         if let Some(m) = m {
+            println!("Read metadata for coating globals!");
             m.read_metadata(&mut cogl)?;
         }
         let m = module.read_tag_from_id(-1260457915)?;
         if let Some(m) = m {
+            println!("Read metadata for visor swatches!");
             m.read_metadata(&mut visor)?;
-        }
-        let m = module.read_tag_from_id(-117678174)?;
-        if let Some(m) = m {
-            m.read_metadata(&mut foom)?;
         }
 
         materials.extend(get_tags::<MaterialTag>("mat ", module)?);
@@ -123,22 +119,35 @@ fn main() -> Result<()> {
         attachments.extend(get_tags::<AttachmentConfiguration>("ocad", module)?);
         models.extend(get_tags::<ModelDefinition>("hlmt", module)?);
         scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
-        forge_objects.extend(get_tags::<ForgeObjectData>("food", module)?);
-        crates.extend(get_tags::<CrateDefinition>("bloc", module)?);
     }
 
-    process_forge_objects(&forge_objects, &foom, &crates, &models)?;
+    print!("Processing object globals...");
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
+    println!("Done!");
+    print!("Processing scenarios...");
+    process_scenarios(&scenarios, &args.save_path)?;
+    println!("Done!");
+    print!("Processing materials...");
+    let textures = process_materials(&materials, &args.save_path)?;
+    println!("Done!");
+    print!("Processing models...");
     process_models(
         &render_models,
         &render_geometry,
         &args.save_path,
         &mut modules,
     )?;
+    println!("Done!");
+    print!("Processing coating globals...");
     process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
-    let textures = process_materials(&materials, &args.save_path)?;
+    println!("Done!");
+    print!("Processing styles...");
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
+    println!("Done!");
+    print!("Processing runtime coatings...");
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
+    println!("Done!");
+    print!("Processing material coatings...");
     process_material_coatings(
         &material_styles,
         &material_palette,
@@ -146,8 +155,11 @@ fn main() -> Result<()> {
         &args.save_path,
         &string_mappings,
     )?;
+    println!("Done!");
+    print!("Processing visors...");
     process_visor(&visor, &material_swatch, &args.save_path)?;
-    process_scenarios(&scenarios, &args.save_path)?;
+    println!("Done!");
+    print!("Extracting bitmaps...");
     extract_all_bitmaps(
         &mut modules,
         textures,

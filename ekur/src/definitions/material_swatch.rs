@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
+use infinite_rs::TagStructure;
 use infinite_rs::tag::types::common_types::{
     AnyTag, FieldBlock, FieldReal, FieldRealRGBColor, FieldRealVector2D, FieldReference,
     FieldStringId,
 };
-use infinite_rs::TagStructure;
 
 #[derive(Debug, Default, TagStructure)]
 #[data(size(0x30))]

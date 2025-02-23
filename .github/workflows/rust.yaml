@@ -22,6 +22,9 @@ jobs:
         with:
           submodules: recursive
       
+      - name: Update Rust
+        run: rustup update
+
       - name: Build
         run: cargo build --manifest-path "./ekur/Cargo.toml" --profile ${{ matrix.profile }}
 

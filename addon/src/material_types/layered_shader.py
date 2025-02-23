@@ -69,6 +69,11 @@ class LayeredShader:
         if textures.get("Asg"):
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
             tex.interpolation = "Cubic"
+            if tex.image and tex.image.get("use_alpha"):  # pyright: ignore[reportUnknownMemberType]
+                transparencies = [21, 36, 51, 67, 83, 99, 115]
+                for i in transparencies:
+                    _ = self.node_tree.links.new(tex.outputs[1], self.shader.inputs[i])
+
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         else:
             asg_node = self.node_tree.nodes.new("ShaderNodeRGB")

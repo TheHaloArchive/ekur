@@ -7,7 +7,7 @@ use std::{
 };
 
 use anyhow::Result;
-use byteorder::{WriteBytesExt, LE};
+use byteorder::{LE, WriteBytesExt};
 
 use crate::definitions::render_model::{MeshResourceGroupBlock, SectionLods};
 

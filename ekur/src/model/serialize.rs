@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
+use crate::model::utils::{data_exists, get_buffers};
 use std::{
     collections::HashMap,
     fs::File,
@@ -8,8 +9,8 @@ use std::{
 };
 
 use anyhow::Result;
-use byteorder::{WriteBytesExt, LE};
-use infinite_rs::{module::file::TagStructure, ModuleFile};
+use byteorder::{LE, WriteBytesExt};
+use infinite_rs::ModuleFile;
 
 use crate::definitions::{
     render_model::{LodFlags, RenderModel, VertexBufferUsage as VU},
@@ -20,32 +21,10 @@ use super::{
     index_buffer::write_index_buffer,
     metadata::{
         write_bones, write_bounding_boxes, write_header, write_header_rtgo, write_markers,
-        write_markers_rtgo, write_materials, write_regions, write_submeshes, write_submeshes_rtgo,
+        write_markers_rtgo, write_materials, write_regions, write_submeshes,
     },
-    vertex_buffer::{data_exists, get_vertex_buffer},
+    vertex_buffer::get_vertex_buffer,
 };
-
-fn get_buffers<T: TagStructure>(
-    model: (&(usize, usize, i32), &T),
-    modules: &mut [ModuleFile],
-) -> Result<Vec<Vec<u8>>> {
-    let module = &mut modules[model.0 .0];
-    let mut buffers = Vec::new();
-    {
-        let tag = &module.files[model.0 .1];
-        let resources = module.resource_indices[tag.resource_index as usize
-            ..tag.resource_index as usize + tag.resource_count as usize]
-            .to_vec();
-        for resource in resources {
-            let tag_thing = module.read_tag(resource)?;
-            if let Some(tag_thing) = tag_thing {
-                buffers.push(tag_thing.get_raw_data(true)?);
-            }
-            module.files[resource as usize].data_stream = None;
-        }
-    }
-    Ok(buffers)
-}
 
 fn get_region_permutation(model: &RenderModel, section_index: usize) -> Result<(i32, i32)> {
     let mut region_name = 0;
@@ -92,7 +71,7 @@ pub fn process_models(
 ) -> Result<()> {
     for model in models {
         let mut path = PathBuf::from(format!("{save_path}/models/"));
-        path.push(model.0 .2.to_string());
+        path.push(model.0.2.to_string());
         path.set_extension("ekur");
         let file = File::create(path)?;
         let mut writer = BufWriter::new(file);
@@ -170,7 +149,7 @@ pub fn process_models(
 
     for model in runtime_geo {
         let mut path = PathBuf::from(format!("{save_path}/runtime_geo/"));
-        path.push(model.0 .2.to_string());
+        path.push(model.0.2.to_string());
         path.set_extension("ekur");
         let file = File::create(path)?;
         let mut writer = BufWriter::new(file);
@@ -183,9 +162,6 @@ pub fn process_models(
         let api_resource = model.1.mesh_resource_groups.elements.first();
         for section in model.1.sections.elements.iter() {
             let lod_data = &section.section_lods.elements[0];
-            if lod_data.lod_has_shadow_proxies.0 == 1 {
-                continue;
-            }
             if !lod_data.lod_flags.0.contains(LodFlags::LOD0)
                 || lod_data.lod_has_shadow_proxies.0 == 1
             {
@@ -198,7 +174,7 @@ pub fn process_models(
             writer.write_u8(section.node_index.0)?;
             writer.write_u8(section.vertex_type.0.clone().into())?;
             writer.write_i8(section.use_dual_quat.0)?;
-            write_submeshes_rtgo(&mut writer, lod_data)?;
+            write_submeshes(&mut writer, lod_data)?;
             write_index_buffer(&mut writer, api_resource, lod_data, &buffers)?;
 
             data_exists(lod_data, api_resource, &mut writer, VU::Position)?;

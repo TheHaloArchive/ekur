@@ -13,6 +13,10 @@ class BoundingBox:
         self.z_bounds: Bounds = Bounds()
         self.u_bounds: Bounds = Bounds()
         self.v_bounds: Bounds = Bounds()
+        self.u_bounds1: Bounds = Bounds()
+        self.v_bounds1: Bounds = Bounds()
+        self.u_bounds2: Bounds = Bounds()
+        self.v_bounds2: Bounds = Bounds()
 
     def read(self, reader: BufferedReader) -> None:
         self.x_bounds.read(reader)
@@ -20,6 +24,10 @@ class BoundingBox:
         self.z_bounds.read(reader)
         self.u_bounds.read(reader)
         self.v_bounds.read(reader)
+        self.u_bounds1.read(reader)
+        self.v_bounds1.read(reader)
+        self.u_bounds2.read(reader)
+        self.v_bounds2.read(reader)
 
     @property
     def model_scale(self) -> list[tuple[float, float, float]]:
@@ -34,4 +42,18 @@ class BoundingBox:
         return [
             (self.u_bounds.min, self.u_bounds.max, self.u_bounds.max - self.u_bounds.min),
             (self.v_bounds.min, self.v_bounds.max, self.v_bounds.max - self.v_bounds.min),
+        ]
+
+    @property
+    def uv1_scale(self) -> list[tuple[float, float, float]]:
+        return [
+            (self.u_bounds1.min, self.u_bounds1.max, self.u_bounds1.max - self.u_bounds1.min),
+            (self.v_bounds1.min, self.v_bounds1.max, self.v_bounds1.max - self.v_bounds1.min),
+        ]
+
+    @property
+    def uv2_scale(self) -> list[tuple[float, float, float]]:
+        return [
+            (self.u_bounds2.min, self.u_bounds2.max, self.u_bounds2.max - self.u_bounds2.min),
+            (self.v_bounds2.min, self.v_bounds2.max, self.v_bounds2.max - self.v_bounds2.min),
         ]

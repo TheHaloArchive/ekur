@@ -46,7 +46,13 @@ def read_texture(texturepath: str) -> Image:
 
     image = bpy.data.images.new(texturepath.split("\\")[-1], 1, 1)
     image.source = "FILE"
-    image.filepath = f"{preferences.data_folder}/bitmaps/{texturepath}_0.png"  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    tex_path = Path(f"{preferences.data_folder}/bitmaps/{texturepath}_0.png")  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    if not tex_path.exists():
+        tex_path = Path(f"{preferences.data_folder}/bitmaps/{texturepath}_0_t.png")  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        image["use_alpha"] = True
+    else:
+        image["use_alpha"] = False
+    image.filepath = str(tex_path)
     image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
     return image
 
@@ -77,8 +83,8 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT:
         The loaded json data.
     """
     with open(file_path, "r") as file:
-        data: T = json.load(file)
-        return data
+        data: T = json.load(file)  # pyright: ignore[reportUnknownVariableType]
+        return data  # pyright: ignore[reportUnknownVariableType]
 
 
 def remove_nodes(node_tree: ShaderNodeTree) -> None:
@@ -114,11 +120,11 @@ def create_socket(
     """
     in_out = "INPUT" if is_input else "OUTPUT"
 
-    out = cast(
+    out = cast(  # pyright: ignore[reportUnknownVariableType]
         _type,
         interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),
-    )  # pyright: ignore[reportInvalidCast]
-    return out
+    )
+    return out  # pyright: ignore[reportUnknownVariableType]
 
 
 NodeT = TypeVar("NodeT", bound=Node)
@@ -136,9 +142,9 @@ def create_node(nodes: Nodes, x: int, y: int, _type: type[NodeT]) -> NodeT:
     Returns:
         Returns the created node of the same type provided.
     """
-    node = cast(_type, nodes.new(type=_type.__name__))
+    node = cast(_type, nodes.new(type=_type.__name__))  # pyright: ignore[reportUnknownVariableType]
     node.location = (x, y)
-    return node
+    return node  # pyright: ignore[reportUnknownVariableType]
 
 
 def assign_value(

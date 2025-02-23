@@ -13,7 +13,7 @@ use std::{
 };
 
 use anyhow::Result;
-use byteorder::{WriteBytesExt, LE};
+use byteorder::{LE, WriteBytesExt};
 use infinite_rs::tag::types::common_types::FieldBlock;
 
 use crate::definitions::render_model::RenderModel;
@@ -86,7 +86,12 @@ pub(super) fn write_bones(writer: &mut BufWriter<File>, model: &RenderModel) -> 
         let bone = create_node(node);
         writer.write_i32::<LE>(bone.name)?;
         writer.write_i32::<LE>(bone.parent_index)?;
-        for row in &bone.local_transform {
+        for row in &bone.rotation_matrix {
+            for val in row {
+                writer.write_f32::<LE>(*val)?;
+            }
+        }
+        for row in &bone.transformation_matrix {
             for val in row {
                 writer.write_f32::<LE>(*val)?;
             }
@@ -102,19 +107,19 @@ pub(super) fn write_bones(writer: &mut BufWriter<File>, model: &RenderModel) -> 
 
 pub(super) fn write_markers(writer: &mut BufWriter<File>, model: &RenderModel) -> Result<()> {
     for marker in &model.marker_groups.elements {
-        writer.write_all(&marker.name.0.to_ne_bytes())?;
-        writer.write_all(&marker.markers.size.to_ne_bytes())?;
+        writer.write_i32::<LE>(marker.name.0)?;
+        writer.write_u32::<LE>(marker.markers.size)?;
         for mark in &marker.markers.elements {
-            writer.write_all(&mark.translation.x.to_ne_bytes())?;
-            writer.write_all(&mark.translation.y.to_ne_bytes())?;
-            writer.write_all(&mark.translation.z.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.x.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.y.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.z.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.w.to_ne_bytes())?;
-            writer.write_all(&mark.region_index.0.to_ne_bytes())?;
-            writer.write_all(&mark.permutation_index.0.to_ne_bytes())?;
-            writer.write_all(&mark.node_index.0.to_ne_bytes())?;
+            writer.write_f32::<LE>(mark.translation.x)?;
+            writer.write_f32::<LE>(mark.translation.y)?;
+            writer.write_f32::<LE>(mark.translation.z)?;
+            writer.write_f32::<LE>(mark.rotation.x)?;
+            writer.write_f32::<LE>(mark.rotation.y)?;
+            writer.write_f32::<LE>(mark.rotation.z)?;
+            writer.write_f32::<LE>(mark.rotation.w)?;
+            writer.write_i8(mark.region_index.0)?;
+            writer.write_i32::<LE>(mark.permutation_index.0)?;
+            writer.write_i8(mark.node_index.0)?;
         }
     }
 
@@ -123,16 +128,16 @@ pub(super) fn write_markers(writer: &mut BufWriter<File>, model: &RenderModel) -
 
 pub(super) fn write_markers_rtgo(writer: &mut BufWriter<File>, model: &RuntimeGeo) -> Result<()> {
     for marker in &model.markers.elements {
-        writer.write_all(&marker.name.0.to_ne_bytes())?;
-        writer.write_all(&marker.markers.size.to_ne_bytes())?;
+        writer.write_i32::<LE>(marker.name.0)?;
+        writer.write_u32::<LE>(marker.markers.size)?;
         for mark in &marker.markers.elements {
-            writer.write_all(&mark.translation.x.to_ne_bytes())?;
-            writer.write_all(&mark.translation.y.to_ne_bytes())?;
-            writer.write_all(&mark.translation.z.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.x.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.y.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.z.to_ne_bytes())?;
-            writer.write_all(&mark.rotation.w.to_ne_bytes())?;
+            writer.write_f32::<LE>(mark.translation.x)?;
+            writer.write_f32::<LE>(mark.translation.y)?;
+            writer.write_f32::<LE>(mark.translation.z)?;
+            writer.write_f32::<LE>(mark.rotation.x)?;
+            writer.write_f32::<LE>(mark.rotation.y)?;
+            writer.write_f32::<LE>(mark.rotation.z)?;
+            writer.write_f32::<LE>(mark.rotation.w)?;
             writer.write_u8(0)?;
             writer.write_i32::<LE>(0)?;
             writer.write_u8(0)?;
@@ -147,16 +152,24 @@ pub(super) fn write_bounding_boxes(
     bounding_boxes: &FieldBlock<BoundingBoxBlock>,
 ) -> Result<()> {
     for bounding_box in &bounding_boxes.elements {
-        writer.write_all(&bounding_box.x_bounds.min.to_ne_bytes())?;
-        writer.write_all(&bounding_box.x_bounds.max.to_ne_bytes())?;
-        writer.write_all(&bounding_box.y_bounds.min.to_ne_bytes())?;
-        writer.write_all(&bounding_box.y_bounds.max.to_ne_bytes())?;
-        writer.write_all(&bounding_box.z_bounds.min.to_ne_bytes())?;
-        writer.write_all(&bounding_box.z_bounds.max.to_ne_bytes())?;
-        writer.write_all(&bounding_box.u_bounds.min.to_ne_bytes())?;
-        writer.write_all(&bounding_box.u_bounds.max.to_ne_bytes())?;
-        writer.write_all(&bounding_box.v_bounds.min.to_ne_bytes())?;
-        writer.write_all(&bounding_box.v_bounds.max.to_ne_bytes())?;
+        writer.write_f32::<LE>(bounding_box.x_bounds.min)?;
+        writer.write_f32::<LE>(bounding_box.x_bounds.max)?;
+        writer.write_f32::<LE>(bounding_box.y_bounds.min)?;
+        writer.write_f32::<LE>(bounding_box.y_bounds.max)?;
+        writer.write_f32::<LE>(bounding_box.z_bounds.min)?;
+        writer.write_f32::<LE>(bounding_box.z_bounds.max)?;
+        writer.write_f32::<LE>(bounding_box.u_bounds.min)?;
+        writer.write_f32::<LE>(bounding_box.u_bounds.max)?;
+        writer.write_f32::<LE>(bounding_box.v_bounds.min)?;
+        writer.write_f32::<LE>(bounding_box.v_bounds.max)?;
+        writer.write_f32::<LE>(bounding_box.u_bounds_1.min)?;
+        writer.write_f32::<LE>(bounding_box.u_bounds_1.max)?;
+        writer.write_f32::<LE>(bounding_box.v_bounds_1.min)?;
+        writer.write_f32::<LE>(bounding_box.v_bounds_1.max)?;
+        writer.write_f32::<LE>(bounding_box.u_bounds_2.min)?;
+        writer.write_f32::<LE>(bounding_box.u_bounds_2.max)?;
+        writer.write_f32::<LE>(bounding_box.v_bounds_2.min)?;
+        writer.write_f32::<LE>(bounding_box.v_bounds_2.max)?;
     }
     Ok(())
 }
@@ -170,27 +183,12 @@ pub(super) fn write_materials(writer: &mut BufWriter<File>, model: &RenderModel)
 
 pub(super) fn write_submeshes(writer: &mut BufWriter<File>, lod_data: &SectionLods) -> Result<()> {
     for submesh in lod_data.submeshes.elements.iter() {
-        writer.write_all(&submesh.index_start.0.to_ne_bytes())?;
-        writer.write_all(&submesh.index_count.0.to_ne_bytes())?;
-        writer.write_all(&submesh.vertex_count.0.to_ne_bytes())?;
-        writer.write_all(&submesh.subset_count.0.to_ne_bytes())?;
-        writer.write_all(&submesh.subset_index.0.to_ne_bytes())?;
-        writer.write_all(&submesh.shader_index.0.to_ne_bytes())?;
-    }
-    Ok(())
-}
-
-pub(super) fn write_submeshes_rtgo(
-    writer: &mut BufWriter<File>,
-    lod_data: &SectionLods,
-) -> Result<()> {
-    for submesh in lod_data.submeshes.elements.iter() {
-        writer.write_all(&submesh.index_start.0.to_ne_bytes())?;
-        writer.write_all(&submesh.index_count.0.to_ne_bytes())?;
-        writer.write_all(&submesh.vertex_count.0.to_ne_bytes())?;
-        writer.write_all(&submesh.subset_count.0.to_ne_bytes())?;
-        writer.write_all(&submesh.subset_index.0.to_ne_bytes())?;
-        writer.write_all(&submesh.shader_index.0.to_ne_bytes())?;
+        writer.write_i32::<LE>(submesh.index_start.0)?;
+        writer.write_i32::<LE>(submesh.index_count.0)?;
+        writer.write_u16::<LE>(submesh.vertex_count.0)?;
+        writer.write_u16::<LE>(submesh.subset_count.0)?;
+        writer.write_i16::<LE>(submesh.subset_index.0)?;
+        writer.write_i16::<LE>(submesh.shader_index.0)?;
     }
     Ok(())
 }

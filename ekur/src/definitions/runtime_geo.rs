@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
 use infinite_rs::{
+    TagStructure,
     tag::types::common_types::{
         AnyTag, FieldBlock, FieldReal, FieldRealQuaternion, FieldRealVector3D, FieldShortEnum,
         FieldShortInteger, FieldStringId,
     },
-    TagStructure,
 };
 use num_enum::TryFromPrimitive;
 
