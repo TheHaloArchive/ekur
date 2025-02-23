@@ -225,6 +225,3 @@ class CoatingImportPanel(Panel):
         level_opts = level_box.box()
         level_opts.prop(import_properties, "level_path")
         _ = level_box.operator("ekur.importlevel")
-
-        forge_box = layout.box()
-        forge_box.label(icon="TOOL_SETTINGS", text="Import Forge Object")

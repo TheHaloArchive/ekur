@@ -121,7 +121,7 @@ fn main() -> Result<()> {
         scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
     }
 
-    print!("Processing all data...");
+    print!("Processing object globals...");
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
     println!("Done!");
     print!("Processing scenarios...");
@@ -167,6 +167,5 @@ fn main() -> Result<()> {
         &material_swatch,
         &args.save_path,
     )?;
-    println!("Done!");
     Ok(())
 }
