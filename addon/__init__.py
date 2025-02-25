@@ -23,12 +23,13 @@ from .src.ui.import_panel import CoatingImportPanel, ImportProperties, Randomize
 from .src.operators.model_operator import ImportModelOperator
 from .src.operators.spartan_operator import ImportSpartanOperator
 from .src.operators.level_operator import ImportLevelOperator
+from .src.operators.forge_operator import ForgeOperator
 
 bl_info = {
     "name": "Ekur",
     "description": "A multi-purpose importer for Halo Infinite.",
     "author": "Surasia",
-    "version": (0, 5, 1),
+    "version": (0, 6, 0),
     "blender": (4, 3, 0),
     "category": "Import-Export",
     "support": "COMMUNITY",
@@ -164,6 +165,7 @@ def register():
     register_class(ImportModelOperator)
     register_class(ImportSpartanOperator)
     register_class(ImportLevelOperator)
+    register_class(ForgeOperator)
     bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -178,4 +180,5 @@ def unregister():
     unregister_class(ImportModelOperator)
     unregister_class(ImportSpartanOperator)
     unregister_class(ImportLevelOperator)
+    unregister_class(ForgeOperator)
     del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

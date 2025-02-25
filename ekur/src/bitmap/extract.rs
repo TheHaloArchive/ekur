@@ -66,6 +66,7 @@ pub fn extract_all_bitmaps(
     save_path: &str,
 ) -> Result<()> {
     let bitmaps = collect_bitmaps(textures, coating_swatches, material_swatches);
+    std::fs::create_dir_all(format!("{}/bitmaps/", save_path))?;
     let mut processed_bitmaps = HashSet::new();
     for (tex_type, idx) in bitmaps {
         if idx == -1 {

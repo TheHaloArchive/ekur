@@ -30,17 +30,19 @@ pub fn load_modules<P: AsRef<Path>>(deploy_path: P) -> Result<Vec<ModuleFile>> {
 
 pub fn get_tags<T: TagStructure + Default>(
     tag_group: &str,
-    module: &mut ModuleFile,
+    modules: &mut [ModuleFile],
 ) -> Result<HashMap<i32, T>> {
     let mut tags = HashMap::new();
-    for idx in 0..module.files.len() {
-        if module.files[idx].tag_group == tag_group {
-            let tag = module.read_tag(idx as u32)?.unwrap();
-            let mut mat = T::default();
-            tag.read_metadata(&mut mat)?;
-            tags.insert(tag.tag_id, mat);
+    for module in modules.iter_mut() {
+        for idx in 0..module.files.len() {
+            if module.files[idx].tag_group == tag_group {
+                let tag = module.read_tag(idx as u32)?.unwrap();
+                let mut mat = T::default();
+                tag.read_metadata(&mut mat)?;
+                tags.insert(tag.tag_id, mat);
+            }
+            module.files[idx].data_stream = None;
         }
-        module.files[idx].data_stream = None;
     }
     Ok(tags)
 }
