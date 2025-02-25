@@ -9,9 +9,16 @@ from pathlib import Path
 from typing import cast, final
 
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
-from bpy.types import Context, Panel, PropertyGroup, UILayout, Operator
+from bpy.types import Context, Panel, PropertyGroup, Operator
 
-from ..json_definitions import CommonMaterial, CommonStyleList, CommonLayer, CustomizationGlobals
+from ..json_definitions import (
+    CommonMaterial,
+    CommonStyleList,
+    CommonLayer,
+    CustomizationGlobals,
+    ForgeObjectCategory,
+    ForgeObjectDefinition,
+)
 from ..utils import read_json_file
 
 _nsre = re.compile("([0-9]+)")
@@ -125,6 +132,58 @@ class GrabStrings:
             all_cores.append((str(entry["name"]), str(entry["name"]), ""))
         return all_cores
 
+    def get_object_definition(self, context: Context) -> ForgeObjectDefinition:
+        data = cast(
+            str,
+            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
+        )
+        objects_path = Path(f"{data}/forge_objects.json")
+        objects = read_json_file(objects_path, ForgeObjectDefinition)
+        return objects
+
+    def get_category(self, context: Context, category: str) -> ForgeObjectCategory | None:
+        objects = GrabStrings().get_object_definition(context)
+        for entry in objects["root_categories"]:
+            if entry["name"] == category:
+                return entry
+        return None
+
+    def root_categories(self, context: Context | None) -> list[tuple[str, str, str]]:
+        categories: list[tuple[str, str, str]] = []
+        if context is None:
+            return categories
+        objects = GrabStrings().get_object_definition(context)
+        for entry in objects["root_categories"]:
+            categories.append((entry["name"], entry["name"], ""))
+        return categories
+
+    def subcategories(self, context: Context | None) -> list[tuple[str, str, str]]:
+        subcategories: list[tuple[str, str, str]] = []
+        if context is None:
+            return subcategories
+
+        root_category = cast(str, context.scene.import_properties.root_category)  # pyright: ignore[reportAttributeAccessIssue]
+        category = GrabStrings().get_category(context, root_category)
+        if category and category["sub_categories"]:
+            for subcat in category["sub_categories"]:
+                subcategories.append((subcat["name"], subcat["name"], ""))
+        return subcategories
+
+    def objects(self, context: Context | None) -> list[tuple[str, str, str]]:
+        subcategories: list[tuple[str, str, str]] = []
+        if context is None:
+            return subcategories
+
+        root_category = cast(str, context.scene.import_properties.root_category)  # pyright: ignore[reportAttributeAccessIssue]
+        subcategory = cast(str, context.scene.import_properties.subcategory)  # pyright: ignore[reportAttributeAccessIssue]
+        category = GrabStrings().get_category(context, root_category)
+        if category and subcategory and category["sub_categories"]:
+            for subcat in category["sub_categories"]:
+                if subcat["name"] == subcategory and subcat["objects"]:
+                    for obj in subcat["objects"]:
+                        subcategories.append((obj["name"], obj["name"], ""))
+        return subcategories
+
 
 @final
 class RandomizeCoatingOperator(Operator):
@@ -171,6 +230,9 @@ class ImportProperties(PropertyGroup):
     )
     import_specific_core: BoolProperty(name="Import Specific Core", default=False)
     core: EnumProperty(name="Core", items=GrabStrings.cores)
+    root_category: EnumProperty(name="Root Category", items=GrabStrings.root_categories)
+    subcategory: EnumProperty(name="Subcategory", items=GrabStrings.subcategories)
+    objects: EnumProperty(name="Object", items=GrabStrings.objects)
 
 
 @final
@@ -185,45 +247,64 @@ class CoatingImportPanel(Panel):
         if context is None:
             return
         layout = self.layout
-        box: UILayout = layout.box()
-        box.label(icon="MATERIAL", text="Import Material")
-        options = box.box()
         import_properties = cast(ImportProperties, context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
-        options.prop(import_properties, "use_default")
-        if not import_properties.use_default:
-            box2 = options.box()
-            box2.prop(import_properties, "coatings")
-            box2.prop(import_properties, "coat_id")
-            box2.prop(import_properties, "sort_by_name")
-            _ = box2.operator("ekur.randomize")
-        options.prop(import_properties, "toggle_damage")
-        options.prop(import_properties, "selected_only")
-        options.prop(import_properties, "toggle_visors")
-        if import_properties.toggle_visors:
-            options.prop(import_properties, "visors")
-        _ = box.operator("ekur.importmaterial")
 
-        model_box = layout.box()
-        model_box.label(icon="MESH_CUBE", text="Import Model")
-        model_opts = model_box.box()
-        model_opts.prop(import_properties, "model_path")
-        model_opts.prop(import_properties, "import_markers")
-        model_opts.prop(import_properties, "import_bones")
-        model_opts.prop(import_properties, "import_materials")
-        model_opts.prop(import_properties, "import_collections")
-        model_opts.prop(import_properties, "import_vertex_color")
-        _ = model_box.operator("ekur.importmodel")
+        material_header, material_body = layout.panel("VIEW3D_PT_import_material")
+        material_header.label(icon="MATERIAL", text="Import Material")
 
-        ocgd_box = layout.box()
-        ocgd_box.label(icon="ARMATURE_DATA", text="Import Spartan")
-        ocgd_opts = ocgd_box.box()
-        ocgd_opts.prop(import_properties, "import_specific_core")
-        if import_properties.import_specific_core:
-            ocgd_opts.prop(import_properties, "core")
-        _ = ocgd_box.operator("ekur.importspartan")
+        if material_body:
+            options = material_body.box()
+            import_properties = cast(ImportProperties, context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
+            options.prop(import_properties, "use_default")
+            if not import_properties.use_default:
+                box2 = options.box()
+                box2.prop(import_properties, "coatings")
+                box2.prop(import_properties, "coat_id")
+                box2.prop(import_properties, "sort_by_name")
+                _ = box2.operator("ekur.randomize")
+            options.prop(import_properties, "toggle_damage")
+            options.prop(import_properties, "selected_only")
+            options.prop(import_properties, "toggle_visors")
+            if import_properties.toggle_visors:
+                options.prop(import_properties, "visors")
+            _ = material_body.operator("ekur.importmaterial")
 
-        level_box = layout.box()
-        level_box.label(icon="MESH_GRID", text="Import Level")
-        level_opts = level_box.box()
-        level_opts.prop(import_properties, "level_path")
-        _ = level_box.operator("ekur.importlevel")
+        model_header, model_body = layout.panel("VIEW3D_PT_import_model")
+        model_header.label(icon="MESH_CUBE", text="Import Model")
+        if model_body:
+            model_opts = model_body.box()
+            model_opts.prop(import_properties, "model_path")
+            model_opts.prop(import_properties, "import_markers")
+            model_opts.prop(import_properties, "import_bones")
+            model_opts.prop(import_properties, "import_materials")
+            model_opts.prop(import_properties, "import_collections")
+            model_opts.prop(import_properties, "import_vertex_color")
+            _ = model_body.operator("ekur.importmodel")
+
+        ocgd_header, ocgd_body = layout.panel("VIEW3D_PT_import_ocgd")
+        ocgd_header.label(icon="ARMATURE_DATA", text="Import Spartan")
+        if ocgd_body:
+            ocgd_opts = ocgd_body.box()
+            ocgd_opts.prop(import_properties, "import_specific_core")
+            if import_properties.import_specific_core:
+                ocgd_opts.prop(import_properties, "core")
+            _ = ocgd_body.operator("ekur.importspartan")
+
+        level_header, level_body = layout.panel("VIEW3D_PT_import_level")
+        level_header.label(icon="MESH_GRID", text="Import Level")
+        if level_body:
+            level_opts = level_body.box()
+            level_opts.prop(import_properties, "level_path")
+            _ = level_body.operator("ekur.importlevel")
+
+        forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge")
+        forge_header.label(icon="TOOL_SETTINGS", text="Import Forge")
+        if forge_body:
+            forge_opts = forge_body.box()
+            forge_opts.prop(import_properties, "root_category")
+            category = cast(str, import_properties.root_category)
+            cat = GrabStrings().get_category(context, category)
+            if cat and cat["sub_categories"]:
+                forge_opts.prop(import_properties, "subcategory")
+                forge_opts.prop(import_properties, "objects")
+            _ = forge_body.operator("ekur.importforge")

@@ -1,6 +1,6 @@
 [package]
 name = "ekur"
-version = "0.5.1"
+version = "0.6.0"
 edition = "2024"
 license = "GPL-3.0-or-later"
 
@@ -24,4 +24,4 @@ byteorder = "1.5.0"
 [profile.release]
 lto = "fat"
 codegen-units = 1
-strip = "symbols"
+#strip = "symbols"

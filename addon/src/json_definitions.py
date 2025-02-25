@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 from collections import OrderedDict
-from typing import TypedDict
+from typing import Self, TypedDict
 
 __all__ = [
     "StyleInfo",
@@ -25,6 +25,9 @@ __all__ = [
     "Instance",
     "Level",
     "ColorDecal",
+    "ForgeObject",
+    "ForgeObjectCategory",
+    "ForgeObjectDefinition",
 ]
 
 
@@ -190,3 +193,19 @@ class Instance(TypedDict):
 
 class Level(TypedDict):
     instances: list[Instance]
+
+
+class ForgeObject(TypedDict):
+    name: str
+    model: int
+    variant: int
+
+
+class ForgeObjectCategory(TypedDict):
+    name: str
+    sub_categories: list[Self] | None
+    objects: list[ForgeObject] | None
+
+
+class ForgeObjectDefinition(TypedDict):
+    root_categories: list[ForgeObjectCategory]
