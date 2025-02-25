@@ -9,6 +9,7 @@ use definitions::customization_globals::CustomizationGlobals;
 use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
+use definitions::particle_model::ParticleModel;
 use definitions::runtime_geo::RuntimeGeo;
 use definitions::scenario::ScenarioStructureBsp;
 use definitions::{
@@ -35,11 +36,11 @@ use std::{
 };
 
 mod bitmap;
-mod definitions;
+pub mod definitions;
 mod loader;
 mod materials;
-mod model;
-mod serialize;
+pub mod model;
+pub mod serialize;
 
 #[derive(Debug, Parser)]
 struct EkurArgs {
@@ -53,9 +54,7 @@ struct EkurArgs {
 
 fn main() -> Result<()> {
     let args = EkurArgs::parse();
-    print!("Loading all modules...");
     let mut modules = load_modules(args.module_path)?;
-    println!("Done");
     let mut coating_swatches = HashMap::new();
     let mut materials = HashMap::new();
     let mut material_palette = HashMap::new();
@@ -72,6 +71,7 @@ fn main() -> Result<()> {
     let mut attachments = HashMap::new();
     let mut models = HashMap::new();
     let mut scenarios = HashMap::new();
+    let mut particle_models = HashMap::new();
     create_dir_all(format!("{}/styles/", args.save_path))?;
     create_dir_all(format!("{}/stylelists/", args.save_path))?;
     create_dir_all(format!("{}/materials/", args.save_path))?;
@@ -79,6 +79,7 @@ fn main() -> Result<()> {
     create_dir_all(format!("{}/models/", args.save_path))?;
     create_dir_all(format!("{}/runtime_geo/", args.save_path))?;
     create_dir_all(format!("{}/levels/", args.save_path))?;
+    create_dir_all(format!("{}/particle_models/", args.save_path))?;
 
     let string_file = File::open(args.strings_path)?;
     let strings = BufReader::new(string_file);
@@ -87,25 +88,21 @@ fn main() -> Result<()> {
         let (id, string) = line.split_once(":").unwrap();
         string_mappings.insert(id.parse::<i32>()?, string.to_string());
     }
-    println!("Mapped strings!");
-    println!("Reading metadata...");
     for (index, module) in modules.iter_mut().enumerate() {
         let m = module.read_tag_from_id(1672913609)?;
         if let Some(m) = m {
-            println!("Read metadata for object customization!");
             m.read_metadata(&mut ocgd)?;
         }
         let m = module.read_tag_from_id(680672300)?;
         if let Some(m) = m {
-            println!("Read metadata for coating globals!");
             m.read_metadata(&mut cogl)?;
         }
         let m = module.read_tag_from_id(-1260457915)?;
         if let Some(m) = m {
-            println!("Read metadata for visor swatches!");
             m.read_metadata(&mut visor)?;
         }
 
+        particle_models.extend(get_models::<ParticleModel>("pmdf", module, index)?);
         materials.extend(get_tags::<MaterialTag>("mat ", module)?);
         coating_swatches.extend(get_tags::<CoatingSwatchPODTag>("cmsw", module)?);
         material_palette.extend(get_tags::<MaterialPaletteTag>("mwpl", module)?);
@@ -120,34 +117,20 @@ fn main() -> Result<()> {
         models.extend(get_tags::<ModelDefinition>("hlmt", module)?);
         scenarios.extend(get_tags::<ScenarioStructureBsp>("sbsp", module)?);
     }
-
-    print!("Processing object globals...");
     process_object_globals(&ocgd, &themes, &args.save_path, &attachments, &models)?;
-    println!("Done!");
-    print!("Processing scenarios...");
     process_scenarios(&scenarios, &args.save_path)?;
-    println!("Done!");
-    print!("Processing materials...");
     let textures = process_materials(&materials, &args.save_path)?;
-    println!("Done!");
-    print!("Processing models...");
     process_models(
         &render_models,
         &render_geometry,
+        &particle_models,
         &args.save_path,
         &mut modules,
+        &string_mappings,
     )?;
-    println!("Done!");
-    print!("Processing coating globals...");
     process_coating_global(&cogl, &coating_swatches, &args.save_path)?;
-    println!("Done!");
-    print!("Processing styles...");
     process_styles(&runtime_styles, &args.save_path, &string_mappings)?;
-    println!("Done!");
-    print!("Processing runtime coatings...");
     process_runtime_coatings(&runtime_style, &coating_swatches, &args.save_path)?;
-    println!("Done!");
-    print!("Processing material coatings...");
     process_material_coatings(
         &material_styles,
         &material_palette,
@@ -155,11 +138,7 @@ fn main() -> Result<()> {
         &args.save_path,
         &string_mappings,
     )?;
-    println!("Done!");
-    print!("Processing visors...");
     process_visor(&visor, &material_swatch, &args.save_path)?;
-    println!("Done!");
-    print!("Extracting bitmaps...");
     extract_all_bitmaps(
         &mut modules,
         textures,

@@ -11,6 +11,7 @@ pub mod material_swatch;
 pub mod model;
 pub mod object_attachment;
 pub mod object_theme;
+pub mod particle_model;
 pub mod render_model;
 pub mod runtime_geo;
 pub mod runtime_style;

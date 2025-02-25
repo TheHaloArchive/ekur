@@ -5,7 +5,9 @@ use byteorder::WriteBytesExt;
 use infinite_rs::{ModuleFile, module::file::TagStructure};
 use std::{fs::File, io::BufWriter};
 
-use crate::definitions::render_model::{MeshResourceGroupBlock, SectionLods, VertexBufferUsage};
+use crate::definitions::render_model::{
+    MeshResourceGroupBlock, RasterizerVertexBuffer, SectionLods, VertexBufferUsage,
+};
 
 pub(super) fn get_resource_data(
     offset: usize,
@@ -47,20 +49,27 @@ pub(super) fn get_resource_data(
 pub(super) fn get_buffers<T: TagStructure>(
     model: (&(usize, usize, i32), &T),
     modules: &mut [ModuleFile],
+    vertex_buffers: &Vec<RasterizerVertexBuffer>,
 ) -> Result<Vec<Vec<u8>>> {
     let module = &mut modules[model.0.0];
     let mut buffers = Vec::new();
     {
         let tag = &module.files[model.0.1];
-        let resources = module.resource_indices[tag.resource_index as usize
-            ..tag.resource_index as usize + tag.resource_count as usize]
-            .to_vec();
-        for resource in resources {
-            let tag_thing = module.read_tag(resource)?;
-            if let Some(tag_thing) = tag_thing {
-                buffers.push(tag_thing.get_raw_data(true)?);
+        if tag.resource_count != 0 {
+            let resources = module.resource_indices[tag.resource_index as usize
+                ..tag.resource_index as usize + tag.resource_count as usize]
+                .to_vec();
+            for resource in resources {
+                let tag_thing = module.read_tag(resource)?;
+                if let Some(tag_thing) = tag_thing {
+                    buffers.push(tag_thing.get_raw_data(true)?);
+                }
+                module.files[resource as usize].data_stream = None;
             }
-            module.files[resource as usize].data_stream = None;
+        } else {
+            for vb in vertex_buffers {
+                buffers.push(vb.data.data.clone());
+            }
         }
     }
     Ok(buffers)

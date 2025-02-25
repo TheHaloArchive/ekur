@@ -11,10 +11,7 @@ class ColorBuffer:
     def __init__(self) -> None:
         self.stride: int = -1
         self.count: int = 0
-        self.a: int = 0
-        self.r: int = 0
-        self.g: int = 0
-        self.b: int = 0
+        self.color: list[tuple[int, int, int, int]] = []
 
     def read(self, reader: BufferedReader) -> None:
         self.stride = int.from_bytes(reader.read(1), "little", signed=True)
@@ -22,7 +19,8 @@ class ColorBuffer:
             raise IncorrectStrideValue("Color buffer stride was not 4!")
         self.count = int.from_bytes(reader.read(4), "little")
         for _ in range(self.count):
-            self.a = int.from_bytes(reader.read(1))
-            self.r = int.from_bytes(reader.read(1))
-            self.g = int.from_bytes(reader.read(1))
-            self.b = int.from_bytes(reader.read(1))
+            a = int.from_bytes(reader.read(1))
+            r = int.from_bytes(reader.read(1))
+            g = int.from_bytes(reader.read(1))
+            b = int.from_bytes(reader.read(1))
+            self.color.append((a, r, g, b))

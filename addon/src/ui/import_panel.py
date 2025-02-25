@@ -164,6 +164,7 @@ class ImportProperties(PropertyGroup):
     import_markers: BoolProperty(name="Import Markers", default=True)
     import_bones: BoolProperty(name="Import Bones", default=True)
     import_collections: BoolProperty(name="Import Collections", default=True)
+    import_vertex_color: BoolProperty(name="Import Vertex Color (SLOW)", default=False)
     level_path: StringProperty(
         name="Level Path",
         subtype="FILE_PATH",
@@ -210,6 +211,7 @@ class CoatingImportPanel(Panel):
         model_opts.prop(import_properties, "import_bones")
         model_opts.prop(import_properties, "import_materials")
         model_opts.prop(import_properties, "import_collections")
+        model_opts.prop(import_properties, "import_vertex_color")
         _ = model_box.operator("ekur.importmodel")
 
         ocgd_box = layout.box()

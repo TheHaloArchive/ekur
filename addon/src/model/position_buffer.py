@@ -16,7 +16,7 @@ class PositionBuffer:
     def read(self, reader: BufferedReader) -> None:
         self.stride = int.from_bytes(reader.read(1), "little", signed=True)
         if self.stride != 8:
-            raise IncorrectStrideValue("Normal buffer stride was not 8!")
+            raise IncorrectStrideValue("Position buffer stride was not 8!")
         self.count = int.from_bytes(reader.read(4), "little")
         for _ in range(self.count):
             position = NormalizedVector4()

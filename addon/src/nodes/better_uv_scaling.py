@@ -51,7 +51,6 @@ class BetterUVScaling:
         mapping = create_node(self.node_tree.nodes, 796, 250, ShaderNodeMapping)
         combinexyz = create_node(self.node_tree.nodes, 208, 466, ShaderNodeCombineXYZ)
         combinexyz2 = create_node(self.node_tree.nodes, -392, -127, ShaderNodeCombineXYZ)
-        uvmap = create_node(self.node_tree.nodes, 215, 134, ShaderNodeUVMap)
         input = create_node(self.node_tree.nodes, -972, 0, NodeGroupInput)
         mix = create_node(self.node_tree.nodes, -217, 212, ShaderNodeMix)
         mix2 = create_node(self.node_tree.nodes, 13, 205, ShaderNodeMix)
@@ -85,6 +84,9 @@ class BetterUVScaling:
         compare2.operation = "COMPARE"
         assign_value(compare2, 1, 1.0)
         assign_value(compare2, 2, 0.0)
+
+        uvmap = create_node(self.node_tree.nodes, 215, 134, ShaderNodeUVMap)
+        uvmap.uv_map = "UV0"
 
         links = self.node_tree.links
         _ = links.new(math_8.outputs[0], subtract.inputs[1])

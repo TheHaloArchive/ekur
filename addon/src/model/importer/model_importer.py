@@ -6,6 +6,7 @@ from typing import cast
 import bpy
 from bpy.types import ArmatureModifier, Context, Material, Mesh, Object
 from mathutils import Vector
+
 from .bone import import_bones
 from .markers import import_markers
 from ..metadata import Model
@@ -96,7 +97,7 @@ class ModelImporter:
 
         modifier.object = armature
 
-        if section.node_index >= 0 and section.node_index < len(self.model.bones):
+        if section.node_index != 255 and section.node_index < len(self.model.bones):
             bone = self.model.bones[section.node_index]
             group = obj.vertex_groups.new(name=str(bone.name))
             group.add(range(vertex_count), 1.0, "REPLACE")  # pyright: ignore[reportUnknownMemberType]
@@ -114,6 +115,12 @@ class ModelImporter:
 
         for p in mesh.polygons:
             p.use_smooth = True
+
+    def create_color(self, section: Section, mesh: Mesh) -> None:
+        for i, color in enumerate(section.vertex_buffer.color_buffer.color):
+            ca = mesh.color_attributes.new(name=f"Color{i}", type="BYTE_COLOR", domain="FACE")
+            for loop in range(len(mesh.loops) // 3):
+                ca.data[loop].color = color  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
 
     def create_normals(self, section: Section, mesh: Mesh) -> None:
         normals = [x.vector.to_tuple() for x in section.vertex_buffer.normal_buffer.normals]
@@ -157,6 +164,9 @@ class ModelImporter:
 
         if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
             self.create_material_indices(section, mesh)
+
+        if bpy.context.scene.import_properties.import_vertex_color:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+            self.create_color(section, mesh)
 
         if self.rig:
             self.create_skinning(obj, collection_name, self.rig, section, mesh)

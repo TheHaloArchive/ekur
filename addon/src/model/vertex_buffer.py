@@ -58,38 +58,45 @@ class VertexBuffers:
         The returned weights will be normalised and all index/weight channels will be accounted for.
         """
 
-        dummy_weights = [1.0]
-        blend_weights = []
+        blend_indices = self.weight_index_buffer.indices
+
+        # Determine vertex type
         rigid = len(self.weight_buffer.weights) == 0
+        rigid_boned = mesh_flags == VertexType.RigidBoned and not self.flags.has_blend_weights
         implied = mesh_flags != VertexType.Skinned8Weights and self.flags.has_blend_weights
-        blend_indicies = self.weight_index_buffer.indices
-        if not rigid:
-            blend_weights = self.weight_buffer.weights
+
+        # Only get blend weights if we're not using rigid or rigid_boned
+        blend_weights = [] if (rigid or rigid_boned) else self.weight_buffer.weights
 
         for i in range(len(self.position_buffer.positions)):
-            if i >= len(blend_indicies):
+            if i >= len(blend_indices):
                 continue
-            if not rigid:
+
+            indices = [int(x) for x in blend_indices[i].vector]
+
+            if rigid or rigid_boned:
+                # For rigid boned, each index keeps its actual bone index value
+                # We assign weight 1.0 to each bone index
+                weights = [1.0] * len(indices)
+            else:
+                # For skinned vertices, get the weights from the buffer
                 if i >= len(blend_weights):
                     continue
+                weights = blend_weights[i].vector.to_tuple()
 
-            indices = [int(x) for x in blend_indicies[i].vector]
-            weights = dummy_weights if rigid else blend_weights[i].vector.to_tuple()
+                # Append a 1.0 to the end of weights list for implied weights
+                if implied:
+                    weights = [*weights, 1.0]
 
-            # append a 1 to the end of the weights list
-            if implied:
-                weights = [*weights, 1.0]
+                # Filter out zero weights and corresponding indices
+                if 0 in weights:
+                    valid_pairs = [(idx, w) for idx, w in zip(indices, weights) if w > 0]
+                    indices = [pair[0] for pair in valid_pairs]
+                    weights = [pair[1] for pair in valid_pairs]
 
-            if rigid:
-                # only take the first index (dummy_weights already only has one weight)
-                indices = [indices[0]]
-            elif 0 in weights:
-                indices = list(indices[i] for i, w in enumerate(weights) if w > 0)
-                weights = list(weights[i] for i, w in enumerate(weights) if w > 0)
-
-            # normalise the weights before returning them so they all add up to 1
+            # Normalize the weights so they all add up to 1
             weight_sum = sum(weights)
             if weight_sum > 0:
-                weights = list(w / weight_sum for w in weights)
+                weights = [w / weight_sum for w in weights]
 
             yield (i, indices, weights)

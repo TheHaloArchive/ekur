@@ -3,7 +3,7 @@
 use bitflags::bitflags;
 use infinite_rs::TagStructure;
 use infinite_rs::tag::types::common_types::{
-    AnyTag, FieldArray, FieldBlock, FieldByteInteger, FieldCharEnum, FieldCharInteger,
+    AnyTag, FieldArray, FieldBlock, FieldByteInteger, FieldCharEnum, FieldCharInteger, FieldData,
     FieldLongEnum, FieldLongInteger, FieldReal, FieldRealBounds, FieldRealPoint3D,
     FieldRealQuaternion, FieldRealVector3D, FieldReference, FieldShortBlockIndex,
     FieldShortInteger, FieldStringId, FieldTagResource, FieldWordFlags, FieldWordInteger,
@@ -75,7 +75,7 @@ pub struct MarkerBlock {
     #[data(offset(0x04))]
     pub permutation_index: FieldLongInteger,
     #[data(offset(0x08))]
-    pub node_index: FieldCharInteger,
+    pub node_index: FieldByteInteger,
     #[data(offset(0x0C))]
     pub translation: FieldRealPoint3D,
     #[data(offset(0x18))]
@@ -233,7 +233,7 @@ pub enum VertexType {
     NumberOfStandardVertexTypes,
 }
 
-#[derive(Default, Debug, TryFromPrimitive)]
+#[derive(Default, Debug, TryFromPrimitive, PartialEq)]
 #[repr(u8)]
 pub enum IndexFormat {
     #[default]
@@ -275,13 +275,15 @@ pub struct SectionBlock {
     pub use_dual_quat: FieldCharInteger,
     #[data(offset(0x19))]
     pub index_buffer_type: FieldCharEnum<IndexFormat>,
+    #[data(offset(0x30))]
+    pub clone_index: FieldShortBlockIndex,
 }
 
 #[derive(Default, Debug, TagStructure)]
-#[data(size(1))]
+#[data(size(2))]
 pub struct Index {
     #[data(offset(0))]
-    pub index: FieldByteInteger,
+    pub index: FieldWordInteger,
 }
 
 #[derive(Default, Debug, TagStructure)]
@@ -356,6 +358,8 @@ pub struct RasterizerVertexBuffer {
     pub count: FieldLongInteger,
     #[data(offset(16))]
     pub offset: FieldLongInteger,
+    #[data(offset(36))]
+    pub data: FieldData,
 }
 
 #[derive(Default, Debug, TagStructure)]
@@ -411,6 +415,17 @@ pub struct BoundingBoxBlock {
 }
 
 #[derive(Default, Debug, TagStructure)]
+#[data(size(0x20))]
+pub struct DefaultNodeOrientations {
+    #[data(offset(0x00))]
+    pub rotation: FieldRealQuaternion,
+    #[data(offset(0x10))]
+    pub translation: FieldRealPoint3D,
+    #[data(offset(0x1C))]
+    pub scale: FieldReal,
+}
+
+#[derive(Default, Debug, TagStructure)]
 #[data(size(0x298))]
 pub struct RenderModel {
     #[data(offset(0x00))]
@@ -437,4 +452,6 @@ pub struct RenderModel {
     pub total_vertex_buffer_count: FieldLongInteger,
     #[data(offset(324))]
     pub resources: FieldBlock<MeshResourceGroupBlock>,
+    #[data(offset(0x20C))]
+    pub default_node_orientations: FieldBlock<DefaultNodeOrientations>,
 }

@@ -41,7 +41,7 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
                 @ Quaternion(instance.rotation.vector).to_matrix().to_4x4()
             )
 
-            if instance.node_index >= 0 and len(bone_transforms) > instance.node_index:
+            if instance.node_index != 255 and len(bone_transforms) > instance.node_index:
                 world_transform = bone_transforms[instance.node_index] @ world_transform
                 marker_obj.parent = armature
                 marker_obj.parent_type = "BONE"

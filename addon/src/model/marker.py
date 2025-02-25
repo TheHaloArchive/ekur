@@ -21,7 +21,7 @@ class MarkerInstance:
         self.rotation.read(reader)
         self.region_index = int.from_bytes(reader.read(1), byteorder="little", signed=True)
         self.permutation_index = int.from_bytes(reader.read(4), byteorder="little", signed=True)
-        self.node_index = int.from_bytes(reader.read(1), byteorder="little", signed=True)
+        self.node_index = int.from_bytes(reader.read(1), byteorder="little", signed=False)
 
 
 class Marker:

@@ -2,12 +2,14 @@
 /* Copyright © 2025 Surasia */
 use crate::{
     definitions::{
+        particle_model::ParticleModel,
         render_model::{BoundingBoxBlock, LodFlags, SectionLods},
         runtime_geo::RuntimeGeo,
     },
     model::bone::create_node,
 };
 use std::{
+    collections::HashMap,
     fs::File,
     io::{BufWriter, Write},
 };
@@ -68,6 +70,33 @@ pub(super) fn write_header_rtgo(reader: &mut BufWriter<File>, model: &RuntimeGeo
     Ok(())
 }
 
+pub(super) fn write_header_particle(
+    reader: &mut BufWriter<File>,
+    model: &ParticleModel,
+) -> Result<()> {
+    reader.write_all(MAGIC.as_bytes())?;
+    reader.write_i32::<LE>(model.any_tag.internal_struct.tag_id)?;
+    reader.write_u32::<LE>(0)?;
+    reader.write_u32::<LE>(0)?;
+    reader.write_u32::<LE>(0)?;
+    reader.write_u32::<LE>(0)?;
+    let section_size = model
+        .sections
+        .elements
+        .iter()
+        .filter(|x| {
+            x.section_lods.elements[0]
+                .lod_flags
+                .0
+                .contains(LodFlags::LOD0)
+                && x.section_lods.elements[0].lod_has_shadow_proxies.0 != 1
+        })
+        .count();
+    reader.write_u32::<LE>(section_size as u32)?;
+    reader.write_u32::<LE>(model.bounding_boxes.size)?;
+    Ok(())
+}
+
 pub(super) fn write_regions(writer: &mut BufWriter<File>, model: &RenderModel) -> Result<()> {
     for region in &model.regions.elements {
         writer.write_i32::<LE>(region.name.0)?;
@@ -81,10 +110,20 @@ pub(super) fn write_regions(writer: &mut BufWriter<File>, model: &RenderModel) -
     Ok(())
 }
 
-pub(super) fn write_bones(writer: &mut BufWriter<File>, model: &RenderModel) -> Result<()> {
+pub(super) fn write_bones(
+    writer: &mut BufWriter<File>,
+    model: &RenderModel,
+    string_mappings: &HashMap<i32, String>,
+) -> Result<()> {
     for node in &model.nodes.elements {
         let bone = create_node(node);
-        writer.write_i32::<LE>(bone.name)?;
+        let name = if string_mappings.contains_key(&bone.name) {
+            string_mappings.get(&bone.name).unwrap().clone()
+        } else {
+            bone.name.to_string()
+        };
+        writer.write_u8(name.len() as u8)?;
+        writer.write_all(name.as_bytes())?;
         writer.write_i32::<LE>(bone.parent_index)?;
         for row in &bone.rotation_matrix {
             for val in row {
@@ -119,7 +158,7 @@ pub(super) fn write_markers(writer: &mut BufWriter<File>, model: &RenderModel) -
             writer.write_f32::<LE>(mark.rotation.w)?;
             writer.write_i8(mark.region_index.0)?;
             writer.write_i32::<LE>(mark.permutation_index.0)?;
-            writer.write_i8(mark.node_index.0)?;
+            writer.write_u8(mark.node_index.0)?;
         }
     }
 

@@ -2,7 +2,7 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 
-from .vectors import ByteVector4
+from .vectors import ByteVector4, ShortVector4
 from ..exceptions import IncorrectStrideValue
 
 __all__ = ["WeightIndexBuffer"]
@@ -12,7 +12,7 @@ class WeightIndexBuffer:
     def __init__(self) -> None:
         self.stride: int = -1
         self.count: int = 0
-        self.indices: list[ByteVector4] = []
+        self.indices: list[ByteVector4 | ShortVector4] = []
 
     def read(self, reader: BufferedReader) -> None:
         self.stride = int.from_bytes(reader.read(1), "little", signed=True)
@@ -21,6 +21,11 @@ class WeightIndexBuffer:
 
         self.count = int.from_bytes(reader.read(4), "little")
         for _ in range(self.count):
-            vector = ByteVector4()
-            vector.read(reader)
-            self.indices.append(vector)
+            if self.stride == 4:
+                vector = ByteVector4()
+                vector.read(reader)
+                self.indices.append(vector)
+            if self.stride == 8:
+                vector = ShortVector4()
+                vector.read(reader)
+                self.indices.append(vector)

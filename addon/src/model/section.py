@@ -29,7 +29,7 @@ class Section:
         self.region_name = int.from_bytes(reader.read(4), "little", signed=True)
         self.permutation_name = int.from_bytes(reader.read(4), "little", signed=True)
         self.submesh_count = int.from_bytes(reader.read(4), "little")
-        self.node_index = int.from_bytes(reader.read(1), "little", signed=True)
+        self.node_index = int.from_bytes(reader.read(1), "little", signed=False)
         self.vertex_type = VertexType(int.from_bytes(reader.read(1), "little"))
         self.use_dual_quat = bool(int.from_bytes(reader.read(1), "little"))
         for _ in range(self.submesh_count):

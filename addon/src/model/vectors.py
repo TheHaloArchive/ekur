@@ -150,6 +150,24 @@ class ByteVector4:
         return Vector((self.x, self.y, self.z, self.w))
 
 
+class ShortVector4:
+    def __init__(self) -> None:
+        self.x: int = 0
+        self.y: int = 0
+        self.z: int = 0
+        self.w: int = 0
+
+    def read(self, reader: BufferedReader) -> None:
+        self.x = int.from_bytes(reader.read(2), byteorder="little")
+        self.y = int.from_bytes(reader.read(2), byteorder="little")
+        self.z = int.from_bytes(reader.read(2), byteorder="little")
+        self.w = int.from_bytes(reader.read(2), byteorder="little")
+
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z, self.w))
+
+
 class Bounds:
     def __init__(self) -> None:
         self.min: float = 0.0
