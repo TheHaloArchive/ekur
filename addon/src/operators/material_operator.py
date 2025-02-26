@@ -21,6 +21,7 @@ __all__ = ["ImportMaterialOperator"]
 class ImportMaterialOperator(Operator):
     bl_idname = "ekur.importmaterial"
     bl_label = "Import"
+    bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None:

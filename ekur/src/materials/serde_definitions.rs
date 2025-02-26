@@ -15,6 +15,7 @@ pub(crate) enum ShaderType {
     ConesteppedLevel,
     ColorDecal,
     ConesteppedDecal,
+    Meter,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -34,6 +35,8 @@ pub enum TextureType {
     NoiseTexture,
     SharedControl,
     BurntGradient,
+    Emissive,
+    Meter,
 }
 
 #[derive(Default, Debug, Serialize, Clone)]
@@ -167,6 +170,14 @@ pub struct ConesteppedDecal {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct Meter {
+    pub meter_off_color: (f32, f32, f32),
+    pub meter_on_color: (f32, f32, f32),
+    pub meter_value: f32,
+    pub meter_intensity: f32,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Material {
     pub shader: i32,
     pub textures: HashMap<TextureType, i32>,
@@ -178,6 +189,7 @@ pub struct Material {
     pub conemapped_level: Option<ConemappedLevel>,
     pub color_decal: Option<ColorDecal>,
     pub conestepped_decal: Option<ConesteppedDecal>,
+    pub meter: Option<Meter>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }

@@ -45,6 +45,10 @@ def get_styles(context: Context) -> CommonStyleList | None:
     Returns:
         Return a list of styles for the current material slot selected if it exists.
     """
+    if context.preferences is None:
+        return
+    if context.preferences.addons["bl_ext.user_default.ekur"].preferences is None:
+        return
     data = cast(str, context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder)  # pyright: ignore[reportAttributeAccessIssue]
     if (
         context.object is not None
@@ -86,7 +90,7 @@ class GrabStrings:
             if styles:
                 for style, entry in styles["styles"].items():
                     all_styles.append((style, entry["name"], ""))
-                if context.scene.import_properties.sort_by_name:  # pyright: ignore[reportAttributeAccessIssue]
+                if context.scene is not None and context.scene.import_properties.sort_by_name:  # pyright: ignore[reportAttributeAccessIssue]
                     all_styles.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
         return all_styles
 
@@ -100,12 +104,13 @@ class GrabStrings:
             List of all visors available to be used on the import panel.
         """
         all_visors: list[tuple[str, str, str]] = []
-        if context is None:
+        if context is None or context.preferences is None or context.scene is None:
             return all_visors
-        data = cast(
-            str,
-            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
-        )
+        preferences = context.preferences.addons["bl_ext.user_default.ekur"].preferences
+        if preferences is None:
+            return all_visors
+        
+        data = cast(str, preferences.data_folder)   # pyright: ignore[reportAttributeAccessIssue]
         visors_path = Path(f"{data}/all_visors.json")
         if not visors_path.exists():
             return all_visors
@@ -155,6 +160,9 @@ class GrabStrings:
         objects = GrabStrings().get_object_definition(context)
         for entry in objects["root_categories"]:
             categories.append((entry["name"], entry["name"], ""))
+        if context.scene.import_properties.sort_objects:  # pyright: ignore[reportAttributeAccessIssue]
+            categories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+
         return categories
 
     def subcategories(self, context: Context | None) -> list[tuple[str, str, str]]:
@@ -167,6 +175,9 @@ class GrabStrings:
         if category and category["sub_categories"]:
             for subcat in category["sub_categories"]:
                 subcategories.append((subcat["name"], subcat["name"], ""))
+        if context.scene.import_properties.sort_objects:  # pyright: ignore[reportAttributeAccessIssue]
+            subcategories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+
         return subcategories
 
     def objects(self, context: Context | None) -> list[tuple[str, str, str]]:
@@ -182,6 +193,9 @@ class GrabStrings:
                 if subcat["name"] == subcategory and subcat["objects"]:
                     for obj in subcat["objects"]:
                         subcategories.append((obj["name"], obj["name"], ""))
+        if context.scene.import_properties.sort_objects:  # pyright: ignore[reportAttributeAccessIssue]
+            subcategories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+
         return subcategories
 
 
@@ -216,6 +230,7 @@ class ImportProperties(PropertyGroup):
     toggle_visors: BoolProperty(name="Override Visor", default=False)
     visors: EnumProperty(name="Visor", items=GrabStrings.visors)
     model_path: StringProperty(
+        default="",
         name="Model Path",
         subtype="FILE_PATH",
     )
@@ -225,6 +240,7 @@ class ImportProperties(PropertyGroup):
     import_collections: BoolProperty(name="Import Collections", default=True)
     import_vertex_color: BoolProperty(name="Import Vertex Color (SLOW)", default=False)
     level_path: StringProperty(
+        default="",
         name="Level Path",
         subtype="FILE_PATH",
     )
@@ -233,6 +249,7 @@ class ImportProperties(PropertyGroup):
     root_category: EnumProperty(name="Root Category", items=GrabStrings.root_categories)
     subcategory: EnumProperty(name="Subcategory", items=GrabStrings.subcategories)
     objects: EnumProperty(name="Object", items=GrabStrings.objects)
+    sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
 
 
 @final
@@ -301,6 +318,7 @@ class CoatingImportPanel(Panel):
         forge_header.label(icon="TOOL_SETTINGS", text="Import Forge")
         if forge_body:
             forge_opts = forge_body.box()
+            forge_opts.prop(import_properties, "sort_objects")
             forge_opts.prop(import_properties, "root_category")
             category = cast(str, import_properties.root_category)
             cat = GrabStrings().get_category(context, category)

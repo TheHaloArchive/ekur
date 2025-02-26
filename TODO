@@ -1,4 +1,5 @@
-- Clean up Ekur (rust) code.
 - Refactor layered shader
 - Further simplify HIMS
 - Add support for older infinite versions
+- Add meter shader for plasma pistol
+- Forge map import support

@@ -7,7 +7,6 @@ from typing import cast
 
 import bpy
 from bpy.types import (
-    NodeSocketColor,
     NodeTree,
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
@@ -76,25 +75,18 @@ class LayeredShader:
 
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         else:
-            asg_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            inp = cast(NodeSocketColor, asg_node.outputs[0])
-            inp.default_value = (1.0, 0.0, 0.0, 1.0)
-            asg_node.location = (0, 120)
-            _ = self.node_tree.links.new(asg_node.outputs[0], self.shader.inputs[3])
+            assign_value(self.shader, 0, (1.0, 1.0, 1.0, 1.0))
         if textures.get("Mask0"):
             tex = self.create_image(self.node_tree, textures["Mask0"], 80)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[1])
         if textures.get("Mask1"):
             tex = self.create_image(self.node_tree, textures["Mask1"], 40)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[2])
-        if textures.get("Normal"):
+        if textures.get("Normal") and textures["Normal"] != -1:
             tex = self.create_image(self.node_tree, textures["Normal"], 0)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[3])
         else:
-            normal_value_node = self.node_tree.nodes.new("ShaderNodeRGB")
-            inp = cast(NodeSocketColor, normal_value_node.outputs[0])
-            inp.default_value = (0.5, 0.5, 1.0, 1.0)
-            _ = self.node_tree.links.new(normal_value_node.outputs[0], self.shader.inputs[3])
+            assign_value(self.shader, 3, (0.5, 0.5, 1.0, 1.0))
 
     def process_styles(self) -> None:
         style = self.styles["default_style"]["reference"]

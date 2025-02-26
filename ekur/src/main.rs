@@ -5,10 +5,8 @@ use crate::loader::module::load_modules;
 use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
-use definitions::crate_block::CrateDefinition;
 use definitions::customization_globals::CustomizationGlobals;
 use definitions::forge_manifest::ForgeObjectManifest;
-use definitions::forge_object_definition::ForgeObjectData;
 use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
@@ -187,8 +185,6 @@ fn extract_forge_objects(
     save: &str,
 ) -> Result<()> {
     let mut manifest = ForgeObjectManifest::default();
-    let objects = get_tags::<ForgeObjectData>("food", modules)?;
-    let crates = get_tags::<CrateDefinition>("bloc", modules)?;
     let mut stringlists = HashMap::new();
     for (idx, module) in modules.iter_mut().enumerate() {
         let m = module.read_tag_from_id(-117678174)?;
@@ -198,7 +194,7 @@ fn extract_forge_objects(
         stringlists.extend(get_models::<UnicodeStringListGroup>("uslg", module, idx)?);
     }
     let strings = process_stringlists(&stringlists, modules)?;
-    process_forge_objects(&objects, &manifest, &crates, models, &strings, save)?;
+    process_forge_objects(modules, &manifest, models, &strings, save)?;
     Ok(())
 }
 

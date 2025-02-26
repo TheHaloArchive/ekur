@@ -43,6 +43,10 @@ class ColorDecalShader:
                 _ = self.tree.links.new(img.outputs[0], shader.inputs[0])
                 _ = self.tree.links.new(img.outputs[1], shader.inputs[1])
 
+            if self.material["textures"].get("AlphaMap"):
+                img = self._create_image(-200, str(self.material["textures"]["AlphaMap"]))
+                _ = self.tree.links.new(img.outputs[0], shader.inputs[1])
+
             material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)
             material_output.target = "ALL"
             material_output.location = (200, 0)

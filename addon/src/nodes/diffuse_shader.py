@@ -46,10 +46,14 @@ class DiffuseShader:
         _ = create_socket(interface, "Color Texture", NodeSocketColor)
         _ = create_socket(interface, "Control Texture", NodeSocketColor)
         _ = create_socket(interface, "Normal Texture", NodeSocketColor)
-        _ = create_socket(interface, "Roughness White", NodeSocketFloat)
-        _ = create_socket(interface, "Roughness Black", NodeSocketFloat)
-        _ = create_socket(interface, "Metallic White", NodeSocketFloat)
-        _ = create_socket(interface, "Metallic Black", NodeSocketFloat)
+        rw = create_socket(interface, "Roughness White", NodeSocketFloat)
+        rw.default_value = 0.0
+        rb = create_socket(interface, "Roughness Black", NodeSocketFloat)
+        rb.default_value = 1.0
+        mw = create_socket(interface, "Metallic White", NodeSocketFloat)
+        mw.default_value = 0.0
+        mb = create_socket(interface, "Metallic Black", NodeSocketFloat)
+        mb.default_value = 1.0
         _ = create_socket(interface, "Emission Tint", NodeSocketColor)
         _ = create_socket(interface, "Emission Amount", NodeSocketFloat)
         _ = create_socket(interface, "Emission Intensity", NodeSocketFloat)
@@ -80,10 +84,12 @@ class DiffuseShader:
         color_tint = create_node(nodes, 0, 0, ShaderNodeMix)
         color_tint.data_type = "RGBA"
         color_tint.blend_type = "COLOR"
+        assign_value(color_tint, 0, 0.999)
 
         em_tint = create_node(nodes, 0, 0, ShaderNodeMix)
         em_tint.data_type = "RGBA"
         em_tint.blend_type = "COLOR"
+        assign_value(em_tint, 0, 0.999)
 
         links = self.node_tree.links
         _ = links.new(input.outputs[0], color_tint.inputs[6])

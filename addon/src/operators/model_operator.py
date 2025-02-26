@@ -14,6 +14,7 @@ __all__ = ["ImportModelOperator"]
 class ImportModelOperator(Operator):
     bl_idname = "ekur.importmodel"
     bl_label = "Import"
+    bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None:

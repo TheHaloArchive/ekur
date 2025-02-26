@@ -8,15 +8,20 @@ use crate::definitions::material::MaterialTag;
 
 use super::{
     banished_metal::handle_banished_metal,
-    color_decal::handle_color_decal,
+    color_decal::{handle_color_decal, handle_color_decal_forge},
     common_utils::collect_constants,
     conestepped_decal::handle_conestepped_decal,
     const_decal::handle_const_decal,
     decal_mp::handle_mp_decal,
-    diffuse_shader::{handle_diffuse_shader, handle_diffuse_si_shader},
+    diffuse_shader::{
+        handle_diffuse_billboard_shader, handle_diffuse_decal_notint_shader,
+        handle_diffuse_decal_shader, handle_diffuse_emissive_shader, handle_diffuse_shader,
+        handle_diffuse_si_shader,
+    },
     layered_shader::{add_style_info, collect_textures},
+    meter_shader::handle_meter_shader,
     parallax_decal::handle_parallax_decal,
-    self_illum::handle_illum,
+    self_illum::{handle_illum, handle_illum_full},
     serde_definitions::{Material, TextureType},
 };
 
@@ -42,8 +47,18 @@ pub fn process_materials(
             -232573636 => handle_banished_metal(mat, &mut material)?,
             317783742 => handle_color_decal(mat, &mut material)?,
             -557915351 => handle_conestepped_decal(mat, &mut material)?,
+            2055304184 => handle_diffuse_billboard_shader(mat, &mut material)?,
+            1014564527 => handle_diffuse_emissive_shader(mat, &mut material)?,
+            -1648222720 | 1656409392 | -1492085200 => {
+                handle_diffuse_decal_shader(mat, &mut material)?
+            }
+            -1185995257 => handle_diffuse_decal_notint_shader(mat, &mut material)?,
+            1081175655 => handle_color_decal_forge(mat, &mut material)?,
+            2006960401 => handle_illum_full(&mut material)?,
+            -648442023 => handle_meter_shader(mat, &mut material)?,
             _ => {}
         };
+        material.shader = mat.material_shader.global_id;
 
         let mut path = PathBuf::from(format!("{save_path}/materials"));
         path.push(id.to_string());

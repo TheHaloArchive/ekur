@@ -17,6 +17,8 @@ __all__ = ["ImportLevelOperator"]
 class ImportLevelOperator(Operator):
     bl_idname = "ekur.importlevel"
     bl_label = "Import"
+    bl_options = {"REGISTER", "UNDO"}
+
 
     _geometry_cache: dict[str, list[Object]] = {}
 

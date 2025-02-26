@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 
-def read_texture(texturepath: str) -> Image:
+def read_texture(texturepath: str) -> Image | None:
     """Load a texture from the given path. If the texture is already loaded, it will return the existing texture.
 
     Args:
@@ -39,7 +39,11 @@ def read_texture(texturepath: str) -> Image:
     Returns:
         The loaded image.
     """
+    if not bpy.context.preferences:
+        return
     preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
+    if preferences is None:
+        return
     image = bpy.data.images.get(texturepath.split("\\")[-1])
     if image:
         return image
@@ -64,7 +68,7 @@ def get_materials() -> list[MaterialSlot]:
         A list of all material slots.
     """
     data_source = bpy.data.objects
-    if bpy.context.scene.import_properties.selected_only:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    if bpy.context.scene and bpy.context.scene.import_properties.selected_only:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
         data_source = bpy.context.selected_objects
     meshes = [obj for obj in data_source if obj.type == "MESH"]
     return [mat_slot for obj in meshes for mat_slot in obj.material_slots]

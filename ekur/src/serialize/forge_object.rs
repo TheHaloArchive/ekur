@@ -3,13 +3,20 @@
 use std::{collections::HashMap, fs::File, io::BufWriter, path::PathBuf};
 
 use anyhow::Result;
+use infinite_rs::ModuleFile;
 use serde::Serialize;
 
-use crate::definitions::{
-    crate_block::CrateDefinition,
-    forge_manifest::{ForgeObjectManifest, ForgeObjectManifestEntry},
-    forge_object_definition::ForgeObjectData,
-    model::ModelDefinition,
+use crate::{
+    definitions::{
+        crate_block::CrateDefinition,
+        equipment::Equipment,
+        forge_manifest::{ForgeObjectManifest, ForgeObjectManifestEntry},
+        forge_object_definition::ForgeObjectData,
+        model::ModelDefinition,
+        vehicle::Vehicle,
+        weapon::Weapon,
+    },
+    loader::module::get_tags,
 };
 
 const BLACKLISTED_CATEGORIES: [u32; 3] = [2645216826, 4210236789, 114233605];
@@ -33,11 +40,15 @@ struct ForgeObjectDefinition {
     root_categories: Vec<ForgeObjectCategory>,
 }
 
+#[allow(clippy::too_many_arguments)]
 fn get_object_info(
     forge_data: &HashMap<i32, ForgeObjectData>,
     objects: &[&ForgeObjectManifestEntry],
     crates: &HashMap<i32, CrateDefinition>,
     models: &HashMap<i32, ModelDefinition>,
+    weapons: &HashMap<i32, Weapon>,
+    vehicles: &HashMap<i32, Vehicle>,
+    equipment: &HashMap<i32, Equipment>,
     strings: &HashMap<i32, String>,
 ) -> Option<Vec<ForgeObject>> {
     if objects.is_empty() {
@@ -58,31 +69,51 @@ fn get_object_info(
         let Some(representation) = representation else {
             continue;
         };
-        let crate_def = crates.get(&representation.object_definition.global_id);
-        let Some(crate_def) = crate_def else {
-            continue;
+        if let Some(model) = match representation.object_definition.group.as_str() {
+            "bloc" => {
+                let crate_def = crates.get(&representation.object_definition.global_id);
+                crate_def.map(|crate_def| crate_def.model.global_id)
+            }
+            "weap" => {
+                let weapon_def = weapons.get(&representation.object_definition.global_id);
+                weapon_def.map(|weapon_def| weapon_def.model.global_id)
+            }
+            "vehi" => {
+                let vehicle_def = vehicles.get(&representation.object_definition.global_id);
+                vehicle_def.map(|vehi_def| vehi_def.model.global_id)
+            }
+            "eqip" => {
+                let equip_def = equipment.get(&representation.object_definition.global_id);
+                equip_def.map(|equip_def| equip_def.model.global_id)
+            }
+            _ => None,
+        } {
+            let model = models.get(&model);
+            let Some(model) = model else {
+                continue;
+            };
+            let forge_object = ForgeObject {
+                name,
+                model: model.render_model.global_id,
+                variant: representation.crate_variant.0,
+            };
+            object_definitions.push(forge_object);
         };
-        let model = models.get(&crate_def.model.global_id);
-        let Some(model) = model else {
-            continue;
-        };
-        let forge_object = ForgeObject {
-            name,
-            model: model.render_model.global_id,
-            variant: representation.crate_variant.0,
-        };
-        object_definitions.push(forge_object);
     }
     Some(object_definitions)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn process_category_recursively(
     title: i32,
     category_id: u32,
     manifest: &ForgeObjectManifest,
     crates: &HashMap<i32, CrateDefinition>,
     models: &HashMap<i32, ModelDefinition>,
+    weapons: &HashMap<i32, Weapon>,
     object_defs: &HashMap<i32, ForgeObjectData>,
+    vehicles: &HashMap<i32, Vehicle>,
+    equipment: &HashMap<i32, Equipment>,
     strings: &HashMap<i32, String>,
 ) -> ForgeObjectCategory {
     let child_categories: Vec<_> = manifest
@@ -101,7 +132,10 @@ fn process_category_recursively(
                 manifest,
                 crates,
                 models,
+                weapons,
                 object_defs,
+                vehicles,
+                equipment,
                 strings,
             )
         })
@@ -113,7 +147,16 @@ fn process_category_recursively(
         .iter()
         .filter(|x| x.object_metadata.elements.first().unwrap().keyword.0 as u32 == category_id)
         .collect::<Vec<_>>();
-    let objects = get_object_info(object_defs, &objects, crates, models, strings);
+    let objects = get_object_info(
+        object_defs,
+        &objects,
+        crates,
+        models,
+        weapons,
+        vehicles,
+        equipment,
+        strings,
+    );
 
     let name = strings
         .get(&title)
@@ -131,13 +174,18 @@ fn process_category_recursively(
 }
 
 pub fn process_forge_objects(
-    objects: &HashMap<i32, ForgeObjectData>,
+    modules: &mut [ModuleFile],
     manifest: &ForgeObjectManifest,
-    crates: &HashMap<i32, CrateDefinition>,
     models: &HashMap<i32, ModelDefinition>,
     strings: &HashMap<i32, String>,
     save: &str,
 ) -> Result<()> {
+    let objects = get_tags::<ForgeObjectData>("food", modules)?;
+    let crates = get_tags::<CrateDefinition>("bloc", modules)?;
+    let weapons = get_tags::<Weapon>("weap", modules)?;
+    let vehicles = get_tags::<Vehicle>("vehi", modules)?;
+    let equipments = get_tags::<Equipment>("eqip", modules)?;
+
     let mut forge_object_definition = ForgeObjectDefinition::default();
     let root_categories = manifest
         .categories
@@ -154,9 +202,12 @@ pub fn process_forge_objects(
                 category.title.0,
                 category.category_id.0 as u32,
                 manifest,
-                crates,
+                &crates,
                 models,
-                objects,
+                &weapons,
+                &objects,
+                &vehicles,
+                &equipments,
                 strings,
             )
         })

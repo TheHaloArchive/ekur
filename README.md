@@ -15,7 +15,7 @@ This project is split into two parts:
 Download the zip file included in the [latest release](https://github.com/Surasia/Ekur/releases/latest) and install it by going into Blender preferences (Edit < Preferences), navigating to "Add-ons" and clicking on the "Install from disk" button in the drop-down menu.
 
 Once the addon is installed, open the drop down for the "Ekur" addon and set your paths.
-- Data Folder: Location to where files should be extracted. Make sure that the drive containing this folder has at least 30GBs of storage.
+- Data Folder: Location to where files should be extracted. Make sure that the drive containing this folder has at least 15GBs of storage.
 
 - Deploy Folder: This is a folder inside the installation directory for Halo Infinite, called "deploy". You can find your installation folder by clicking "Browse Local Files" in the context menu for the game in Steam.
 

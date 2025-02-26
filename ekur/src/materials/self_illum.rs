@@ -30,3 +30,21 @@ pub(super) fn handle_illum(mat: &MaterialTag, material: &mut Material) -> Result
     }
     Ok(())
 }
+
+pub(super) fn handle_illum_full(material: &mut Material) -> Result<()> {
+    material.shader_type = ShaderType::SelfIllum;
+    let color = (
+        f32_from_const(material, 0)?,
+        f32_from_const(material, 4)?,
+        f32_from_const(material, 8)?,
+    );
+    let intensity = f32_from_const(material, 12)?;
+    let opacity = 1.0;
+    let illum = SelfIllum {
+        color,
+        intensity,
+        opacity,
+    };
+    material.illum_info = Some(illum);
+    Ok(())
+}

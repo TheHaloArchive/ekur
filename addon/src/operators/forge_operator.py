@@ -17,6 +17,7 @@ __all__ = ["ForgeOperator"]
 class ForgeOperator(Operator):
     bl_idname = "ekur.importforge"
     bl_label = "Import"
+    bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
@@ -42,7 +43,7 @@ class ForgeOperator(Operator):
                         collection = bpy.data.collections.new(obj["name"])
                         count = 0
                         for bl_obj in objects:
-                            if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
+                            if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers and "UV2" in bl_obj.data.uv_layers:
                                 bl_obj.data.uv_layers["UV1"].active_render = True
                                 bl_obj.data.uv_layers["UV1"].active = True
                             if obj["variant"] == bl_obj["permutation_name"]:

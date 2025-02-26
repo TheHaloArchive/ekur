@@ -40,8 +40,10 @@ class SelfIllum:
             return
         interface = self.node_tree.interface
         _ = create_socket(interface, "BSDF", NodeSocketShader, False)
-        _ = create_socket(interface, "Color Texture", NodeSocketColor)
-        _ = create_socket(interface, "Alpha Texture", NodeSocketColor)
+        col = create_socket(interface, "Color Texture", NodeSocketColor)
+        col.default_value = (1.0, 1.0, 1.0, 1.0)
+        alp = create_socket(interface, "Alpha Texture", NodeSocketColor)
+        alp.default_value = (1.0, 1.0, 1.0, 1.0)
         _ = create_socket(interface, "Color", NodeSocketColor)
         _ = create_socket(interface, "Opacity", NodeSocketFloat)
         _ = create_socket(interface, "Intensity", NodeSocketFloat)

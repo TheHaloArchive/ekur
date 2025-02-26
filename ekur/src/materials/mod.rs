@@ -8,6 +8,7 @@ mod const_decal;
 mod decal_mp;
 mod diffuse_shader;
 mod layered_shader;
+mod meter_shader;
 mod parallax_decal;
 pub mod process_material;
 mod self_illum;
