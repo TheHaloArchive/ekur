@@ -134,7 +134,7 @@ class LayeredShader:
             if style["grime_swatch"]["disabled"]:
                 assign_value(self.shader, 7, 0.0)
             assign_value(self.shader, 16, style["scratch_amount"])
-            assign_value(self.shader, 12, 1.0)
+            assign_value(self.shader, 12, True)
             assign_value(self.shader, 135, style_info["texel_density"][0])
             assign_value(self.shader, 136, style_info["texel_density"][1])
 
@@ -145,9 +145,9 @@ class LayeredShader:
             self.create_swatch(swatch, top, 7, emissive_amount, is_grime=True)
             toggle_damage = get_import_properties().toggle_damage
             if toggle_damage and style_info["supported_layers"] == 7:
-                assign_value(self.shader, 106, 0.0)
+                assign_value(self.shader, 106, False)
             if toggle_damage and style_info["supported_layers"] == 4:
-                assign_value(self.shader, 58, 0.0)
+                assign_value(self.shader, 58, False)
             self.index = 0
 
     def create_swatch(
@@ -187,7 +187,7 @@ class LayeredShader:
             _ = self.node_tree.links.new(swatch.outputs[8], self.shader.inputs[22 + self.index])
         else:
             if self.index != 0 and not disabled:
-                assign_value(self.shader, 12 + self.index, 1.0)
+                assign_value(self.shader, 12 + self.index, True)
             assign_value(self.shader, 22 + self.index, emissive)
             _ = self.node_tree.links.new(swatch.outputs[3], self.shader.inputs[17 + self.index])
             _ = self.node_tree.links.new(swatch.outputs[4], self.shader.inputs[18 + self.index])

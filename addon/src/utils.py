@@ -10,6 +10,7 @@ from bpy.types import (
     MaterialSlot,
     Node,
     NodeSocket,
+    NodeSocketBool,
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketVector,
@@ -208,8 +209,10 @@ def get_import_properties() -> ImportPropertiesType:
 def assign_value(
     node: Node,
     index: int,
-    value: float | tuple[float, float, float] | tuple[float, float, float, float],
+    value: float | tuple[float, float, float] | tuple[float, float, float, float] | bool,
 ) -> None:
+    if type(value) is bool:
+        cast(NodeSocketBool, node.inputs[index]).default_value = value
     if type(value) is tuple and len(value) == 3:
         cast(NodeSocketVector, node.inputs[index]).default_value = value
     if type(value) is float:

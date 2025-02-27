@@ -8,6 +8,7 @@ from bpy.types import (
     NodeLink,
     NodeReroute,
     NodeSocket,
+    NodeSocketBool,
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketShader,
@@ -89,25 +90,18 @@ class HIMS:
         _ = create_socket(interface, "Normal", NodeSocketColor, panel=textures)
 
         settings = interface.new_panel("Globals")
-        norm_toggle = create_socket(
-            interface, "Detail Normal Toggle", NodeSocketFloat, panel=settings
-        )
-        norm_toggle.default_value = 1.0
-        base_flip = create_socket(interface, "Base Normal Flip", NodeSocketFloat, panel=settings)
-        base_flip.default_value = 1.0
-        detail_flip = create_socket(
-            interface, "Detail normal Flip", NodeSocketFloat, panel=settings
-        )
-        detail_flip.default_value = 1.0
+        norm = create_socket(interface, "Detail Normal Toggle", NodeSocketBool, panel=settings)
+        norm.default_value = True
+        base_flip = create_socket(interface, "Base Normal Flip", NodeSocketBool, panel=settings)
+        base_flip.default_value = True
+        detail_flip = create_socket(interface, "Detail Normal Flip", NodeSocketBool, panel=settings)
+        detail_flip.default_value = True
+
         _ = create_socket(interface, "Grime Amount", NodeSocketFloat, panel=settings)
-        grime_height = create_socket(
-            interface, "Grime Height Toggle", NodeSocketFloat, panel=settings
-        )
-        grime_height.default_value = 3.048
-        grime_height_scale = create_socket(
-            interface, "Grime Height Scale", NodeSocketFloat, panel=settings
-        )
-        grime_height_scale.default_value = 50.0
+        grime_h = create_socket(interface, "Grime Height Toggle", NodeSocketFloat, panel=settings)
+        grime_h.default_value = 3.048
+        grime_hs = create_socket(interface, "Grime Height Scale", NodeSocketFloat, panel=settings)
+        grime_hs.default_value = 50.0
         ao_amount = create_socket(interface, "AO Amount", NodeSocketFloat, panel=settings)
         ao_amount.default_value = 1.0
         scratch_height = create_socket(
@@ -115,9 +109,9 @@ class HIMS:
         )
         scratch_height.default_value = 3.048
         global_scratch = create_socket(
-            interface, "Global Scratch Toggle", NodeSocketFloat, panel=settings
+            interface, "Global Scratch Toggle", NodeSocketBool, panel=settings
         )
-        global_scratch.default_value = 1.0
+        global_scratch.default_value = True
 
         zone1 = interface.new_panel("Zone 1")
         _ = create_socket(interface, "Zone 1 Gradient Out", NodeSocketFloat, panel=zone1)
@@ -136,7 +130,7 @@ class HIMS:
         _ = create_socket(interface, "Zone 1 Scratch Color", NodeSocketColor, panel=zone1)
 
         zone2 = interface.new_panel("Zone 2")
-        _ = create_socket(interface, "Zone 2 Toggle", NodeSocketFloat, panel=zone2)
+        _ = create_socket(interface, "Zone 2 Toggle", NodeSocketBool, panel=zone2)
         _ = create_socket(interface, "Zone 2 Gradient Out", NodeSocketFloat, panel=zone2)
         _ = create_socket(interface, "Zone 2 Rough Out", NodeSocketFloat, panel=zone2)
         _ = create_socket(interface, "Zone 2 Norm Out", NodeSocketColor, panel=zone2)
@@ -153,7 +147,7 @@ class HIMS:
         _ = create_socket(interface, "Zone 2 Scratch Color", NodeSocketColor, panel=zone2)
 
         zone3 = interface.new_panel("Zone 3")
-        _ = create_socket(interface, "Zone 3 Toggle", NodeSocketFloat, panel=zone3)
+        _ = create_socket(interface, "Zone 3 Toggle", NodeSocketBool, panel=zone3)
         _ = create_socket(interface, "Zone 3 Gradient Out", NodeSocketFloat, panel=zone3)
         _ = create_socket(interface, "Zone 3 Rough Out", NodeSocketFloat, panel=zone3)
         _ = create_socket(interface, "Zone 3 Norm Out", NodeSocketColor, panel=zone3)
@@ -171,7 +165,7 @@ class HIMS:
         _ = create_socket(interface, "Zone 3 SSS Color", NodeSocketColor, panel=zone3)
 
         zone4 = interface.new_panel("Zone 4")
-        _ = create_socket(interface, "Zone 4 Toggle", NodeSocketFloat, panel=zone4)
+        _ = create_socket(interface, "Zone 4 Toggle", NodeSocketBool, panel=zone4)
         _ = create_socket(interface, "Zone 4 Gradient Out", NodeSocketFloat, panel=zone4)
         _ = create_socket(interface, "Zone 4 Rough Out", NodeSocketFloat, panel=zone4)
         _ = create_socket(interface, "Zone 4 Norm Out", NodeSocketColor, panel=zone4)
@@ -189,7 +183,7 @@ class HIMS:
         _ = create_socket(interface, "Zone 4 SSS Color", NodeSocketColor, panel=zone4)
 
         zone5 = interface.new_panel("Zone 5")
-        _ = create_socket(interface, "Zone 5 Toggle", NodeSocketFloat, panel=zone5)
+        _ = create_socket(interface, "Zone 5 Toggle", NodeSocketBool, panel=zone5)
         _ = create_socket(interface, "Zone 5 Gradient Out", NodeSocketFloat, panel=zone5)
         _ = create_socket(interface, "Zone 5 Rough Out", NodeSocketFloat, panel=zone5)
         _ = create_socket(interface, "Zone 5 Norm Out", NodeSocketColor, panel=zone5)
@@ -207,7 +201,7 @@ class HIMS:
         _ = create_socket(interface, "Zone 5 SSS Color", NodeSocketColor, panel=zone5)
 
         zone6 = interface.new_panel("Zone 6")
-        _ = create_socket(interface, "Zone 6 Toggle", NodeSocketFloat, panel=zone6)
+        _ = create_socket(interface, "Zone 6 Toggle", NodeSocketBool, panel=zone6)
         _ = create_socket(interface, "Zone 6 Gradient Out", NodeSocketFloat, panel=zone6)
         _ = create_socket(interface, "Zone 6 Rough Out", NodeSocketFloat, panel=zone6)
         _ = create_socket(interface, "Zone 6 Norm Out", NodeSocketColor, panel=zone6)
@@ -225,7 +219,7 @@ class HIMS:
         _ = create_socket(interface, "Zone 6 SSS Color", NodeSocketColor, panel=zone6)
 
         zone7 = interface.new_panel("Zone 7")
-        _ = create_socket(interface, "Zone 7 Toggle", NodeSocketFloat, panel=zone7)
+        _ = create_socket(interface, "Zone 7 Toggle", NodeSocketBool, panel=zone7)
         _ = create_socket(interface, "Zone 7 Gradient Out", NodeSocketFloat, panel=zone7)
         _ = create_socket(interface, "Zone 7 Rough Out", NodeSocketFloat, panel=zone7)
         _ = create_socket(interface, "Zone 7 Norm Out", NodeSocketColor, panel=zone7)
