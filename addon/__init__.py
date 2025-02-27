@@ -9,7 +9,7 @@ Ekur - A multi-purpose importer for Halo Infinite.
 import logging
 import platform
 import subprocess
-from typing import cast, final
+from typing import final
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -18,6 +18,7 @@ import bpy
 from bpy.types import AddonPreferences, Context, Operator
 from bpy.utils import register_class, unregister_class  # pyright: ignore[reportUnknownVariableType]
 
+from .src.utils import get_data_folder, get_deploy_folder
 from .src.operators.material_operator import ImportMaterialOperator
 from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
 from .src.operators.model_operator import ImportModelOperator
@@ -29,7 +30,7 @@ bl_info = {
     "name": "Ekur",
     "description": "A multi-purpose importer for Halo Infinite.",
     "author": "Surasia",
-    "version": (0, 6, 1),
+    "version": (0, 6, 2),
     "blender": (4, 3, 0),
     "category": "Import-Export",
     "support": "COMMUNITY",
@@ -51,12 +52,28 @@ class DownloadFilesOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
             return {"CANCELLED"}
-        data = cast(
-            str,
-            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
-        )
+
+        data = get_data_folder()
         save_path = f"{data}/strings.txt"
         visors_path = f"{data}/all_visors.json"
+        ekur_save_path = Path(f"{data}/ekur-{package_version_string}")
+
+        ekur_url = f"https://github.com/Surasia/ekur/releases/download/{package_version_string}/ekur-{package_version_string}"
+        if platform.system() == "Windows":
+            ekur_save_path = Path(f"{ekur_save_path}.exe")
+            ekur_url = f"{ekur_url}.exe"
+
+        if not ekur_save_path.exists():
+            try:
+                with (
+                    urllib.request.urlopen(ekur_url) as response,  # pyright: ignore[reportAny]
+                    open(ekur_save_path, "wb") as out_file,
+                ):
+                    _ = out_file.write(response.read())  # pyright: ignore[reportAny]
+            except urllib.error.HTTPError as e:
+                logging.error(f"Failed to download ekur: {e.status}")
+                return {"CANCELLED"}
+
         try:
             with (
                 urllib.request.urlopen(STRINGS_URL) as response,  # pyright: ignore[reportAny]
@@ -90,34 +107,22 @@ class DumpFilesOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
             return {"CANCELLED"}
-        data = cast(
-            EkurPreferences, context.preferences.addons["bl_ext.user_default.ekur"].preferences
-        )
-        ekur_save_path = Path(f"{cast(str, data.data_folder)}/ekur-{package_version_string}")
-        ekur_url = f"https://github.com/Surasia/ekur/releases/download/{package_version_string}/ekur-{package_version_string}"
+        data = get_data_folder()
+        deploy = get_deploy_folder()
+
+        save_path = f"{data}/strings.txt"
+        ekur_save_path = Path(f"{data}/ekur-{package_version_string}")
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
-            ekur_url = f"{ekur_url}.exe"
 
-        if not ekur_save_path.exists():
-            try:
-                with (
-                    urllib.request.urlopen(ekur_url) as response,  # pyright: ignore[reportAny]
-                    open(ekur_save_path, "wb") as out_file,
-                ):
-                    _ = out_file.write(response.read())  # pyright: ignore[reportAny]
-            except urllib.error.HTTPError as e:
-                logging.error(f"Failed to download ekur: {e.status}")
-                return {"CANCELLED"}
-
-        save_path = f"{cast(str, data.data_folder)}/strings.txt"
+        save_path = f"{data}/strings.txt"
         _ = subprocess.run(
             [
                 ekur_save_path,
                 "--save-path",
-                cast(str, data.data_folder),
+                data,
                 "--module-path",
-                cast(str, data.deploy_folder),
+                deploy,
                 "--strings-path",
                 save_path,
             ]

@@ -2,7 +2,7 @@
 # Copyright © 2025 Surasia
 import logging
 from pathlib import Path
-from typing import cast, final
+from typing import final
 
 import bpy
 from bpy.types import Collection, Context, Object, Operator
@@ -10,7 +10,7 @@ from bpy.types import Collection, Context, Object, Operator
 from ..model.importer.model_importer import ModelImporter
 
 from ..json_definitions import CustomizationGlobals, CustomizationRegion, CustomizationTheme
-from ..utils import read_json_file
+from ..utils import get_data_folder, get_import_properties, read_json_file
 
 __all__ = ["ImportSpartanOperator"]
 
@@ -25,10 +25,9 @@ class ImportSpartanOperator(Operator):
         if context is None:
             return {"CANCELLED"}
 
-        data_folder = cast(
-            str,
-            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
-        )
+        data_folder = get_data_folder()
+        properties = get_import_properties()
+
         customization_path = Path(f"{data_folder}/customization_globals.json")
         if not customization_path.exists():
             logging.warning(f"Customization globals path does not exist!: {customization_path}")
@@ -40,44 +39,36 @@ class ImportSpartanOperator(Operator):
             logging.warning(f"Model path does not exist!: {model_path}")
             return {"CANCELLED"}
         importer = ModelImporter()
-        objects = importer.start_import(context, str(model_path))
+        objects = importer.start_import(str(model_path))
         global_collection = bpy.data.collections.new("Spartans")
         themes = customization_globals["themes"]
-        import_properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType]
-        if cast(bool, import_properties.import_specific_core):
-            themes = [
-                theme for theme in themes if str(theme["name"]) == cast(str, import_properties.core)
-            ]
+        if properties.import_specific_core:
+            themes = [theme for theme in themes if str(theme["name"]) == properties.core]
 
         for theme in themes:
-            theme_collection = bpy.data.collections.new(str(theme["name"]))
-            global_collection.children.link(theme_collection)  # pyright: ignore[reportUnknownMemberType]
+            theme_col = bpy.data.collections.new(str(theme["name"]))
+            global_collection.children.link(theme_col)  # pyright: ignore[reportUnknownMemberType]
             for region in theme["regions"]:
-                self.import_region(
-                    context, region, theme, objects, importer, theme_collection, "REGION"
-                )
+                self.import_region(region, theme, objects, importer, theme_col, "REGION")
             for region in theme["prosthetics"]:
-                self.import_region(
-                    context, region, theme, objects, importer, theme_collection, "PROSTHETICS"
-                )
+                self.import_region(region, theme, objects, importer, theme_col, "PROSTHETICS")
             for region in theme["body_types"]:
-                self.import_region(
-                    context, region, theme, objects, importer, theme_collection, "BODY TYPE"
-                )
+                self.import_region(region, theme, objects, importer, theme_col, "BODY TYPE")
 
             attachment_collection = bpy.data.collections.new(f"[ATTACHMENTS] {theme['name']}")
-            theme_collection.children.link(attachment_collection)  # pyright: ignore[reportUnknownMemberType]
+            theme_col.children.link(attachment_collection)  # pyright: ignore[reportUnknownMemberType]
             for attachment in theme["attachments"]:
                 model_path = f"{data_folder}/models/{attachment['model']}.ekur"
-                attachments = ModelImporter().start_import(context, model_path, False)
+                attachments = ModelImporter().start_import(model_path, False)
+                alt_name = f"{attachment['marker_name']}"
                 for attach in attachments:
                     for marker in importer.markers:
-                        alt_name = f"{attachment['marker_name']}"
                         self.import_attachments("", alt_name, marker, attach)
                         if attach.name not in attachment_collection.objects:
                             attachment_collection.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]
 
-        bpy.context.scene.collection.children.link(global_collection)  # pyright: ignore[reportUnknownMemberType]
+        if context.scene:
+            context.scene.collection.children.link(global_collection)  # pyright: ignore[reportUnknownMemberType]
         return {"FINISHED"}
 
     def import_attachments(
@@ -98,7 +89,6 @@ class ImportSpartanOperator(Operator):
 
     def import_region(
         self,
-        context: Context,
         region: CustomizationRegion,
         theme: CustomizationTheme,
         objects: list[Object],
@@ -106,11 +96,7 @@ class ImportSpartanOperator(Operator):
         theme_collection: Collection,
         id: str,
     ) -> None:
-        data_folder = cast(
-            str,
-            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
-        )
-
+        data_folder = get_data_folder()
         for perm in region["permutation_regions"]:
             region_collection = bpy.data.collections.new(f"[{id}] {theme['name']}_{region['name']}")
             theme_collection.children.link(region_collection)  # pyright: ignore[reportUnknownMemberType]
@@ -126,7 +112,7 @@ class ImportSpartanOperator(Operator):
                         region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
                 if perm_region["attachment"]:
                     model_path = f"{data_folder}/models/{perm_region['attachment']['model']}.ekur"
-                    attachments = ModelImporter().start_import(context, model_path, False)
+                    attachments = ModelImporter().start_import(model_path, False)
                     for attachment in attachments:
                         for marker in importer.markers:
                             name = f"{perm_region['attachment']['marker_name']}_{perm}_{perm_region['name']}"

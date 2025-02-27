@@ -20,7 +20,7 @@ class DecalShader:
     def __init__(self, material: CommonMaterial, material_tree: ShaderNodeTree) -> None:
         self.material: CommonMaterial = material
         self.tree: ShaderNodeTree = material_tree
-        self.create_nodes()
+        self._create_nodes()
 
     def _create_image(self, y: int, name: str) -> ShaderNodeTexImage:
         texture = create_node(self.tree.nodes, -300, y, ShaderNodeTexImage)
@@ -37,7 +37,7 @@ class DecalShader:
             img = self._create_image(-200, str(self.material["textures"]["Normal"]))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
 
-    def create_nodes(self) -> None:
+    def _create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)
         shader.node_tree = cast(ShaderNodeTree, Decal().node_tree)
 

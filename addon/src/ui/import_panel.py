@@ -2,201 +2,16 @@
 # Copyright © 2025 Surasia
 
 # pyright: reportUnknownMemberType=false, reportUninitializedInstanceVariable=false
-import logging
-import re
 import random
-from pathlib import Path
-from typing import cast, final
+from typing import final
 
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, Operator
 
-from ..json_definitions import (
-    CommonMaterial,
-    CommonStyleList,
-    CommonLayer,
-    CustomizationGlobals,
-    ForgeObjectCategory,
-    ForgeObjectDefinition,
-)
-from ..utils import read_json_file
+from ..utils import get_import_properties
+from .import_utils import GrabStrings, get_styles
 
-_nsre = re.compile("([0-9]+)")
-
-
-def natural_sort_key(s: str) -> list[int | str]:
-    """Natural sort order implementation.
-
-    Args:
-        s: String to sort
-
-    Returns:
-        Sorted list of strings and integers
-    """
-    return [int(text) if text.isdigit() else text.lower() for text in re.split(_nsre, s[1])]
-
-
-def get_styles(context: Context) -> CommonStyleList | None:
-    """Get the styles for the current material slot selected.
-
-    Args:
-        context: Blender context used to access preferences.
-
-    Returns:
-        Return a list of styles for the current material slot selected if it exists.
-    """
-    if context.preferences is None:
-        return
-    if context.preferences.addons["bl_ext.user_default.ekur"].preferences is None:
-        return
-    data = cast(str, context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder)  # pyright: ignore[reportAttributeAccessIssue]
-    if (
-        context.object is not None
-        and context.object.active_material_index is not None
-        and context.object.active_material_index < len(context.object.material_slots)
-    ):
-        bl_material = context.object.material_slots[context.object.active_material_index]
-        definition_path = Path(f"{data}/materials/{bl_material.name}.json")
-        if not definition_path.exists():
-            logging.warning(f"Material path does not exist!: {definition_path}")
-            return
-        material = read_json_file(definition_path, CommonMaterial)
-        if material["style_info"]:
-            styles_path = Path(f"{data}/stylelists/{material['style_info']['stylelist']}.json")
-            if not styles_path.exists():
-                logging.warning(f"Styles path does not exist!: {styles_path}")
-                return
-            styles = read_json_file(styles_path, CommonStyleList)
-            return styles
-
-    return None
-
-
-class GrabStrings:
-    """Some helper functions for the coating import panel."""
-
-    def common_styles(self, context: Context | None) -> list[tuple[str, str, str]]:
-        """Returns a list of all styles available on the selected material.
-
-        Args:
-            context: Blender context used to access preferences.
-
-        Returns:
-            List of all styles available on the selected material to be used on the import panel.
-        """
-        all_styles: list[tuple[str, str, str]] = []
-        if context:
-            styles = get_styles(context)
-            if styles:
-                for style, entry in styles["styles"].items():
-                    all_styles.append((style, entry["name"], ""))
-                if context.scene is not None and context.scene.import_properties.sort_by_name:  # pyright: ignore[reportAttributeAccessIssue]
-                    all_styles.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
-        return all_styles
-
-    def visors(self, context: Context | None) -> list[tuple[str, str, str]]:
-        """Returns a list of all visors available.
-
-        Args:
-            context: Blender context used to access preferences.
-
-        Returns:
-            List of all visors available to be used on the import panel.
-        """
-        all_visors: list[tuple[str, str, str]] = []
-        if context is None or context.preferences is None or context.scene is None:
-            return all_visors
-        preferences = context.preferences.addons["bl_ext.user_default.ekur"].preferences
-        if preferences is None:
-            return all_visors
-        
-        data = cast(str, preferences.data_folder)   # pyright: ignore[reportAttributeAccessIssue]
-        visors_path = Path(f"{data}/all_visors.json")
-        if not visors_path.exists():
-            return all_visors
-        visors = read_json_file(visors_path, dict[str, CommonLayer])
-        for name, _ in visors.items():
-            all_visors.append((name, name, ""))
-        if context.scene.import_properties.sort_by_name:  # pyright: ignore[reportAttributeAccessIssue]
-            all_visors.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
-        return all_visors
-
-    def cores(self, context: Context | None) -> list[tuple[str, str, str]]:
-        all_cores: list[tuple[str, str, str]] = []
-        if context is None:
-            return all_cores
-        data = cast(
-            str,
-            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
-        )
-        globals_path = Path(f"{data}/customization_globals.json")
-        if not globals_path.exists():
-            return all_cores
-        globals = read_json_file(globals_path, CustomizationGlobals)
-        for entry in globals["themes"]:
-            all_cores.append((str(entry["name"]), str(entry["name"]), ""))
-        return all_cores
-
-    def get_object_definition(self, context: Context) -> ForgeObjectDefinition:
-        data = cast(
-            str,
-            context.preferences.addons["bl_ext.user_default.ekur"].preferences.data_folder,  # pyright: ignore[reportAttributeAccessIssue]
-        )
-        objects_path = Path(f"{data}/forge_objects.json")
-        objects = read_json_file(objects_path, ForgeObjectDefinition)
-        return objects
-
-    def get_category(self, context: Context, category: str) -> ForgeObjectCategory | None:
-        objects = GrabStrings().get_object_definition(context)
-        for entry in objects["root_categories"]:
-            if entry["name"] == category:
-                return entry
-        return None
-
-    def root_categories(self, context: Context | None) -> list[tuple[str, str, str]]:
-        categories: list[tuple[str, str, str]] = []
-        if context is None:
-            return categories
-        objects = GrabStrings().get_object_definition(context)
-        for entry in objects["root_categories"]:
-            categories.append((entry["name"], entry["name"], ""))
-        if context.scene.import_properties.sort_objects:  # pyright: ignore[reportAttributeAccessIssue]
-            categories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
-
-        return categories
-
-    def subcategories(self, context: Context | None) -> list[tuple[str, str, str]]:
-        subcategories: list[tuple[str, str, str]] = []
-        if context is None:
-            return subcategories
-
-        root_category = cast(str, context.scene.import_properties.root_category)  # pyright: ignore[reportAttributeAccessIssue]
-        category = GrabStrings().get_category(context, root_category)
-        if category and category["sub_categories"]:
-            for subcat in category["sub_categories"]:
-                subcategories.append((subcat["name"], subcat["name"], ""))
-        if context.scene.import_properties.sort_objects:  # pyright: ignore[reportAttributeAccessIssue]
-            subcategories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
-
-        return subcategories
-
-    def objects(self, context: Context | None) -> list[tuple[str, str, str]]:
-        subcategories: list[tuple[str, str, str]] = []
-        if context is None:
-            return subcategories
-
-        root_category = cast(str, context.scene.import_properties.root_category)  # pyright: ignore[reportAttributeAccessIssue]
-        subcategory = cast(str, context.scene.import_properties.subcategory)  # pyright: ignore[reportAttributeAccessIssue]
-        category = GrabStrings().get_category(context, root_category)
-        if category and subcategory and category["sub_categories"]:
-            for subcat in category["sub_categories"]:
-                if subcat["name"] == subcategory and subcat["objects"]:
-                    for obj in subcat["objects"]:
-                        subcategories.append((obj["name"], obj["name"], ""))
-        if context.scene.import_properties.sort_objects:  # pyright: ignore[reportAttributeAccessIssue]
-            subcategories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
-
-        return subcategories
+__all__ = ["RandomizeCoatingOperator", "ImportProperties", "CoatingImportPanel"]
 
 
 @final
@@ -214,7 +29,7 @@ class RandomizeCoatingOperator(Operator):
         """
         styles = get_styles(context)
         if styles:
-            props = cast(ImportProperties, context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
+            props = get_import_properties()
             props.coat_id = random.choice(list(styles["styles"].keys()))
 
         return {"FINISHED"}
@@ -264,14 +79,13 @@ class CoatingImportPanel(Panel):
         if context is None:
             return
         layout = self.layout
-        import_properties = cast(ImportProperties, context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
+        import_properties = get_import_properties()
 
         material_header, material_body = layout.panel("VIEW3D_PT_import_material")
         material_header.label(icon="MATERIAL", text="Import Material")
 
         if material_body:
             options = material_body.box()
-            import_properties = cast(ImportProperties, context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
             options.prop(import_properties, "use_default")
             if not import_properties.use_default:
                 box2 = options.box()
@@ -320,7 +134,7 @@ class CoatingImportPanel(Panel):
             forge_opts = forge_body.box()
             forge_opts.prop(import_properties, "sort_objects")
             forge_opts.prop(import_properties, "root_category")
-            category = cast(str, import_properties.root_category)
+            category = import_properties.root_category
             cat = GrabStrings().get_category(context, category)
             if cat and cat["sub_categories"]:
                 forge_opts.prop(import_properties, "subcategory")

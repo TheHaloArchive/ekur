@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from typing import cast, final
+from typing import final
 
 import bpy
 from bpy.types import Collection, Context, Operator
+
+from ..utils import get_import_properties
 
 from ..model.importer.model_importer import ModelImporter
 
@@ -19,15 +21,15 @@ class ImportModelOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
             return {"CANCELLED"}
-        properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownVariableType, reportUnknownMemberType]
-        model_path = cast(str, properties.model_path)
+        properties = get_import_properties()
+        model_path = properties.model_path
         model_name = model_path.split("/")[-1].split(".")[0]
-        objects = ModelImporter().start_import(context, model_path)
+        objects = ModelImporter().start_import(model_path)
         collections: dict[int, Collection] = {}
         model_collection = bpy.data.collections.new(model_name)
         bpy.context.scene.collection.children.link(model_collection)  # pyright: ignore[reportUnknownMemberType]
 
-        if cast(bool, properties.import_collections):
+        if properties.import_collections:
             for object in objects:
                 permutation_name: int = object["permutation_name"]
                 region_name: int = object["permutation_name"]

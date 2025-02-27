@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 from typing import cast
 
-import bpy
 from bpy.types import (
     NodeTree,
     ShaderNodeGroup,
@@ -25,7 +24,7 @@ from ..json_definitions import (
 )
 from ..nodes.hims import HIMS
 from ..nodes.layer import Layer
-from ..utils import assign_value, create_node, read_json_file, read_texture
+from ..utils import assign_value, create_node, get_import_properties, read_json_file, read_texture
 
 MP_VISOR: int = 1420626520
 ANY_REGION: int = 192819851
@@ -90,10 +89,10 @@ class LayeredShader:
 
     def process_styles(self) -> None:
         style = self.styles["default_style"]["reference"]
-        import_props = bpy.context.scene.import_properties  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue, reportUnknownVariableType]
-        custom_style: str = cast(str, import_props.coat_id)
-        items_func = cast(int, import_props.coatings)
-        use_default: str = import_props.use_default  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        import_props = get_import_properties()
+        custom_style: str = import_props.coat_id
+        items_func = import_props.coatings
+        use_default = import_props.use_default
 
         if custom_style != "" and not use_default and self.styles["styles"].get(custom_style):
             style = self.styles["styles"][custom_style]["reference"]
@@ -144,7 +143,7 @@ class LayeredShader:
             swatch = cast(ShaderNodeTree, Layer(style["grime_swatch"], f"g_{top}").node_tree)
             emissive_amount = style["grime_swatch"]["emissive_amount"]
             self.create_swatch(swatch, top, 7, emissive_amount, is_grime=True)
-            toggle_damage = cast(bool, bpy.context.scene.import_properties.toggle_damage)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+            toggle_damage = get_import_properties().toggle_damage
             if toggle_damage and style_info["supported_layers"] == 7:
                 assign_value(self.shader, 106, 0.0)
             if toggle_damage and style_info["supported_layers"] == 4:
@@ -240,19 +239,18 @@ class LayeredShader:
             i: Index of the intention.
         """
         layer = self.get_intention(intention, mat_reg, any_reg, globals)
-        toggle_visors = cast(bool, bpy.context.scene.import_properties.toggle_visors)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
-        visor = cast(str, bpy.context.scene.import_properties.visors)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+        properties = get_import_properties()
         if (
             i == 0
             and self.material["style_info"]
             and self.material["style_info"]["region_name"] == MP_VISOR
-            and toggle_visors
+            and properties.toggle_visors
         ):
             visors_path = Path(f"{self.data_folder}/all_visors.json")
             if not visors_path.exists():
                 return
             visors = read_json_file(visors_path, dict[str, CommonLayer])
-            layer = visors[visor]
+            layer = visors[properties.visors]
         if layer:
             swatch = cast(
                 ShaderNodeTree, Layer(layer, f"{intention}_{hash(json.dumps(layer))}").node_tree
