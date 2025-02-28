@@ -2,7 +2,7 @@
 # Copyright © 2025 Surasia
 import logging
 from pathlib import Path
-from typing import cast, final
+from typing import final
 
 import bpy
 from bpy.types import Collection, Context, Object, Operator
@@ -77,7 +77,7 @@ class ImportSpartanOperator(Operator):
                 kit_collection = bpy.data.collections.new(f"[KIT] {kit['name']}")
                 for region in kit["regions"]:
                     self.import_region(
-                        region, theme, objects, importer, kit_collection, "KIT", names
+                        region, theme, objects, importer, kit_collection, "KIT", names, kit["name"]
                     )
                 kits_collections.children.link(kit_collection)  # pyright: ignore[reportUnknownMemberType]
             if kits_collections.name not in theme_col.children:
@@ -124,12 +124,15 @@ class ImportSpartanOperator(Operator):
         theme_collection: Collection,
         id: str,
         names: dict[str, NameRegion],
+        kit_name: int = 0,
     ) -> None:
         data_folder = get_data_folder()
         if len(region["permutations"]) > 0 and id == "KIT":
             region["permutations"] = [region["permutations"][0]]
         for perm in region["permutation_regions"]:
             name = f"[{id}] {theme['name']}_{region['name']}"
+            if kit_name != 0:
+                name += f"_{kit_name}"
             region_collection = self.region_cache.get(name)
             if region_collection is None:
                 region_collection = bpy.data.collections.new(name)
@@ -146,13 +149,13 @@ class ImportSpartanOperator(Operator):
                 ]
                 if len(model) >= 1:
                     for mode in model:
-                        region_name = names.get(cast(str, mode["region_name"]))
+                        region_name = names.get(str(mode["region_name"]))  # pyright: ignore[reportAny]
                         if region_name:
                             perm_name = region_name["permutations"].get(
-                                cast(str, mode["permutation_name"])
+                                str(mode["permutation_name"])  # pyright: ignore[reportAny]
                             )
                             if perm_name:
-                                mode.name = f"{region['name']}_{perm}"
+                                mode.name = f"{region['name']}_{perm_name['name']}"
                         if mode.name not in region_collection.objects:
                             region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
                 if perm_region["attachment"]:
