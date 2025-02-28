@@ -77,7 +77,7 @@ class ImportSpartanOperator(Operator):
                 kit_collection = bpy.data.collections.new(f"[KIT] {kit['name']}")
                 for region in kit["regions"]:
                     self.import_region(
-                        region, theme, objects, importer, kit_collection, "KIT", names
+                        region, theme, objects, importer, kit_collection, "KIT", names, kit["name"]
                     )
                 kits_collections.children.link(kit_collection)  # pyright: ignore[reportUnknownMemberType]
             if kits_collections.name not in theme_col.children:
@@ -124,12 +124,15 @@ class ImportSpartanOperator(Operator):
         theme_collection: Collection,
         id: str,
         names: dict[str, NameRegion],
+        kit_name: int = 0,
     ) -> None:
         data_folder = get_data_folder()
         if len(region["permutations"]) > 0 and id == "KIT":
             region["permutations"] = [region["permutations"][0]]
         for perm in region["permutation_regions"]:
             name = f"[{id}] {theme['name']}_{region['name']}"
+            if kit_name != 0:
+                name += f"_{kit_name}"
             region_collection = self.region_cache.get(name)
             if region_collection is None:
                 region_collection = bpy.data.collections.new(name)
