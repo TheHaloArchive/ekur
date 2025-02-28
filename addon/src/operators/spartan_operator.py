@@ -2,7 +2,7 @@
 # Copyright © 2025 Surasia
 import logging
 from pathlib import Path
-from typing import cast, final
+from typing import final
 
 import bpy
 from bpy.types import Collection, Context, Object, Operator
@@ -146,13 +146,13 @@ class ImportSpartanOperator(Operator):
                 ]
                 if len(model) >= 1:
                     for mode in model:
-                        region_name = names.get(cast(str, mode["region_name"]))
+                        region_name = names.get(str(mode["region_name"]))  # pyright: ignore[reportAny]
                         if region_name:
                             perm_name = region_name["permutations"].get(
-                                cast(str, mode["permutation_name"])
+                                str(mode["permutation_name"])  # pyright: ignore[reportAny]
                             )
                             if perm_name:
-                                mode.name = f"{region['name']}_{perm_name}"
+                                mode.name = f"{region['name']}_{perm_name['name']}"
                         if mode.name not in region_collection.objects:
                             region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
                 if perm_region["attachment"]:
