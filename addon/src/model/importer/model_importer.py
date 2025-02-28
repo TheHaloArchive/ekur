@@ -4,9 +4,10 @@ import logging
 from pathlib import Path
 from typing import cast
 import bpy
-from bpy.types import ArmatureModifier, Context, Material, Mesh, Object
+from bpy.types import ArmatureModifier, Material, Mesh, Object
 from mathutils import Vector
 
+from ...utils import get_import_properties
 from .bone import import_bones
 from .markers import import_markers
 from ..metadata import Model
@@ -26,12 +27,11 @@ class ModelImporter:
 
     def start_import(
         self,
-        context: Context,
         model_path: str,
         bones: bool = True,
         materials: list[int] | None = None,
     ) -> list[Object]:
-        properties = context.scene.import_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownVariableType, reportUnknownMemberType]
+        properties = get_import_properties()
         model = Path(model_path)
         if not model.exists():
             logging.warning(f"Model path does not exist: {model}")
@@ -40,10 +40,10 @@ class ModelImporter:
             self.model.read(f)
         if materials:
             self.model.materials = materials
-        if cast(bool, properties.import_bones) and bones:
+        if properties.import_bones and bones:
             self.rig = import_bones(self.model)
             self.rig.scale = MESH_SCALE
-            if cast(bool, properties.import_markers):
+            if properties.import_markers:
                 self.markers = import_markers(self.model, self.rig)
             objects = self.import_model()
         else:
@@ -133,6 +133,7 @@ class ModelImporter:
         permutation_name = section.permutation_name
         region_name = section.region_name
         collection_name = f"{self.model.header.tag_id}_{permutation_name}_{region_name}"
+        import_properties = get_import_properties()
 
         model_scale = self.model.bounding_boxes[0].model_scale
         uv_scale = self.model.bounding_boxes[0].uv_scale
@@ -162,10 +163,10 @@ class ModelImporter:
         if section.vertex_flags.has_uv2:
             self.create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale2, 2)
 
-        if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        if import_properties.import_materials:
             self.create_material_indices(section, mesh)
 
-        if bpy.context.scene.import_properties.import_vertex_color:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        if import_properties.import_vertex_color:
             self.create_color(section, mesh)
 
         if self.rig:
@@ -175,7 +176,8 @@ class ModelImporter:
 
     def import_model(self) -> list[Object]:
         materials: list[Material] = []
-        if bpy.context.scene.import_properties.import_materials:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        properties = get_import_properties()
+        if properties.import_materials:
             for mat in self.model.materials:
                 mat = bpy.data.materials.get(str(mat))
                 if not mat:

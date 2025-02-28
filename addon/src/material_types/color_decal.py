@@ -20,7 +20,7 @@ class ColorDecalShader:
     def __init__(self, material: CommonMaterial, material_tree: ShaderNodeTree) -> None:
         self.material: CommonMaterial = material
         self.tree: ShaderNodeTree = material_tree
-        self.create_nodes()
+        self._create_nodes()
 
     def _create_image(self, y: int, name: str) -> ShaderNodeTexImage:
         texture = create_node(self.tree.nodes, -300, y, ShaderNodeTexImage)
@@ -28,7 +28,7 @@ class ColorDecalShader:
         texture.image = read_texture(name)
         return texture
 
-    def create_nodes(self) -> None:
+    def _create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)
         shader.node_tree = cast(ShaderNodeTree, ColorDecal().node_tree)
 
@@ -47,7 +47,5 @@ class ColorDecalShader:
                 img = self._create_image(-200, str(self.material["textures"]["AlphaMap"]))
                 _ = self.tree.links.new(img.outputs[0], shader.inputs[1])
 
-            material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)
-            material_output.target = "ALL"
-            material_output.location = (200, 0)
+            material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
             _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])

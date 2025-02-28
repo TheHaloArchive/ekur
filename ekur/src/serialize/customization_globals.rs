@@ -29,19 +29,27 @@ pub struct Permutation {
 
 #[derive(Debug, Default, Serialize)]
 pub struct Region {
-    pub name: i32,
+    pub name: String,
+    pub name_int: i32,
     pub permutations: Vec<Permutation>,
     pub permutation_regions: Vec<i32>,
 }
 
 #[derive(Debug, Default, Serialize)]
-pub struct Theme {
+pub struct Kit {
     pub name: i32,
+    pub regions: Vec<Region>,
+}
+
+#[derive(Debug, Default, Serialize)]
+pub struct Theme {
+    pub name: String,
     pub variant_name: i32,
     pub attachments: Vec<Attachment>,
     pub regions: Vec<Region>,
     pub prosthetics: Vec<Region>,
     pub body_types: Vec<Region>,
+    pub kits: Vec<Kit>,
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -49,6 +57,27 @@ pub struct SpartanGlobals {
     pub model: i32,
     pub themes: Vec<Theme>,
 }
+
+const NAMES: [&str; 18] = [
+    "Mark VII",
+    "2059096660",
+    "Mark V [B]",
+    "734978415",
+    "Yoroi",
+    "-877464205",
+    "Eaglestrike",
+    "1599196406",
+    "Rakshasa",
+    "1200330315",
+    "Chimera",
+    "-1600125127",
+    "Mirage IIC",
+    "-1062089054",
+    "HAZMAT",
+    "-1199279334",
+    "Mark IV",
+    "-1472719967",
+];
 
 fn get_attachment(
     attachment: i32,
@@ -75,9 +104,14 @@ fn add_region(
     region: &RegionBlock,
     attachments: &HashMap<i32, AttachmentConfiguration>,
     models: &HashMap<i32, ModelDefinition>,
+    strings: &HashMap<i32, String>,
 ) -> Region {
     let mut reg = Region {
-        name: region.region_name.0,
+        name: strings
+            .get(&region.region_name.0)
+            .unwrap_or(&region.region_name.0.to_string())
+            .to_string(),
+        name_int: region.region_name.0,
         ..Default::default()
     };
     for permutation in &region.permutation_regions.elements {
@@ -99,6 +133,7 @@ pub fn process_object_globals(
     save_path: &str,
     attachments: &HashMap<i32, AttachmentConfiguration>,
     models: &HashMap<i32, ModelDefinition>,
+    strings: &HashMap<i32, String>,
 ) -> Result<()> {
     let mut spartan_globals = SpartanGlobals::default();
     let first_theme = globals.themes.elements.first();
@@ -110,8 +145,15 @@ pub fn process_object_globals(
             if !theme_names.insert(configs.theme_configs.global_id) {
                 continue;
             }
+            let theme_name = configs.name.0.to_string();
+            let theme_index = NAMES.iter().position(|&x| x == theme_name);
+            let config_name = match theme_index {
+                Some(index) => NAMES[index - 1].to_string(),
+                None => theme_name.clone(),
+            };
+
             let mut theme = Theme {
-                name: configs.name.0,
+                name: config_name,
                 variant_name: configs.variant_name.0,
                 ..Default::default()
             };
@@ -124,17 +166,29 @@ pub fn process_object_globals(
                     }
                 }
                 for region in &theme_config.regions.elements {
-                    let reg = add_region(region, attachments, models);
+                    let reg = add_region(region, attachments, models, strings);
                     theme.regions.push(reg);
                 }
                 for region in &theme_config.body_types.elements {
-                    let reg = add_region(region, attachments, models);
+                    let reg = add_region(region, attachments, models, strings);
                     theme.body_types.push(reg);
                 }
                 for region in &theme_config.prosthetics.elements {
-                    let reg = add_region(region, attachments, models);
+                    let reg = add_region(region, attachments, models, strings);
                     theme.prosthetics.push(reg);
                 }
+            }
+
+            for kit in &configs.kit_configs.elements {
+                let mut kit_config = Kit {
+                    name: kit.name.0,
+                    ..Default::default()
+                };
+                for region in &kit.regions.elements {
+                    let reg = add_region(region, attachments, models, strings);
+                    kit_config.regions.push(reg);
+                }
+                theme.kits.push(kit_config);
             }
             spartan_globals.themes.push(theme);
         }

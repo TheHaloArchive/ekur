@@ -10,6 +10,7 @@ from bpy.types import (
     MaterialSlot,
     Node,
     NodeSocket,
+    NodeSocketBool,
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketVector,
@@ -27,6 +28,10 @@ __all__ = [
     "create_socket",
     "create_node",
     "assign_value",
+    "get_data_folder",
+    "get_deploy_folder",
+    "ImportPropertiesType",
+    "get_import_properties",
 ]
 
 
@@ -39,20 +44,16 @@ def read_texture(texturepath: str) -> Image | None:
     Returns:
         The loaded image.
     """
-    if not bpy.context.preferences:
-        return
-    preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
-    if preferences is None:
-        return
+    data_folder = get_data_folder()
     image = bpy.data.images.get(texturepath.split("\\")[-1])
     if image:
         return image
 
     image = bpy.data.images.new(texturepath.split("\\")[-1], 1, 1)
     image.source = "FILE"
-    tex_path = Path(f"{preferences.data_folder}/bitmaps/{texturepath}_0.png")  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    tex_path = Path(f"{data_folder}/bitmaps/{texturepath}_0.png")
     if not tex_path.exists():
-        tex_path = Path(f"{preferences.data_folder}/bitmaps/{texturepath}_0_t.png")  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        tex_path = Path(f"{data_folder}/bitmaps/{texturepath}_0_t.png")
         image["use_alpha"] = True
     else:
         image["use_alpha"] = False
@@ -68,7 +69,8 @@ def get_materials() -> list[MaterialSlot]:
         A list of all material slots.
     """
     data_source = bpy.data.objects
-    if bpy.context.scene and bpy.context.scene.import_properties.selected_only:  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+    properties = get_import_properties()
+    if properties.selected_only:
         data_source = bpy.context.selected_objects
     meshes = [obj for obj in data_source if obj.type == "MESH"]
     return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
@@ -151,11 +153,66 @@ def create_node(nodes: Nodes, x: int, y: int, _type: type[NodeT]) -> NodeT:
     return node  # pyright: ignore[reportUnknownVariableType]
 
 
+def get_data_folder() -> str:
+    """Get the data folder path from the preferences.
+
+    Returns:
+        The data folder path.
+    """
+    preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
+    return cast(str, preferences.data_folder)  # pyright: ignore[reportAttributeAccessIssue]
+
+
+def get_deploy_folder() -> str:
+    """Get the deploy folder path from the preferences.
+
+    Returns:
+        The deploy folder path.
+    """
+    preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
+    return cast(str, preferences.deploy_folder)  # pyright: ignore[reportAttributeAccessIssue]
+
+
+class ImportPropertiesType:
+    use_default: bool = False
+    coat_id: str = ""
+    toggle_damage: bool = False
+    selected_only: bool = False
+    sort_by_name: bool = False
+    coatings: str = ""
+    toggle_visors: bool = False
+    visors: str = ""
+    model_path: str = ""
+    import_materials: bool = False
+    import_markers: bool = False
+    import_bones: bool = False
+    import_collections: bool = False
+    import_vertex_color: bool = False
+    level_path: str = ""
+    import_specific_core: bool = False
+    core: str = ""
+    root_category: str = ""
+    subcategory: str = ""
+    objects: str = ""
+    sort_objects: bool = False
+
+
+def get_import_properties() -> ImportPropertiesType:
+    """Get the import properties from the scene.
+
+    Returns:
+        The import properties.
+    """
+    return cast(ImportPropertiesType, bpy.context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
+
+
 def assign_value(
     node: Node,
     index: int,
-    value: float | tuple[float, float, float] | tuple[float, float, float, float],
+    value: float | tuple[float, float, float] | tuple[float, float, float, float] | bool,
 ) -> None:
+    if type(value) is bool:
+        cast(NodeSocketBool, node.inputs[index]).default_value = value
     if type(value) is tuple and len(value) == 3:
         cast(NodeSocketVector, node.inputs[index]).default_value = value
     if type(value) is float:
