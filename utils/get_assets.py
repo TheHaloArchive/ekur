@@ -22,6 +22,13 @@ def main() -> None:
                 regions[region_id]["permutations"][permutation_id] = {
                     "name": item["title"]
                 }
+        if item.get("data") and item["data"].get("TagId"):
+            tag_id = item["data"]["TagId"]
+            if tag_id not in regions:
+                regions[tag_id] = {
+                    "name": item["title"],
+                    "permutations": {},
+                }
 
     with open("regions_and_permutations.json", "w") as f:
         json.dump(regions, f, indent=4)
