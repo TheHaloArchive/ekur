@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 from pathlib import Path
-from typing import cast, final
+from typing import final
 import bpy
 from bpy.types import Context, Operator, Object
 from mathutils import Matrix
 
 from ..json_definitions import Level
 from ..model.importer.model_importer import ModelImporter
-from ..utils import get_data_folder, read_json_file
+from ..utils import get_data_folder, get_import_properties, read_json_file
 
 __all__ = ["ImportLevelOperator"]
 
@@ -27,7 +27,11 @@ class ImportLevelOperator(Operator):
         data_folder: str,
         materials: list[int],
     ) -> list[Object]:
-        if global_id in self._geometry_cache:
+        if (
+            global_id in self._geometry_cache
+            or bpy.context.collection is None
+            or bpy.context.scene is None
+        ):
             return self._geometry_cache[global_id]
 
         path = f"{data_folder}/runtime_geo/{global_id}.ekur"
@@ -52,11 +56,14 @@ class ImportLevelOperator(Operator):
         return source_objects
 
     def execute(self, context: Context | None) -> set[str]:
-        if context is None:
+        if context is None or context.collection is None:
             return {"CANCELLED"}
+        import_props = get_import_properties()
 
-        level_path = Path(cast(str, context.scene.import_properties.level_path))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        level_path = Path(import_props.level_path)
         level = read_json_file(level_path, Level)
+        if level is None:
+            return {"CANCELLED"}
         data = get_data_folder()
 
         for instance in level["instances"]:
@@ -79,7 +86,7 @@ class ImportLevelOperator(Operator):
                     instance["position"], rotmat.to_quaternion(), instance["scale"]
                 )
 
-                bpy.context.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                context.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
 
         self._geometry_cache = {}
         return {"FINISHED"}

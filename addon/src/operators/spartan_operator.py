@@ -43,6 +43,8 @@ class ImportSpartanOperator(Operator):
             return {"CANCELLED"}
 
         customization_globals = read_json_file(customization_path, CustomizationGlobals)
+        if customization_globals is None:
+            return {"CANCELLED"}
         model_path = Path(f"{data_folder}/models/{customization_globals['model']}.ekur")
         if not model_path.exists():
             logging.warning(f"Model path does not exist!: {model_path}")
@@ -56,8 +58,7 @@ class ImportSpartanOperator(Operator):
 
         names_path = Path(f"{data_folder}/regions_and_permutations.json")
         names = read_json_file(names_path, dict[str, NameRegion])
-        if not names_path.exists():
-            logging.warning(f"Names path does not exist!: {names_path}")
+        if names is None:
             return {"CANCELLED"}
 
         for theme in themes:
@@ -89,7 +90,10 @@ class ImportSpartanOperator(Operator):
                 model_path = f"{data_folder}/models/{attachment['model']}.ekur"
                 attachments = ModelImporter().start_import(model_path, False)
                 alt_name = f"{attachment['marker_name']}"
+                attach_name = names.get(str(attachment["tag_id"]))
                 for attach in attachments:
+                    if attach_name:
+                        attach.name = attach_name["name"]
                     for marker in importer.markers:
                         self.import_attachments("", alt_name, marker, attach)
                         if attach.name not in attachment_collection.objects:
@@ -127,6 +131,7 @@ class ImportSpartanOperator(Operator):
         kit_name: int = 0,
     ) -> None:
         data_folder = get_data_folder()
+        import_props = get_import_properties()
         if len(region["permutations"]) > 0 and id == "KIT":
             region["permutations"] = [region["permutations"][0]]
         for perm in region["permutation_regions"]:
@@ -149,19 +154,23 @@ class ImportSpartanOperator(Operator):
                 ]
                 if len(model) >= 1:
                     for mode in model:
-                        region_name = names.get(str(mode["region_name"]))  # pyright: ignore[reportAny]
-                        if region_name:
-                            perm_name = region_name["permutations"].get(
-                                str(mode["permutation_name"])  # pyright: ignore[reportAny]
-                            )
-                            if perm_name:
-                                mode.name = f"{region['name']}_{perm_name['name']}"
-                        if mode.name not in region_collection.objects:
-                            region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
+                        if import_props.import_names:
+                            region_name = names.get(str(mode["region_name"]))  # pyright: ignore[reportAny]
+                            if region_name:
+                                perm_name = region_name["permutations"].get(
+                                    str(mode["permutation_name"])  # pyright: ignore[reportAny]
+                                )
+                                if perm_name:
+                                    mode.name = f"{region['name']}_{perm_name['name']}"
+                            if mode.name not in region_collection.objects:
+                                region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
                 if perm_region["attachment"]:
+                    attach_name = names.get(str(perm_region["attachment"]["tag_id"]))
                     model_path = f"{data_folder}/models/{perm_region['attachment']['model']}.ekur"
                     attachments = ModelImporter().start_import(model_path, False)
                     for attachment in attachments:
+                        if attach_name:
+                            attachment.name = f"{region['name']}_{attach_name['name']}"
                         for marker in importer.markers:
                             name = f"{perm_region['attachment']['marker_name']}_{perm}_{perm_region['name']}"
                             alt_name = f"{perm_region['attachment']['marker_name']}_{perm}"

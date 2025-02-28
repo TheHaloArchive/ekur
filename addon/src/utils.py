@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import json
+import logging
 from pathlib import Path
 from typing import TypeVar, cast
 
@@ -79,7 +80,7 @@ def get_materials() -> list[MaterialSlot]:
 JsonT = TypeVar("JsonT")
 
 
-def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT:
+def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT | None:
     """Load a json file from the given path.
 
     Args:
@@ -88,6 +89,8 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT:
     Returns:
         The loaded json data.
     """
+    if not file_path.exists():
+        logging.warning(f"File path does not exist!: {file_path}")
     with open(file_path, "r") as file:
         data: T = json.load(file)  # pyright: ignore[reportUnknownVariableType]
         return data  # pyright: ignore[reportUnknownVariableType]
@@ -159,7 +162,11 @@ def get_data_folder() -> str:
     Returns:
         The data folder path.
     """
+    if bpy.context.preferences is None:
+        return ""
     preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
+    if not preferences:
+        return ""
     return cast(str, preferences.data_folder)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -169,7 +176,11 @@ def get_deploy_folder() -> str:
     Returns:
         The deploy folder path.
     """
+    if bpy.context.preferences is None:
+        return ""
     preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
+    if not preferences:
+        return ""
     return cast(str, preferences.deploy_folder)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -190,11 +201,13 @@ class ImportPropertiesType:
     import_vertex_color: bool = False
     level_path: str = ""
     import_specific_core: bool = False
+    import_names: bool = False
     core: str = ""
     root_category: str = ""
     subcategory: str = ""
     objects: str = ""
     sort_objects: bool = False
+    object_representation: str = ""
 
 
 def get_import_properties() -> ImportPropertiesType:
@@ -203,6 +216,8 @@ def get_import_properties() -> ImportPropertiesType:
     Returns:
         The import properties.
     """
+    if bpy.context.scene is None:
+        return ImportPropertiesType()
     return cast(ImportPropertiesType, bpy.context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
 
 

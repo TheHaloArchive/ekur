@@ -44,7 +44,8 @@ class DiffuseShader:
         interface = self.node_tree.interface
         _ = create_socket(interface, "BSDF", NodeSocketShader, False)
         _ = create_socket(interface, "Color Texture", NodeSocketColor)
-        _ = create_socket(interface, "Control Texture", NodeSocketColor)
+        control = create_socket(interface, "Control Texture", NodeSocketColor)
+        control.default_value = (0.0, 1.0, 0.0, 0.0)
         _ = create_socket(interface, "Normal Texture", NodeSocketColor)
         rw = create_socket(interface, "Roughness White", NodeSocketFloat)
         rw.default_value = 0.0

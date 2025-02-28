@@ -21,14 +21,21 @@ use crate::{
 
 const BLACKLISTED_CATEGORIES: [u32; 3] = [2645216826, 4210236789, 114233605];
 
-#[derive(Debug, Serialize)]
-struct ForgeObject {
+#[derive(Default, Debug, Serialize)]
+struct ForgeObjectRepresentation {
     name: String,
+    name_int: i32,
     model: i32,
     variant: i32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Default, Debug, Serialize)]
+struct ForgeObject {
+    name: String,
+    representations: Vec<ForgeObjectRepresentation>,
+}
+
+#[derive(Default, Debug, Serialize)]
 struct ForgeObjectCategory {
     name: String,
     sub_categories: Option<Vec<ForgeObjectCategory>>,
@@ -60,45 +67,55 @@ fn get_object_info(
             .get(&object.name.0)
             .unwrap_or(&object.name.0.to_string())
             .to_string();
+
+        let mut forge_object = ForgeObject {
+            name,
+            ..Default::default()
+        };
         let data = forge_data.get(&object.forge_object.global_id);
-        // holy shit this is a lot
         let Some(data) = data else {
             continue;
         };
-        let representation = data.object_representations.elements.first();
-        let Some(representation) = representation else {
-            continue;
-        };
-        if let Some(model) = match representation.object_definition.group.as_str() {
-            "bloc" => {
-                let crate_def = crates.get(&representation.object_definition.global_id);
-                crate_def.map(|crate_def| crate_def.model.global_id)
-            }
-            "weap" => {
-                let weapon_def = weapons.get(&representation.object_definition.global_id);
-                weapon_def.map(|weapon_def| weapon_def.model.global_id)
-            }
-            "vehi" => {
-                let vehicle_def = vehicles.get(&representation.object_definition.global_id);
-                vehicle_def.map(|vehi_def| vehi_def.model.global_id)
-            }
-            "eqip" => {
-                let equip_def = equipment.get(&representation.object_definition.global_id);
-                equip_def.map(|equip_def| equip_def.model.global_id)
-            }
-            _ => None,
-        } {
-            let model = models.get(&model);
-            let Some(model) = model else {
-                continue;
-            };
-            let forge_object = ForgeObject {
-                name,
-                model: model.render_model.global_id,
+        for representation in &data.object_representations.elements {
+            let mut represent = ForgeObjectRepresentation {
+                name: strings
+                    .get(&representation.representation_name.0)
+                    .unwrap_or(&representation.representation_name.0.to_string())
+                    .to_string(),
+                name_int: representation.representation_name.0,
+                model: 0,
                 variant: representation.crate_variant.0,
             };
-            object_definitions.push(forge_object);
-        };
+
+            if let Some(model) = match representation.object_definition.group.as_str() {
+                "bloc" => {
+                    let crate_def = crates.get(&representation.object_definition.global_id);
+                    crate_def.map(|crate_def| crate_def.model.global_id)
+                }
+                "weap" => {
+                    let weapon_def = weapons.get(&representation.object_definition.global_id);
+                    weapon_def.map(|weapon_def| weapon_def.model.global_id)
+                }
+                "vehi" => {
+                    let vehicle_def = vehicles.get(&representation.object_definition.global_id);
+                    vehicle_def.map(|vehi_def| vehi_def.model.global_id)
+                }
+                "eqip" => {
+                    let equip_def = equipment.get(&representation.object_definition.global_id);
+                    equip_def.map(|equip_def| equip_def.model.global_id)
+                }
+                _ => None,
+            } {
+                let model = models.get(&model);
+                let Some(model) = model else {
+                    continue;
+                };
+                represent.model = model.render_model.global_id;
+                forge_object.representations.push(represent);
+            };
+        }
+
+        object_definitions.push(forge_object);
     }
     Some(object_definitions)
 }

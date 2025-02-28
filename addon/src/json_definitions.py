@@ -26,6 +26,7 @@ __all__ = [
     "Instance",
     "Level",
     "ColorDecal",
+    "ForgeObjectRepresentation",
     "ForgeObject",
     "ForgeObjectCategory",
     "ForgeObjectDefinition",
@@ -152,6 +153,7 @@ class CommonStyleList(TypedDict):
 
 
 class CustomizationAttachment(TypedDict):
+    tag_id: int
     marker_name: int
     model: int
 
@@ -203,10 +205,16 @@ class Level(TypedDict):
     instances: list[Instance]
 
 
-class ForgeObject(TypedDict):
+class ForgeObjectRepresentation(TypedDict):
     name: str
+    name_int: int
     model: int
     variant: int
+
+
+class ForgeObject(TypedDict):
+    name: str
+    representations: list[ForgeObjectRepresentation]
 
 
 class ForgeObjectCategory(TypedDict):

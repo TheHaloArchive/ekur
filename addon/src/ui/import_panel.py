@@ -30,7 +30,7 @@ class RandomizeCoatingOperator(Operator):
         styles = get_styles(context)
         if styles:
             props = get_import_properties()
-            props.coat_id = random.choice(list(styles["styles"].keys()))
+            props.coat_id = random.choice(list(styles[1]["styles"].keys()))
 
         return {"FINISHED"}
 
@@ -60,10 +60,14 @@ class ImportProperties(PropertyGroup):
         subtype="FILE_PATH",
     )
     import_specific_core: BoolProperty(name="Import Specific Core", default=False)
+    import_names: BoolProperty(name="Import Names", default=True)
     core: EnumProperty(name="Core", items=GrabStrings.cores)
     root_category: EnumProperty(name="Root Category", items=GrabStrings.root_categories)
     subcategory: EnumProperty(name="Subcategory", items=GrabStrings.subcategories)
     objects: EnumProperty(name="Object", items=GrabStrings.objects)
+    object_representation: EnumProperty(
+        name="Object Representation", items=GrabStrings.object_representations
+    )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
 
 
@@ -79,6 +83,8 @@ class CoatingImportPanel(Panel):
         if context is None:
             return
         layout = self.layout
+        if layout is None:
+            return
         import_properties = get_import_properties()
 
         material_header, material_body = layout.panel("VIEW3D_PT_import_material")
@@ -119,6 +125,7 @@ class CoatingImportPanel(Panel):
             ocgd_opts.prop(import_properties, "import_specific_core")
             if import_properties.import_specific_core:
                 ocgd_opts.prop(import_properties, "core")
+            ocgd_opts.prop(import_properties, "import_names")
             _ = ocgd_body.operator("ekur.importspartan")
 
         level_header, level_body = layout.panel("VIEW3D_PT_import_level")
@@ -139,4 +146,5 @@ class CoatingImportPanel(Panel):
             if cat and cat["sub_categories"]:
                 forge_opts.prop(import_properties, "subcategory")
                 forge_opts.prop(import_properties, "objects")
+                forge_opts.prop(import_properties, "object_representation")
             _ = forge_body.operator("ekur.importforge")

@@ -47,6 +47,8 @@ class ImportMaterialOperator(Operator):
 
             remove_nodes(node_tree)
             material = read_json_file(definition_path, CommonMaterial)
+            if material is None:
+                return {"CANCELLED"}
             self.run_material(material, node_tree)
 
         return {"FINISHED"}
@@ -63,7 +65,9 @@ class ImportMaterialOperator(Operator):
                         logging.warning(f"Styles path does not exist!: {styles_path}")
                         return
                     styles = read_json_file(styles_path, CommonStyleList)
-                    layered_shader = LayeredShader(node_tree, material, styles, data)
+                    if styles is None:
+                        return
+                    layered_shader = LayeredShader(node_tree, material, styles)
                     layered_shader.create_textures()
                     layered_shader.process_styles()
 
