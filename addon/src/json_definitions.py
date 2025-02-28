@@ -22,6 +22,7 @@ __all__ = [
     "CustomizationRegion",
     "CustomizationTheme",
     "CustomizationGlobals",
+    "CustomizationKit",
     "Instance",
     "Level",
     "ColorDecal",
@@ -161,18 +162,25 @@ class CustomizationPermutation(TypedDict):
 
 
 class CustomizationRegion(TypedDict):
-    name: int
+    name: str
+    name_int: int
     permutations: list[CustomizationPermutation]
     permutation_regions: list[int]
 
 
-class CustomizationTheme(TypedDict):
+class CustomizationKit(TypedDict):
     name: int
+    regions: list[CustomizationRegion]
+
+
+class CustomizationTheme(TypedDict):
+    name: str
     variant_name: int
     attachments: list[CustomizationAttachment]
     regions: list[CustomizationRegion]
     prosthetics: list[CustomizationRegion]
     body_types: list[CustomizationRegion]
+    kits: list[CustomizationKit]
 
 
 class CustomizationGlobals(TypedDict):
@@ -209,3 +217,12 @@ class ForgeObjectCategory(TypedDict):
 
 class ForgeObjectDefinition(TypedDict):
     root_categories: list[ForgeObjectCategory]
+
+
+class PermutationName(TypedDict):
+    name: str
+
+
+class NameRegion(TypedDict):
+    name: str
+    permutations: dict[str, PermutationName]

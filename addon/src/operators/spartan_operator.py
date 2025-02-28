@@ -2,14 +2,19 @@
 # Copyright © 2025 Surasia
 import logging
 from pathlib import Path
-from typing import final
+from typing import cast, final
 
 import bpy
 from bpy.types import Collection, Context, Object, Operator
 
 from ..model.importer.model_importer import ModelImporter
 
-from ..json_definitions import CustomizationGlobals, CustomizationRegion, CustomizationTheme
+from ..json_definitions import (
+    CustomizationGlobals,
+    CustomizationRegion,
+    CustomizationTheme,
+    NameRegion,
+)
 from ..utils import get_data_folder, get_import_properties, read_json_file
 
 __all__ = ["ImportSpartanOperator"]
@@ -20,6 +25,10 @@ class ImportSpartanOperator(Operator):
     bl_idname = "ekur.importspartan"
     bl_label = "Import Spartan"
     bl_options = {"REGISTER", "UNDO"}
+
+    def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
+        super().__init__(*args, **kwargs)
+        self.region_cache: dict[str, Collection] = {}
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
@@ -43,17 +52,36 @@ class ImportSpartanOperator(Operator):
         global_collection = bpy.data.collections.new("Spartans")
         themes = customization_globals["themes"]
         if properties.import_specific_core:
-            themes = [theme for theme in themes if str(theme["name"]) == properties.core]
+            themes = [theme for theme in themes if theme["name"] == properties.core]
+
+        names_path = Path(f"{data_folder}/regions_and_permutations.json")
+        names = read_json_file(names_path, dict[str, NameRegion])
+        if not names_path.exists():
+            logging.warning(f"Names path does not exist!: {names_path}")
+            return {"CANCELLED"}
 
         for theme in themes:
-            theme_col = bpy.data.collections.new(str(theme["name"]))
+            theme_col = bpy.data.collections.new(theme["name"])
             global_collection.children.link(theme_col)  # pyright: ignore[reportUnknownMemberType]
             for region in theme["regions"]:
-                self.import_region(region, theme, objects, importer, theme_col, "REGION")
+                self.import_region(region, theme, objects, importer, theme_col, "REGION", names)
             for region in theme["prosthetics"]:
-                self.import_region(region, theme, objects, importer, theme_col, "PROSTHETICS")
+                self.import_region(
+                    region, theme, objects, importer, theme_col, "PROSTHETICS", names
+                )
             for region in theme["body_types"]:
-                self.import_region(region, theme, objects, importer, theme_col, "BODY TYPE")
+                self.import_region(region, theme, objects, importer, theme_col, "BODY TYPE", names)
+
+            kits_collections = bpy.data.collections.new(f"[KITS] {theme['name']}")
+            for kit in theme["kits"]:
+                kit_collection = bpy.data.collections.new(f"[KIT] {kit['name']}")
+                for region in kit["regions"]:
+                    self.import_region(
+                        region, theme, objects, importer, kit_collection, "KIT", names
+                    )
+                kits_collections.children.link(kit_collection)  # pyright: ignore[reportUnknownMemberType]
+            if kits_collections.name not in theme_col.children:
+                theme_col.children.link(kits_collections)  # pyright: ignore[reportUnknownMemberType]
 
             attachment_collection = bpy.data.collections.new(f"[ATTACHMENTS] {theme['name']}")
             theme_col.children.link(attachment_collection)  # pyright: ignore[reportUnknownMemberType]
@@ -95,11 +123,20 @@ class ImportSpartanOperator(Operator):
         importer: ModelImporter,
         theme_collection: Collection,
         id: str,
+        names: dict[str, NameRegion],
     ) -> None:
         data_folder = get_data_folder()
+        if len(region["permutations"]) > 0 and id == "KIT":
+            region["permutations"] = [region["permutations"][0]]
         for perm in region["permutation_regions"]:
-            region_collection = bpy.data.collections.new(f"[{id}] {theme['name']}_{region['name']}")
-            theme_collection.children.link(region_collection)  # pyright: ignore[reportUnknownMemberType]
+            name = f"[{id}] {theme['name']}_{region['name']}"
+            region_collection = self.region_cache.get(name)
+            if region_collection is None:
+                region_collection = bpy.data.collections.new(name)
+                self.region_cache[name] = region_collection
+
+            if region_collection.name not in theme_collection.children:
+                theme_collection.children.link(region_collection)  # pyright: ignore[reportUnknownMemberType]
             for perm_region in region["permutations"]:
                 model = [
                     object
@@ -109,7 +146,15 @@ class ImportSpartanOperator(Operator):
                 ]
                 if len(model) >= 1:
                     for mode in model:
-                        region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
+                        region_name = names.get(cast(str, mode["region_name"]))
+                        if region_name:
+                            perm_name = region_name["permutations"].get(
+                                cast(str, mode["permutation_name"])
+                            )
+                            if perm_name:
+                                mode.name = f"{region['name']}_{perm}"
+                        if mode.name not in region_collection.objects:
+                            region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
                 if perm_region["attachment"]:
                     model_path = f"{data_folder}/models/{perm_region['attachment']['model']}.ekur"
                     attachments = ModelImporter().start_import(model_path, False)

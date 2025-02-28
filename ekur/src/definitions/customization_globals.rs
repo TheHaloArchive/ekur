@@ -5,6 +5,19 @@ use infinite_rs::{
     tag::types::common_types::{AnyTag, FieldBlock, FieldReference, FieldStringId},
 };
 
+use super::object_theme::RegionBlock;
+
+#[derive(Default, Debug, TagStructure)]
+#[data(size(0x1C))]
+pub struct KitThemeConfig {
+    #[data(offset(0x00))]
+    pub name: FieldStringId,
+    #[data(offset(0x04))]
+    pub variant_name: FieldStringId,
+    #[data(offset(0x08))]
+    pub regions: FieldBlock<RegionBlock>,
+}
+
 #[derive(Default, Debug, TagStructure)]
 #[data(size(56))]
 pub struct ThemeConfiguration {
@@ -14,6 +27,8 @@ pub struct ThemeConfiguration {
     pub variant_name: FieldStringId,
     #[data(offset(0x08))]
     pub theme_configs: FieldReference,
+    #[data(offset(0x24))]
+    pub kit_configs: FieldBlock<KitThemeConfig>,
 }
 
 #[derive(Default, Debug, TagStructure)]

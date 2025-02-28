@@ -42,6 +42,9 @@ package_version_string = ".".join(str(i) for i in package_version)
 
 STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
 VISORS_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/all_visors.json"
+REGIONS_URL = (
+    "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/regions_and_permutations.json"
+)
 
 
 @final
@@ -56,6 +59,7 @@ class DownloadFilesOperator(Operator):
         data = get_data_folder()
         save_path = f"{data}/strings.txt"
         visors_path = f"{data}/all_visors.json"
+        regions_path = f"{data}/regions_and_permutations.json"
         ekur_save_path = Path(f"{data}/ekur-{package_version_string}")
 
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{package_version_string}/ekur-{package_version_string}"
@@ -94,7 +98,15 @@ class DownloadFilesOperator(Operator):
             logging.error(f"Failed to download all_visors.json: {e.status}")
             return {"CANCELLED"}
 
-        _ = Path(f"{data}/all_visors.json")
+        try:
+            with (
+                urllib.request.urlopen(REGIONS_URL) as response,  # pyright: ignore[reportAny]
+                open(regions_path, "w") as out_file,
+            ):
+                _ = out_file.write(response.read().decode("utf-8"))  # pyright: ignore[reportAny]
+        except urllib.error.HTTPError as e:
+            logging.error(f"Failed to download regions_and_permutations.json: {e.status}")
+            return {"CANCELLED"}
 
         return {"FINISHED"}
 

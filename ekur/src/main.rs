@@ -116,13 +116,14 @@ fn extract_object_customization(
     attachments: &HashMap<i32, AttachmentConfiguration>,
     models: &HashMap<i32, ModelDefinition>,
     save: &str,
+    strings: &HashMap<i32, String>,
 ) -> Result<()> {
     for module in modules.iter_mut() {
         let m = module.read_tag_from_id(1672913609)?;
         if let Some(m) = m {
             let mut globals = CustomizationGlobals::default();
             m.read_metadata(&mut globals)?;
-            process_object_globals(&globals, themes, save, attachments, models)?;
+            process_object_globals(&globals, themes, save, attachments, models, strings)?;
         }
     }
     Ok(())
@@ -222,7 +223,14 @@ fn main() -> Result<()> {
     extract_scenarios(&mut modules, save)?;
     extract_visor_data(&mut modules, &material_swatches, save)?;
     extract_models(&mut modules, save, &string_mappings)?;
-    extract_object_customization(&mut modules, &themes, &attachments, &models, save)?;
+    extract_object_customization(
+        &mut modules,
+        &themes,
+        &attachments,
+        &models,
+        save,
+        &string_mappings,
+    )?;
     extract_coating_globals(&mut modules, &coat_swatch, save)?;
     extract_styles(&mut modules, save, &string_mappings)?;
     extract_runtime_coatings(&mut modules, &coat_swatch, save)?;

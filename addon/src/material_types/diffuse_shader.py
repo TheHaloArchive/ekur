@@ -29,11 +29,9 @@ class DiffuseShaderType:
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
             _ = self.tree.links.new(img.outputs[1], nodes.inputs[11])
 
-        if (
-            self.material["textures"].get("Control")
-            and self.material["textures"]["Control"] != 11617
-        ):
-            img = self._create_image(-100, str(self.material["textures"]["Control"]))
+        control = self.material["textures"].get("Control")
+        if control and control != 11617:
+            img = self._create_image(-100, str(control))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
         else:
             assign_value(nodes, 1, (0.0, 1.0, 0.0, 0.0))
@@ -58,9 +56,7 @@ class DiffuseShaderType:
             assign_value(shader, 10, (*info["color_tint"], 1.0))
 
             self._get_textures(shader)
-            material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)
-            material_output.target = "ALL"
-            material_output.location = (200, 0)
+            material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
             _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
 
     def _create_image(self, y: int, name: str) -> ShaderNodeTexImage:

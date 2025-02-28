@@ -54,7 +54,5 @@ class IllumShader:
             assign_value(shader, 4, info["intensity"])
 
             self._get_textures(shader)
-            material_output = create_node(self.tree.nodes, 0, 0, ShaderNodeOutputMaterial)
-            material_output.target = "ALL"
-            material_output.location = (200, 0)
+            material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
             _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
