@@ -30,6 +30,8 @@ __all__ = [
     "ForgeObject",
     "ForgeObjectCategory",
     "ForgeObjectDefinition",
+    "PermutationName",
+    "NameRegion",
 ]
 
 
