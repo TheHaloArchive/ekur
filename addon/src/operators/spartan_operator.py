@@ -152,7 +152,7 @@ class ImportSpartanOperator(Operator):
                                 cast(str, mode["permutation_name"])
                             )
                             if perm_name:
-                                mode.name = f"{region['name']}_{perm}"
+                                mode.name = f"{region['name']}_{perm_name}"
                         if mode.name not in region_collection.objects:
                             region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
                 if perm_region["attachment"]:
