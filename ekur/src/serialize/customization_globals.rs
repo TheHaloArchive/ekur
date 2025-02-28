@@ -17,6 +17,7 @@ use std::{
 
 #[derive(Debug, Default, Serialize)]
 pub struct Attachment {
+    pub tag_id: i32,
     pub marker_name: i32,
     pub model: i32,
 }
@@ -91,6 +92,7 @@ fn get_attachment(
             let model_definition = models.get(&marker.model.global_id);
             if let Some(model_definition) = model_definition {
                 return Some(Attachment {
+                    tag_id: attachment.any_tag.internal_struct.tag_id,
                     marker_name: marker.markers.elements.first().unwrap().marker_name.0,
                     model: model_definition.render_model.global_id,
                 });

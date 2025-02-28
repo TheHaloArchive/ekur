@@ -52,14 +52,14 @@ __all__ = ["HIMS"]
 class HIMS:
     def __init__(self) -> None:
         self.node_tree: NodeTree | None = bpy.data.node_groups.get(
-            "Halo Infinite Shader 3.1 by Chunch and ChromaCore"
+            "Halo Infinite Shader 3.1.1 by Chunch and ChromaCore"
         )
         if self.node_tree:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
                 type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Halo Infinite Shader 3.1 by Chunch and ChromaCore",
+                name="Halo Infinite Shader 3.1.1 by Chunch and ChromaCore",
             )
         self.create_sockets()
         self.create_nodes()
@@ -84,10 +84,12 @@ class HIMS:
         _ = create_socket(interface, "Bake ID Mask", NodeSocketColor, False, outputs)
 
         textures = interface.new_panel("Base Textures")
-        _ = create_socket(interface, "ASG Texture", NodeSocketColor, panel=textures)
+        asg = create_socket(interface, "ASG Texture", NodeSocketColor, panel=textures)
+        asg.default_value = (1.0, 1.0, 1.0, 1.0)
         _ = create_socket(interface, "Mask 0", NodeSocketColor, panel=textures)
         _ = create_socket(interface, "Mask 1", NodeSocketColor, panel=textures)
-        _ = create_socket(interface, "Normal", NodeSocketColor, panel=textures)
+        normal = create_socket(interface, "Normal", NodeSocketColor, panel=textures)
+        normal.default_value = (0.5, 0.5, 1.0, 1.0)
 
         settings = interface.new_panel("Globals")
         norm = create_socket(interface, "Detail Normal Toggle", NodeSocketBool, panel=settings)
@@ -104,16 +106,13 @@ class HIMS:
         grime_hs.default_value = 50.0
         ao_amount = create_socket(interface, "AO Amount", NodeSocketFloat, panel=settings)
         ao_amount.default_value = 1.0
-        scratch_height = create_socket(
-            interface, "Scratch Height Amount", NodeSocketFloat, panel=settings
-        )
-        scratch_height.default_value = 3.048
-        global_scratch = create_socket(
-            interface, "Global Scratch Toggle", NodeSocketBool, panel=settings
-        )
-        global_scratch.default_value = True
+        sh = create_socket(interface, "Scratch Height Amount", NodeSocketFloat, panel=settings)
+        sh.default_value = 3.048
+        gs = create_socket(interface, "Global Scratch Toggle", NodeSocketBool, panel=settings)
+        gs.default_value = True
 
         zone1 = interface.new_panel("Zone 1")
+        _ = create_socket(interface, "Zone 1 Toggle", NodeSocketBool, panel=zone1)
         _ = create_socket(interface, "Zone 1 Gradient Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Rough Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Norm Out", NodeSocketColor, panel=zone1)
@@ -121,7 +120,6 @@ class HIMS:
         _ = create_socket(interface, "Zone 1 Scratch Metallic", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Scratch Roughness", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Metallic", NodeSocketFloat, panel=zone1)
-        _ = create_socket(interface, "Zone 1 SSS Amount", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Transparency Amount", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Emissive Amount", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Top Color", NodeSocketColor, panel=zone1)
@@ -138,7 +136,6 @@ class HIMS:
         _ = create_socket(interface, "Zone 2 Scratch Metallic", NodeSocketFloat, panel=zone2)
         _ = create_socket(interface, "Zone 2 Scratch Roughness", NodeSocketFloat, panel=zone2)
         _ = create_socket(interface, "Zone 2 Metallic", NodeSocketFloat, panel=zone2)
-        _ = create_socket(interface, "Zone 2 SSS Amount", NodeSocketFloat, panel=zone2)
         _ = create_socket(interface, "Zone 2 Transparency Amount", NodeSocketFloat, panel=zone2)
         _ = create_socket(interface, "Zone 2 Emissive Amount", NodeSocketFloat, panel=zone2)
         _ = create_socket(interface, "Zone 2 Top Color", NodeSocketColor, panel=zone2)
@@ -155,14 +152,12 @@ class HIMS:
         _ = create_socket(interface, "Zone 3 Scratch Metallic", NodeSocketFloat, panel=zone3)
         _ = create_socket(interface, "Zone 3 Scratch Roughness", NodeSocketFloat, panel=zone3)
         _ = create_socket(interface, "Zone 3 Metallic", NodeSocketFloat, panel=zone3)
-        _ = create_socket(interface, "Zone 3 SSS Amount", NodeSocketFloat, panel=zone3)
         _ = create_socket(interface, "Zone 3 Transparency Amount", NodeSocketFloat, panel=zone3)
         _ = create_socket(interface, "Zone 3 Emissive Amount", NodeSocketFloat, panel=zone3)
         _ = create_socket(interface, "Zone 3 Top Color", NodeSocketColor, panel=zone3)
         _ = create_socket(interface, "Zone 3 Mid Color", NodeSocketColor, panel=zone3)
         _ = create_socket(interface, "Zone 3 Bot Color", NodeSocketColor, panel=zone3)
         _ = create_socket(interface, "Zone 3 Scratch Color", NodeSocketColor, panel=zone3)
-        _ = create_socket(interface, "Zone 3 SSS Color", NodeSocketColor, panel=zone3)
 
         zone4 = interface.new_panel("Zone 4")
         _ = create_socket(interface, "Zone 4 Toggle", NodeSocketBool, panel=zone4)
@@ -173,14 +168,12 @@ class HIMS:
         _ = create_socket(interface, "Zone 4 Scratch Metallic", NodeSocketFloat, panel=zone4)
         _ = create_socket(interface, "Zone 4 Scratch Roughness", NodeSocketFloat, panel=zone4)
         _ = create_socket(interface, "Zone 4 Metallic", NodeSocketFloat, panel=zone4)
-        _ = create_socket(interface, "Zone 4 SSS Amount", NodeSocketFloat, panel=zone4)
         _ = create_socket(interface, "Zone 4 Transparency Amount", NodeSocketFloat, panel=zone4)
         _ = create_socket(interface, "Zone 4 Emissive Amount", NodeSocketFloat, panel=zone4)
         _ = create_socket(interface, "Zone 4 Top Color", NodeSocketColor, panel=zone4)
         _ = create_socket(interface, "Zone 4 Mid Color", NodeSocketColor, panel=zone4)
         _ = create_socket(interface, "Zone 4 Bot Color", NodeSocketColor, panel=zone4)
         _ = create_socket(interface, "Zone 4 Scratch Color", NodeSocketColor, panel=zone4)
-        _ = create_socket(interface, "Zone 4 SSS Color", NodeSocketColor, panel=zone4)
 
         zone5 = interface.new_panel("Zone 5")
         _ = create_socket(interface, "Zone 5 Toggle", NodeSocketBool, panel=zone5)
@@ -191,14 +184,12 @@ class HIMS:
         _ = create_socket(interface, "Zone 5 Scratch Metallic", NodeSocketFloat, panel=zone5)
         _ = create_socket(interface, "Zone 5 Scratch Roughness", NodeSocketFloat, panel=zone5)
         _ = create_socket(interface, "Zone 5 Metallic", NodeSocketFloat, panel=zone5)
-        _ = create_socket(interface, "Zone 5 SSS Amount", NodeSocketFloat, panel=zone5)
         _ = create_socket(interface, "Zone 5 Transparency Amount", NodeSocketFloat, panel=zone5)
         _ = create_socket(interface, "Zone 5 Emissive Amount", NodeSocketFloat, panel=zone5)
         _ = create_socket(interface, "Zone 5 Top Color", NodeSocketColor, panel=zone5)
         _ = create_socket(interface, "Zone 5 Mid Color", NodeSocketColor, panel=zone5)
         _ = create_socket(interface, "Zone 5 Bot Color", NodeSocketColor, panel=zone5)
         _ = create_socket(interface, "Zone 5 Scratch Color", NodeSocketColor, panel=zone5)
-        _ = create_socket(interface, "Zone 5 SSS Color", NodeSocketColor, panel=zone5)
 
         zone6 = interface.new_panel("Zone 6")
         _ = create_socket(interface, "Zone 6 Toggle", NodeSocketBool, panel=zone6)
@@ -209,14 +200,12 @@ class HIMS:
         _ = create_socket(interface, "Zone 6 Scratch Metallic", NodeSocketFloat, panel=zone6)
         _ = create_socket(interface, "Zone 6 Scratch Roughness", NodeSocketFloat, panel=zone6)
         _ = create_socket(interface, "Zone 6 Metallic", NodeSocketFloat, panel=zone6)
-        _ = create_socket(interface, "Zone 6 SSS Amount", NodeSocketFloat, panel=zone6)
         _ = create_socket(interface, "Zone 6 Transparency Amount", NodeSocketFloat, panel=zone6)
         _ = create_socket(interface, "Zone 6 Emissive Amount", NodeSocketFloat, panel=zone6)
         _ = create_socket(interface, "Zone 6 Top Color", NodeSocketColor, panel=zone6)
         _ = create_socket(interface, "Zone 6 Mid Color", NodeSocketColor, panel=zone6)
         _ = create_socket(interface, "Zone 6 Bot Color", NodeSocketColor, panel=zone6)
         _ = create_socket(interface, "Zone 6 Scratch Color", NodeSocketColor, panel=zone6)
-        _ = create_socket(interface, "Zone 6 SSS Color", NodeSocketColor, panel=zone6)
 
         zone7 = interface.new_panel("Zone 7")
         _ = create_socket(interface, "Zone 7 Toggle", NodeSocketBool, panel=zone7)
@@ -227,27 +216,23 @@ class HIMS:
         _ = create_socket(interface, "Zone 7 Scratch Metallic", NodeSocketFloat, panel=zone7)
         _ = create_socket(interface, "Zone 7 Scratch Roughness", NodeSocketFloat, panel=zone7)
         _ = create_socket(interface, "Zone 7 Metallic", NodeSocketFloat, panel=zone7)
-        _ = create_socket(interface, "Zone 7 SSS Amount", NodeSocketFloat, panel=zone7)
         _ = create_socket(interface, "Zone 7 Transparency Amount", NodeSocketFloat, panel=zone7)
         _ = create_socket(interface, "Zone 7 Emissive Amount", NodeSocketFloat, panel=zone7)
         _ = create_socket(interface, "Zone 7 Top Color", NodeSocketColor, panel=zone7)
         _ = create_socket(interface, "Zone 7 Mid Color", NodeSocketColor, panel=zone7)
         _ = create_socket(interface, "Zone 7 Bot Color", NodeSocketColor, panel=zone7)
         _ = create_socket(interface, "Zone 7 Scratch Color", NodeSocketColor, panel=zone7)
-        _ = create_socket(interface, "Zone 7 SSS Color", NodeSocketColor, panel=zone7)
 
         grime = interface.new_panel("Grime")
         _ = create_socket(interface, "Grime Gradient Out", NodeSocketFloat, panel=grime)
         _ = create_socket(interface, "Grime Rough Out", NodeSocketFloat, panel=grime)
         _ = create_socket(interface, "Grime Norm Out", NodeSocketColor, panel=grime)
         _ = create_socket(interface, "Grime Metallic", NodeSocketFloat, panel=grime)
-        _ = create_socket(interface, "Grime SSS Amount", NodeSocketFloat, panel=grime)
         _ = create_socket(interface, "Grime Transparency Amount", NodeSocketFloat, panel=grime)
         _ = create_socket(interface, "Grime Emissive Amount", NodeSocketFloat, panel=grime)
         _ = create_socket(interface, "Grime Top Color", NodeSocketColor, panel=grime)
         _ = create_socket(interface, "Grime Mid Color", NodeSocketColor, panel=grime)
         _ = create_socket(interface, "Grime Bot Color", NodeSocketColor, panel=grime)
-        _ = create_socket(interface, "Grime SSS Color", NodeSocketColor, panel=grime)
 
         overrides = interface.new_panel("Color Overrides")
         _ = create_socket(interface, "Color Override", NodeSocketColor, panel=overrides)
@@ -298,10 +283,6 @@ class HIMS:
         reroute_013_3 = create_node(nodes, 0, 0, NodeReroute)
         reroute_022 = create_node(nodes, 0, 0, NodeReroute)
         reroute_032 = create_node(nodes, 0, 0, NodeReroute)
-        reroute_033 = create_node(nodes, 0, 0, NodeReroute)
-        reroute_034 = create_node(nodes, 0, 0, NodeReroute)
-        reroute_035 = create_node(nodes, 0, 0, NodeReroute)
-        reroute_037 = create_node(nodes, 0, 0, NodeReroute)
         reroute_016_3 = create_node(nodes, 0, 0, NodeReroute)
         reroute_040 = create_node(nodes, 0, 0, NodeReroute)
         reroute_045 = create_node(nodes, 0, 0, NodeReroute)
@@ -393,66 +374,48 @@ class HIMS:
         assign_value(musgrave_texture, 8, 0.0)
 
         colorramp_001 = create_node(nodes, 0, 0, ShaderNodeValToRGB)
-        colorramp_001.color_ramp.color_mode = "RGB"
-        colorramp_001.color_ramp.hue_interpolation = "NEAR"
-        colorramp_001.color_ramp.interpolation = "LINEAR"
+        if colorramp_001.color_ramp:
+            colorramp_001.color_ramp.color_mode = "RGB"
+            colorramp_001.color_ramp.hue_interpolation = "NEAR"
+            colorramp_001.color_ramp.interpolation = "LINEAR"
 
-        colorramp_001.color_ramp.elements.remove(colorramp_001.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
-        colorramp_001_cre_0 = colorramp_001.color_ramp.elements[0]
-        colorramp_001_cre_0.position = 0.5
-        colorramp_001_cre_0.alpha = 1.0
-        colorramp_001_cre_0.color = (0.0, 0.0, 0.0, 1.0)
+            colorramp_001.color_ramp.elements.remove(colorramp_001.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
+            colorramp_001_cre_0 = colorramp_001.color_ramp.elements[0]
+            colorramp_001_cre_0.position = 0.5
+            colorramp_001_cre_0.alpha = 1.0
+            colorramp_001_cre_0.color = (0.0, 0.0, 0.0, 1.0)
 
-        colorramp_001_cre_1 = colorramp_001.color_ramp.elements.new(0.6424239277839661)
-        colorramp_001_cre_1.alpha = 1.0
-        colorramp_001_cre_1.color = (
-            0.004999999888241291,
-            0.004999999888241291,
-            0.004999999888241291,
-            1.0,
-        )
+            colorramp_001_cre_1 = colorramp_001.color_ramp.elements.new(0.6425)
+            colorramp_001_cre_1.alpha = 1.0
+            colorramp_001_cre_1.color = (0.005, 0.005, 0.005, 1.0)
 
-        colorramp_001_cre_2 = colorramp_001.color_ramp.elements.new(0.884848415851593)
-        colorramp_001_cre_2.alpha = 1.0
-        colorramp_001_cre_2.color = (
-            0.022307951003313065,
-            0.022307951003313065,
-            0.022307951003313065,
-            1.0,
-        )
+            colorramp_001_cre_2 = colorramp_001.color_ramp.elements.new(0.885)
+            colorramp_001_cre_2.alpha = 1.0
+            colorramp_001_cre_2.color = (0.0223, 0.0223, 0.0223, 1.0)
 
         bump = create_node(nodes, 0, 0, ShaderNodeBump)
         bump.invert = True
         assign_value(bump, 1, 0.004)
 
         colorramp = create_node(nodes, 0, 0, ShaderNodeValToRGB)
-        colorramp.color_ramp.color_mode = "RGB"
-        colorramp.color_ramp.hue_interpolation = "NEAR"
-        colorramp.color_ramp.interpolation = "LINEAR"
+        if colorramp.color_ramp:
+            colorramp.color_ramp.color_mode = "RGB"
+            colorramp.color_ramp.hue_interpolation = "NEAR"
+            colorramp.color_ramp.interpolation = "LINEAR"
 
-        colorramp.color_ramp.elements.remove(colorramp.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
-        colorramp_cre_0 = colorramp.color_ramp.elements[0]
-        colorramp_cre_0.position = 0.13939400017261505
-        colorramp_cre_0.alpha = 1.0
-        colorramp_cre_0.color = (0.0, 0.0, 0.0, 1.0)
+            colorramp.color_ramp.elements.remove(colorramp.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
+            colorramp_cre_0 = colorramp.color_ramp.elements[0]
+            colorramp_cre_0.position = 0.1393
+            colorramp_cre_0.alpha = 1.0
+            colorramp_cre_0.color = (0.0, 0.0, 0.0, 1.0)
 
-        colorramp_cre_1 = colorramp.color_ramp.elements.new(0.7379999756813049)
-        colorramp_cre_1.alpha = 1.0
-        colorramp_cre_1.color = (
-            0.0122859887778759,
-            0.01228599064052105,
-            0.012285999953746796,
-            1.0,
-        )
+            colorramp_cre_1 = colorramp.color_ramp.elements.new(0.738)
+            colorramp_cre_1.alpha = 1.0
+            colorramp_cre_1.color = (0.0123, 0.0123, 0.0123, 1.0)
 
-        colorramp_cre_2 = colorramp.color_ramp.elements.new(1.0)
-        colorramp_cre_2.alpha = 1.0
-        colorramp_cre_2.color = (
-            0.01520898099988699,
-            0.015208990313112736,
-            0.015208999626338482,
-            1.0,
-        )
+            colorramp_cre_2 = colorramp.color_ramp.elements.new(1.0)
+            colorramp_cre_2.alpha = 1.0
+            colorramp_cre_2.color = (0.0152, 0.0152, 0.0152, 1.0)
 
         group_006 = create_node(nodes, 0, 0, ShaderNodeGroup)
         group_006.node_tree = cast(ShaderNodeTree, ScratchGlobalToggle().node_tree)
@@ -465,9 +428,6 @@ class HIMS:
 
         group_023 = create_node(nodes, 0, 0, ShaderNodeGroup)
         group_023.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorter().node_tree)
-
-        group_019 = create_node(nodes, 0, 0, ShaderNodeGroup)
-        group_019.node_tree = cast(ShaderNodeTree, InfiniteMaskingSorter().node_tree)
 
         group_004 = create_node(nodes, 0, 0, ShaderNodeGroup)
         group_004.node_tree = cast(ShaderNodeTree, ColorMixer().node_tree)
@@ -610,9 +570,6 @@ class HIMS:
         principled_bsdf.distribution = "GGX"
         principled_bsdf.subsurface_method = "RANDOM_WALK_SKIN"
 
-        mixemission = create_node(nodes, 3494, 196, ShaderNodeMix)
-        mixemission.data_type = "RGBA"
-
         infinite_color = create_node(nodes, 1210, 366, ShaderNodeGroup)
         infinite_color.node_tree = cast(ShaderNodeTree, InfiniteColor().node_tree)
 
@@ -635,9 +592,9 @@ class HIMS:
 
         combinemult = create_node(nodes, 0, 0, ShaderNodeCombineXYZ)
         _ = self.node_tree.links.new(group_input.outputs[9], mult_yscale.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[136], mult_yscale.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[122], mult_yscale.inputs[1])
         _ = self.node_tree.links.new(group_input.outputs[9], mult_xscale.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[135], mult_xscale.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[123], mult_xscale.inputs[1])
         _ = self.node_tree.links.new(mult_xscale.outputs[0], combinemult.inputs[0])
         _ = self.node_tree.links.new(mult_yscale.outputs[0], combinemult.inputs[1])
         _ = self.node_tree.links.new(combinemult.outputs[0], mapping_1.inputs[3])
@@ -667,10 +624,6 @@ class HIMS:
         reroute_013_3.location = (2819.94677734375, 50.750732421875)
         reroute_022.location = (2982.773193359375, 480.6976318359375)
         reroute_032.location = (3398.82421875, 200.83401489257812)
-        reroute_033.location = (3289.7529296875, 182.54298400878906)
-        reroute_034.location = (3290.66015625, 163.137451171875)
-        reroute_035.location = (762.3345947265625, 195.68263244628906)
-        reroute_037.location = (756.5297241210938, -768.2499389648438)
         reroute_016_3.location = (1422.8017578125, 63.79310607910156)
         reroute_040.location = (3071.32373046875, 657.0897827148438)
         reroute_045.location = (3876.27001953125, -69.84181213378906)
@@ -729,7 +682,6 @@ class HIMS:
         group_012.location = (-1609.9658203125, 1326.75048828125)
         group_018.location = (-1736.718017578125, -325.762451171875)
         group_023.location = (-1749.1181640625, -1459.643798828125)
-        group_019.location = (-1740.583740234375, -693.3277587890625)
         group_004.location = (-1609.9658203125, 2046.75048828125)
         group_013.location = (-42.23020935058594, -901.8160400390625)
         group_022.location = (-36.950374603271484, -1272.497802734375)
@@ -787,7 +739,6 @@ class HIMS:
         detailnormals.location = (-30.266983032226562, -142.71868896484375)
         group_002_4.location = (-1609.9658203125, 2226.75048828125)
         principled_bsdf.location = (3693.52001953125, 316.2340087890625)
-        mixemission.location = (3494.010498046875, 196.2340087890625)
         infinite_color.location = (-53.98965072631836, 1419.260498046875)
         multvoronoi.location = (1321.500244140625, 1573.3026123046875)
         addtovoronoi.location = (1321.500244140625, 1613.3026123046875)
@@ -801,87 +752,116 @@ class HIMS:
         _ = self.node_tree.links.new(group_012.outputs[0], infinite_color.inputs[8])
         _ = self.node_tree.links.new(zone7.outputs[0], infinite_color.inputs[10])
         _ = self.node_tree.links.new(group_016.outputs[0], infinite_color.inputs[9])
+
+        # Emissive Links
         _ = self.node_tree.links.new(group_input.outputs[22], group_013.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[37], group_013.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[52], group_013.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[68], group_013.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[84], group_013.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[100], group_013.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[36], group_013.inputs[4])
+        _ = self.node_tree.links.new(group_input.outputs[50], group_013.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[64], group_013.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[78], group_013.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[92], group_013.inputs[8])
+
         _ = self.node_tree.links.new(nogrimecol.outputs[0], infinite_color.inputs[11])
         _ = self.node_tree.links.new(group_017.outputs[0], group_001_4.inputs[11])
         _ = self.node_tree.links.new(group_018.outputs[0], group_009.inputs[11])
         _ = self.node_tree.links.new(srgb.outputs[0], math_001_4.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[17], group_017.inputs[3])
+
+        # Scratch Metallic
+        _ = self.node_tree.links.new(group_input.outputs[18], group_017.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[32], group_017.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[47], group_017.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[63], group_017.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[79], group_017.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[95], group_017.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[46], group_017.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[60], group_017.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[74], group_017.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[88], group_017.inputs[8])
+
+        # Scratch Color
         _ = self.node_tree.links.new(group_input.outputs[26], nogrimecol.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[41], nogrimecol.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[56], nogrimecol.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[72], nogrimecol.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[88], nogrimecol.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[104], nogrimecol.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[18], group_018.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[40], nogrimecol.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[54], nogrimecol.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[68], nogrimecol.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[82], nogrimecol.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[96], nogrimecol.inputs[9])
+
+        # Scratch Roughness
+        _ = self.node_tree.links.new(group_input.outputs[19], group_018.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[33], group_018.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[48], group_018.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[64], group_018.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[80], group_018.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[96], group_018.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[13], group_002_4.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[47], group_018.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[61], group_018.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[75], group_018.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[89], group_018.inputs[8])
+
+        # Zone 1
+        _ = self.node_tree.links.new(group_input.outputs[14], group_002_4.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[23], group_002_4.inputs[1])
         _ = self.node_tree.links.new(group_input.outputs[24], group_002_4.inputs[2])
         _ = self.node_tree.links.new(group_input.outputs[25], group_002_4.inputs[3])
+
+        # Zone 2
         _ = self.node_tree.links.new(group_input.outputs[28], group_004.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[38], group_004.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[39], group_004.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[40], group_004.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[43], zone3.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[53], zone3.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[54], zone3.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[55], zone3.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[59], group_010.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[69], group_010.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[70], group_010.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[71], group_010.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[75], group_011.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[85], group_011.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[86], group_011.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[87], group_011.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[91], group_012.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[101], group_012.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[102], group_012.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[103], group_012.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[122], group_016.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[129], group_016.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[130], group_016.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[131], group_016.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[37], group_004.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[38], group_004.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[39], group_004.inputs[3])
+
+        # Zone 3
+        _ = self.node_tree.links.new(group_input.outputs[42], zone3.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[51], zone3.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[52], zone3.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[53], zone3.inputs[3])
+
+        # Zone 4
+        _ = self.node_tree.links.new(group_input.outputs[56], group_010.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[65], group_010.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[66], group_010.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[67], group_010.inputs[3])
+
+        # Zone 5
+        _ = self.node_tree.links.new(group_input.outputs[70], group_011.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[79], group_011.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[80], group_011.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[81], group_011.inputs[3])
+
+        # Zone 6
+        _ = self.node_tree.links.new(group_input.outputs[84], group_012.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[93], group_012.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[94], group_012.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[95], group_012.inputs[3])
+
+        # Zone 7
+        _ = self.node_tree.links.new(group_input.outputs[111], group_016.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[117], group_016.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[118], group_016.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[119], group_016.inputs[3])
+
+        # Rough Out
         _ = self.node_tree.links.new(group_input.outputs[0], group_009.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[14], group_009.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[15], group_009.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[29], group_009.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[44], group_009.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[60], group_009.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[76], group_009.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[92], group_009.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[123], group_009.inputs[10])
-        _ = self.node_tree.links.new(group_input.outputs[108], group_009.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[43], group_009.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[57], group_009.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[71], group_009.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[85], group_009.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[112], group_009.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[99], group_009.inputs[9])
+
+        # Metallic
         _ = self.node_tree.links.new(group_input.outputs[0], group_001_4.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[19], group_001_4.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[20], group_001_4.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[34], group_001_4.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[49], group_001_4.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[65], group_001_4.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[81], group_001_4.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[97], group_001_4.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[113], group_001_4.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[125], group_001_4.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[48], group_001_4.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[62], group_001_4.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[76], group_001_4.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[90], group_001_4.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[104], group_001_4.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[114], group_001_4.inputs[10])
+
         _ = self.node_tree.links.new(group_input.outputs[0], infinite_color.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_013.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[128], group_013.inputs[10])
-        _ = self.node_tree.links.new(group_input.outputs[116], group_013.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[116], group_013.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[106], group_013.inputs[9])
         _ = self.node_tree.links.new(group_input.outputs[0], nogrimecol.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_017.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_018.inputs[0])
+
         _ = self.node_tree.links.new(reroute_014_3.outputs[0], colorramp.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_020.inputs[0])
         _ = self.node_tree.links.new(group_020.outputs[0], group_009.inputs[12])
@@ -909,31 +889,24 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[10], math_001_4.inputs[1])
         _ = self.node_tree.links.new(reroute_057.outputs[0], bump.inputs[2])
         _ = self.node_tree.links.new(reroute_029.outputs[0], group_output_17.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[0], group_019.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[7], group_019.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[20], group_019.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[35], group_019.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[50], group_019.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[66], group_019.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[82], group_019.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[98], group_019.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[126], group_019.inputs[11])
-        _ = self.node_tree.links.new(group_input.outputs[114], group_019.inputs[10])
         _ = self.node_tree.links.new(group_input.outputs[11], mult3.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[112], group_018.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[111], group_017.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[120], nogrimecol.inputs[10])
+
+        _ = self.node_tree.links.new(group_input.outputs[103], group_018.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[102], group_017.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[110], nogrimecol.inputs[10])
+
         _ = self.node_tree.links.new(colorramp.outputs[0], mult3.inputs[0])
         _ = self.node_tree.links.new(gamma.outputs[0], combine_color.inputs[0])
         _ = self.node_tree.links.new(gamma_001.outputs[0], combine_color.inputs[1])
         _ = self.node_tree.links.new(combine_color.outputs[0], group_output_17.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[133], infinite_color.inputs[12])
-        _ = self.node_tree.links.new(group_input.outputs[134], infinite_color.inputs[13])
+
+        _ = self.node_tree.links.new(group_input.outputs[120], infinite_color.inputs[12])
+        _ = self.node_tree.links.new(group_input.outputs[121], infinite_color.inputs[13])
+
         _ = self.node_tree.links.new(reroute_059.outputs[0], principled_bsdf.inputs[5])
         _ = self.node_tree.links.new(normal_map.outputs[0], bump.inputs[3])
         _ = self.node_tree.links.new(math_006_1.outputs[0], group_output_17.inputs[10])
         _ = self.node_tree.links.new(reroute_030.outputs[0], group_output_17.inputs[0])
-        _ = self.node_tree.links.new(math_5.outputs[0], principled_bsdf.inputs[12])
         _ = self.node_tree.links.new(reroute_002_4.outputs[0], reroute_1.inputs[0])
         _ = self.node_tree.links.new(infinite_color.outputs[0], reroute_001_4.inputs[0])
         _ = self.node_tree.links.new(reroute_001_4.outputs[0], reroute_002_4.inputs[0])
@@ -976,9 +949,6 @@ class HIMS:
         _ = self.node_tree.links.new(reroute_053.outputs[0], reroute_030.inputs[0])
         _ = self.node_tree.links.new(mix_11.outputs[2], reroute_031.inputs[0])
         _ = self.node_tree.links.new(reroute_031.outputs[0], reroute_032.inputs[0])
-        _ = self.node_tree.links.new(reroute_035.outputs[0], reroute_033.inputs[0])
-        _ = self.node_tree.links.new(reroute_037.outputs[0], reroute_035.inputs[0])
-        _ = self.node_tree.links.new(group_019.outputs[0], reroute_037.inputs[0])
         _ = self.node_tree.links.new(group_001_4.outputs[0], reroute_039.inputs[0])
         _ = self.node_tree.links.new(reroute_039.outputs[0], reroute_040.inputs[0])
         _ = self.node_tree.links.new(reroute_040.outputs[0], invert.inputs[1])
@@ -1015,38 +985,48 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[0], group_023.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[7], group_023.inputs[3])
         _ = self.node_tree.links.new(math_007_1.outputs[0], principled_bsdf.inputs[4])
+
+        # Transparency
         _ = self.node_tree.links.new(group_input.outputs[21], group_023.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[36], group_023.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[51], group_023.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[67], group_023.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[83], group_023.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[99], group_023.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[127], group_023.inputs[11])
+        _ = self.node_tree.links.new(group_input.outputs[35], group_023.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[49], group_023.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[63], group_023.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[77], group_023.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[91], group_023.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[105], group_023.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[115], group_023.inputs[11])
+
         _ = self.node_tree.links.new(group_023.outputs[0], reroute_064.inputs[0])
         _ = self.node_tree.links.new(reroute_064.outputs[0], reroute_065.inputs[0])
         _ = self.node_tree.links.new(reroute_065.outputs[0], math_007_1.inputs[1])
+
         _ = self.node_tree.links.new(group_input.outputs[0], detailnormals.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[3], detailnormals.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[15], detailnormals.inputs[4])
+        _ = self.node_tree.links.new(group_input.outputs[16], detailnormals.inputs[4])
         _ = self.node_tree.links.new(group_input.outputs[30], detailnormals.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[45], detailnormals.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[61], detailnormals.inputs[7])
-        _ = self.node_tree.links.new(group_input.outputs[77], detailnormals.inputs[8])
-        _ = self.node_tree.links.new(group_input.outputs[93], detailnormals.inputs[9])
-        _ = self.node_tree.links.new(group_input.outputs[124], detailnormals.inputs[11])
-        _ = self.node_tree.links.new(group_input.outputs[109], detailnormals.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[44], detailnormals.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[58], detailnormals.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[72], detailnormals.inputs[8])
+        _ = self.node_tree.links.new(group_input.outputs[86], detailnormals.inputs[9])
+        _ = self.node_tree.links.new(group_input.outputs[113], detailnormals.inputs[11])
+        _ = self.node_tree.links.new(group_input.outputs[100], detailnormals.inputs[10])
         _ = self.node_tree.links.new(group_input.outputs[7], detailnormals.inputs[13])
+
         _ = self.node_tree.links.new(reroute_076.outputs[0], normal_map.inputs[1])
         _ = self.node_tree.links.new(reroute_062.outputs[0], detailnormals.inputs[12])
+
         _ = self.node_tree.links.new(group_input.outputs[4], detailnormals.inputs[14])
         _ = self.node_tree.links.new(group_input.outputs[1], masktoggles.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[2], masktoggles.inputs[1])
+
+        # Mask Toggles
         _ = self.node_tree.links.new(group_input.outputs[27], masktoggles.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[42], masktoggles.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[58], masktoggles.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[74], masktoggles.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[90], masktoggles.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[106], masktoggles.inputs[7])
+        _ = self.node_tree.links.new(group_input.outputs[41], masktoggles.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[55], masktoggles.inputs[4])
+        _ = self.node_tree.links.new(group_input.outputs[69], masktoggles.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[83], masktoggles.inputs[6])
+        _ = self.node_tree.links.new(group_input.outputs[97], masktoggles.inputs[7])
+
         _ = self.node_tree.links.new(masktoggles.outputs[0], nogrimecol.inputs[1])
         _ = self.node_tree.links.new(masktoggles.outputs[1], nogrimecol.inputs[2])
         _ = self.node_tree.links.new(masktoggles.outputs[0], group_017.inputs[1])
@@ -1055,8 +1035,6 @@ class HIMS:
         _ = self.node_tree.links.new(masktoggles.outputs[1], group_020.inputs[2])
         _ = self.node_tree.links.new(masktoggles.outputs[0], group_018.inputs[1])
         _ = self.node_tree.links.new(masktoggles.outputs[1], group_018.inputs[2])
-        _ = self.node_tree.links.new(masktoggles.outputs[0], group_019.inputs[1])
-        _ = self.node_tree.links.new(masktoggles.outputs[1], group_019.inputs[2])
         _ = self.node_tree.links.new(masktoggles.outputs[0], group_023.inputs[1])
         _ = self.node_tree.links.new(masktoggles.outputs[1], group_023.inputs[2])
         _ = self.node_tree.links.new(masktoggles.outputs[0], group_013.inputs[1])
@@ -1069,14 +1047,17 @@ class HIMS:
         _ = self.node_tree.links.new(masktoggles.outputs[1], group_001_4.inputs[2])
         _ = self.node_tree.links.new(masktoggles.outputs[0], infinite_color.inputs[1])
         _ = self.node_tree.links.new(masktoggles.outputs[1], infinite_color.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[16], group_006.inputs[0])
+
+        # Scratch Amount
+        _ = self.node_tree.links.new(group_input.outputs[17], group_006.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[31], group_006.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[46], group_006.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[62], group_006.inputs[3])
-        _ = self.node_tree.links.new(group_input.outputs[78], group_006.inputs[4])
-        _ = self.node_tree.links.new(group_input.outputs[94], group_006.inputs[5])
-        _ = self.node_tree.links.new(group_input.outputs[110], group_006.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[16], group_020.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[45], group_006.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[59], group_006.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[73], group_006.inputs[4])
+        _ = self.node_tree.links.new(group_input.outputs[87], group_006.inputs[5])
+        _ = self.node_tree.links.new(group_input.outputs[101], group_006.inputs[6])
+
+        _ = self.node_tree.links.new(group_input.outputs[17], group_020.inputs[3])
         _ = self.node_tree.links.new(group_006.outputs[0], group_020.inputs[4])
         _ = self.node_tree.links.new(group_006.outputs[1], group_020.inputs[5])
         _ = self.node_tree.links.new(group_006.outputs[2], group_020.inputs[6])
@@ -1092,15 +1073,17 @@ class HIMS:
         _ = self.node_tree.links.new(clamp_005.outputs[0], group_022.inputs[8])
         _ = self.node_tree.links.new(clamp_006.outputs[0], group_022.inputs[9])
         _ = self.node_tree.links.new(clamp_007.outputs[0], group_022.inputs[10])
+
         _ = self.node_tree.links.new(group_input.outputs[7], group_022.inputs[11])
         _ = self.node_tree.links.new(group_input.outputs[22], clamp_1.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[37], clamp_001.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[52], clamp_002.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[68], clamp_003.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[84], clamp_004.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[100], clamp_005.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[116], clamp_006.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[128], clamp_007.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[36], clamp_001.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[50], clamp_002.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[64], clamp_003.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[78], clamp_004.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[92], clamp_005.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[106], clamp_006.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[116], clamp_007.inputs[0])
+
         _ = self.node_tree.links.new(group_input.outputs[0], group_022.inputs[0])
         _ = self.node_tree.links.new(masktoggles.outputs[0], group_022.inputs[1])
         _ = self.node_tree.links.new(masktoggles.outputs[1], group_022.inputs[2])
@@ -1128,7 +1111,7 @@ class HIMS:
         _ = self.node_tree.links.new(yellow.outputs[2], magenta.inputs[6])
         _ = self.node_tree.links.new(separate_color_001.outputs[2], magenta.inputs[0])
         _ = self.node_tree.links.new(magenta.outputs[2], group_output_17.inputs[11])
-        _ = self.node_tree.links.new(group_input.outputs[115], group_023.inputs[10])
+        _ = self.node_tree.links.new(group_input.outputs[105], group_023.inputs[10])
         _ = self.node_tree.links.new(reroute_063.outputs[0], reroute_075.inputs[0])
         _ = self.node_tree.links.new(reroute_077.outputs[0], reroute_076.inputs[0])
         _ = self.node_tree.links.new(detailnormals.outputs[0], reroute_077.inputs[0])
@@ -1139,17 +1122,13 @@ class HIMS:
         _ = self.node_tree.links.new(reroute_004_4.outputs[0], reroute_083.inputs[0])
         _ = self.node_tree.links.new(reroute_083.outputs[0], reroute_084.inputs[0])
         _ = self.node_tree.links.new(reroute_084.outputs[0], mix_11.inputs[6])
-        _ = self.node_tree.links.new(group_input.outputs[107], zone7.inputs[0])
-        _ = self.node_tree.links.new(group_input.outputs[117], zone7.inputs[1])
-        _ = self.node_tree.links.new(group_input.outputs[118], zone7.inputs[2])
-        _ = self.node_tree.links.new(group_input.outputs[119], zone7.inputs[3])
+        _ = self.node_tree.links.new(group_input.outputs[98], zone7.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[107], zone7.inputs[1])
+        _ = self.node_tree.links.new(group_input.outputs[108], zone7.inputs[2])
+        _ = self.node_tree.links.new(group_input.outputs[109], zone7.inputs[3])
         _ = self.node_tree.links.new(group_input.outputs[5], detailnormals.inputs[15])
         _ = self.node_tree.links.new(group_input.outputs[6], detailnormals.inputs[16])
-        _ = self.node_tree.links.new(reroute_032.outputs[0], mixemission.inputs[6])
-        _ = self.node_tree.links.new(reroute_034.outputs[0], mixemission.inputs[7])
-        _ = self.node_tree.links.new(reroute_033.outputs[0], mixemission.inputs[0])
-        _ = self.node_tree.links.new(reroute_033.outputs[0], principled_bsdf.inputs[9])
-        _ = self.node_tree.links.new(mixemission.outputs[2], principled_bsdf.inputs[0])
+        _ = self.node_tree.links.new(reroute_032.outputs[0], principled_bsdf.inputs[0])
         _ = self.node_tree.links.new(addtovoronoi.outputs[0], multvoronoi2.inputs[0])
         _ = self.node_tree.links.new(multvoronoi.outputs[0], addtovoronoi.inputs[0])
         _ = self.node_tree.links.new(multvoronoi2.outputs[0], reroute_054.inputs[0])

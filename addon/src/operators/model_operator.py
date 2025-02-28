@@ -19,7 +19,7 @@ class ImportModelOperator(Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:
-        if context is None:
+        if context is None or context.scene is None:
             return {"CANCELLED"}
         properties = get_import_properties()
         model_path = properties.model_path
@@ -27,7 +27,7 @@ class ImportModelOperator(Operator):
         objects = ModelImporter().start_import(model_path)
         collections: dict[int, Collection] = {}
         model_collection = bpy.data.collections.new(model_name)
-        bpy.context.scene.collection.children.link(model_collection)  # pyright: ignore[reportUnknownMemberType]
+        context.scene.collection.children.link(model_collection)  # pyright: ignore[reportUnknownMemberType]
 
         if properties.import_collections:
             for object in objects:

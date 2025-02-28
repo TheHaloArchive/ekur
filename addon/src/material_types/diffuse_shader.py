@@ -33,8 +33,6 @@ class DiffuseShaderType:
         if control and control != 11617:
             img = self._create_image(-100, str(control))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
-        else:
-            assign_value(nodes, 1, (0.0, 1.0, 0.0, 0.0))
 
         if self.material["textures"].get("Normal"):
             img = self._create_image(-200, str(self.material["textures"]["Normal"]))

@@ -64,10 +64,12 @@ class Decal:
 
         srgb = create_node(nodes, 0, 0, ShaderNodeSeparateColor)
         color_ramp = create_node(nodes, 0, 0, ShaderNodeValToRGB)
-        color_ramp.color_ramp.elements[0].position = 0.5
+        if color_ramp.color_ramp:
+            color_ramp.color_ramp.elements[0].position = 0.5
 
         color_ramp2 = create_node(nodes, 0, 0, ShaderNodeValToRGB)
-        color_ramp2.color_ramp.elements[1].position = 0.5
+        if color_ramp2.color_ramp:
+            color_ramp2.color_ramp.elements[1].position = 0.5
 
         mix = create_node(nodes, 0, 0, ShaderNodeMixRGB)
         mix2 = create_node(nodes, 0, 0, ShaderNodeMixRGB)

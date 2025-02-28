@@ -50,11 +50,13 @@ def import_bones(model: Model) -> Object:
     armature_data = bpy.data.armatures.new(f"{model.header.tag_id}_Armature")
     armature_obj = bpy.data.objects.new(f"{model.header.tag_id}_Armature", armature_data)
 
-    bpy.context.scene.collection.objects.link(armature_obj)  # pyright: ignore[reportUnknownMemberType]
+    if bpy.context.scene is not None:
+        bpy.context.scene.collection.objects.link(armature_obj)  # pyright: ignore[reportUnknownMemberType]
 
     bpy.ops.object.select_all(action="DESELECT")  # pyright: ignore[reportUnknownMemberType]
     armature_obj.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-    bpy.context.view_layer.objects.active = armature_obj
+    if bpy.context.view_layer is not None:
+        bpy.context.view_layer.objects.active = armature_obj
     bpy.ops.object.mode_set(mode="EDIT")  # pyright: ignore[reportUnknownMemberType]
 
     bone_transforms = get_bone_transforms(model)

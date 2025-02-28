@@ -5,11 +5,16 @@ use anyhow::Result;
 use crate::definitions::material::MaterialTag;
 
 use super::{
-    common_utils::{f32_from_const, f32_from_params},
-    serde_definitions::{DecalSlot, Material, ShaderType},
+    common_utils::{f32_from_const, f32_from_params, get_post_texture},
+    serde_definitions::{DecalSlot, Material, ShaderType, TextureType},
 };
 
 pub(super) fn handle_mp_decal(mat: &MaterialTag, material: &mut Material) -> Result<()> {
+    let post_process = mat.post_process_definition.elements.first();
+    if let Some(post) = post_process {
+        get_post_texture(post, material, 0, TextureType::Control)?;
+        get_post_texture(post, material, 8, TextureType::Normal)?;
+    }
     let top_color = (
         f32_from_const(material, 16)?,
         f32_from_const(material, 20)?,
@@ -26,8 +31,14 @@ pub(super) fn handle_mp_decal(mat: &MaterialTag, material: &mut Material) -> Res
         f32_from_const(material, 56)?,
     );
 
-    let roughness_white = f32_from_params(mat, -918784873)?;
-    let roughness_black = f32_from_params(mat, -1982683011)?;
+    let mut roughness_white = f32_from_params(mat, -918784873)?;
+    if roughness_white == 0.0 {
+        roughness_white = f32_from_const(material, 60)?;
+    }
+    let mut roughness_black = f32_from_params(mat, -1982683011)?;
+    if roughness_black == 0.0 {
+        roughness_black = f32_from_const(material, 64)?;
+    }
     let metallic = f32_from_const(material, 68)?;
     let decal_slot = DecalSlot {
         top_color,

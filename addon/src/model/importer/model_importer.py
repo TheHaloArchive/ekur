@@ -165,10 +165,8 @@ class ModelImporter:
 
         if import_properties.import_materials:
             self.create_material_indices(section, mesh)
-
         if import_properties.import_vertex_color:
             self.create_color(section, mesh)
-
         if self.rig:
             self.create_skinning(obj, collection_name, self.rig, section, mesh)
 
