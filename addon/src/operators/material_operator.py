@@ -38,10 +38,6 @@ class ImportMaterialOperator(Operator):
                 name = slot.name.split(".")[0]
 
             definition_path = Path(f"{data}/materials/{name}.json")
-            if not definition_path.exists():
-                logging.warning(f"Material path does not exist!: {definition_path}")
-                continue
-
             if not node_tree:
                 continue
 

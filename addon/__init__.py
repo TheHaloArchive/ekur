@@ -25,6 +25,7 @@ from .src.operators.model_operator import ImportModelOperator
 from .src.operators.spartan_operator import ImportSpartanOperator
 from .src.operators.level_operator import ImportLevelOperator
 from .src.operators.forge_operator import ForgeOperator
+from .src.operators.spartan_online_operator import ImportSpartanVanityOperator
 
 bl_info = {
     "name": "Ekur",
@@ -183,6 +184,7 @@ def register():
     register_class(ImportSpartanOperator)
     register_class(ImportLevelOperator)
     register_class(ForgeOperator)
+    register_class(ImportSpartanVanityOperator)
     bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -198,4 +200,5 @@ def unregister():
     unregister_class(ImportSpartanOperator)
     unregister_class(ImportLevelOperator)
     unregister_class(ForgeOperator)
+    unregister_class(ImportSpartanVanityOperator)
     del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

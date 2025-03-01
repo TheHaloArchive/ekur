@@ -87,7 +87,7 @@ class LayeredShader:
             tex = self.create_image(self.node_tree, textures["Normal"], 0)
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[3])
 
-    def process_styles(self) -> None:
+    def process_styles(self, custom_id: int = 0) -> None:
         style = self.styles["default_style"]["reference"]
         data = get_data_folder()
         import_props = get_import_properties()
@@ -99,6 +99,8 @@ class LayeredShader:
             style = self.styles["styles"][custom_style]["reference"]
         if custom_style == "" and not use_default and self.styles["styles"].get(coating):
             style = self.styles["styles"][coating]["reference"]
+        if custom_id != 0 and self.styles["styles"].get(str(custom_id)):
+            style = self.styles["styles"][str(custom_id)]["reference"]
 
         style_json = read_json_file(Path(f"{data}/styles/{style}.json"), CommonCoating)
         globals_json = read_json_file(Path(f"{data}/globals.json"), CoatingGlobalEntries)
