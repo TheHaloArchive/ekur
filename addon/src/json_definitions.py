@@ -32,6 +32,17 @@ __all__ = [
     "ForgeObjectDefinition",
     "PermutationName",
     "NameRegion",
+    "Armor",
+    "CylixVanityResponse",
+    "IndexEntry",
+    "CylixIndex",
+    "Identifier",
+    "RegionData",
+    "CoreRegion",
+    "CylixCore",
+    "Asset",
+    "Coating",
+    "Attachment",
 ]
 
 
@@ -236,3 +247,62 @@ class PermutationName(TypedDict):
 class NameRegion(TypedDict):
     name: str
     permutations: dict[str, PermutationName]
+
+
+class Armor(TypedDict):
+    core: str
+    theme: str
+    coating: str
+    helmet: str
+    helmetAttachment: str
+    visor: str
+    chestAttachment: str
+    leftShoulderPad: str
+    rightShoulderPad: str
+    gloves: str
+    wristAttachment: str
+    kneepads: str
+    hipAttachment: str
+
+
+class CylixVanityResponse(TypedDict):
+    armor: Armor
+
+
+class IndexEntry(TypedDict):
+    title: str
+    res: str
+    type: str
+
+
+class CylixIndex(TypedDict):
+    manifest: list[tuple[str, IndexEntry]]
+
+
+class Identifier(TypedDict):
+    m_identifier: int
+
+
+class RegionData(TypedDict):
+    RegionId: Identifier
+    PermutationId: Identifier
+
+
+class CoreRegion(TypedDict):
+    BaseRegionData: list[RegionData]
+
+
+class CylixCore(TypedDict):
+    CoreRegionData: CoreRegion
+
+
+class Asset(TypedDict):
+    RegionData: list[RegionData]
+
+
+class Coating(TypedDict):
+    StyleId: Identifier
+
+
+class Attachment(TypedDict):
+    TagId: int

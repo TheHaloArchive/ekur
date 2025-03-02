@@ -202,6 +202,7 @@ class ImportPropertiesType:
     level_path: str = ""
     import_specific_core: bool = False
     import_names: bool = False
+    gamertag: str = ""
     core: str = ""
     root_category: str = ""
     subcategory: str = ""

@@ -61,6 +61,7 @@ class ImportProperties(PropertyGroup):
     )
     import_specific_core: BoolProperty(name="Import Specific Core", default=False)
     import_names: BoolProperty(name="Import Names", default=True)
+    gamertag: StringProperty(name="Gamertag", default="")
     core: EnumProperty(name="Core", items=GrabStrings.cores)
     root_category: EnumProperty(name="Root Category", items=GrabStrings.root_categories)
     subcategory: EnumProperty(name="Subcategory", items=GrabStrings.subcategories)
@@ -126,7 +127,9 @@ class CoatingImportPanel(Panel):
             if import_properties.import_specific_core:
                 ocgd_opts.prop(import_properties, "core")
             ocgd_opts.prop(import_properties, "import_names")
+            ocgd_opts.prop(import_properties, "gamertag")
             _ = ocgd_body.operator("ekur.importspartan")
+            _ = ocgd_body.operator("ekur.importvanity")
 
         level_header, level_body = layout.panel("VIEW3D_PT_import_level")
         level_header.label(icon="MESH_GRID", text="Import Level")

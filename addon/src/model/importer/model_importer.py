@@ -124,6 +124,7 @@ class ModelImporter:
 
     def create_normals(self, section: Section, mesh: Mesh) -> None:
         normals = [x.vector.to_tuple() for x in section.vertex_buffer.normal_buffer.normals]
+        mesh.shade_smooth()  # pyright: ignore[reportUnknownMemberType]
         mesh.normals_split_custom_set([[0, 0, 0] for _ in mesh.loops])  # pyright: ignore[reportUnknownMemberType]
         mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportUnknownMemberType, reportArgumentType]
         _ = mesh.validate()
@@ -155,7 +156,6 @@ class ModelImporter:
         obj["permutation_name"] = permutation_name
         obj.scale = MESH_SCALE
         mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportUnknownMemberType]
-
         if section.vertex_flags.has_uv0:
             self.create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
         if section.vertex_flags.has_uv1:

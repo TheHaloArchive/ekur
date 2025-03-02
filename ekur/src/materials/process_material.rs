@@ -36,7 +36,7 @@ pub fn process_materials(
         add_style_info(mat, &mut material)?;
         collect_textures(None, &mut material, mat)?;
         match mat.material_shader.global_id {
-            1102829229 | 52809748 => handle_diffuse_shader(mat, &mut material)?,
+            1102829229 | 52809748 | 340368681 => handle_diffuse_shader(mat, &mut material)?,
             -1051699871 | -1659664443 => handle_diffuse_si_shader(mat, &mut material)?,
             -51713036 | 690034699 | 2003821059 | -2003821059 | 1996403871 => {
                 handle_const_decal(mat, &mut material)?

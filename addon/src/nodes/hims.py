@@ -112,7 +112,8 @@ class HIMS:
         gs.default_value = True
 
         zone1 = interface.new_panel("Zone 1")
-        _ = create_socket(interface, "Zone 1 Toggle", NodeSocketBool, panel=zone1)
+        _ = create_socket(interface, "", NodeSocketBool, panel=zone1)
+        interface.items_tree[29].hide_value = True  # pyright: ignore[reportAttributeAccessIssue]
         _ = create_socket(interface, "Zone 1 Gradient Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Rough Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Norm Out", NodeSocketColor, panel=zone1)
@@ -595,8 +596,8 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[122], mult_yscale.inputs[1])
         _ = self.node_tree.links.new(group_input.outputs[9], mult_xscale.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[123], mult_xscale.inputs[1])
-        _ = self.node_tree.links.new(mult_xscale.outputs[0], combinemult.inputs[0])
-        _ = self.node_tree.links.new(mult_yscale.outputs[0], combinemult.inputs[1])
+        _ = self.node_tree.links.new(mult_xscale.outputs[0], combinemult.inputs[1])
+        _ = self.node_tree.links.new(mult_yscale.outputs[0], combinemult.inputs[0])
         _ = self.node_tree.links.new(combinemult.outputs[0], mapping_1.inputs[3])
 
         srgb.location = (1210.0343017578125, 366.75048828125)

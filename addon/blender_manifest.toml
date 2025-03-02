@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "ekur"
-version = "0.6.3"
+version = "0.6.4"
 name = "Ekur"
 tagline = "A multi-purpose importer for Halo Infinite"
 maintainer = "Surasia <https://github.com/Surasia>"
