@@ -50,6 +50,7 @@ class ImportSpartanVanityOperator(Operator):
             logging.warning(f"Model path does not exist!: {model_path}")
             return {"CANCELLED"}
 
+        parts: list[Asset] = []
         core_res = [
             core
             for core in index_json["manifest"]
@@ -63,25 +64,33 @@ class ImportSpartanVanityOperator(Operator):
             for core in index_json["manifest"]
             if core[0].lower() == armor["armor"]["helmet"].lower()
         ]
-        helmet: Asset = json.loads(
-            self.request(id=armor["armor"]["helmet"].lower(), res=helmet_res[0][1]["res"].lower())
-        )
+        if len(helmet_res) == 1:
+            helmet: Asset = json.loads(
+                self.request(
+                    id=armor["armor"]["helmet"].lower(), res=helmet_res[0][1]["res"].lower()
+                )
+            )
+            parts.append(helmet)
         kneepad_res = [
             core
             for core in index_json["manifest"]
             if core[0].lower() == armor["armor"]["kneepads"].lower()
         ]
-        kneepad: Asset = json.loads(
-            self.request(id=armor["armor"]["kneepads"].lower(), res=kneepad_res[0][1]["res"])
-        )
+        if len(kneepad_res) == 1:
+            kneepad: Asset = json.loads(
+                self.request(id=armor["armor"]["kneepads"].lower(), res=kneepad_res[0][1]["res"])
+            )
+            parts.append(kneepad)
         glove_res = [
             core
             for core in index_json["manifest"]
             if core[0].lower() == armor["armor"]["gloves"].lower()
         ]
-        glove: Asset = json.loads(
-            self.request(id=armor["armor"]["gloves"].lower(), res=glove_res[0][1]["res"])
-        )
+        if len(glove_res) == 1:
+            glove: Asset = json.loads(
+                self.request(id=armor["armor"]["gloves"].lower(), res=glove_res[0][1]["res"])
+            )
+            parts.append(glove)
         props.toggle_visors = True
         visor_res = [
             visor
@@ -106,7 +115,6 @@ class ImportSpartanVanityOperator(Operator):
             self.import_attachment(
                 attachment, index_json, vanity_collection, customization_globals, importer
             )
-        parts = [helmet, kneepad, glove]
 
         context.scene.collection.children.link(vanity_collection)  # pyright: ignore[reportUnknownMemberType]
         for object in objects:
