@@ -118,8 +118,8 @@ class ImportSpartanVanityOperator(Operator):
 
         context.scene.collection.children.link(vanity_collection)  # pyright: ignore[reportUnknownMemberType]
         for object in objects:
-            permutation_name = cast(int, object["permutation_name"])
-            region_name = cast(int, object["region_name"])
+            permutation_name: int = object["permutation_name"]
+            region_name: int = object["region_name"]
             for reg in theme_json["CoreRegionData"]["BaseRegionData"]:
                 if (
                     reg["PermutationId"]["m_identifier"] == permutation_name

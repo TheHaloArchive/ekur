@@ -1,12 +1,12 @@
 [package]
 name = "ekur"
-version = "0.6.3"
+version = "0.6.4"
 edition = "2024"
 license = "GPL-3.0-or-later"
 
 [dependencies]
 anyhow = "1.0.96"
-bitflags = "2.8.0"
+bitflags = "2.9.0"
 clap = { version = "4.5.31", features = ["derive"] }
 ddsfile = "0.5.2"
 image = { version = "0.25.5", features = ["png"], default-features = false }
