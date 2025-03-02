@@ -5,35 +5,22 @@ from typing import cast, final
 import urllib.request
 import urllib.error
 import bpy
-from bpy.types import Collection, Context, Object, Operator, ShaderNodeTree
+from bpy.types import Collection, Context, Object, Operator
 
-from ..material_types.color_decal import ColorDecalShader
-from ..material_types.decal_shader import DecalShader
-from ..material_types.diffuse_shader import DiffuseShaderType
-from ..material_types.illum_shader import IllumShader
-from ..material_types.layered_shader import LayeredShader
-
+from .material_operator import import_materials
 from ..model.importer.model_importer import ModelImporter
 
 from ..json_definitions import (
     Asset,
     Attachment,
     Coating,
-    CommonMaterial,
-    CommonStyleList,
     CustomizationAttachment,
     CustomizationGlobals,
     CylixCore,
     CylixIndex,
     CylixVanityResponse,
 )
-from ..utils import (
-    get_data_folder,
-    get_import_properties,
-    get_materials,
-    read_json_file,
-    remove_nodes,
-)
+from ..utils import get_data_folder, get_import_properties, read_json_file
 
 
 @final
@@ -140,14 +127,18 @@ class ImportSpartanVanityOperator(Operator):
                         vanity_collection.objects.link(object)  # pyright: ignore[reportUnknownMemberType]
 
         coating_res = [
-            coat for coat in index_json["manifest"] if coat[0] == armor["armor"]["coating"]
+            coat
+            for coat in index_json["manifest"]
+            if coat[0].lower() == armor["armor"]["coating"].lower()
         ]
-        coating = self.request(id=armor["armor"]["coating"], res=coating_res[0][1]["res"])
+        coating = self.request(id=armor["armor"]["coating"].lower(), res=coating_res[0][1]["res"])
         coating_json: Coating = json.loads(coating)
 
         for object in vanity_collection.objects:
             object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-            self.import_materials(coating_json["StyleId"]["m_identifier"])
+            props.use_default = False
+            props.coat_id = str(coating_json["StyleId"]["m_identifier"])
+            import_materials()
 
         return {"FINISHED"}
 
@@ -167,58 +158,6 @@ class ImportSpartanVanityOperator(Operator):
             logging.error(f"Failed to download vanity!: {e}")
             return ""
         return cast(str, request.read().decode("utf-8"))  # pyright: ignore[reportAny]
-
-    def import_materials(self, style_id: int) -> None:
-        data = get_data_folder()
-        materials = get_materials()
-
-        for slot in materials:
-            if not slot.material:
-                continue
-            node_tree = slot.material.node_tree
-            name = slot.name
-            if len(slot.name.split(".")) > 1:
-                name = slot.name.split(".")[0]
-
-            definition_path = Path(f"{data}/materials/{name}.json")
-            if not node_tree:
-                continue
-
-            remove_nodes(node_tree)
-            material = read_json_file(definition_path, CommonMaterial)
-            if material is None:
-                return
-            self.run_material(material, node_tree, style_id)
-
-    def run_material(
-        self, material: CommonMaterial, node_tree: ShaderNodeTree, style_id: int
-    ) -> None:
-        data = get_data_folder()
-        match material["shader_type"]:
-            case "Layered":
-                if material["style_info"] is not None:
-                    styles_path = Path(
-                        f"{data}/stylelists/{material['style_info']['stylelist']}.json"
-                    )
-                    styles = read_json_file(styles_path, CommonStyleList)
-                    if styles is None:
-                        return
-                    layered_shader = LayeredShader(node_tree, material, styles)
-                    layered_shader.create_textures()
-                    layered_shader.process_styles(style_id)
-
-            case "Diffuse":
-                _ = DiffuseShaderType(material, node_tree)
-            case "Decal":
-                _ = DecalShader(material, node_tree)
-            case "SelfIllum":
-                _ = IllumShader(material, node_tree)
-            case "ColorDecal":
-                _ = ColorDecalShader(material, node_tree)
-            case "Unknown":
-                pass
-            case _:
-                logging.error(f"Unknown shader type!: {material['shader_type']}")
 
     def import_attachments(
         self,
