@@ -249,6 +249,6 @@ class LayeredShader:
             swatch = cast(
                 ShaderNodeTree, Layer(layer, f"{intention}_{hash(json.dumps(layer))}").node_tree
             )
-            emissive = layer["emissive_amount"]
+            emissive = float(layer["emissive_amount"])
             self.create_swatch(swatch, layer["mid_color"], i, emissive, layer["disabled"])
         self.index += 14
