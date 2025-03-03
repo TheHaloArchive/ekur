@@ -56,6 +56,8 @@ struct EkurArgs {
     save_path: String,
     #[clap(long)]
     strings_path: String,
+    #[clap(short, long, default_value = "false")]
+    skip_bitmaps: bool,
 }
 
 fn extract_models(
@@ -235,12 +237,14 @@ fn main() -> Result<()> {
     extract_styles(&mut modules, save, &string_mappings)?;
     extract_runtime_coatings(&mut modules, &coat_swatch, save)?;
     extract_material_coatings(&mut modules, &material_swatches, save, &string_mappings)?;
-    extract_all_bitmaps(
-        &mut modules,
-        textures,
-        &coat_swatch,
-        &material_swatches,
-        &args.save_path,
-    )?;
+    if !args.skip_bitmaps {
+        extract_all_bitmaps(
+            &mut modules,
+            textures,
+            &coat_swatch,
+            &material_swatches,
+            &args.save_path,
+        )?;
+    }
     Ok(())
 }

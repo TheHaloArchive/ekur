@@ -60,6 +60,8 @@ class ModelImporter:
         uv0 = [x.vector for x in uv]
         uv_layer = mesh.uv_layers.new(name=f"UV{index}")
         for loop in range(len(mesh.loops)):
+            if loop >= len(uv0):
+                break
             uv_layer.data[mesh.loops[loop].index].uv = (
                 uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
                 1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),

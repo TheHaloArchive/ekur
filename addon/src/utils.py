@@ -30,7 +30,7 @@ __all__ = [
     "create_node",
     "assign_value",
     "get_data_folder",
-    "get_deploy_folder",
+    "get_addon_preferences",
     "ImportPropertiesType",
     "get_import_properties",
 ]
@@ -89,8 +89,9 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT | None:
     Returns:
         The loaded json data.
     """
-    if not file_path.exists():
+    if not file_path.exists() or not file_path.is_file():
         logging.warning(f"File path does not exist!: {file_path}")
+        return
     with open(file_path, "r") as file:
         data: T = json.load(file)  # pyright: ignore[reportUnknownVariableType]
         return data  # pyright: ignore[reportUnknownVariableType]
@@ -156,32 +157,33 @@ def create_node(nodes: Nodes, x: int, y: int, _type: type[NodeT]) -> NodeT:
     return node  # pyright: ignore[reportUnknownVariableType]
 
 
+class AddonPreferencesType:
+    data_folder: str = ""
+    deploy_folder: str = ""
+    dump_textures: bool = True
+
+
 def get_data_folder() -> str:
     """Get the data folder path from the preferences.
 
     Returns:
         The data folder path.
     """
-    if bpy.context.preferences is None:
-        return ""
-    preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
-    if not preferences:
-        return ""
-    return cast(str, preferences.data_folder)  # pyright: ignore[reportAttributeAccessIssue]
+    return get_addon_preferences().data_folder
 
 
-def get_deploy_folder() -> str:
-    """Get the deploy folder path from the preferences.
+def get_addon_preferences() -> AddonPreferencesType:
+    """Get the addon preferences from the scene.
 
     Returns:
-        The deploy folder path.
+        The addon preferences.
     """
-    if bpy.context.preferences is None:
-        return ""
-    preferences = bpy.context.preferences.addons["bl_ext.user_default.ekur"].preferences
+    if bpy.context.preferences is None or __package__ is None:
+        return AddonPreferencesType()
+    preferences = bpy.context.preferences.addons[__package__.replace(".src", "")].preferences
     if not preferences:
-        return ""
-    return cast(str, preferences.deploy_folder)  # pyright: ignore[reportAttributeAccessIssue]
+        return AddonPreferencesType()
+    return cast(AddonPreferencesType, preferences)  # pyright: ignore[reportInvalidCast]
 
 
 class ImportPropertiesType:
@@ -209,6 +211,7 @@ class ImportPropertiesType:
     objects: str = ""
     sort_objects: bool = False
     object_representation: str = ""
+    forge_level_path: str = ""
 
 
 def get_import_properties() -> ImportPropertiesType:

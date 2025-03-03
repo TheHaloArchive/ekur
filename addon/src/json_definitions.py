@@ -238,6 +238,7 @@ class ForgeObjectCategory(TypedDict):
 
 class ForgeObjectDefinition(TypedDict):
     root_categories: list[ForgeObjectCategory]
+    objects: dict[str, ForgeObject]
 
 
 class PermutationName(TypedDict):

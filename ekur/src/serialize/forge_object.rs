@@ -31,6 +31,7 @@ struct ForgeObjectRepresentation {
 
 #[derive(Default, Debug, Serialize)]
 struct ForgeObject {
+    id: i32,
     name: String,
     representations: Vec<ForgeObjectRepresentation>,
 }
@@ -45,6 +46,7 @@ struct ForgeObjectCategory {
 #[derive(Default, Debug, Serialize)]
 struct ForgeObjectDefinition {
     root_categories: Vec<ForgeObjectCategory>,
+    objects: HashMap<i32, ForgeObject>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -69,6 +71,7 @@ fn get_object_info(
             .to_string();
 
         let mut forge_object = ForgeObject {
+            id: object.forge_object.global_id,
             name,
             ..Default::default()
         };
@@ -229,6 +232,37 @@ pub fn process_forge_objects(
             )
         })
         .collect();
+    for thing in objects {
+        let mut definition = ForgeObject {
+            id: thing.0,
+            name: strings
+                .get(&thing.0)
+                .unwrap_or(&thing.0.to_string())
+                .to_string(),
+            ..Default::default()
+        };
+        for representation in &thing.1.object_representations.elements {
+            let crate_def = crates.get(&representation.object_definition.global_id);
+            let Some(crate_def) = crate_def else {
+                continue;
+            };
+            let model = models.get(&crate_def.model.global_id);
+            let Some(model) = model else {
+                continue;
+            };
+            let forge_object = ForgeObjectRepresentation {
+                name: strings
+                    .get(&representation.representation_name.0)
+                    .unwrap_or(&representation.representation_name.0.to_string())
+                    .to_string(),
+                name_int: representation.representation_name.0,
+                model: model.render_model.global_id,
+                variant: representation.crate_variant.0,
+            };
+            definition.representations.push(forge_object);
+        }
+        forge_object_definition.objects.insert(thing.0, definition);
+    }
     let path = PathBuf::from(format!("{save}/forge_objects.json"));
     let file = File::create(path)?;
     let writer = BufWriter::new(file);
