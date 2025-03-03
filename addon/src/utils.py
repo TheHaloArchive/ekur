@@ -211,7 +211,6 @@ class ImportPropertiesType:
     objects: str = ""
     sort_objects: bool = False
     object_representation: str = ""
-    forge_level_path: str = ""
 
 
 def get_import_properties() -> ImportPropertiesType:

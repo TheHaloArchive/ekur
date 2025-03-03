@@ -70,11 +70,6 @@ class ImportProperties(PropertyGroup):
         name="Object Representation", items=GrabStrings.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
-    forge_level_path: StringProperty(
-        default="",
-        name="Forge Level Path",
-        subtype="FILE_PATH",
-    )
 
 
 @final
@@ -156,5 +151,3 @@ class CoatingImportPanel(Panel):
                 forge_opts.prop(import_properties, "objects")
                 forge_opts.prop(import_properties, "object_representation")
             _ = forge_body.operator("ekur.importforge")
-            forge_opts.prop(import_properties, "forge_level_path")
-            _ = forge_body.operator("ekur.importforgelevel")
