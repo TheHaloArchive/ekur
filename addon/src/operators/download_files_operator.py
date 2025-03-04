@@ -17,6 +17,7 @@ VISORS_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/all_v
 REGIONS_URL = (
     "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/regions_and_permutations.json"
 )
+CUSTOM_RIG_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/purp.blend"
 
 
 @final
@@ -32,6 +33,7 @@ class DownloadFilesOperator(Operator):
         save_path = f"{data}/strings.txt"
         visors_path = f"{data}/all_visors.json"
         regions_path = f"{data}/regions_and_permutations.json"
+        customs_path = f"{data}/purp.blend"
         ekur_save_path = Path(f"{data}/ekur-{version_string}")
 
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{version_string}/ekur-{version_string}"
@@ -58,6 +60,16 @@ class DownloadFilesOperator(Operator):
                 _ = out_file.write(response.read())  # pyright: ignore[reportAny]
         except urllib.error.HTTPError as e:
             logging.error(f"Failed to download strings.txt: {e}")
+            return {"CANCELLED"}
+
+        try:
+            with (
+                urllib.request.urlopen(CUSTOM_RIG_URL) as response,  # pyright: ignore[reportAny]
+                open(customs_path, "wb") as out_file,
+            ):
+                _ = out_file.write(response.read())  # pyright: ignore[reportAny]
+        except urllib.error.HTTPError as e:
+            logging.error(f"Failed to download custom rig: {e}")
             return {"CANCELLED"}
 
         try:
