@@ -30,6 +30,7 @@ class ModelImporter:
         model_path: str,
         bones: bool = True,
         materials: list[int] | None = None,
+        custom_rig: Object | None = None,
     ) -> list[Object]:
         properties = get_import_properties()
         model = Path(model_path)
@@ -41,8 +42,11 @@ class ModelImporter:
         if materials:
             self.model.materials = materials
         if properties.import_bones and bones:
-            self.rig = import_bones(self.model)
-            self.rig.scale = MESH_SCALE
+            if custom_rig is None:
+                self.rig = import_bones(self.model)
+                self.rig.scale = MESH_SCALE
+            else:
+                self.rig = custom_rig
             if properties.import_markers:
                 self.markers = import_markers(self.model, self.rig)
             objects = self.import_model()

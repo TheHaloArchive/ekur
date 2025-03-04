@@ -7,6 +7,8 @@ from typing import final
 import bpy
 from bpy.types import Collection, Context, Object, Operator
 
+from ..operators.spartan_online_operator import import_attachments
+
 from ..model.importer.model_importer import ModelImporter
 
 from ..json_definitions import (
@@ -15,7 +17,7 @@ from ..json_definitions import (
     CustomizationTheme,
     NameRegion,
 )
-from ..utils import get_data_folder, get_import_properties, read_json_file
+from ..utils import get_data_folder, get_import_properties, import_custom_rig, read_json_file
 
 __all__ = ["ImportSpartanOperator"]
 
@@ -50,7 +52,8 @@ class ImportSpartanOperator(Operator):
             logging.warning(f"Model path does not exist!: {model_path}")
             return {"CANCELLED"}
         importer = ModelImporter()
-        objects = importer.start_import(str(model_path))
+        rig = import_custom_rig()
+        objects = importer.start_import(str(model_path), custom_rig=rig)
         global_collection = bpy.data.collections.new("Spartans")
         themes = customization_globals["themes"]
         if properties.import_specific_core:
@@ -65,20 +68,32 @@ class ImportSpartanOperator(Operator):
             theme_col = bpy.data.collections.new(theme["name"])
             global_collection.children.link(theme_col)  # pyright: ignore[reportUnknownMemberType]
             for region in theme["regions"]:
-                self.import_region(region, theme, objects, importer, theme_col, "REGION", names)
+                self.import_region(
+                    region, theme, objects, importer, theme_col, "REGION", names, rig
+                )
             for region in theme["prosthetics"]:
                 self.import_region(
-                    region, theme, objects, importer, theme_col, "PROSTHETICS", names
+                    region, theme, objects, importer, theme_col, "PROSTHETICS", names, rig
                 )
             for region in theme["body_types"]:
-                self.import_region(region, theme, objects, importer, theme_col, "BODY TYPE", names)
+                self.import_region(
+                    region, theme, objects, importer, theme_col, "BODY TYPE", names, rig
+                )
 
             kits_collections = bpy.data.collections.new(f"[KITS] {theme['name']}")
             for kit in theme["kits"]:
                 kit_collection = bpy.data.collections.new(f"[KIT] {kit['name']}")
                 for region in kit["regions"]:
                     self.import_region(
-                        region, theme, objects, importer, kit_collection, "KIT", names, kit["name"]
+                        region,
+                        theme,
+                        objects,
+                        importer,
+                        kit_collection,
+                        "KIT",
+                        names,
+                        rig,
+                        kit["name"],
                     )
                 kits_collections.children.link(kit_collection)  # pyright: ignore[reportUnknownMemberType]
             if kits_collections.name not in theme_col.children:
@@ -94,30 +109,16 @@ class ImportSpartanOperator(Operator):
                 for attach in attachments:
                     if attach_name:
                         attach.name = attach_name["name"]
-                    for marker in importer.markers:
-                        self.import_attachments("", alt_name, marker, attach)
-                        if attach.name not in attachment_collection.objects:
-                            attachment_collection.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]
+                    markers = [marker for marker in importer.markers if alt_name in marker.name]
+                    import_attachments("", alt_name, markers[-1], attach, rig)
+                    if attach.name not in attachment_collection.objects:
+                        attachment_collection.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]
 
         if context.scene:
             context.scene.collection.children.link(global_collection)  # pyright: ignore[reportUnknownMemberType]
+            if rig and rig.name not in context.scene.collection.objects:
+                context.scene.collection.objects.link(rig)  # pyright: ignore[reportUnknownMemberType]
         return {"FINISHED"}
-
-    def import_attachments(
-        self,
-        name: str,
-        alt_name: str,
-        marker: Object,
-        attachment: Object,
-    ) -> None:
-        if marker.name == name or alt_name in marker.name:
-            empty_global_transform = marker.matrix_world
-            mesh_global_transform = attachment.matrix_world
-            offset = (
-                -(mesh_global_transform.translation - empty_global_transform.translation) * 3.048
-            )
-            attachment.location = offset
-            attachment.rotation_euler = (0.0, 0.0, 0.0)
 
     def import_region(
         self,
@@ -128,6 +129,7 @@ class ImportSpartanOperator(Operator):
         theme_collection: Collection,
         id: str,
         names: dict[str, NameRegion],
+        rig: Object | None,
         kit_name: int = 0,
     ) -> None:
         data_folder = get_data_folder()
@@ -171,12 +173,16 @@ class ImportSpartanOperator(Operator):
                     for attachment in attachments:
                         if attach_name:
                             attachment.name = f"{region['name']}_{attach_name['name']}"
-                        for marker in importer.markers:
-                            name = f"{perm_region['attachment']['marker_name']}_{perm}_{perm_region['name']}"
-                            alt_name = f"{perm_region['attachment']['marker_name']}_{perm}"
-                            self.import_attachments(name, alt_name, marker, attachment)
-                            if attachment.name not in region_collection.objects:
-                                region_collection.objects.link(attachment)  # pyright: ignore[reportUnknownMemberType]
+                        name = f"{perm_region['attachment']['marker_name']}_{perm}_{perm_region['name']}"
+                        alt_name = f"{perm_region['attachment']['marker_name']}_{perm}"
+                        markers = [
+                            marker
+                            for marker in importer.markers
+                            if marker.name == name or alt_name in marker.name
+                        ]
+                        import_attachments(name, alt_name, markers[-1], attachment, rig)
+                        if attachment.name not in region_collection.objects:
+                            region_collection.objects.link(attachment)  # pyright: ignore[reportUnknownMemberType]
 
             if len(region_collection.objects) == 0:
                 theme_collection.children.unlink(region_collection)  # pyright: ignore[reportUnknownMemberType]

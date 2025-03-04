@@ -5,7 +5,7 @@ from typing import cast, final
 import urllib.request
 import urllib.error
 import bpy
-from bpy.types import Collection, Context, Object, Operator
+from bpy.types import ArmatureModifier, Collection, Context, Mesh, Object, Operator
 
 from .material_operator import import_materials
 from ..model.importer.model_importer import ModelImporter
@@ -14,13 +14,32 @@ from ..json_definitions import (
     Asset,
     Attachment,
     Coating,
-    CustomizationAttachment,
     CustomizationGlobals,
     CylixCore,
     CylixIndex,
     CylixVanityResponse,
 )
-from ..utils import get_data_folder, get_import_properties, read_json_file
+from ..utils import get_data_folder, get_import_properties, import_custom_rig, read_json_file
+
+
+def import_attachments(
+    name: str,
+    alt_name: str,
+    marker: Object,
+    attachment: Object,
+    rig: Object | None,
+) -> None:
+    if marker.name == name or alt_name in marker.name:
+        empty_global_transform = marker.matrix_world
+        mesh_global_transform = attachment.matrix_world
+        offset = -(mesh_global_transform.translation - empty_global_transform.translation) * 3.048
+        attachment.location = offset
+        attachment.rotation_euler = (0.0, 0.0, 0.0)
+        modifier = cast(ArmatureModifier, attachment.modifiers.new(f"{name}::armature", "ARMATURE"))
+        modifier.object = rig
+        vg = attachment.vertex_groups.new(name=marker.parent_bone)
+        if type(attachment.data) is Mesh:
+            vg.add([v.index for v in attachment.data.vertices], 1.0, "REPLACE")  # pyright: ignore[reportUnknownMemberType]
 
 
 @final
@@ -99,7 +118,8 @@ class ImportSpartanVanityOperator(Operator):
         ]
         props.visors = visor_res[0][1]["title"]
         importer = ModelImporter()
-        objects = importer.start_import(str(model_path))
+        rig = import_custom_rig()
+        objects = importer.start_import(str(model_path), custom_rig=rig)
         vanity_collection = bpy.data.collections.new(props.gamertag)
 
         attachments = [
@@ -117,6 +137,8 @@ class ImportSpartanVanityOperator(Operator):
             )
 
         context.scene.collection.children.link(vanity_collection)  # pyright: ignore[reportUnknownMemberType]
+        if rig and rig.name not in context.scene.collection.objects:
+            context.scene.collection.objects.link(rig)  # pyright: ignore[reportUnknownMemberType]
         for object in objects:
             permutation_name: int = object["permutation_name"]
             region_name: int = object["region_name"]
@@ -167,22 +189,6 @@ class ImportSpartanVanityOperator(Operator):
             return ""
         return cast(str, request.read().decode("utf-8"))  # pyright: ignore[reportAny]
 
-    def import_attachments(
-        self,
-        name: str,
-        alt_name: str,
-        marker: Object,
-        attachment: Object,
-    ) -> None:
-        if marker.name == name or alt_name in marker.name:
-            empty_global_transform = marker.matrix_world
-            mesh_global_transform = attachment.matrix_world
-            offset = (
-                -(mesh_global_transform.translation - empty_global_transform.translation) * 3.048
-            )
-            attachment.location = offset
-            attachment.rotation_euler = (0.0, 0.0, 0.0)
-
     def import_attachment(
         self,
         name: str,
@@ -202,19 +208,22 @@ class ImportSpartanVanityOperator(Operator):
                 attachment = [
                     att for att in theme["attachments"] if att["tag_id"] == attachment_data["TagId"]
                 ]
-                if not attachment:
-                    attachment: list[CustomizationAttachment] = []
+                if attachment == []:
                     for region in theme["regions"]:
                         for att in region["permutations"]:
                             if att["attachment"]:
                                 if att["attachment"]["tag_id"] == attachment_data["TagId"]:
                                     attachment.append(att["attachment"])
-                if attachment:
+                if len(attachment) > 0:
                     model_path = f"{data}/models/{attachment[0]['model']}.ekur"
                     attachments = ModelImporter().start_import(model_path, False)
                     alt_name = f"{attachment[0]['marker_name']}"
                     for attach in attachments:
-                        for marker in importer.markers:
-                            self.import_attachments("", alt_name, marker, attach)
-                            if attach.name not in col.objects:
-                                col.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]
+                        markers = [
+                            marker
+                            for marker in importer.markers
+                            if marker.name == name or alt_name in marker.name
+                        ]
+                        import_attachments("", alt_name, markers[-1], attach, importer.rig)
+                        if attach.name not in col.objects:
+                            col.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]

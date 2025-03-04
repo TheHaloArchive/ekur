@@ -8,7 +8,7 @@ from typing import final
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, Operator
 
-from ..utils import get_import_properties
+from ..utils import ImportPropertiesType, get_import_properties
 from .import_utils import GrabStrings, get_styles
 
 __all__ = ["RandomizeCoatingOperator", "ImportProperties", "CoatingImportPanel"]
@@ -61,6 +61,10 @@ class ImportProperties(PropertyGroup):
     )
     import_specific_core: BoolProperty(name="Import Specific Core", default=False)
     import_names: BoolProperty(name="Import Names", default=True)
+    rig_to_use: EnumProperty(
+        name="Rig To Use",
+        items=[("default", "Default (FK)", ""), ("purp", "Purp's Rig (IK/FK/Control)", "")],
+    )
     gamertag: StringProperty(name="Gamertag", default="")
     core: EnumProperty(name="Core", items=GrabStrings.cores)
     root_category: EnumProperty(name="Root Category", items=GrabStrings.root_categories)
@@ -81,13 +85,20 @@ class CoatingImportPanel(Panel):
     bl_category = "Ekur"
 
     def draw(self, context: Context | None) -> None:
-        if context is None:
-            return
         layout = self.layout
         if layout is None:
             return
         import_properties = get_import_properties()
+        self.draw_material_options(import_properties)
+        self.draw_model_options(import_properties)
+        self.draw_ocgd(import_properties)
+        self.draw_level(import_properties)
+        self.draw_forge(context, import_properties)
 
+    def draw_material_options(self, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None:
+            return
         material_header, material_body = layout.panel("VIEW3D_PT_import_material")
         material_header.label(icon="MATERIAL", text="Import Material")
 
@@ -107,6 +118,10 @@ class CoatingImportPanel(Panel):
                 options.prop(import_properties, "visors")
             _ = material_body.operator("ekur.importmaterial")
 
+    def draw_model_options(self, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None:
+            return
         model_header, model_body = layout.panel("VIEW3D_PT_import_model")
         model_header.label(icon="MESH_CUBE", text="Import Model")
         if model_body:
@@ -119,6 +134,10 @@ class CoatingImportPanel(Panel):
             model_opts.prop(import_properties, "import_vertex_color")
             _ = model_body.operator("ekur.importmodel")
 
+    def draw_ocgd(self, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None:
+            return
         ocgd_header, ocgd_body = layout.panel("VIEW3D_PT_import_ocgd")
         ocgd_header.label(icon="ARMATURE_DATA", text="Import Spartan")
         if ocgd_body:
@@ -128,9 +147,14 @@ class CoatingImportPanel(Panel):
                 ocgd_opts.prop(import_properties, "core")
             ocgd_opts.prop(import_properties, "import_names")
             ocgd_opts.prop(import_properties, "gamertag")
+            ocgd_opts.prop(import_properties, "rig_to_use")
             _ = ocgd_body.operator("ekur.importspartan")
             _ = ocgd_body.operator("ekur.importvanity")
 
+    def draw_level(self, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None:
+            return
         level_header, level_body = layout.panel("VIEW3D_PT_import_level")
         level_header.label(icon="MESH_GRID", text="Import Level")
         if level_body:
@@ -138,6 +162,10 @@ class CoatingImportPanel(Panel):
             level_opts.prop(import_properties, "level_path")
             _ = level_body.operator("ekur.importlevel")
 
+    def draw_forge(self, context: Context | None, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None or context is None:
+            return
         forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge")
         forge_header.label(icon="TOOL_SETTINGS", text="Import Forge")
         if forge_body:

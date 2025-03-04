@@ -32,3 +32,4 @@ Once the required files are downloaded, click the "Dump Required Files" button. 
 - [cylix.guide](https://cylix.guide): Visor data
 - [Chunch](https://github.com/Chunch7275) and [ChromaCore](https://bsky.app/profile/chromacore.bsky.social): Developing the Halo Infinite Modular Shader
 - [Reclaimer](https://github.com/Gravemind2401/Reclaimer): Lots of the components for mesh importing.
+- [purplmunkii](https://x.com/PURPL_MUNKII): Custom rig for spartans

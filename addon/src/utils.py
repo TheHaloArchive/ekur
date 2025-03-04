@@ -18,6 +18,7 @@ from bpy.types import (
     Nodes,
     NodeTreeInterface,
     NodeTreeInterfacePanel,
+    Object,
     ShaderNodeTree,
 )
 
@@ -33,6 +34,8 @@ __all__ = [
     "get_addon_preferences",
     "ImportPropertiesType",
     "get_import_properties",
+    "AddonPreferencesType",
+    "import_custom_rig",
 ]
 
 
@@ -204,6 +207,7 @@ class ImportPropertiesType:
     level_path: str = ""
     import_specific_core: bool = False
     import_names: bool = False
+    rig_to_use: str = ""
     gamertag: str = ""
     core: str = ""
     root_category: str = ""
@@ -237,3 +241,26 @@ def assign_value(
         cast(NodeSocketFloat, node.inputs[index]).default_value = value
     if type(value) is tuple and len(value) == 4:
         cast(NodeSocketColor, node.inputs[index]).default_value = value
+
+
+def import_custom_rig() -> Object | None:
+    properties = get_import_properties()
+    custom_rig_path = Path(get_data_folder()) / f"{properties.rig_to_use}.blend"
+    match properties.rig_to_use:
+        case "purp":
+            if custom_rig_path.exists():
+                with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
+                    data_from,  # pyright: ignore[reportUnknownVariableType]
+                    data_to,  # pyright: ignore[reportUnknownVariableType]
+                ):
+                    data_to.objects = [
+                        name
+                        for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                        if name == "Spartan_Control_Rig_V2"
+                    ]
+            else:
+                logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
+        case _:
+            pass
+    object = bpy.data.objects.get("Spartan_Control_Rig_V2")
+    return object
