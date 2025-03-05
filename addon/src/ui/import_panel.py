@@ -74,6 +74,8 @@ class ImportProperties(PropertyGroup):
         name="Object Representation", items=GrabStrings.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
+    asset_id: StringProperty(name="Asset ID", default="")
+    version_id: StringProperty(name="Version ID", default="")
 
 
 @final
@@ -94,6 +96,7 @@ class CoatingImportPanel(Panel):
         self.draw_ocgd(import_properties)
         self.draw_level(import_properties)
         self.draw_forge(context, import_properties)
+        self.draw_forge_map(import_properties)
 
     def draw_material_options(self, import_properties: ImportPropertiesType) -> None:
         layout = self.layout
@@ -179,3 +182,15 @@ class CoatingImportPanel(Panel):
                 forge_opts.prop(import_properties, "objects")
                 forge_opts.prop(import_properties, "object_representation")
             _ = forge_body.operator("ekur.importforge")
+
+    def draw_forge_map(self, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None:
+            return
+        forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge_map")
+        forge_header.label(icon="MAT_SPHERE_SKY", text="Import Forge Map")
+        if forge_body:
+            forge_opts = forge_body.box()
+            forge_opts.prop(import_properties, "asset_id")
+            forge_opts.prop(import_properties, "version_id")
+            _ = forge_body.operator("ekur.importforgemap")

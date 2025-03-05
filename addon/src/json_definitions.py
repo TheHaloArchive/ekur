@@ -109,6 +109,7 @@ class ColorDecal(TypedDict):
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
     shader_type: str
+    alpha_blend_mode: str
     style_info: StyleInfo | None
     diffuse_info: DiffuseInfo | None
     illum_info: SelfIllum | None

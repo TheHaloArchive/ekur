@@ -215,6 +215,8 @@ class ImportPropertiesType:
     objects: str = ""
     sort_objects: bool = False
     object_representation: str = ""
+    asset_id: str = ""
+    version_id: str = ""
 
 
 def get_import_properties() -> ImportPropertiesType:

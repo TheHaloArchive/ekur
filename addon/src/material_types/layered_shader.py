@@ -70,7 +70,11 @@ class LayeredShader:
         if textures.get("Asg"):
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
             tex.interpolation = "Cubic"
-            if tex.image and tex.image.get("use_alpha"):  # pyright: ignore[reportUnknownMemberType]
+            if (
+                tex.image
+                and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
+                and self.material["alpha_blend_mode"] != "Opaque"
+            ):
                 transparencies = [21, 35, 49, 63, 77, 91, 105]
                 for i in transparencies:
                     _ = self.node_tree.links.new(tex.outputs[1], self.shader.inputs[i])

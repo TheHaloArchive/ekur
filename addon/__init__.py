@@ -21,6 +21,7 @@ from .src.operators.level_operator import ImportLevelOperator
 from .src.operators.forge_operator import ForgeOperator
 from .src.operators.spartan_online_operator import ImportSpartanVanityOperator
 from .src.operators.download_files_operator import DownloadFilesOperator
+from .src.operators.forge_map_operator import ForgeMapOperator
 from .src.constants import version
 
 bl_info = {
@@ -83,6 +84,7 @@ def register():
     register_class(ImportLevelOperator)
     register_class(ForgeOperator)
     register_class(ImportSpartanVanityOperator)
+    register_class(ForgeMapOperator)
     bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -99,4 +101,5 @@ def unregister():
     unregister_class(ImportLevelOperator)
     unregister_class(ForgeOperator)
     unregister_class(ImportSpartanVanityOperator)
+    unregister_class(ForgeMapOperator)
     del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

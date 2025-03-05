@@ -182,6 +182,7 @@ pub struct Material {
     pub shader: i32,
     pub textures: HashMap<TextureType, i32>,
     pub shader_type: ShaderType,
+    pub alpha_blend_mode: String,
     pub style_info: Option<StyleInfo>,
     pub diffuse_info: Option<DiffuseInfo>,
     pub illum_info: Option<SelfIllum>,

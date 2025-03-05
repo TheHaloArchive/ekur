@@ -59,7 +59,7 @@ pub fn process_materials(
             _ => {}
         };
         material.shader = mat.material_shader.global_id;
-
+        material.alpha_blend_mode = format!("{:?}", mat.alpha_blend_mode.0);
         let mut path = PathBuf::from(format!("{save_path}/materials"));
         path.push(id.to_string());
         path.set_extension("json");
