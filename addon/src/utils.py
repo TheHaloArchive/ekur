@@ -175,15 +175,21 @@ def get_data_folder() -> str:
     return get_addon_preferences().data_folder
 
 
+def get_package_name() -> str:
+    if __package__ is None:
+        return ""
+    return __package__.split(".src")[0]
+
+
 def get_addon_preferences() -> AddonPreferencesType:
     """Get the addon preferences from the scene.
 
     Returns:
         The addon preferences.
     """
-    if bpy.context.preferences is None or __package__ is None:
+    if bpy.context.preferences is None:
         return AddonPreferencesType()
-    preferences = bpy.context.preferences.addons[__package__.replace(".src", "")].preferences
+    preferences = bpy.context.preferences.addons[get_package_name()].preferences
     if not preferences:
         return AddonPreferencesType()
     return cast(AddonPreferencesType, preferences)  # pyright: ignore[reportInvalidCast]

@@ -4,6 +4,7 @@ import logging
 import re
 from pathlib import Path
 
+import bpy
 from bpy.types import Context
 
 from ..json_definitions import (
@@ -15,7 +16,7 @@ from ..json_definitions import (
     ForgeObjectDefinition,
 )
 
-from ..utils import get_data_folder, get_import_properties, read_json_file
+from ..utils import get_data_folder, get_import_properties, get_package_name, read_json_file
 
 _nsre = re.compile("([0-9]+)")
 
@@ -102,10 +103,10 @@ class GrabStrings:
         if visor_cache:
             return visor_cache
         all_visors: list[tuple[str, str, str]] = []
-        data = get_data_folder()
+        extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         properties = get_import_properties()
 
-        visors_path = Path(f"{data}/all_visors.json")
+        visors_path = Path(f"{extension_path}/all_visors.json")
         if not visors_path.exists():
             return all_visors
         visors = read_json_file(visors_path, dict[str, CommonLayer])

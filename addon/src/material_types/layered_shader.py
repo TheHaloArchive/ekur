@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 from typing import cast
 
+import bpy
 from bpy.types import (
     NodeTree,
     ShaderNodeGroup,
@@ -29,6 +30,7 @@ from ..utils import (
     create_node,
     get_data_folder,
     get_import_properties,
+    get_package_name,
     read_json_file,
     read_texture,
 )
@@ -242,9 +244,10 @@ class LayeredShader:
         """
         layer = self.get_intention(intention, mat_reg, any_reg, globals)
         properties = get_import_properties()
+        extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         info = self.material.get("style_info")
         if i == 0 and info and info["region_name"] == MP_VISOR and properties.toggle_visors:
-            visors_path = Path(f"{self.data_folder}/all_visors.json")
+            visors_path = Path(f"{extension_path}/all_visors.json")
             visors = read_json_file(visors_path, dict[str, CommonLayer])
             if visors is None:
                 return

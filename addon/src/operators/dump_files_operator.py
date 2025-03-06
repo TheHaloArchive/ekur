@@ -5,9 +5,10 @@ import platform
 import subprocess
 from typing import final
 
+import bpy
 from bpy.types import Context, Operator
 
-from ..utils import get_addon_preferences, get_data_folder
+from ..utils import get_addon_preferences, get_data_folder, get_package_name
 from ..constants import version_string
 
 
@@ -22,8 +23,10 @@ class DumpFilesOperator(Operator):
         data = get_data_folder()
         prefs = get_addon_preferences()
 
-        save_path = f"{data}/strings.txt"
-        ekur_save_path = Path(f"{data}/ekur-{version_string}")
+        extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+
+        save_path = f"{extension_path}/strings.txt"
+        ekur_save_path = Path(f"{extension_path}/ekur-{version_string}")
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
 
