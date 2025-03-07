@@ -74,7 +74,10 @@ class LayeredShader:
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
             tex.interpolation = "Cubic"
             if (
-                tex.image and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
+                tex.image
+                and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
+                and self.material["style_info"]
+                and self.material["style_info"]["base_intention"] == -783606968
             ):
                 invert = create_node(self.node_tree.nodes, 0, 120, ShaderNodeInvert)
                 _ = self.node_tree.links.new(tex.outputs[1], invert.inputs[1])
