@@ -44,7 +44,7 @@ class SkinShader:
 
             if self.material["textures"].get("Color"):
                 img = self._create_image(-100, str(self.material["textures"]["Color"]))
-                if img.image:
+                if img.image and img.image.colorspace_settings:
                     img.image.colorspace_settings.name = "sRGB"  # pyright: ignore[reportAttributeAccessIssue]
                 _ = self.tree.links.new(img.outputs[0], shader.inputs[0])
 

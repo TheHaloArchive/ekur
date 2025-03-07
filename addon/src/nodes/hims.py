@@ -65,7 +65,7 @@ class HIMS:
         self.create_nodes()
 
     def create_sockets(self) -> None:
-        if self.node_tree is None:
+        if self.node_tree is None or self.node_tree.interface is None:
             return
         interface = self.node_tree.interface
         outputs = interface.new_panel("Outputs")

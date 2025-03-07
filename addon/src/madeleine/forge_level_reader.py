@@ -1,5 +1,8 @@
-from io import BytesIO
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
+from io import BufferedReader, BytesIO
 import logging
+from typing import cast
 import urllib.request
 import urllib.error
 
@@ -103,9 +106,9 @@ def get_forge_map(asset_id: str, version_id: str) -> list[ForgeObject]:
     objects: list[ForgeObject] = []
     url = f"https://blobs-infiniteugc.svc.halowaypoint.com/ugcstorage/map/{asset_id}/{version_id}/map.mvar"
     try:
-        with urllib.request.urlopen(url) as response:
-            response = response.read()
-            base_struct = get_base_struct(BytesIO(response))
+        with urllib.request.urlopen(url) as response:  # pyright: ignore[reportAny]
+            response = response.read()  # pyright: ignore[reportAny]
+            base_struct = get_base_struct(cast(BufferedReader, BytesIO(response)))  # pyright: ignore[reportAny, reportInvalidCast]
             base = base_struct.get_by_id(3)
             if base:
                 for item in base.get_elements():
@@ -114,5 +117,5 @@ def get_forge_map(asset_id: str, version_id: str) -> list[ForgeObject]:
                         objects.append(forge_object)
 
     except urllib.error.HTTPError as e:
-        logging.error(f"Failed to download all_visors.json: {e.status}")
+        logging.error(f"Failed to download forge map: {e.status}")
     return objects

@@ -29,6 +29,7 @@ class DownloadFilesOperator(Operator):
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None or not cast(bool, bpy.app.online_access):
+            logging.error("Online access is disabled")
             return {"CANCELLED"}
         extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         ekur_save_path = Path(f"{extension_path}/ekur-{version_string}")

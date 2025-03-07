@@ -22,6 +22,8 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from .exceptions import NodeInterfaceDoesNotExist
+
 __all__ = [
     "read_texture",
     "get_materials",
@@ -62,7 +64,8 @@ def read_texture(texturepath: str) -> Image | None:
     else:
         image["use_alpha"] = False
     image.filepath = str(tex_path)
-    image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
+    if image.colorspace_settings:
+        image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
     return image
 
 
@@ -114,7 +117,7 @@ NodeSocketT = TypeVar("NodeSocketT", bound=NodeSocket)
 
 
 def create_socket(
-    interface: NodeTreeInterface,
+    interface: NodeTreeInterface | None,
     name: str,
     _type: type[NodeSocketT],
     is_input: bool = True,
@@ -132,7 +135,8 @@ def create_socket(
         The created socket.
     """
     in_out = "INPUT" if is_input else "OUTPUT"
-
+    if interface is None:
+        raise NodeInterfaceDoesNotExist("Interface cannot be None!")
     out = cast(  # pyright: ignore[reportUnknownVariableType]
         _type,
         interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),

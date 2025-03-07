@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+import logging
 from pathlib import Path
 import platform
 import subprocess
@@ -42,6 +43,8 @@ class DumpFilesOperator(Operator):
         ]
         if not prefs.dump_textures:
             proc.append("--skip-bitmaps")
-
+        if not ekur_save_path.exists():
+            logging.error(f"Ekur was not found at {ekur_save_path}!")
+            return {"CANCELLED"}
         _ = subprocess.run(proc)
         return {"FINISHED"}

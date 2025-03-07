@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
 from pathlib import Path
 from typing import final
 
@@ -86,8 +88,9 @@ class ForgeMapOperator(Operator):
 
                     forward = Vector(object.rotation_forward).normalized()
                     up = Vector(object.rotation_up).normalized()
-                    right = forward.cross(up).normalized()
+                    right = forward.cross(up)
                     if type(up) is Vector and type(right) is Vector:
+                        right = right.normalized()
                         rot_matrix = Matrix(
                             (
                                 (forward[0], -right[0], up[0], 0.0),
@@ -106,7 +109,7 @@ class ForgeMapOperator(Operator):
                         bpy.context.scene
                         and instance_obj.name not in bpy.context.scene.collection.objects
                     ):
-                        bpy.context.scene.collection.objects.link(instance_obj)
+                        bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
 
         self._geometry_cache = {}
         return {"FINISHED"}
