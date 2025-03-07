@@ -17,6 +17,7 @@ pub(crate) enum ShaderType {
     ConesteppedDecal,
     Meter,
     SkinShader,
+    EyeShader,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -42,6 +43,10 @@ pub enum TextureType {
     SpecScatterPore,
     PoreNormal,
     DetailNormal,
+    Sclera,
+    ScleraNormal,
+    Iris,
+    IrisNormal,
 }
 
 #[derive(Default, Debug, Serialize, Clone)]
@@ -194,6 +199,26 @@ pub struct SkinShader {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct EyeShader {
+    pub sclera_brightness: f32,
+    pub sclera_normal_intensity: f32,
+    pub sclera_roughness: f32,
+    pub sclera_ior: f32,
+    pub iris_radius: f32,
+    pub iris_brightness: f32,
+    pub iris_normal_intensity: f32,
+    pub cornea_roughness: f32,
+    pub cornea_ior: f32,
+    pub pupil_scale: f32,
+    pub limbus_width: f32,
+    pub limbus_darkening_scale: f32,
+    pub limbus_power: f32,
+    pub eye_ior: f32,
+    pub cornea_height_scale: f32,
+    pub overall_scale: f32,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Material {
     pub shader: i32,
     pub textures: HashMap<TextureType, i32>,
@@ -208,6 +233,7 @@ pub struct Material {
     pub conestepped_decal: Option<ConesteppedDecal>,
     pub meter: Option<Meter>,
     pub skin: Option<SkinShader>,
+    pub eye: Option<EyeShader>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }

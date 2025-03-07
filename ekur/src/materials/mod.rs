@@ -7,6 +7,7 @@ mod conestepped_decal;
 mod const_decal;
 mod decal_mp;
 mod diffuse_shader;
+mod eye_shader;
 mod layered_shader;
 mod meter_shader;
 mod parallax_decal;
