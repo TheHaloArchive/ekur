@@ -59,6 +59,12 @@ class EkurPreferences(AddonPreferences):
         default=True,
     )
 
+    is_campaign: bpy.props.BoolProperty(
+        name="Is Campaign",
+        description="Whether the deploy folder is for campaign or not",
+        default=False,
+    )
+
     def draw(self, _context: Context | None):
         layout = self.layout
         box = layout.box()
@@ -66,6 +72,7 @@ class EkurPreferences(AddonPreferences):
         box.prop(self, "data_folder")
         box.prop(self, "deploy_folder")
         box.prop(self, "dump_textures")
+        box.prop(self, "is_campaign")
         box2 = layout.box()
         _ = box2.operator("ekur.downloadfiles")
         _ = box2.operator("ekur.dumpfiles")

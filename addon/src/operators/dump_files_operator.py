@@ -43,6 +43,8 @@ class DumpFilesOperator(Operator):
         ]
         if not prefs.dump_textures:
             proc.append("--skip-bitmaps")
+        if prefs.is_campaign:
+            proc.append("--is-campaign")
         if not ekur_save_path.exists():
             logging.error(f"Ekur was not found at {ekur_save_path}!")
             return {"CANCELLED"}

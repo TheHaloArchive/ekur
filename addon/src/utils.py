@@ -168,6 +168,7 @@ class AddonPreferencesType:
     data_folder: str = ""
     deploy_folder: str = ""
     dump_textures: bool = True
+    is_campaign: bool = False
 
 
 def get_data_folder() -> str:
