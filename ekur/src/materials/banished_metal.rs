@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2025 Surasia */
-use crate::materials::serde_definitions::ShaderType;
+use crate::{
+    definitions::material::MaterialPostProcessing, materials::serde_definitions::ShaderType,
+};
 use anyhow::Result;
-
-use crate::definitions::material::MaterialTag;
 
 use super::{
     common_utils::{f32_from_const, get_post_texture},
     serde_definitions::{ConemappedLevel, Material, TextureType},
 };
 
-pub(super) fn handle_banished_metal(mat: &MaterialTag, material: &mut Material) -> Result<()> {
+pub(super) fn handle_banished_metal(
+    post: &MaterialPostProcessing,
+    material: &mut Material,
+) -> Result<()> {
     let mut conemapped_level = ConemappedLevel::default();
-    let Some(post) = mat.post_process_definition.elements.first() else {
-        return Ok(());
-    };
     get_post_texture(post, material, 0, TextureType::MacroMaskMap)?;
     get_post_texture(post, material, 32, TextureType::MacroNormal)?;
     get_post_texture(post, material, 68, TextureType::MacroCohmap)?;

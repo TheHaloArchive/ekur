@@ -2,8 +2,10 @@
 /* Copyright © 2025 Surasia */
 use anyhow::Result;
 
+use crate::definitions::material::MaterialParameter;
 use crate::definitions::material::MaterialStyleShaderSupportedLayers;
 use crate::definitions::material::MaterialStyleShaderSupportsDamageEnum;
+use crate::definitions::material::MaterialTagCampaign;
 use crate::materials::serde_definitions::ShaderType;
 use crate::materials::serde_definitions::TextureType;
 use crate::{definitions::material::MaterialTag, materials::serde_definitions::Material};
@@ -21,9 +23,9 @@ const DECAL_NORMAL_MAP: i32 = 723636081;
 pub(super) fn collect_textures(
     mut style_info: Option<&mut StyleInfo>,
     material: &mut Material,
-    mat: &MaterialTag,
+    parameters: &[MaterialParameter],
 ) -> Result<()> {
-    for param in &mat.material_parameters.elements {
+    for param in parameters {
         let id = param.bitmap.global_id;
         match param.parameter_name.0 {
             NORMAL_MAP => {
@@ -60,7 +62,11 @@ pub(super) fn add_style_info(mat: &MaterialTag, material: &mut Material) -> Resu
     let style = &mat.style_info.elements.first();
     let mut style_info = StyleInfo::default();
     if let Some(style) = style {
-        collect_textures(Some(&mut style_info), material, mat)?;
+        collect_textures(
+            Some(&mut style_info),
+            material,
+            &mat.material_parameters.elements,
+        )?;
         style_info.base_intention = style.base_intention.0;
         style_info.mask0_red_intention = style.mask0_red_channel_intention.0;
         style_info.mask0_green_intention = style.mask0_green_channel_intention.0;
@@ -74,6 +80,42 @@ pub(super) fn add_style_info(mat: &MaterialTag, material: &mut Material) -> Resu
         style_info.stylelist = style.material_style.global_id;
         style_info.enable_damage =
             style.requires_damage.0 == MaterialStyleShaderSupportsDamageEnum::Yes;
+        style_info.supported_layers = match style.supported_layers.0 {
+            MaterialStyleShaderSupportedLayers::Supports1Layer => 1,
+            MaterialStyleShaderSupportedLayers::Supports4Layers => 4,
+            MaterialStyleShaderSupportedLayers::Supports7Layers => 7,
+            MaterialStyleShaderSupportedLayers::LayerShaderDisabled => 0,
+        };
+        material.style_info = Some(style_info.clone());
+        material.shader_type = ShaderType::Layered;
+    }
+    Ok(())
+}
+
+pub(super) fn add_style_info_campaign(
+    mat: &MaterialTagCampaign,
+    material: &mut Material,
+) -> Result<()> {
+    let style = &mat.style_info.elements.first();
+    let mut style_info = StyleInfo::default();
+    if let Some(style) = style {
+        collect_textures(
+            Some(&mut style_info),
+            material,
+            &mat.material_parameters.elements,
+        )?;
+        style_info.base_intention = style.base_intention.0;
+        style_info.mask0_red_intention = style.mask0_red_channel_intention.0;
+        style_info.mask0_green_intention = style.mask0_green_channel_intention.0;
+        style_info.mask0_blue_intention = style.mask0_blue_channel_intention.0;
+
+        style_info.mask1_red_intention = style.mask1_red_channel_intention.0;
+        style_info.mask1_green_intention = style.mask1_green_channel_intention.0;
+        style_info.mask1_blue_intention = style.mask1_blue_channel_intention.0;
+
+        style_info.region_name = style.region_name.0;
+        style_info.stylelist = style.material_style.global_id;
+        style_info.enable_damage = true;
         style_info.supported_layers = match style.supported_layers.0 {
             MaterialStyleShaderSupportedLayers::Supports1Layer => 1,
             MaterialStyleShaderSupportedLayers::Supports4Layers => 4,

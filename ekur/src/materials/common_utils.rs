@@ -2,7 +2,7 @@
 /* Copyright © 2025 Surasia */
 use anyhow::Result;
 
-use crate::definitions::material::{MaterialPostProcessing, MaterialTag};
+use crate::definitions::material::{MaterialParameter, MaterialPostProcessing};
 
 use super::serde_definitions::{Material, TextureType};
 
@@ -31,12 +31,8 @@ pub(super) fn f32_from_const(material: &mut Material, start_index: usize) -> Res
     Ok(val)
 }
 
-pub(super) fn f32_from_params(mat: &MaterialTag, name: i32) -> Result<f32> {
-    let val = mat
-        .material_parameters
-        .elements
-        .iter()
-        .find(|m| m.parameter_name.0 == name);
+pub(super) fn f32_from_params(mat: &[MaterialParameter], name: i32) -> Result<f32> {
+    let val = mat.iter().find(|m| m.parameter_name.0 == name);
     if let Some(val) = val {
         Ok(val.real.0)
     } else {
@@ -44,22 +40,23 @@ pub(super) fn f32_from_params(mat: &MaterialTag, name: i32) -> Result<f32> {
     }
 }
 
-pub(super) fn collect_constants(mat: &MaterialTag, material: &mut Material) -> Result<()> {
-    if let Some(post) = &mat.post_process_definition.elements.first() {
-        material.material_constants = post
-            .material_constants
-            .elements
-            .iter()
-            .flat_map(|c| {
-                [
-                    c.register.x.to_ne_bytes(),
-                    c.register.y.to_ne_bytes(),
-                    c.register.z.to_ne_bytes(),
-                    c.register.w.to_ne_bytes(),
-                ]
-                .concat()
-            })
-            .collect();
-    }
+pub(super) fn collect_constants(
+    post: &MaterialPostProcessing,
+    material: &mut Material,
+) -> Result<()> {
+    material.material_constants = post
+        .material_constants
+        .elements
+        .iter()
+        .flat_map(|c| {
+            [
+                c.register.x.to_ne_bytes(),
+                c.register.y.to_ne_bytes(),
+                c.register.z.to_ne_bytes(),
+                c.register.w.to_ne_bytes(),
+            ]
+            .concat()
+        })
+        .collect();
     Ok(())
 }
