@@ -16,6 +16,7 @@ pub(crate) enum ShaderType {
     ColorDecal,
     ConesteppedDecal,
     Meter,
+    SkinShader,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -37,6 +38,10 @@ pub enum TextureType {
     BurntGradient,
     Emissive,
     Meter,
+    AORoughnessTransmission,
+    SpecScatterPore,
+    PoreNormal,
+    DetailNormal,
 }
 
 #[derive(Default, Debug, Serialize, Clone)]
@@ -178,6 +183,17 @@ pub struct Meter {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct SkinShader {
+    pub sss_strength: f32,
+    pub specular_intensity: f32,
+    pub specular_white: f32,
+    pub specular_black: f32,
+    pub pore_normal_intensity: f32,
+    pub micro_normal_intensity: f32,
+    pub micro_normal_scale: [f32; 2],
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Material {
     pub shader: i32,
     pub textures: HashMap<TextureType, i32>,
@@ -191,6 +207,7 @@ pub struct Material {
     pub color_decal: Option<ColorDecal>,
     pub conestepped_decal: Option<ConesteppedDecal>,
     pub meter: Option<Meter>,
+    pub skin: Option<SkinShader>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }

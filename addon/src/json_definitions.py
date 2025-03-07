@@ -106,6 +106,16 @@ class ColorDecal(TypedDict):
     roughness: float
 
 
+class SkinInfo(TypedDict):
+    sss_strength: float
+    specular_intensity: float
+    specular_white: float
+    specular_black: float
+    pore_normal_intensity: float
+    micro_normal_intensity: float
+    micro_normal_scale: tuple[float, float]
+
+
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
     shader_type: str
@@ -115,6 +125,7 @@ class CommonMaterial(TypedDict):
     illum_info: SelfIllum | None
     decal_slots: DecalSlot | None
     color_decal: ColorDecal | None
+    skin: SkinInfo | None
 
 
 class CommonLayer(TypedDict):

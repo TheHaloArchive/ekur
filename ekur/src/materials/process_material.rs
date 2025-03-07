@@ -23,6 +23,7 @@ use super::{
     parallax_decal::handle_parallax_decal,
     self_illum::{handle_illum, handle_illum_full},
     serde_definitions::{Material, TextureType},
+    skin_shader::handle_skin,
 };
 
 pub fn process_materials(
@@ -56,6 +57,7 @@ pub fn process_materials(
             1081175655 => handle_color_decal_forge(mat, &mut material)?,
             2006960401 => handle_illum_full(&mut material)?,
             -648442023 => handle_meter_shader(mat, &mut material)?,
+            -1825366364 | 1644211276 => handle_skin(mat, &mut material)?,
             _ => {}
         };
         material.shader = mat.material_shader.global_id;

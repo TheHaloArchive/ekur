@@ -13,3 +13,4 @@ mod parallax_decal;
 pub mod process_material;
 mod self_illum;
 pub mod serde_definitions;
+mod skin_shader;

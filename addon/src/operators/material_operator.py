@@ -6,6 +6,8 @@ from typing import final
 
 from bpy.types import Context, Operator, ShaderNodeTree
 
+from ..material_types.skin_shader import SkinShader
+
 from ..json_definitions import CommonMaterial, CommonStyleList
 from ..material_types.decal_shader import DecalShader
 from ..material_types.diffuse_shader import DiffuseShaderType
@@ -64,6 +66,8 @@ def run_material(material: CommonMaterial, node_tree: ShaderNodeTree) -> None:
             _ = IllumShader(material, node_tree)
         case "ColorDecal":
             _ = ColorDecalShader(material, node_tree)
+        case "SkinShader":
+            _ = SkinShader(material, node_tree)
         case "Unknown":
             pass
         case _:
