@@ -9,6 +9,7 @@ import bpy
 from bpy.types import (
     NodeTree,
     ShaderNodeGroup,
+    ShaderNodeInvert,
     ShaderNodeOutputMaterial,
     ShaderNodeTexImage,
     ShaderNodeTree,
@@ -73,13 +74,13 @@ class LayeredShader:
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
             tex.interpolation = "Cubic"
             if (
-                tex.image
-                and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
-                and self.material["alpha_blend_mode"] != "Opaque"
+                tex.image and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
             ):
+                invert = create_node(self.node_tree.nodes, 0, 120, ShaderNodeInvert)
+                _ = self.node_tree.links.new(tex.outputs[1], invert.inputs[1])
                 transparencies = [21, 35, 49, 63, 77, 91, 105]
                 for i in transparencies:
-                    _ = self.node_tree.links.new(tex.outputs[1], self.shader.inputs[i])
+                    _ = self.node_tree.links.new(invert.outputs[0], self.shader.inputs[i])
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         if textures.get("Mask0"):
             self.has_mask0 = True
