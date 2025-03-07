@@ -217,7 +217,7 @@ class ImportPropertiesType:
     level_path: str = ""
     import_specific_core: bool = False
     import_names: bool = False
-    rig_to_use: str = ""
+    use_purp_rig: bool = False
     gamertag: str = ""
     core: str = ""
     root_category: str = ""
@@ -256,23 +256,18 @@ def assign_value(
 
 
 def import_custom_rig() -> Object | None:
-    properties = get_import_properties()
-    custom_rig_path = Path(get_data_folder()) / f"{properties.rig_to_use}.blend"
-    match properties.rig_to_use:
-        case "purp":
-            if custom_rig_path.exists():
-                with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
-                    data_from,  # pyright: ignore[reportUnknownVariableType]
-                    data_to,  # pyright: ignore[reportUnknownVariableType]
-                ):
-                    data_to.objects = [
-                        name
-                        for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        if name == "Spartan_Control_Rig_V2"
-                    ]
-            else:
-                logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
-        case _:
-            pass
+    custom_rig_path = Path(get_data_folder()) / "purp.blend"
+    if custom_rig_path.exists():
+        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
+            data_from,  # pyright: ignore[reportUnknownVariableType]
+            data_to,  # pyright: ignore[reportUnknownVariableType]
+        ):
+            data_to.objects = [
+                name
+                for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                if name == "Spartan_Control_Rig_V2"
+            ]
+    else:
+        logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
     object = bpy.data.objects.get("Spartan_Control_Rig_V2")
     return object

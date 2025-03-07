@@ -17,6 +17,7 @@ pub(super) fn handle_diffuse_shader(mat: &MaterialTag, material: &mut Material) 
         get_post_texture(post_process, material, 0, TextureType::Color)?;
         get_post_texture(post_process, material, 60, TextureType::Control)?;
         get_post_texture(post_process, material, 116, TextureType::Normal)?;
+        get_post_texture(post_process, material, 196, TextureType::AlphaMap)?;
         diffuse_info.metallic_white = f32_from_const(material, 96)?;
         diffuse_info.metallic_black = f32_from_const(material, 100)?;
         diffuse_info.roughness_white = f32_from_const(material, 104)?;

@@ -61,9 +61,9 @@ class ImportProperties(PropertyGroup):
     )
     import_specific_core: BoolProperty(name="Import Specific Core", default=False)
     import_names: BoolProperty(name="Import Names", default=True)
-    rig_to_use: EnumProperty(
-        name="Rig To Use",
-        items=[("default", "Default (FK)", ""), ("purp", "Purp's Rig (IK/FK/Control)", "")],
+    use_purp_rig: BoolProperty(
+        default=True,
+        name="Use Purp's IK Rig",
     )
     gamertag: StringProperty(name="Gamertag", default="")
     core: EnumProperty(name="Core", items=GrabStrings.cores)
@@ -149,8 +149,8 @@ class CoatingImportPanel(Panel):
             if import_properties.import_specific_core:
                 ocgd_opts.prop(import_properties, "core")
             ocgd_opts.prop(import_properties, "import_names")
+            ocgd_opts.prop(import_properties, "use_purp_rig")
             ocgd_opts.prop(import_properties, "gamertag")
-            ocgd_opts.prop(import_properties, "rig_to_use")
             _ = ocgd_body.operator("ekur.importspartan")
             _ = ocgd_body.operator("ekur.importvanity")
 
