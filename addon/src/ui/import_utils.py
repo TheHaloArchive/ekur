@@ -29,6 +29,7 @@ object_repr_cache: dict[str, list[tuple[str, str, str]]] | None = None
 visor_cache: list[tuple[str, str, str]] | None = None
 styles_cache: dict[str, CommonStyleList] | None = None
 style_cache: dict[str, list[tuple[str, str, str]]] | None = None
+object_definition: ForgeObjectDefinition | None = None
 
 
 def natural_sort_key(s: str) -> list[int | str]:
@@ -133,12 +134,16 @@ class GrabStrings:
         return all_cores
 
     def get_object_definition(self, _context: Context) -> ForgeObjectDefinition | None:
+        global object_definition
         data = get_data_folder()
         objects_path = Path(f"{data}/forge_objects.json")
-        objects = read_json_file(objects_path, ForgeObjectDefinition)
-        if objects is None:
+        if object_definition:
+            return object_definition
+        else:
+            object_definition = read_json_file(objects_path, ForgeObjectDefinition)
+        if object_definition is None:
             return
-        return objects
+        return object_definition
 
     def get_category(
         self, context: Context, category: str, subcat: str | None = None

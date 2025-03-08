@@ -47,7 +47,7 @@ def import_attachments(
 @final
 class ImportSpartanVanityOperator(Operator):
     bl_idname = "ekur.importvanity"
-    bl_label = "Import Vanity"
+    bl_label = "Import Spartan from Gamertag"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:

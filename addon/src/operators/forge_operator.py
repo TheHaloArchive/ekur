@@ -50,17 +50,26 @@ class ForgeOperator(Operator):
                                 collection = bpy.data.collections.new(obj["name"])
                                 count = 0
                                 for bl_obj in objects:
+                                    print(bl_obj["permutation_name"])
+                                    print(representation["name_int"])
                                     if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
                                         bl_obj.data.uv_layers["UV1"].active_render = True
                                         bl_obj.data.uv_layers["UV1"].active = True
-                                    if representation["name_int"] == bl_obj["permutation_name"]:
+                                    if str(representation["name_int"]) == str(
+                                        bl_obj["permutation_name"]
+                                    ):
                                         count += 1
                                         collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
                                 if count == 0:
                                     for bl_obj in objects:
+                                        if bl_obj["permutation_name"] == 528041935:
+                                            count += 1
+                                            collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
+                                if count == 0:
+                                    for bl_obj in objects:
                                         collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
                                 context.scene.collection.children.link(collection)  # pyright: ignore[reportUnknownMemberType]
-                                for object in objects:
+                                for object in collection.objects:
                                     object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
                                     if context.view_layer:
                                         context.view_layer.objects.active = object
