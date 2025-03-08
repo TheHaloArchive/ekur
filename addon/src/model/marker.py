@@ -26,12 +26,13 @@ class MarkerInstance:
 
 class Marker:
     def __init__(self) -> None:
-        self.name: int = -1
+        self.name: str = ""
         self.instance_count: int = 0
         self.instances: list[MarkerInstance] = []
 
     def read(self, reader: BufferedReader) -> None:
-        self.name = int.from_bytes(reader.read(4), byteorder="little", signed=True)
+        name_length = int.from_bytes(reader.read(1), "little")
+        self.name = reader.read(name_length).decode("utf-8")
         self.instance_count = int.from_bytes(reader.read(4), byteorder="little", signed=True)
         for _ in range(self.instance_count):
             instance = MarkerInstance()

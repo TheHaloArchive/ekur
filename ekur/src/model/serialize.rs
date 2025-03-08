@@ -205,7 +205,7 @@ pub fn process_models(
         write_header(&mut writer, model.1)?;
         write_regions(&mut writer, model.1)?;
         write_bones(&mut writer, model.1, string_mappings)?;
-        write_markers(&mut writer, model.1)?;
+        write_markers(&mut writer, model.1, string_mappings)?;
         write_bounding_boxes(&mut writer, &model.1.bounding_boxes)?;
         write_materials(&mut writer, model.1)?;
 
@@ -233,7 +233,7 @@ pub fn process_models(
         let mut writer = BufWriter::new(file);
 
         write_header_rtgo(&mut writer, model.1)?;
-        write_markers_rtgo(&mut writer, model.1)?;
+        write_markers_rtgo(&mut writer, model.1, string_mappings)?;
         write_bounding_boxes(&mut writer, &model.1.bounding_boxes)?;
 
         let buffers = get_buffers(model, modules, &Vec::new())?;
