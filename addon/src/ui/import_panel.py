@@ -8,7 +8,7 @@ from typing import final
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, Operator
 
-from ..utils import ImportPropertiesType, get_import_properties
+from ..utils import ImportPropertiesType, get_addon_preferences, get_import_properties
 from .import_utils import GrabStrings, get_styles
 
 __all__ = ["RandomizeCoatingOperator", "ImportProperties", "CoatingImportPanel"]
@@ -91,12 +91,16 @@ class CoatingImportPanel(Panel):
         if layout is None:
             return
         import_properties = get_import_properties()
+        prefs = get_addon_preferences()
         self.draw_material_options(import_properties)
         self.draw_model_options(import_properties)
-        self.draw_ocgd(import_properties)
+        if not prefs.is_campaign:
+            self.draw_ocgd(import_properties)
         self.draw_level(import_properties)
-        self.draw_forge(context, import_properties)
-        self.draw_forge_map(import_properties)
+        if not prefs.is_campaign:
+            self.draw_forge(context, import_properties)
+        if prefs.enable_forge:
+            self.draw_forge_map(import_properties)
 
     def draw_material_options(self, import_properties: ImportPropertiesType) -> None:
         layout = self.layout

@@ -169,6 +169,7 @@ class AddonPreferencesType:
     deploy_folder: str = ""
     dump_textures: bool = True
     is_campaign: bool = False
+    enable_forge: bool = False
 
 
 def get_data_folder() -> str:
