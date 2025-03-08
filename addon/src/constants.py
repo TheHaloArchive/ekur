@@ -3,5 +3,5 @@
 
 __all__ = ["version", "version_string"]
 
-version = (0, 6, 5)
+version = (1, 0, 0)
 version_string = ".".join(str(v) for v in version)

@@ -124,7 +124,9 @@ class ImportProperties(PropertyGroup):
     core: EnumProperty(
         name="Core", description="Specific armor core you want to import.", items=GrabStrings.cores
     )
-    root_category: EnumProperty(name="Root Category", items=GrabStrings.root_categories)
+    root_category: EnumProperty(
+        name="Root Category", description="", items=GrabStrings.root_categories
+    )
     subcategory: EnumProperty(name="Subcategory", items=GrabStrings.subcategories)
     objects: EnumProperty(name="Object", items=GrabStrings.objects)
     object_representation: EnumProperty(

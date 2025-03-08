@@ -25,6 +25,7 @@ class ForgeOperator(Operator):
             return {"CANCELLED"}
         properties = get_import_properties()
         selected_model = properties.objects
+
         represnt = properties.object_representation
         data = get_data_folder()
 
@@ -50,13 +51,11 @@ class ForgeOperator(Operator):
                                 collection = bpy.data.collections.new(obj["name"])
                                 count = 0
                                 for bl_obj in objects:
-                                    print(bl_obj["permutation_name"])
-                                    print(representation["name_int"])
                                     if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
                                         bl_obj.data.uv_layers["UV1"].active_render = True
                                         bl_obj.data.uv_layers["UV1"].active = True
                                     if str(representation["name_int"]) == str(
-                                        bl_obj["permutation_name"]
+                                        bl_obj["permutation_name"]  # pyright: ignore[reportAny]
                                     ):
                                         count += 1
                                         collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]

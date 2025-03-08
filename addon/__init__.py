@@ -66,7 +66,7 @@ class EkurPreferences(AddonPreferences):
     )
 
     enable_forge: bpy.props.BoolProperty(
-        name="EXPERIMENTAL: Enable Forge Map Importer",
+        name="Enable Forge Map Importer",
         description="Whether to enable Forge map importer or not. Please note that this is experimental and may not work as expected.",
         default=False,
     )

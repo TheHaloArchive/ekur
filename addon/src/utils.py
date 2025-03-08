@@ -258,7 +258,11 @@ def assign_value(
 
 
 def import_custom_rig() -> Object | None:
-    custom_rig_path = Path(get_data_folder()) / "purp.blend"
+    prefs = get_import_properties()
+    if not prefs.use_purp_rig:
+        return None
+    extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+    custom_rig_path = Path(extension_path) / "purp.blend"
     if custom_rig_path.exists():
         with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
             data_from,  # pyright: ignore[reportUnknownVariableType]
