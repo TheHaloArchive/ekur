@@ -6,6 +6,7 @@ from typing import final
 import bpy
 from bpy.types import Context, Mesh, Operator
 
+from .material_operator import import_materials
 from ..json_definitions import ForgeObjectDefinition
 from ..utils import get_data_folder, get_import_properties, read_json_file
 from ..model.importer.model_importer import ModelImporter
@@ -59,6 +60,13 @@ class ForgeOperator(Operator):
                                     for bl_obj in objects:
                                         collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
                                 context.scene.collection.children.link(collection)  # pyright: ignore[reportUnknownMemberType]
+                                for object in objects:
+                                    object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+                                    if context.view_layer:
+                                        context.view_layer.objects.active = object
+                                    properties.use_default = False
+                                    properties.coat_id = str(obj["id"])
+                                    import_materials()
                                 break
 
         return {"FINISHED"}

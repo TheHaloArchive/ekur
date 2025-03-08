@@ -239,6 +239,7 @@ class ForgeObjectRepresentation(TypedDict):
 
 class ForgeObject(TypedDict):
     name: str
+    id: int
     representations: list[ForgeObjectRepresentation]
 
 
