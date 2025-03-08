@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright © 2025 Surasia
 import json
 import logging
 from pathlib import Path
@@ -45,7 +47,7 @@ def import_attachments(
 @final
 class ImportSpartanVanityOperator(Operator):
     bl_idname = "ekur.importvanity"
-    bl_label = "Import Vanity"
+    bl_label = "Import Spartan from Gamertag"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:

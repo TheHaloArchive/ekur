@@ -21,6 +21,7 @@ from .src.operators.level_operator import ImportLevelOperator
 from .src.operators.forge_operator import ForgeOperator
 from .src.operators.spartan_online_operator import ImportSpartanVanityOperator
 from .src.operators.download_files_operator import DownloadFilesOperator
+from .src.operators.forge_map_operator import ForgeMapOperator
 from .src.constants import version
 
 bl_info = {
@@ -58,6 +59,18 @@ class EkurPreferences(AddonPreferences):
         default=True,
     )
 
+    is_campaign: bpy.props.BoolProperty(
+        name="Is Campaign",
+        description="Whether the deploy folder is for campaign or not",
+        default=False,
+    )
+
+    enable_forge: bpy.props.BoolProperty(
+        name="Enable Forge Map Importer",
+        description="Whether to enable Forge map importer or not. Please note that this is experimental and may not work as expected.",
+        default=False,
+    )
+
     def draw(self, _context: Context | None):
         layout = self.layout
         box = layout.box()
@@ -65,6 +78,10 @@ class EkurPreferences(AddonPreferences):
         box.prop(self, "data_folder")
         box.prop(self, "deploy_folder")
         box.prop(self, "dump_textures")
+        box.prop(self, "is_campaign")
+        experimental_box = box.box()
+        experimental_box.label(text="Experimental", icon="ERROR")
+        experimental_box.prop(self, "enable_forge")
         box2 = layout.box()
         _ = box2.operator("ekur.downloadfiles")
         _ = box2.operator("ekur.dumpfiles")
@@ -83,6 +100,7 @@ def register():
     register_class(ImportLevelOperator)
     register_class(ForgeOperator)
     register_class(ImportSpartanVanityOperator)
+    register_class(ForgeMapOperator)
     bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -99,4 +117,5 @@ def unregister():
     unregister_class(ImportLevelOperator)
     unregister_class(ForgeOperator)
     unregister_class(ImportSpartanVanityOperator)
+    unregister_class(ForgeMapOperator)
     del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

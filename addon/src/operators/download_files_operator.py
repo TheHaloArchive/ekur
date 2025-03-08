@@ -3,13 +3,15 @@
 import logging
 from pathlib import Path
 import platform
-from typing import final
+from typing import cast, final
 import urllib.error
 import urllib.request
 
+import bpy
 from bpy.types import Context, Operator
 
-from ..utils import get_data_folder
+from ..utils import get_package_name
+
 from ..constants import version_string
 
 STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
@@ -26,15 +28,15 @@ class DownloadFilesOperator(Operator):
     bl_label = "Download Required Files"
 
     def execute(self, context: Context | None) -> set[str]:
-        if context is None:
+        if context is None or not cast(bool, bpy.app.online_access):
+            logging.error("Online access is disabled")
             return {"CANCELLED"}
-
-        data = get_data_folder()
-        save_path = f"{data}/strings.txt"
-        visors_path = f"{data}/all_visors.json"
-        regions_path = f"{data}/regions_and_permutations.json"
-        customs_path = f"{data}/purp.blend"
-        ekur_save_path = Path(f"{data}/ekur-{version_string}")
+        extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+        ekur_save_path = Path(f"{extension_path}/ekur-{version_string}")
+        save_path = f"{extension_path}/strings.txt"
+        visors_path = f"{extension_path}/all_visors.json"
+        regions_path = f"{extension_path}/regions_and_permutations.json"
+        customs_path = f"{extension_path}/purp.blend"
 
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{version_string}/ekur-{version_string}"
         if platform.system() == "Windows":

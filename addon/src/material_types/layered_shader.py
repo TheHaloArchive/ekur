@@ -5,9 +5,11 @@ import logging
 from pathlib import Path
 from typing import cast
 
+import bpy
 from bpy.types import (
     NodeTree,
     ShaderNodeGroup,
+    ShaderNodeInvert,
     ShaderNodeOutputMaterial,
     ShaderNodeTexImage,
     ShaderNodeTree,
@@ -29,6 +31,7 @@ from ..utils import (
     create_node,
     get_data_folder,
     get_import_properties,
+    get_package_name,
     read_json_file,
     read_texture,
 )
@@ -70,10 +73,17 @@ class LayeredShader:
         if textures.get("Asg"):
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
             tex.interpolation = "Cubic"
-            if tex.image and tex.image.get("use_alpha"):  # pyright: ignore[reportUnknownMemberType]
+            if (
+                tex.image
+                and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
+                and self.material["style_info"]
+                and self.material["style_info"]["base_intention"] == -783606968
+            ):
+                invert = create_node(self.node_tree.nodes, 0, 120, ShaderNodeInvert)
+                _ = self.node_tree.links.new(tex.outputs[1], invert.inputs[1])
                 transparencies = [21, 35, 49, 63, 77, 91, 105]
                 for i in transparencies:
-                    _ = self.node_tree.links.new(tex.outputs[1], self.shader.inputs[i])
+                    _ = self.node_tree.links.new(invert.outputs[0], self.shader.inputs[i])
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
         if textures.get("Mask0"):
             self.has_mask0 = True
@@ -238,9 +248,10 @@ class LayeredShader:
         """
         layer = self.get_intention(intention, mat_reg, any_reg, globals)
         properties = get_import_properties()
+        extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         info = self.material.get("style_info")
         if i == 0 and info and info["region_name"] == MP_VISOR and properties.toggle_visors:
-            visors_path = Path(f"{self.data_folder}/all_visors.json")
+            visors_path = Path(f"{extension_path}/all_visors.json")
             visors = read_json_file(visors_path, dict[str, CommonLayer])
             if visors is None:
                 return

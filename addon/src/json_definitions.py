@@ -106,14 +106,26 @@ class ColorDecal(TypedDict):
     roughness: float
 
 
+class SkinInfo(TypedDict):
+    sss_strength: float
+    specular_intensity: float
+    specular_white: float
+    specular_black: float
+    pore_normal_intensity: float
+    micro_normal_intensity: float
+    micro_normal_scale: tuple[float, float]
+
+
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
     shader_type: str
+    alpha_blend_mode: str
     style_info: StyleInfo | None
     diffuse_info: DiffuseInfo | None
     illum_info: SelfIllum | None
     decal_slots: DecalSlot | None
     color_decal: ColorDecal | None
+    skin: SkinInfo | None
 
 
 class CommonLayer(TypedDict):
@@ -227,6 +239,7 @@ class ForgeObjectRepresentation(TypedDict):
 
 class ForgeObject(TypedDict):
     name: str
+    id: int
     representations: list[ForgeObjectRepresentation]
 
 

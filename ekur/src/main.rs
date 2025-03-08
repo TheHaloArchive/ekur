@@ -7,6 +7,7 @@ use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
 use definitions::customization_globals::CustomizationGlobals;
 use definitions::forge_manifest::ForgeObjectManifest;
+use definitions::material::MaterialTagCampaign;
 use definitions::model::ModelDefinition;
 use definitions::object_attachment::AttachmentConfiguration;
 use definitions::object_theme::ObjectTheme;
@@ -24,6 +25,7 @@ use definitions::{
 use infinite_rs::ModuleFile;
 use loader::module::get_models;
 use materials::process_material::process_materials;
+use materials::process_material::process_materials_campaign;
 use materials::serde_definitions::TextureType;
 use model::serialize::process_models;
 use serialize::customization_globals::process_object_globals;
@@ -58,6 +60,8 @@ struct EkurArgs {
     strings_path: String,
     #[clap(short, long, default_value = "false")]
     skip_bitmaps: bool,
+    #[clap(short, long, default_value = "false")]
+    is_campaign: bool,
 }
 
 fn extract_models(
@@ -82,10 +86,19 @@ fn extract_models(
     Ok(())
 }
 
-fn extract_materials(modules: &mut [ModuleFile], save: &str) -> Result<Vec<(TextureType, i32)>> {
+fn extract_materials(
+    modules: &mut [ModuleFile],
+    save: &str,
+    is_campaign: bool,
+) -> Result<Vec<(TextureType, i32)>> {
     std::fs::create_dir_all(format!("{}/materials/", save))?;
-    let materials = get_tags::<MaterialTag>("mat ", modules)?;
-    let textures = process_materials(&materials, save)?;
+    let textures = if is_campaign {
+        let materials = get_tags::<MaterialTagCampaign>("mat ", modules)?;
+        process_materials_campaign(&materials, save)?
+    } else {
+        let materials = get_tags::<MaterialTag>("mat ", modules)?;
+        process_materials(&materials, save)?
+    };
     Ok(textures)
 }
 
@@ -214,25 +227,27 @@ fn main() -> Result<()> {
     }
 
     let save = &args.save_path;
-    let textures = extract_materials(&mut modules, save)?;
+    let textures = extract_materials(&mut modules, save, args.is_campaign)?;
     let material_swatches = get_tags::<MaterialSwatchTag>("mwsw", &mut modules)?;
     let attachments = get_tags::<AttachmentConfiguration>("ocad", &mut modules)?;
     let models = get_tags::<ModelDefinition>("hlmt", &mut modules)?;
-    let themes = get_tags::<ObjectTheme>("ocur", &mut modules)?;
     let coat_swatch = get_tags::<CoatingSwatchPODTag>("cmsw", &mut modules)?;
 
-    extract_forge_objects(&mut modules, &models, save)?;
+    if !args.is_campaign {
+        let themes = get_tags::<ObjectTheme>("ocur", &mut modules)?;
+        extract_object_customization(
+            &mut modules,
+            &themes,
+            &attachments,
+            &models,
+            save,
+            &string_mappings,
+        )?;
+        extract_forge_objects(&mut modules, &models, save)?;
+    }
     extract_scenarios(&mut modules, save)?;
     extract_visor_data(&mut modules, &material_swatches, save)?;
     extract_models(&mut modules, save, &string_mappings)?;
-    extract_object_customization(
-        &mut modules,
-        &themes,
-        &attachments,
-        &models,
-        save,
-        &string_mappings,
-    )?;
     extract_coating_globals(&mut modules, &coat_swatch, save)?;
     extract_styles(&mut modules, save, &string_mappings)?;
     extract_runtime_coatings(&mut modules, &coat_swatch, save)?;

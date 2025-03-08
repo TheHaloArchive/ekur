@@ -6,6 +6,7 @@ from typing import final
 import bpy
 from bpy.types import Context, Mesh, Operator
 
+from .material_operator import import_materials
 from ..json_definitions import ForgeObjectDefinition
 from ..utils import get_data_folder, get_import_properties, read_json_file
 from ..model.importer.model_importer import ModelImporter
@@ -24,6 +25,7 @@ class ForgeOperator(Operator):
             return {"CANCELLED"}
         properties = get_import_properties()
         selected_model = properties.objects
+
         represnt = properties.object_representation
         data = get_data_folder()
 
@@ -52,13 +54,27 @@ class ForgeOperator(Operator):
                                     if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
                                         bl_obj.data.uv_layers["UV1"].active_render = True
                                         bl_obj.data.uv_layers["UV1"].active = True
-                                    if representation["name_int"] == bl_obj["permutation_name"]:
+                                    if str(representation["name_int"]) == str(
+                                        bl_obj["permutation_name"]  # pyright: ignore[reportAny]
+                                    ):
                                         count += 1
                                         collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
                                 if count == 0:
                                     for bl_obj in objects:
+                                        if bl_obj["permutation_name"] == 528041935:
+                                            count += 1
+                                            collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
+                                if count == 0:
+                                    for bl_obj in objects:
                                         collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
                                 context.scene.collection.children.link(collection)  # pyright: ignore[reportUnknownMemberType]
+                                for object in collection.objects:
+                                    object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+                                    if context.view_layer:
+                                        context.view_layer.objects.active = object
+                                    properties.use_default = False
+                                    properties.coat_id = str(obj["id"])
+                                    import_materials()
                                 break
 
         return {"FINISHED"}

@@ -8,7 +8,7 @@ from typing import final
 from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, Operator
 
-from ..utils import ImportPropertiesType, get_import_properties
+from ..utils import ImportPropertiesType, get_addon_preferences, get_import_properties
 from .import_utils import GrabStrings, get_styles
 
 __all__ = ["RandomizeCoatingOperator", "ImportProperties", "CoatingImportPanel"]
@@ -36,44 +36,105 @@ class RandomizeCoatingOperator(Operator):
 
 
 class ImportProperties(PropertyGroup):
-    use_default: BoolProperty(name="Use Default Coating", default=True)
-    coat_id: StringProperty(name="Coating ID Override", default="")
-    toggle_damage: BoolProperty(name="Disable Damage", default=False)
-    selected_only: BoolProperty(name="Selected Only", default=True)
-    sort_by_name: BoolProperty(name="Sort by Name", default=True)
-    coatings: EnumProperty(name="Coating", items=GrabStrings.common_styles)
-    toggle_visors: BoolProperty(name="Override Visor", default=False)
-    visors: EnumProperty(name="Visor", items=GrabStrings.visors)
+    use_default: BoolProperty(
+        name="Use Default Coating",
+        description="Whether or not to enable the menu to select a custom coating.",
+        default=True,
+    )
+    coat_id: StringProperty(
+        name="Coating ID Override",
+        description="Advanced: coating id (m_identifier) from cylix.guide",
+        default="",
+    )
+    toggle_damage: BoolProperty(
+        name="Disable Damage",
+        description="Disables Zone 7 or 4, usually being the damage swatch.",
+        default=False,
+    )
+    selected_only: BoolProperty(
+        name="Selected Only", description="Import coatings for selected objects only.", default=True
+    )
+    sort_by_name: BoolProperty(
+        name="Sort by Name", description="Sorts coating and visors by name.", default=True
+    )
+    coatings: EnumProperty(
+        name="Coating",
+        description="Coating to import onto object.",
+        items=GrabStrings.common_styles,
+    )
+    toggle_visors: BoolProperty(
+        name="Override Visor", description="Enables visor import menu.", default=False
+    )
+    visors: EnumProperty(
+        name="Visor", description="Visor to import onto helmet visors.", items=GrabStrings.visors
+    )
     model_path: StringProperty(
         default="",
         name="Model Path",
+        description="Path to .ekur model file to import.",
         subtype="FILE_PATH",
     )
-    import_materials: BoolProperty(name="Import Materials", default=True)
-    import_markers: BoolProperty(name="Import Markers", default=True)
-    import_bones: BoolProperty(name="Import Bones", default=True)
-    import_collections: BoolProperty(name="Import Collections", default=True)
-    import_vertex_color: BoolProperty(name="Import Vertex Color (SLOW)", default=False)
+    import_materials: BoolProperty(
+        name="Import Materials",
+        description="Whether to import material slots for model.",
+        default=True,
+    )
+    import_markers: BoolProperty(
+        name="Import Markers",
+        description="Whether to import markers as empties for model.",
+        default=True,
+    )
+    import_bones: BoolProperty(
+        name="Import Bones", description="Import armatures and weight data for model.", default=True
+    )
+    import_collections: BoolProperty(
+        name="Import Collections",
+        description="Sort model regions and permutations into collections",
+        default=True,
+    )
+    import_vertex_color: BoolProperty(
+        name="Import Vertex Color",
+        description="Whether to import vertex color as a mesh attribute for models that support it.",
+        default=False,
+    )
     level_path: StringProperty(
         default="",
         name="Level Path",
+        description="Path to .json level file to import.",
         subtype="FILE_PATH",
     )
-    import_specific_core: BoolProperty(name="Import Specific Core", default=False)
-    import_names: BoolProperty(name="Import Names", default=True)
-    rig_to_use: EnumProperty(
-        name="Rig To Use",
-        items=[("default", "Default (FK)", ""), ("purp", "Purp's Rig (IK/FK/Control)", "")],
+    import_specific_core: BoolProperty(
+        name="Import Specific Core",
+        description="Whether to filter out a specific armor core for spartans.",
+        default=False,
     )
-    gamertag: StringProperty(name="Gamertag", default="")
-    core: EnumProperty(name="Core", items=GrabStrings.cores)
-    root_category: EnumProperty(name="Root Category", items=GrabStrings.root_categories)
+    import_names: BoolProperty(
+        name="Import Names of Armor Pieces",
+        description="Whether to replace object name hashes with their proper in-game names",
+        default=True,
+    )
+    use_purp_rig: BoolProperty(
+        default=True,
+        description="Whether to use Purplmunkii's IK/FK Control rig for spartans.",
+        name="Use Purp's IK Rig",
+    )
+    gamertag: StringProperty(
+        name="Gamertag", description="Gamertag of the spartan you want to import.", default=""
+    )
+    core: EnumProperty(
+        name="Core", description="Specific armor core you want to import.", items=GrabStrings.cores
+    )
+    root_category: EnumProperty(
+        name="Root Category", description="", items=GrabStrings.root_categories
+    )
     subcategory: EnumProperty(name="Subcategory", items=GrabStrings.subcategories)
     objects: EnumProperty(name="Object", items=GrabStrings.objects)
     object_representation: EnumProperty(
         name="Object Representation", items=GrabStrings.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
+    asset_id: StringProperty(name="Asset ID", default="")
+    version_id: StringProperty(name="Version ID", default="")
 
 
 @final
@@ -89,11 +150,16 @@ class CoatingImportPanel(Panel):
         if layout is None:
             return
         import_properties = get_import_properties()
+        prefs = get_addon_preferences()
         self.draw_material_options(import_properties)
         self.draw_model_options(import_properties)
-        self.draw_ocgd(import_properties)
+        if not prefs.is_campaign:
+            self.draw_ocgd(import_properties)
         self.draw_level(import_properties)
-        self.draw_forge(context, import_properties)
+        if not prefs.is_campaign:
+            self.draw_forge(context, import_properties)
+        if prefs.enable_forge:
+            self.draw_forge_map(import_properties)
 
     def draw_material_options(self, import_properties: ImportPropertiesType) -> None:
         layout = self.layout
@@ -141,15 +207,17 @@ class CoatingImportPanel(Panel):
         ocgd_header, ocgd_body = layout.panel("VIEW3D_PT_import_ocgd")
         ocgd_header.label(icon="ARMATURE_DATA", text="Import Spartan")
         if ocgd_body:
+            ocgd_body.prop(import_properties, "use_purp_rig")
             ocgd_opts = ocgd_body.box()
             ocgd_opts.prop(import_properties, "import_specific_core")
             if import_properties.import_specific_core:
                 ocgd_opts.prop(import_properties, "core")
+
             ocgd_opts.prop(import_properties, "import_names")
-            ocgd_opts.prop(import_properties, "gamertag")
-            ocgd_opts.prop(import_properties, "rig_to_use")
-            _ = ocgd_body.operator("ekur.importspartan")
-            _ = ocgd_body.operator("ekur.importvanity")
+            _ = ocgd_opts.operator("ekur.importspartan")
+            vanity_opts = ocgd_body.box()
+            vanity_opts.prop(import_properties, "gamertag")
+            _ = vanity_opts.operator("ekur.importvanity")
 
     def draw_level(self, import_properties: ImportPropertiesType) -> None:
         layout = self.layout
@@ -179,3 +247,15 @@ class CoatingImportPanel(Panel):
                 forge_opts.prop(import_properties, "objects")
                 forge_opts.prop(import_properties, "object_representation")
             _ = forge_body.operator("ekur.importforge")
+
+    def draw_forge_map(self, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None:
+            return
+        forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge_map")
+        forge_header.label(icon="MAT_SPHERE_SKY", text="Import Forge Map")
+        if forge_body:
+            forge_opts = forge_body.box()
+            forge_opts.prop(import_properties, "asset_id")
+            forge_opts.prop(import_properties, "version_id")
+            _ = forge_body.operator("ekur.importforgemap")

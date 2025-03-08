@@ -144,9 +144,19 @@ pub(super) fn write_bones(
     Ok(())
 }
 
-pub(super) fn write_markers(writer: &mut BufWriter<File>, model: &RenderModel) -> Result<()> {
+pub(super) fn write_markers(
+    writer: &mut BufWriter<File>,
+    model: &RenderModel,
+    strings: &HashMap<i32, String>,
+) -> Result<()> {
     for marker in &model.marker_groups.elements {
-        writer.write_i32::<LE>(marker.name.0)?;
+        let name = if strings.contains_key(&marker.name.0) {
+            strings.get(&marker.name.0).unwrap().clone()
+        } else {
+            marker.name.0.to_string()
+        };
+        writer.write_u8(name.len() as u8)?;
+        writer.write_all(name.as_bytes())?;
         writer.write_u32::<LE>(marker.markers.size)?;
         for mark in &marker.markers.elements {
             writer.write_f32::<LE>(mark.translation.x)?;
@@ -165,9 +175,19 @@ pub(super) fn write_markers(writer: &mut BufWriter<File>, model: &RenderModel) -
     Ok(())
 }
 
-pub(super) fn write_markers_rtgo(writer: &mut BufWriter<File>, model: &RuntimeGeo) -> Result<()> {
+pub(super) fn write_markers_rtgo(
+    writer: &mut BufWriter<File>,
+    model: &RuntimeGeo,
+    strings: &HashMap<i32, String>,
+) -> Result<()> {
     for marker in &model.markers.elements {
-        writer.write_i32::<LE>(marker.name.0)?;
+        let name = if strings.contains_key(&marker.name.0) {
+            strings.get(&marker.name.0).unwrap().clone()
+        } else {
+            marker.name.0.to_string()
+        };
+        writer.write_u8(name.len() as u8)?;
+        writer.write_all(name.as_bytes())?;
         writer.write_u32::<LE>(marker.markers.size)?;
         for mark in &marker.markers.elements {
             writer.write_f32::<LE>(mark.translation.x)?;

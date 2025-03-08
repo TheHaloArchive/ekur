@@ -85,7 +85,8 @@ class ModelImporter:
             if not m:
                 m = bpy.data.materials.new(mat_name)
             m.use_nodes = True
-            mesh.materials.append(m)  # pyright: ignore[reportUnknownMemberType]
+            if m.name not in mesh.materials:
+                mesh.materials.append(m)  # pyright: ignore[reportUnknownMemberType]
             material_slots[section.submeshes[submesh].shader_index] = mesh.materials[-1]
             material_slot_indices[section.submeshes[submesh].shader_index] = len(
                 material_slot_indices

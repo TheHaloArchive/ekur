@@ -22,6 +22,8 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from .exceptions import NodeInterfaceDoesNotExist
+
 __all__ = [
     "read_texture",
     "get_materials",
@@ -62,7 +64,8 @@ def read_texture(texturepath: str) -> Image | None:
     else:
         image["use_alpha"] = False
     image.filepath = str(tex_path)
-    image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
+    if image.colorspace_settings:
+        image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
     return image
 
 
@@ -114,7 +117,7 @@ NodeSocketT = TypeVar("NodeSocketT", bound=NodeSocket)
 
 
 def create_socket(
-    interface: NodeTreeInterface,
+    interface: NodeTreeInterface | None,
     name: str,
     _type: type[NodeSocketT],
     is_input: bool = True,
@@ -132,7 +135,8 @@ def create_socket(
         The created socket.
     """
     in_out = "INPUT" if is_input else "OUTPUT"
-
+    if interface is None:
+        raise NodeInterfaceDoesNotExist("Interface cannot be None!")
     out = cast(  # pyright: ignore[reportUnknownVariableType]
         _type,
         interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),
@@ -164,6 +168,8 @@ class AddonPreferencesType:
     data_folder: str = ""
     deploy_folder: str = ""
     dump_textures: bool = True
+    is_campaign: bool = False
+    enable_forge: bool = False
 
 
 def get_data_folder() -> str:
@@ -175,15 +181,21 @@ def get_data_folder() -> str:
     return get_addon_preferences().data_folder
 
 
+def get_package_name() -> str:
+    if __package__ is None:
+        return ""
+    return __package__.split(".src")[0]
+
+
 def get_addon_preferences() -> AddonPreferencesType:
     """Get the addon preferences from the scene.
 
     Returns:
         The addon preferences.
     """
-    if bpy.context.preferences is None or __package__ is None:
+    if bpy.context.preferences is None:
         return AddonPreferencesType()
-    preferences = bpy.context.preferences.addons[__package__.replace(".src", "")].preferences
+    preferences = bpy.context.preferences.addons[get_package_name()].preferences
     if not preferences:
         return AddonPreferencesType()
     return cast(AddonPreferencesType, preferences)  # pyright: ignore[reportInvalidCast]
@@ -207,7 +219,7 @@ class ImportPropertiesType:
     level_path: str = ""
     import_specific_core: bool = False
     import_names: bool = False
-    rig_to_use: str = ""
+    use_purp_rig: bool = False
     gamertag: str = ""
     core: str = ""
     root_category: str = ""
@@ -215,6 +227,8 @@ class ImportPropertiesType:
     objects: str = ""
     sort_objects: bool = False
     object_representation: str = ""
+    asset_id: str = ""
+    version_id: str = ""
 
 
 def get_import_properties() -> ImportPropertiesType:
@@ -244,23 +258,22 @@ def assign_value(
 
 
 def import_custom_rig() -> Object | None:
-    properties = get_import_properties()
-    custom_rig_path = Path(get_data_folder()) / f"{properties.rig_to_use}.blend"
-    match properties.rig_to_use:
-        case "purp":
-            if custom_rig_path.exists():
-                with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
-                    data_from,  # pyright: ignore[reportUnknownVariableType]
-                    data_to,  # pyright: ignore[reportUnknownVariableType]
-                ):
-                    data_to.objects = [
-                        name
-                        for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        if name == "Spartan_Control_Rig_V2"
-                    ]
-            else:
-                logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
-        case _:
-            pass
+    prefs = get_import_properties()
+    if not prefs.use_purp_rig:
+        return None
+    extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+    custom_rig_path = Path(extension_path) / "purp.blend"
+    if custom_rig_path.exists():
+        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
+            data_from,  # pyright: ignore[reportUnknownVariableType]
+            data_to,  # pyright: ignore[reportUnknownVariableType]
+        ):
+            data_to.objects = [
+                name
+                for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                if name == "Spartan_Control_Rig_V2"
+            ]
+    else:
+        logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
     object = bpy.data.objects.get("Spartan_Control_Rig_V2")
     return object

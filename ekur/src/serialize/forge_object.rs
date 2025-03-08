@@ -71,7 +71,7 @@ fn get_object_info(
             .to_string();
 
         let mut forge_object = ForgeObject {
-            id: object.forge_object.global_id,
+            id: object.name.0,
             name,
             ..Default::default()
         };
