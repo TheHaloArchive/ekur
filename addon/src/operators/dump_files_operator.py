@@ -31,9 +31,9 @@ class DumpFilesOperator(Operator):
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
 
-        save_path = f"{data}/strings.txt"
+        save_path = f"{extension_path}/strings.txt"
         proc = [
-            ekur_save_path,
+            str(ekur_save_path),
             "--save-path",
             data,
             "--module-path",
@@ -41,6 +41,7 @@ class DumpFilesOperator(Operator):
             "--strings-path",
             save_path,
         ]
+        print(proc)
         if not prefs.dump_textures:
             proc.append("--skip-bitmaps")
         if prefs.is_campaign:
