@@ -178,7 +178,6 @@ class ImportSpartanVanityOperator(Operator):
         request = urllib.request.Request(f"https://hi.cylix.guide/item/{id}/{res}.json")
         if url != "":
             request = urllib.request.Request(url)
-        print(request.full_url)
         request.add_header("Referer", "https://cylix.guide/")
         request.add_header(
             "User-Agent",

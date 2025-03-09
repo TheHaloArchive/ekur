@@ -17,7 +17,13 @@ from ..json_definitions import (
     CustomizationTheme,
     NameRegion,
 )
-from ..utils import get_data_folder, get_import_properties, import_custom_rig, read_json_file
+from ..utils import (
+    get_data_folder,
+    get_import_properties,
+    get_package_name,
+    import_custom_rig,
+    read_json_file,
+)
 
 __all__ = ["ImportSpartanOperator"]
 
@@ -59,7 +65,8 @@ class ImportSpartanOperator(Operator):
         if properties.import_specific_core:
             themes = [theme for theme in themes if theme["name"] == properties.core]
 
-        names_path = Path(f"{data_folder}/regions_and_permutations.json")
+        extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+        names_path = Path(f"{extension_path}/regions_and_permutations.json")
         names = read_json_file(names_path, dict[str, NameRegion])
         if names is None:
             return {"CANCELLED"}

@@ -41,7 +41,6 @@ class DumpFilesOperator(Operator):
             "--strings-path",
             save_path,
         ]
-        print(proc)
         if not prefs.dump_textures:
             proc.append("--skip-bitmaps")
         if prefs.is_campaign:
