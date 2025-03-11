@@ -6,9 +6,10 @@ from typing import final
 
 from bpy.types import Context, Operator, ShaderNodeTree
 
-from ..material_types.skin_shader import SkinShader
 
 from ..json_definitions import CommonMaterial, CommonStyleList
+from ..material_types.hair_shader import HairShader
+from ..material_types.skin_shader import SkinShader
 from ..material_types.decal_shader import DecalShader
 from ..material_types.diffuse_shader import DiffuseShaderType
 from ..material_types.layered_shader import LayeredShader
@@ -68,6 +69,8 @@ def run_material(material: CommonMaterial, node_tree: ShaderNodeTree) -> None:
             _ = ColorDecalShader(material, node_tree)
         case "SkinShader":
             _ = SkinShader(material, node_tree)
+        case "Hair":
+            _ = HairShader(material, node_tree)
         case "Unknown":
             pass
         case _:

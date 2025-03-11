@@ -18,6 +18,7 @@ pub(crate) enum ShaderType {
     Meter,
     SkinShader,
     EyeShader,
+    Hair,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -47,6 +48,7 @@ pub enum TextureType {
     ScleraNormal,
     Iris,
     IrisNormal,
+    AO,
 }
 
 #[derive(Default, Debug, Serialize, Clone)]
@@ -219,6 +221,14 @@ pub struct EyeShader {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct Hair {
+    pub tint_color: (f32, f32, f32),
+    pub roughness_white: f32,
+    pub roughness_black: f32,
+    pub ior: f32,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Material {
     pub shader: i32,
     pub textures: HashMap<TextureType, i32>,
@@ -234,6 +244,7 @@ pub struct Material {
     pub meter: Option<Meter>,
     pub skin: Option<SkinShader>,
     pub eye: Option<EyeShader>,
+    pub hair: Option<Hair>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }

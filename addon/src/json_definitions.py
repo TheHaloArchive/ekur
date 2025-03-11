@@ -116,6 +116,13 @@ class SkinInfo(TypedDict):
     micro_normal_scale: tuple[float, float]
 
 
+class HairInfo(TypedDict):
+    tint_color: tuple[float, float, float]
+    roughness_white: float
+    roughness_black: float
+    ior: float
+
+
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
     shader_type: str
@@ -126,6 +133,7 @@ class CommonMaterial(TypedDict):
     decal_slots: DecalSlot | None
     color_decal: ColorDecal | None
     skin: SkinInfo | None
+    hair: HairInfo | None
 
 
 class CommonLayer(TypedDict):

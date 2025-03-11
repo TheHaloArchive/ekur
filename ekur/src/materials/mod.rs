@@ -8,6 +8,7 @@ mod const_decal;
 mod decal_mp;
 mod diffuse_shader;
 mod eye_shader;
+mod hair;
 mod layered_shader;
 mod meter_shader;
 mod parallax_decal;
