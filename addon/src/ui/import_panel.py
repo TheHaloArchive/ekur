@@ -121,6 +121,51 @@ class ImportProperties(PropertyGroup):
     gamertag: StringProperty(
         name="Gamertag", description="Gamertag of the spartan you want to import.", default=""
     )
+    body_type: EnumProperty(
+        name="Body Type",
+        description="Body type of the spartan you want to import.",
+        items=[
+            ("Body Type 1", "Body Type 1", ""),
+            ("Body Type 2", "Body Type 2", ""),
+            ("Body Type 3", "Body Type 3", ""),
+        ],
+    )
+    left_arm: EnumProperty(
+        name="Left Arm",
+        description="Prosthesis for the left arm.",
+        items=[
+            ("None", "None", ""),
+            ("Transhumeral", "Transhumeral", ""),
+            ("Transradial", "Transradial", ""),
+            ("Hand", "Hand", ""),
+        ],
+    )
+    right_arm: EnumProperty(
+        name="Right Arm",
+        description="Prosthesis for the right arm.",
+        items=[
+            ("None", "None", ""),
+            ("Transhumeral", "Transhumeral", ""),
+            ("Transradial", "Transradial", ""),
+            ("Hand", "Hand", ""),
+        ],
+    )
+    left_leg: EnumProperty(
+        name="Left Leg",
+        description="Prosthesis for the left leg.",
+        items=[
+            ("None", "None", ""),
+            ("Transfemoral", "Transfemoral", ""),
+        ],
+    )
+    right_leg: EnumProperty(
+        name="Right Leg",
+        description="Prosthesis for the right leg.",
+        items=[
+            ("None", "None", ""),
+            ("Transfemoral", "Transfemoral", ""),
+        ],
+    )
     core: EnumProperty(
         name="Core", description="Specific armor core you want to import.", items=GrabStrings.cores
     )
@@ -216,6 +261,11 @@ class CoatingImportPanel(Panel):
             ocgd_opts.prop(import_properties, "import_names")
             _ = ocgd_opts.operator("ekur.importspartan")
             vanity_opts = ocgd_body.box()
+            vanity_opts.prop(import_properties, "body_type")
+            vanity_opts.prop(import_properties, "left_arm")
+            vanity_opts.prop(import_properties, "right_arm")
+            vanity_opts.prop(import_properties, "left_leg")
+            vanity_opts.prop(import_properties, "right_leg")
             vanity_opts.prop(import_properties, "gamertag")
             _ = vanity_opts.operator("ekur.importvanity")
 

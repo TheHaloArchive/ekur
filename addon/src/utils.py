@@ -221,6 +221,11 @@ class ImportPropertiesType:
     import_names: bool = False
     use_purp_rig: bool = False
     gamertag: str = ""
+    body_type: str = ""
+    left_arm: str = ""
+    right_arm: str = ""
+    left_leg: str = ""
+    right_leg: str = ""
     core: str = ""
     root_category: str = ""
     subcategory: str = ""

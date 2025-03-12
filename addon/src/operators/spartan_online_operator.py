@@ -20,6 +20,7 @@ from ..json_definitions import (
     CylixCore,
     CylixIndex,
     CylixVanityResponse,
+    RegionData,
 )
 from ..utils import get_data_folder, get_import_properties, import_custom_rig, read_json_file
 
@@ -70,8 +71,17 @@ class ImportSpartanVanityOperator(Operator):
         if not model_path.exists():
             logging.warning(f"Model path does not exist!: {model_path}")
             return {"CANCELLED"}
-
-        parts: list[Asset] = []
+        props.toggle_visors = True
+        visor_res = [
+            visor
+            for visor in index_json["manifest"]
+            if visor[0].lower() == armor["armor"]["visor"].lower()
+        ]
+        props.visors = visor_res[0][1]["title"]
+        importer = ModelImporter()
+        rig = import_custom_rig()
+        objects = importer.start_import(str(model_path), custom_rig=rig)
+        vanity = bpy.data.collections.new(props.gamertag)
         core_res = [
             core
             for core in index_json["manifest"]
@@ -79,6 +89,127 @@ class ImportSpartanVanityOperator(Operator):
         ]
         theme = self.request(id=armor["armor"]["theme"].lower(), res=core_res[0][1]["res"].lower())
         theme_json: CylixCore = json.loads(theme)
+        parts = self.get_parts(index_json, armor)
+
+        attachments = [
+            armor["armor"]["chestAttachment"],
+            armor["armor"]["helmetAttachment"],
+            armor["armor"]["wristAttachment"],
+            armor["armor"]["hipAttachment"],
+            armor["armor"]["leftShoulderPad"],
+            armor["armor"]["rightShoulderPad"],
+        ]
+
+        for attachment in attachments:
+            self.import_attachment(attachment, index_json, vanity, customization_globals, importer)
+
+        context.scene.collection.children.link(vanity)  # pyright: ignore[reportUnknownMemberType]
+        if rig and rig.name not in context.scene.collection.objects:
+            context.scene.collection.objects.link(rig)  # pyright: ignore[reportUnknownMemberType]
+        base_region = theme_json["CoreRegionData"]["BaseRegionData"]
+        body_type_large = theme_json["CoreRegionData"]["BodyTypeLargeOverrides"]
+        body_type_small = theme_json["CoreRegionData"]["BodyTypeSmallOverrides"]
+        p_left_arm = theme_json["CoreRegionData"]["ProstheticLeftArmOverrides"]
+        p_right_arm = theme_json["CoreRegionData"]["ProstheticRightArmOverrides"]
+        p_left_leg = theme_json["CoreRegionData"]["ProstheticLeftLegOverrides"]
+        p_right_leg = theme_json["CoreRegionData"]["ProstheticRightLegOverrides"]
+
+        self.add_region(base_region, vanity, objects)
+        for part in parts:
+            self.add_region(part["RegionData"], vanity, objects)
+        match props.body_type:
+            case "Body Type 2":
+                self.add_region(body_type_large, vanity, objects, True)
+            case "Body Type 3":
+                self.add_region(body_type_small, vanity, objects, True)
+            case _:
+                ...
+        match props.left_arm:
+            case "Transhumeral":
+                self.add_region(p_left_arm["Full"], vanity, objects, True)
+            case "Transradial":
+                self.add_region(p_left_arm["Half"], vanity, objects, True)
+            case "Hand":
+                self.add_region(p_left_arm["Extremity"], vanity, objects, True)
+            case _:
+                ...
+        match props.right_arm:
+            case "Transhumeral":
+                self.add_region(p_right_arm["Full"], vanity, objects, True)
+            case "Transradial":
+                self.add_region(p_right_arm["Half"], vanity, objects, True)
+            case "Hand":
+                self.add_region(p_right_arm["Extremity"], vanity, objects, True)
+            case _:
+                ...
+        match props.left_leg:
+            case "Transfemoral":
+                self.add_region(p_left_leg["Full"], vanity, objects, True)
+            case _:
+                ...
+        match props.right_leg:
+            case "Transfemoral":
+                self.add_region(p_right_leg["Full"], vanity, objects, True)
+            case _:
+                ...
+        coating_res = [
+            coat
+            for coat in index_json["manifest"]
+            if coat[0].lower() == armor["armor"]["coating"].lower()
+        ]
+        coating = self.request(id=armor["armor"]["coating"].lower(), res=coating_res[0][1]["res"])
+        coating_json: Coating = json.loads(coating)
+
+        for object in vanity.objects:
+            object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+            props.use_default = False
+            props.coat_id = str(coating_json["StyleId"]["m_identifier"])
+            import_materials()
+
+        return {"FINISHED"}
+
+    def add_region(
+        self,
+        regions: list[RegionData],
+        vanity: Collection,
+        objects: list[Object],
+        hide_other: bool = False,
+    ) -> None:
+        for object in objects:
+            permutation_name: int = object["permutation_name"]
+            region_name: int = object["region_name"]
+            for reg in regions:
+                if hide_other:
+                    if (
+                        object["region_name"] == reg["RegionId"]["m_identifier"]
+                        and object.name in vanity.objects
+                    ):
+                        object.hide_set(True)  # pyright: ignore[reportUnknownMemberType]
+                if (
+                    reg["PermutationId"]["m_identifier"] == permutation_name
+                    and reg["RegionId"]["m_identifier"] == region_name
+                ):
+                    vanity.objects.link(object)  # pyright: ignore[reportUnknownMemberType]
+                    object.hide_set(False)  # pyright: ignore[reportUnknownMemberType]
+
+    def request(self, id: str = "", res: str = "", url: str = "") -> str:
+        request = urllib.request.Request(f"https://hi.cylix.guide/item/{id}/{res}.json")
+        if url != "":
+            request = urllib.request.Request(url)
+        request.add_header("Referer", "https://cylix.guide/")
+        request.add_header(
+            "User-Agent",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
+        )
+        try:
+            request = urllib.request.urlopen(request)  # pyright: ignore[reportAny]
+        except urllib.error.HTTPError as e:
+            logging.error(f"Failed to download vanity!: {e}")
+            return ""
+        return cast(str, request.read().decode("utf-8"))  # pyright: ignore[reportAny]
+
+    def get_parts(self, index_json: CylixIndex, armor: CylixVanityResponse) -> list[Asset]:
+        parts: list[Asset] = []
 
         helmet_res = [
             core
@@ -112,83 +243,7 @@ class ImportSpartanVanityOperator(Operator):
                 self.request(id=armor["armor"]["gloves"].lower(), res=glove_res[0][1]["res"])
             )
             parts.append(glove)
-        props.toggle_visors = True
-        visor_res = [
-            visor
-            for visor in index_json["manifest"]
-            if visor[0].lower() == armor["armor"]["visor"].lower()
-        ]
-        props.visors = visor_res[0][1]["title"]
-        importer = ModelImporter()
-        rig = import_custom_rig()
-        objects = importer.start_import(str(model_path), custom_rig=rig)
-        vanity_collection = bpy.data.collections.new(props.gamertag)
-
-        attachments = [
-            armor["armor"]["chestAttachment"],
-            armor["armor"]["helmetAttachment"],
-            armor["armor"]["wristAttachment"],
-            armor["armor"]["hipAttachment"],
-            armor["armor"]["leftShoulderPad"],
-            armor["armor"]["rightShoulderPad"],
-        ]
-
-        for attachment in attachments:
-            self.import_attachment(
-                attachment, index_json, vanity_collection, customization_globals, importer
-            )
-
-        context.scene.collection.children.link(vanity_collection)  # pyright: ignore[reportUnknownMemberType]
-        if rig and rig.name not in context.scene.collection.objects:
-            context.scene.collection.objects.link(rig)  # pyright: ignore[reportUnknownMemberType]
-        for object in objects:
-            permutation_name: int = object["permutation_name"]
-            region_name: int = object["region_name"]
-            for reg in theme_json["CoreRegionData"]["BaseRegionData"]:
-                if (
-                    reg["PermutationId"]["m_identifier"] == permutation_name
-                    and reg["RegionId"]["m_identifier"] == region_name
-                ):
-                    vanity_collection.objects.link(object)  # pyright: ignore[reportUnknownMemberType]
-            for part in parts:
-                for helmet_data in part["RegionData"]:
-                    if (
-                        permutation_name == helmet_data["PermutationId"]["m_identifier"]
-                        and region_name == helmet_data["RegionId"]["m_identifier"]
-                    ):
-                        vanity_collection.objects.link(object)  # pyright: ignore[reportUnknownMemberType]
-
-        coating_res = [
-            coat
-            for coat in index_json["manifest"]
-            if coat[0].lower() == armor["armor"]["coating"].lower()
-        ]
-        coating = self.request(id=armor["armor"]["coating"].lower(), res=coating_res[0][1]["res"])
-        coating_json: Coating = json.loads(coating)
-
-        for object in vanity_collection.objects:
-            object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-            props.use_default = False
-            props.coat_id = str(coating_json["StyleId"]["m_identifier"])
-            import_materials()
-
-        return {"FINISHED"}
-
-    def request(self, id: str = "", res: str = "", url: str = "") -> str:
-        request = urllib.request.Request(f"https://hi.cylix.guide/item/{id}/{res}.json")
-        if url != "":
-            request = urllib.request.Request(url)
-        request.add_header("Referer", "https://cylix.guide/")
-        request.add_header(
-            "User-Agent",
-            "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
-        )
-        try:
-            request = urllib.request.urlopen(request)  # pyright: ignore[reportAny]
-        except urllib.error.HTTPError as e:
-            logging.error(f"Failed to download vanity!: {e}")
-            return ""
-        return cast(str, request.read().decode("utf-8"))  # pyright: ignore[reportAny]
+        return parts
 
     def import_attachment(
         self,
@@ -225,6 +280,7 @@ class ImportSpartanVanityOperator(Operator):
                             for marker in importer.markers
                             if marker.name == name or alt_name in marker.name
                         ]
-                        import_attachments("", alt_name, markers[-1], attach, importer.rig)
-                        if attach.name not in col.objects:
-                            col.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]
+                        if len(markers) > 0:
+                            import_attachments("", alt_name, markers[-1], attach, importer.rig)
+                            if attach.name not in col.objects:
+                                col.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]
