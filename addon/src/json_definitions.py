@@ -310,8 +310,20 @@ class RegionData(TypedDict):
     PermutationId: Identifier
 
 
+class ProstheticRegion(TypedDict):
+    Full: list[RegionData]
+    Half: list[RegionData]
+    Extremity: list[RegionData]
+
+
 class CoreRegion(TypedDict):
     BaseRegionData: list[RegionData]
+    BodyTypeSmallOverrides: list[RegionData]
+    BodyTypeLargeOverrides: list[RegionData]
+    ProstheticLeftArmOverrides: ProstheticRegion
+    ProstheticRightArmOverrides: ProstheticRegion
+    ProstheticLeftLegOverrides: ProstheticRegion
+    ProstheticRightLegOverrides: ProstheticRegion
 
 
 class CylixCore(TypedDict):
