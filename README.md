@@ -80,6 +80,7 @@ A common use case for the addon is of course, to create renders of your spartans
 - `Import Specific Core`: When enabled, allows you to select the specific core you want to import (such as Yoroi, Mark VII).
 - `Import Names of Armor Pieces`: Enabled by default, allows translation hashes of armor pieces into their proper names.
 - `Gamertag`: Xbox username of the spartan you want to import. Please note that only the currently equipped spartan can be imported.
++ all the different prosthetic options for each limb.
 
 #### Forge Importer
 <h1 align="center">
