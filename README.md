@@ -5,7 +5,7 @@ A multi-purpose blender importer for Halo Infinite.
 ### Requirements
 - [Blender 4.3 or Above](https://www.blender.org/download/)
 - Windows or Linux/GNU 64-bit machine.
-- An installation of Halo Infinite.
+- An installation of Halo Infinite (Steam or Xbox/MS Store)
 
 ### Supporting
 If you want to support the work I do, please consider buying me a coffee: https://ko-fi.com/surasia
