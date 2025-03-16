@@ -57,6 +57,9 @@ class ImportProperties(PropertyGroup):
     sort_by_name: BoolProperty(
         name="Sort by Name", description="Sorts coating and visors by name.", default=True
     )
+    flip_alpha: BoolProperty(
+        name="Flip Alpha", description="Flip the alpha channel of the ASG texture.", default=False
+    )
     coatings: EnumProperty(
         name="Coating",
         description="Coating to import onto object.",
@@ -224,6 +227,7 @@ class CoatingImportPanel(Panel):
                 _ = box2.operator("ekur.randomize")
             options.prop(import_properties, "toggle_damage")
             options.prop(import_properties, "selected_only")
+            options.prop(import_properties, "flip_alpha")
             options.prop(import_properties, "toggle_visors")
             if import_properties.toggle_visors:
                 options.prop(import_properties, "visors")

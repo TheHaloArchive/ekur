@@ -69,6 +69,7 @@ class LayeredShader:
         return texture
 
     def create_textures(self) -> None:
+        props = get_import_properties()
         textures = self.material["textures"]
         if textures.get("Asg"):
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
@@ -77,9 +78,14 @@ class LayeredShader:
                 tex.image
                 and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
                 and self.material["style_info"]
-                and self.material["style_info"]["base_intention"] == -783606968
+                and (
+                    self.material["style_info"]["base_intention"] == -783606968
+                    or self.material["style_info"]["base_intention"] == -1010104944
+                )
             ):
                 invert = create_node(self.node_tree.nodes, 0, 120, ShaderNodeInvert)
+                if props.flip_alpha:
+                    assign_value(invert, 0, 0.0)
                 _ = self.node_tree.links.new(tex.outputs[1], invert.inputs[1])
                 transparencies = [21, 35, 49, 63, 77, 91, 105]
                 for i in transparencies:

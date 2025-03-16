@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-__all__ = ["IncorrectStrideValue"]
+__all__ = ["IncorrectStrideValue", "NodeInterfaceDoesNotExist"]
 
 
 class IncorrectStrideValue(Exception):

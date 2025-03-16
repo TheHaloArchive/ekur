@@ -206,6 +206,7 @@ class ImportPropertiesType:
     coat_id: str = ""
     toggle_damage: bool = False
     selected_only: bool = False
+    flip_alpha: bool = False
     sort_by_name: bool = False
     coatings: str = ""
     toggle_visors: bool = False
