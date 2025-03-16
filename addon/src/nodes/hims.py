@@ -407,15 +407,12 @@ class HIMS:
             colorramp.color_ramp.elements.remove(colorramp.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
             colorramp_cre_0 = colorramp.color_ramp.elements[0]
             colorramp_cre_0.position = 0.1393
-            colorramp_cre_0.alpha = 1.0
             colorramp_cre_0.color = (0.0, 0.0, 0.0, 1.0)
 
             colorramp_cre_1 = colorramp.color_ramp.elements.new(0.738)
-            colorramp_cre_1.alpha = 1.0
             colorramp_cre_1.color = (0.0123, 0.0123, 0.0123, 1.0)
 
             colorramp_cre_2 = colorramp.color_ramp.elements.new(1.0)
-            colorramp_cre_2.alpha = 1.0
             colorramp_cre_2.color = (0.0152, 0.0152, 0.0152, 1.0)
 
         group_006 = create_node(nodes, 0, 0, ShaderNodeGroup)
@@ -445,16 +442,7 @@ class HIMS:
         mix_004_7 = create_node(nodes, 0, 0, ShaderNodeMix)
         mix_004_7.data_type = "RGBA"
         mix_004_7.clamp_result = True
-        assign_value(
-            mix_004_7,
-            7,
-            (
-                0.24701076745986938,
-                0.24701084196567535,
-                0.24701106548309326,
-                1.0,
-            ),
-        )
+        assign_value(mix_004_7, 7, (0.247, 0.247, 0.247, 1.0))
 
         mix_006_7 = create_node(nodes, 0, 0, ShaderNodeMix)
         mix_006_7.blend_type = "MULTIPLY"
