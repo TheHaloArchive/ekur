@@ -55,6 +55,7 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     if not rotation_selector:
         return
     forge_object.rotation_forward = [0.0, 0.0, 0.0]
+    forge_object.scale = [1.0, 1.0, 1.0]
     for value in rotation_selector.get_elements():
         if value.id == 0 and type(value.value) is float:
             forge_object.rotation_forward[0] = value.value
@@ -90,7 +91,6 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     if not scale_selector:
         return forge_object
 
-    forge_object.scale = [1.0, 1.0, 1.0]
     for element in scale_selector.get_elements():
         if element.id == 0 and type(element.value) is float:
             forge_object.scale[0] = element.value
