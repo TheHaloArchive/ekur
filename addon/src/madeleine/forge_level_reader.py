@@ -89,12 +89,20 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     scale_selector = scale_selector.get_by_id(0)
     if not scale_selector:
         return forge_object
-    forge_object.scale = [
-        element.value for element in scale_selector.get_elements() if type(element.value) is float
-    ]
+
+    forge_object.scale = [1.0, 1.0, 1.0]
+    for element in scale_selector.get_elements():
+        if element.id == 0 and type(element.value) is float:
+            forge_object.scale[0] = element.value
+        elif element.id == 1 and type(element.value) is float:
+            forge_object.scale[1] = element.value
+        elif element.id == 2 and type(element.value) is float:
+            forge_object.scale[2] = element.value
+    """
     for idx, axis in enumerate(forge_object.scale):
         if round(axis, 2) == 1 and idx > 0:
             forge_object.scale[idx - 1] = forge_object.scale[idx]
+    """
     return forge_object
 
 

@@ -101,7 +101,6 @@ class ForgeMapOperator(Operator):
                         quat = rot_matrix.to_quaternion()
                         instance_obj.rotation_mode = "QUATERNION"
                         instance_obj.rotation_quaternion = quat
-                    if len(object.scale) == 3:
                         instance_obj.scale = object.scale
                     if (
                         bpy.context.scene
