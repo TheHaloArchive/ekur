@@ -85,7 +85,6 @@ class ForgeMapOperator(Operator):
                             object.position.append(0)
                             i += 1
                     instance_obj.location = object.position
-
                     forward = Vector(object.rotation_forward).normalized()
                     up = Vector(object.rotation_up).normalized()
                     right = forward.cross(up)
@@ -99,7 +98,6 @@ class ForgeMapOperator(Operator):
                                 (0.0, 0.0, 0.0, 1.0),
                             )
                         )
-
                         quat = rot_matrix.to_quaternion()
                         instance_obj.rotation_mode = "QUATERNION"
                         instance_obj.rotation_quaternion = quat

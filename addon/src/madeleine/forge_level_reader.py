@@ -40,19 +40,25 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     rotation_selector = item.get_by_id(4)
     if not rotation_selector:
         return
-    forge_object.rotation_up = [
-        element.value
-        for element in rotation_selector.get_elements()
-        if type(element.value) is float
-    ]
+    forge_object.rotation_up = [0.0, 0.0, 0.0]
+    for value in rotation_selector.get_elements():
+        if value.id == 0 and type(value.value) is float:
+            forge_object.rotation_up[0] = value.value
+        elif value.id == 1 and type(value.value) is float:
+            forge_object.rotation_up[1] = value.value
+        elif value.id == 2 and type(value.value) is float:
+            forge_object.rotation_up[2] = value.value
     rotation_selector = item.get_by_id(5)
     if not rotation_selector:
         return
-    forge_object.rotation_forward = [
-        element.value
-        for element in rotation_selector.get_elements()
-        if type(element.value) is float
-    ]
+    forge_object.rotation_forward = [0.0, 0.0, 0.0]
+    for value in rotation_selector.get_elements():
+        if value.id == 0 and type(value.value) is float:
+            forge_object.rotation_forward[0] = value.value
+        elif value.id == 1 and type(value.value) is float:
+            forge_object.rotation_forward[1] = value.value
+        elif value.id == 2 and type(value.value) is float:
+            forge_object.rotation_forward[2] = value.value
     properties = item.get_by_id(8)
     if not properties:
         return
@@ -71,22 +77,6 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     if type(variant.value) is int:
         forge_object.variant = variant.value
 
-    if len(forge_object.rotation_forward) == 1:
-        forge_object.rotation_forward = [forge_object.rotation_forward[0], 0, 0]
-    elif len(forge_object.rotation_forward) == 2:
-        forge_object.rotation_forward = [
-            forge_object.rotation_forward[0],
-            forge_object.rotation_forward[1],
-            0,
-        ]
-    if len(forge_object.rotation_up) == 1:
-        forge_object.rotation_up = [forge_object.rotation_up[0], 0, 1]
-    elif len(forge_object.rotation_up) == 2:
-        forge_object.rotation_up = [
-            forge_object.rotation_up[0],
-            forge_object.rotation_up[1],
-            1,
-        ]
     scale_selector = properties.get_by_id(23)
     if not scale_selector:
         return forge_object
@@ -99,6 +89,9 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     forge_object.scale = [
         element.value for element in scale_selector.get_elements() if type(element.value) is float
     ]
+    for idx, axis in enumerate(forge_object.scale):
+        if round(axis, 2) == 1 and idx > 0:
+            forge_object.scale[idx - 1] = forge_object.scale[idx]
     return forge_object
 
 
