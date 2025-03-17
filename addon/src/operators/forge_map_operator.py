@@ -62,28 +62,28 @@ class ForgeMapOperator(Operator):
         if definition is None:
             return {"CANCELLED"}
         for object in objects:
-            object_def = [
-                obj[1] for obj in definition["objects"].items() if str(object.global_id) == obj[0]
-            ]
+            object_def = definition["objects"].get(str(object.global_id))
+            if object_def is None:
+                continue
             representation = [
                 representation
-                for representation in object_def[0]["representations"]
+                for representation in object_def["representations"]
                 if representation["name_int"] == object.variant
                 or representation["variant"] == object.variant
                 or representation["variant"] == 0
             ]
             if len(representation) >= 1:
                 source_objects = self._get_or_create_geometry(str(representation[0]["model"]))
-                for obj in source_objects:
+                objects = [
+                    obj for obj in source_objects if object.variant == obj["permutation_name"]
+                ]
+                if len(objects) == 0:
+                    objects = source_objects
+                for obj in objects:
                     instance_obj = bpy.data.objects.new(
                         name=f"{obj.name}_instance", object_data=obj.data
                     )
 
-                    if len(object.position) != 3:
-                        i = len(object.position)
-                        while i != 3:
-                            object.position.append(0)
-                            i += 1
                     instance_obj.location = object.position
                     forward = Vector(object.rotation_forward).normalized()
                     up = Vector(object.rotation_up).normalized()

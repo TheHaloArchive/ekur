@@ -32,11 +32,14 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     position_selector = item.get_by_id(3)
     if not position_selector:
         return
-    forge_object.position = [
-        element.value
-        for element in position_selector.get_elements()
-        if type(element.value) is float
-    ]
+    forge_object.position = [0.0, 0.0, 0.0]
+    for element in position_selector.get_elements():
+        if element.id == 0 and type(element.value) is float:
+            forge_object.position[0] = element.value
+        elif element.id == 1 and type(element.value) is float:
+            forge_object.position[1] = element.value
+        elif element.id == 2 and type(element.value) is float:
+            forge_object.position[2] = element.value
     rotation_selector = item.get_by_id(4)
     if not rotation_selector:
         return
