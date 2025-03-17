@@ -3,7 +3,7 @@ requires-python = ">=3.13"
 
 [[package]]
 name = "ekuraddon"
-version = "1.0.2"
+version = "1.0.1"
 source = { virtual = "." }
 dependencies = [
     { name = "fake-bpy-module-latest" },

@@ -159,8 +159,6 @@ class LayeredShader:
             assign_value(self.shader, 97, False)
         if toggle_damage and style_info["supported_layers"] == 4:
             assign_value(self.shader, 55, False)
-        if not self.has_mask1 and style_info["supported_layers"] == 4:
-            assign_value(self.shader, 55, False)
         if not self.has_mask1 and style_info["supported_layers"] == 7:
             assign_value(self.shader, 97, False)
         self.index = 0
