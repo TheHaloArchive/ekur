@@ -13,6 +13,7 @@ use crate::{
         forge_manifest::{ForgeObjectManifest, ForgeObjectManifestEntry},
         forge_object_definition::ForgeObjectData,
         model::ModelDefinition,
+        scenery::Scenery,
         vehicle::Vehicle,
         weapon::Weapon,
     },
@@ -59,6 +60,7 @@ fn get_object_info(
     vehicles: &HashMap<i32, Vehicle>,
     equipment: &HashMap<i32, Equipment>,
     strings: &HashMap<i32, String>,
+    scenery: &HashMap<i32, Scenery>,
 ) -> Option<Vec<ForgeObject>> {
     if objects.is_empty() {
         return None;
@@ -107,6 +109,10 @@ fn get_object_info(
                     let equip_def = equipment.get(&representation.object_definition.global_id);
                     equip_def.map(|equip_def| equip_def.model.global_id)
                 }
+                "scen" => {
+                    let scenery_def = scenery.get(&representation.object_definition.global_id);
+                    scenery_def.map(|scenery_def| scenery_def.model.global_id)
+                }
                 _ => None,
             } {
                 let model = models.get(&model);
@@ -135,6 +141,7 @@ fn process_category_recursively(
     vehicles: &HashMap<i32, Vehicle>,
     equipment: &HashMap<i32, Equipment>,
     strings: &HashMap<i32, String>,
+    scenery: &HashMap<i32, Scenery>,
 ) -> ForgeObjectCategory {
     let child_categories: Vec<_> = manifest
         .categories
@@ -157,6 +164,7 @@ fn process_category_recursively(
                 vehicles,
                 equipment,
                 strings,
+                scenery,
             )
         })
         .collect();
@@ -176,6 +184,7 @@ fn process_category_recursively(
         vehicles,
         equipment,
         strings,
+        scenery,
     );
 
     let name = strings
@@ -205,6 +214,7 @@ pub fn process_forge_objects(
     let weapons = get_tags::<Weapon>("weap", modules)?;
     let vehicles = get_tags::<Vehicle>("vehi", modules)?;
     let equipments = get_tags::<Equipment>("eqip", modules)?;
+    let scenery = get_tags::<Scenery>("scen", modules)?;
 
     let mut forge_object_definition = ForgeObjectDefinition::default();
     let root_categories = manifest
@@ -229,6 +239,7 @@ pub fn process_forge_objects(
                 &vehicles,
                 &equipments,
                 strings,
+                &scenery,
             )
         })
         .collect();
@@ -242,14 +253,37 @@ pub fn process_forge_objects(
             ..Default::default()
         };
         for representation in &thing.1.object_representations.elements {
-            let crate_def = crates.get(&representation.object_definition.global_id);
-            let Some(crate_def) = crate_def else {
-                continue;
+            let model = if let Some(model) = match representation.object_definition.group.as_str() {
+                "bloc" => {
+                    let crate_def = crates.get(&representation.object_definition.global_id);
+                    crate_def.map(|crate_def| crate_def.model.global_id)
+                }
+                "weap" => {
+                    let weapon_def = weapons.get(&representation.object_definition.global_id);
+                    weapon_def.map(|weapon_def| weapon_def.model.global_id)
+                }
+                "eqip" => {
+                    let equip_def = equipments.get(&representation.object_definition.global_id);
+                    equip_def.map(|equip_def| equip_def.model.global_id)
+                }
+                "vehi" => {
+                    let vehicle_def = vehicles.get(&representation.object_definition.global_id);
+                    vehicle_def.map(|vehi_def| vehi_def.model.global_id)
+                }
+                "scen" => {
+                    let scenery_def = scenery.get(&representation.object_definition.global_id);
+                    scenery_def.map(|scenery_def| scenery_def.model.global_id)
+                }
+                _ => None,
+            } {
+                models.get(&model)
+            } else {
+                None
             };
-            let model = models.get(&crate_def.model.global_id);
             let Some(model) = model else {
                 continue;
             };
+
             let forge_object = ForgeObjectRepresentation {
                 name: strings
                     .get(&representation.representation_name.0)

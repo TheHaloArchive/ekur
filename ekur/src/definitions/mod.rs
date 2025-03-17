@@ -21,6 +21,7 @@ pub mod runtime_geo;
 pub mod runtime_style;
 pub mod runtime_styles;
 pub mod scenario;
+pub mod scenery;
 pub mod stringlist;
 pub mod vehicle;
 pub mod visor;

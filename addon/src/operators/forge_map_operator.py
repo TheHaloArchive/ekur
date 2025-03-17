@@ -72,6 +72,9 @@ class ForgeMapOperator(Operator):
                 or representation["variant"] == object.variant
                 or representation["variant"] == 0
             ]
+            if len(representation) == 0 and object_def["representations"] != []:
+                representation = object_def["representations"]
+
             if len(representation) >= 1:
                 source_objects = self._get_or_create_geometry(str(representation[0]["model"]))
                 objects = [
