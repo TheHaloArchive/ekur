@@ -50,7 +50,7 @@ pub fn process_materials(
                 handle_diffuse_shader(post_process, &mut material)?
             }
             -1051699871 | -1659664443 => handle_diffuse_si_shader(post_process, &mut material)?,
-            -51713036 | 690034699 | 2003821059 | -2003821059 | 1996403871 => {
+            -51713036 | 690034699 | 2003821059 | -2003821059 | 1996403871 | -697609548 => {
                 handle_const_decal(post_process, &mut material)?
             }
             -131335022 => handle_mp_decal(
