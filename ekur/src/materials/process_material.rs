@@ -72,7 +72,9 @@ pub fn process_materials(
             1081175655 => handle_color_decal_forge(post_process, &mut material)?,
             2006960401 => handle_illum_full(&mut material)?,
             -648442023 => handle_meter_shader(post_process, &mut material)?,
-            -1825366364 | 1644211276 | -989555086 => handle_skin(post_process, &mut material)?,
+            -1825366364 | 1644211276 | -989555086 | -95283743 | -1663998616 => {
+                handle_skin(post_process, &mut material)?
+            }
             -483456698 => handle_eye_shader(post_process, &mut material)?,
             -1187376535 => handle_hair_shader(post_process, &mut material)?,
             _ => {}
