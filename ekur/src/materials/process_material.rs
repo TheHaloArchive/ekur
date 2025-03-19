@@ -16,13 +16,14 @@ use super::{
     diffuse_shader::{
         handle_diffuse_billboard_shader, handle_diffuse_decal_notint_shader,
         handle_diffuse_decal_shader, handle_diffuse_emissive_shader, handle_diffuse_shader,
-        handle_diffuse_si_shader,
+        handle_diffuse_si_shader, handle_diffuse_si_shader_norough,
     },
     eye_shader::handle_eye_shader,
     hair::handle_hair_shader,
     layered_shader::{add_style_info, add_style_info_campaign, collect_textures},
     meter_shader::handle_meter_shader,
     parallax_decal::handle_parallax_decal,
+    regular_level_shader::handle_regular_level,
     self_illum::{handle_illum, handle_illum_full},
     serde_definitions::{Material, TextureType},
     skin_shader::handle_skin,
@@ -77,6 +78,8 @@ pub fn process_materials(
             }
             -483456698 => handle_eye_shader(post_process, &mut material)?,
             -1187376535 => handle_hair_shader(post_process, &mut material)?,
+            1855121939 => handle_diffuse_si_shader_norough(post_process, &mut material)?,
+            407517988 => handle_regular_level(post_process, &mut material)?,
             _ => {}
         };
         material.shader = mat.material_shader.global_id;

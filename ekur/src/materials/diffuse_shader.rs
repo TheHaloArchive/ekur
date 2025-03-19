@@ -150,3 +150,28 @@ pub(super) fn handle_diffuse_si_shader(
     material.shader_type = ShaderType::Diffuse;
     Ok(())
 }
+
+pub(super) fn handle_diffuse_si_shader_norough(
+    post_process: &MaterialPostProcessing,
+    material: &mut Material,
+) -> Result<()> {
+    let mut diffuse_info = DiffuseInfo::default();
+    material.shader_type = ShaderType::Diffuse;
+    get_post_texture(post_process, material, 0, TextureType::Color)?;
+    get_post_texture(post_process, material, 32, TextureType::Emissive)?;
+    diffuse_info.color_tint = (
+        f32_from_const(material, 64)?,
+        f32_from_const(material, 68)?,
+        f32_from_const(material, 72)?,
+    );
+    diffuse_info.si_intensity = f32_from_const(material, 92)?;
+    diffuse_info.si_amount = f32_from_const(material, 92)?;
+    diffuse_info.si_color_tint = (
+        f32_from_const(material, 80)?,
+        f32_from_const(material, 84)?,
+        f32_from_const(material, 86)?,
+    );
+    material.diffuse_info = Some(diffuse_info);
+    material.shader_type = ShaderType::Diffuse;
+    Ok(())
+}
