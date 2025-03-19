@@ -118,12 +118,18 @@ class LayeredShader:
         if custom_id != 0 and self.styles["styles"].get(str(custom_id)):
             style = self.styles["styles"][str(custom_id)]["reference"]
 
+        is_old_system: bool = False
+        if "_" in style:
+            is_old_system = True
+
         style_json = read_json_file(Path(f"{data}/styles/{style}.json"), CommonCoating)
         globals_json = read_json_file(Path(f"{data}/globals.json"), CoatingGlobalEntries)
         if style_json and globals_json:
-            self.create_style(style_json, globals_json)
+            self.create_style(style_json, globals_json, is_old_system)
 
-    def create_style(self, style: CommonCoating, globals: CoatingGlobalEntries) -> None:
+    def create_style(
+        self, style: CommonCoating, globals: CoatingGlobalEntries, is_old_system: bool = False
+    ) -> None:
         style_info = self.material["style_info"]
         if not style_info:
             return
@@ -138,7 +144,7 @@ class LayeredShader:
 
         for i, intention in enumerate(intentions[: style_info["supported_layers"]]):
             intention = str(intention)
-            self.find_intention(intention, reg, all, globals, i)
+            self.find_intention(intention, reg, all, globals, i, is_old_system)
 
         assign_value(self.shader, 7, style["grime_amount"])
         if style["grime_swatch"]["disabled"]:
@@ -219,15 +225,22 @@ class LayeredShader:
         reg: CommonRegion | None,
         all: CommonRegion | None,
         globals: CoatingGlobalEntries,
+        is_old_system: bool = False,
+        index: int = 0,
     ) -> CommonLayer | None:
         if reg and reg["layers"].get(intention):
+            print("frmo reg")
             return reg["layers"][intention]
         elif all and all["layers"].get(str(intention)):
             return all["layers"][intention]
         elif globals["entries"].get(intention):
-            if globals["entries"][intention]["fallback"] != 0:
+            if globals["entries"][intention]["fallback"] != 0 and not is_old_system:
                 fallback = str(globals["entries"][intention]["fallback"])
                 return self.get_intention(fallback, reg, all, globals)
+            elif is_old_system and reg:
+                m = [m for m in reg["layers"].values() if m["index"] == index]
+                if m:
+                    return m[0]
             return globals["entries"][intention]["layer"]
         else:
             logging.warning(f"Intention not found at all, skipping!: {intention}")
@@ -239,6 +252,7 @@ class LayeredShader:
         any_reg: CommonRegion | None,
         globals: CoatingGlobalEntries,
         i: int,
+        is_old_system: bool = False,
     ) -> None:
         """Finds the intention provided in the "common", "local" and "global" regions.
 
@@ -250,7 +264,7 @@ class LayeredShader:
             difference: Difference between the indices of the inputs between the zones on the shader.
             i: Index of the intention.
         """
-        layer = self.get_intention(intention, mat_reg, any_reg, globals)
+        layer = self.get_intention(intention, mat_reg, any_reg, globals, is_old_system, i)
         properties = get_import_properties()
         extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         info = self.material.get("style_info")

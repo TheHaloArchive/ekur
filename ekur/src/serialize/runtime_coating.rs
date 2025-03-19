@@ -16,15 +16,16 @@ pub fn process_runtime_coatings(
 
         for region in &style.regions.elements {
             let mut common_region = CommonRegion::default();
-            for intention in &region.intentions.elements {
-                let common_layer = CommonLayer::from_runtime(&intention.info, coating_swatches);
+            for (idx, intention) in region.intentions.elements.iter().enumerate() {
+                let common_layer =
+                    CommonLayer::from_runtime(&intention.info, coating_swatches, idx as i32);
                 common_region.layers.insert(intention.name.0, common_layer);
             }
             common_coating.regions.insert(region.name.0, common_region);
         }
 
         common_coating.grime_swatch =
-            CommonLayer::from_runtime(&style.info.grime_swatch, coating_swatches);
+            CommonLayer::from_runtime(&style.info.grime_swatch, coating_swatches, 0);
         common_coating.grime_amount = style.info.grime_amount.0;
         common_coating.scratch_amount = style.info.scratch_amount.0;
 

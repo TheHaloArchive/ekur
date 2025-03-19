@@ -15,6 +15,7 @@ use crate::definitions::{
 
 #[derive(Debug, Default, Serialize)]
 pub struct CommonLayer {
+    pub index: i32,
     pub disabled: bool,
     pub gradient_transform: (f32, f32),
     pub normal_transform: (f32, f32),
@@ -77,7 +78,11 @@ pub fn get_color(
 }
 
 impl CommonLayer {
-    pub fn from_material(swatch: &MaterialSwatchTag, palette_swatch: &MaterialSwatchEntry) -> Self {
+    pub fn from_material(
+        swatch: &MaterialSwatchTag,
+        palette_swatch: &MaterialSwatchEntry,
+        index: i32,
+    ) -> Self {
         let mut disabled = false;
         let mut color = &MaterialColorVariant::default();
         let color_thing = swatch
@@ -97,6 +102,7 @@ impl CommonLayer {
         }
 
         Self {
+            index,
             disabled,
             gradient_transform: (
                 swatch.color_and_roughness_texture_transform.x,
@@ -148,9 +154,11 @@ impl CommonLayer {
             ),
         }
     }
+
     pub fn from_runtime(
         info: &CoatingPaletteInfo,
         coating_swatches: &HashMap<i32, CoatingSwatchPODTag>,
+        index: i32,
     ) -> Self {
         if info.swatch.global_id == -1 {
             return Self {
@@ -171,6 +179,7 @@ impl CommonLayer {
         }
 
         Self {
+            index,
             disabled,
             gradient_transform: (
                 swatch.color_and_roughness_texture_transform.x,
@@ -241,10 +250,15 @@ pub fn process_coating_global(
     save_path: &str,
 ) -> Result<()> {
     let mut entries = CoatingGlobalEntries::default();
-    for thing in &coating_globals.global_shader_lookup.elements {
+    for (idx, thing) in coating_globals
+        .global_shader_lookup
+        .elements
+        .iter()
+        .enumerate()
+    {
         let entry = CoatingGlobalEntry {
             fallback: thing.fallback_intention.0,
-            layer: CommonLayer::from_runtime(&thing.intention, coating_swatches),
+            layer: CommonLayer::from_runtime(&thing.intention, coating_swatches, idx as i32),
         };
         entries.entries.insert(thing.name.0, entry);
     }

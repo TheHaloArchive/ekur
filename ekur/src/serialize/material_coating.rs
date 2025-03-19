@@ -60,7 +60,8 @@ pub fn process_material_coatings(
                     if swatch.is_none() {
                         continue;
                     }
-                    let layer_c = CommonLayer::from_material(swatch.unwrap(), intention.unwrap());
+                    let layer_c =
+                        CommonLayer::from_material(swatch.unwrap(), intention.unwrap(), i as i32);
                     let region = &style
                         .regions
                         .elements
@@ -93,7 +94,7 @@ pub fn process_material_coatings(
                         .get(&grime_intention.unwrap().swatch.global_id)
                         .expect("swatch not found");
                     common_coating.grime_swatch =
-                        CommonLayer::from_material(swatch, grime_intention.unwrap());
+                        CommonLayer::from_material(swatch, grime_intention.unwrap(), 0);
                 }
                 let mut path = PathBuf::from(format!("{save_path}/styles/{id}_{}", coating.name.0));
                 path.set_extension("json");

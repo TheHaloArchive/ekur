@@ -137,6 +137,7 @@ class CommonMaterial(TypedDict):
 
 
 class CommonLayer(TypedDict):
+    index: int
     disabled: bool
     gradient_transform: tuple[float, float]
     normal_transform: tuple[float, float]
@@ -176,7 +177,7 @@ class CoatingGlobalEntries(TypedDict):
 
 
 class CommonStyleListEntry(TypedDict):
-    reference: int
+    reference: str
     name: str
 
 
