@@ -23,9 +23,10 @@ class ImportModelOperator(Operator):
             return {"CANCELLED"}
         properties = get_import_properties()
         model_path = properties.model_path
-        model_name = model_path.split("/")[-1].split(".")[0]
+        model_name = model_path.split("/")[-1]
         if model_name == model_path:
-            model_name = model_path.split("\\")[-1].split(".")[0]
+            model_name = model_path.split("\\")[-1]
+        model_name = model_name.split(".")[0]
         objects = ModelImporter().start_import(model_path)
         collections: dict[int, Collection] = {}
         model_collection = bpy.data.collections.new(model_name)
