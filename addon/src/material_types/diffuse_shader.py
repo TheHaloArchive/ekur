@@ -8,6 +8,8 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..constants import EMPTY_TEXTURES
+
 from ..json_definitions import CommonMaterial
 from ..nodes.diffuse_shader import DiffuseShader
 from ..utils import assign_value, create_node, read_texture
@@ -37,6 +39,11 @@ class DiffuseShaderType:
         if self.material["textures"].get("Normal"):
             img = self._create_image(-200, str(self.material["textures"]["Normal"]))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[2])
+
+        alpha_map = self.material["textures"].get("AlphaMap")
+        if alpha_map and alpha_map not in EMPTY_TEXTURES:
+            img = self._create_image(-300, str(alpha_map))
+            _ = self.tree.links.new(img.outputs[0], nodes.inputs[11])
 
     def _create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)

@@ -8,11 +8,12 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..constants import EMPTY_TEXTURES
+
 from ..json_definitions import CommonMaterial
 from ..nodes.illum import SelfIllum
 from ..utils import assign_value, create_node, read_texture
 
-EMPTY_TEXTURES = [10098, 580203186]
 
 __all__ = ["IllumShader"]
 
