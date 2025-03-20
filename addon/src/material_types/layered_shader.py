@@ -229,7 +229,6 @@ class LayeredShader:
         index: int = 0,
     ) -> CommonLayer | None:
         if reg and reg["layers"].get(intention):
-            print("frmo reg")
             return reg["layers"][intention]
         elif all and all["layers"].get(str(intention)):
             return all["layers"][intention]

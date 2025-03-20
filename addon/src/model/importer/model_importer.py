@@ -132,7 +132,6 @@ class ModelImporter:
     def create_normals(self, section: Section, mesh: Mesh) -> None:
         normals = [x.vector.to_tuple() for x in section.vertex_buffer.normal_buffer.normals]
         mesh.shade_smooth()  # pyright: ignore[reportUnknownMemberType]
-        mesh.normals_split_custom_set([[0, 0, 0] for _ in mesh.loops])  # pyright: ignore[reportUnknownMemberType]
         mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportUnknownMemberType, reportArgumentType]
         _ = mesh.validate()
         mesh.update()  # pyright: ignore[reportUnknownMemberType]
