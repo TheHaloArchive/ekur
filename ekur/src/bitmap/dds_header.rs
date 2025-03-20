@@ -18,8 +18,9 @@ fn dxgi_from_bitmap_format(form: &BitmapFormat) -> Result<DxgiFormat> {
         | BitmapFormat::Bc4UnormRrrrDxt5a => DxgiFormat::BC4_UNorm,
         BitmapFormat::R16g16b16a16FloatAbgrfp16 => DxgiFormat::R16G16B16A16_Float,
         BitmapFormat::R16g16b16a16SnormSignedr16g16b16a16 => DxgiFormat::R16G16B16A16_SNorm,
-        BitmapFormat::R8UnormRrrr | BitmapFormat::R8UnormRrr1 => DxgiFormat::R8_UNorm,
-        BitmapFormat::A8Unorm000A => DxgiFormat::A8_UNorm,
+        BitmapFormat::R8UnormRrrr | BitmapFormat::R8UnormRrr1 | BitmapFormat::A8Unorm000A => {
+            DxgiFormat::R8_UNorm
+        }
         BitmapFormat::R32g32b32a32FloatAbgrfp32 => DxgiFormat::R32G32B32A32_Float,
         BitmapFormat::R8g8b8a8SnormQ8w8v8u8 => DxgiFormat::R8G8B8A8_SNorm,
         BitmapFormat::R16UnormRrr0L16 => DxgiFormat::R16_UNorm,
