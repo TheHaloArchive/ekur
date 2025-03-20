@@ -16,6 +16,8 @@ pub(super) fn handle_eye_shader(
     get_post_texture(post, material, 20, TextureType::ScleraNormal)?;
     get_post_texture(post, material, 40, TextureType::Iris)?;
     get_post_texture(post, material, 56, TextureType::IrisNormal)?;
+    get_post_texture(post, material, 100, TextureType::EyeGazeMap)?;
+    get_post_texture(post, material, 112, TextureType::Cubemap)?;
     eye_shader.sclera_brightness = f32_from_const(material, 16)?;
     eye_shader.sclera_normal_intensity = f32_from_const(material, 28)?;
     eye_shader.sclera_roughness = f32_from_const(material, 32)?;

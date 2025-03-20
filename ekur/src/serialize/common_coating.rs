@@ -10,7 +10,7 @@ use crate::definitions::{
     coating_swatch::CoatingSwatchPODTag,
     material_palette::{MaterialRoughnessOverride, MaterialSwatchEntry},
     material_swatch::{MaterialColorVariant, MaterialSwatchTag},
-    runtime_style::{CoatingPaletteInfo, MaterialState, OverrideColorsEnum},
+    runtime_style::{CoatingPaletteInfo, OverrideColorsEnum},
 };
 
 #[derive(Debug, Default, Serialize)]
@@ -195,10 +195,7 @@ impl CommonLayer {
             roughness_black: swatch.roughness_black.0,
             roughness_white: swatch.roughness_white.0,
             metallic: swatch.metallic.0,
-            emissive_amount: match info.use_emissive.0 {
-                MaterialState::Enabled => info.emissive_amount.0 + info.emissive_intensity.0,
-                MaterialState::Disabled => 0.0,
-            },
+            emissive_amount: info.emissive_amount.0 + info.emissive_intensity.0 * 0.5,
             top_color: color[0],
             mid_color: color[1],
             bot_color: color[2],

@@ -19,7 +19,6 @@ pub(crate) enum ShaderType {
     SkinShader,
     EyeShader,
     Hair,
-    RegularLevelShader,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -50,15 +49,8 @@ pub enum TextureType {
     Iris,
     IrisNormal,
     AO,
-    Layer1Normal,
-    Layer1Control,
-    Layer2Color,
-    Layer2Normal,
-    Layer2Control,
-    Layer3Color,
-    Layer3Normal,
-    Layer3Control,
-    Layer4Packed,
+    EyeGazeMap,
+    Cubemap,
 }
 
 #[derive(Default, Debug, Serialize, Clone)]
@@ -239,6 +231,26 @@ pub struct Hair {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct LevelLayer {
+    pub height_scale: f32,
+    pub roughness_white: f32,
+    pub roughness_black: f32,
+    pub opacity: f32,
+    pub ior: f32,
+    pub uses_single_metallic: bool,
+    pub uses_color_gradient: bool,
+    pub uses_packed: bool,
+    pub metallic: f32,
+    pub metallic_white: f32,
+    pub metallic_black: f32,
+    pub normal_intensity: f32,
+    pub top_color: (f32, f32, f32),
+    pub mid_color: (f32, f32, f32),
+    pub bot_color: (f32, f32, f32),
+    pub color_tint: (f32, f32, f32),
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct RegularLevelShader {
     pub macro_normal_intensity: f32,
     pub macro_color_intensity: f32,
@@ -247,52 +259,7 @@ pub struct RegularLevelShader {
     pub macro_metallic_intensity: f32,
     pub macro_cavity_intensity: f32,
     pub macro_cavity_exponent: f32,
-    pub layer1_height_scale: f32,
-    pub layer1_roughness_white: f32,
-    pub layer1_roughness_black: f32,
-    pub layer1_ior: f32,
-    pub layer1_normal_intensity: f32,
-    pub layer1_metallic: f32,
-    pub layer1_top_color: (f32, f32, f32),
-    pub layer1_mid_color: (f32, f32, f32),
-    pub layer1_bot_color: (f32, f32, f32),
-    pub layer1_normal_transform: [f32; 2],
-    pub layer1_control_transform: [f32; 2],
-    pub layer2_height_scale: f32,
-    pub layer2_opacity: f32,
-    pub layer2_roughness_white: f32,
-    pub layer2_roughness_black: f32,
-    pub layer2_ior: f32,
-    pub layer2_normal_intensity: f32,
-    pub layer2_metallic_white: f32,
-    pub layer2_metallic_black: f32,
-    pub layer2_color_tint: (f32, f32, f32),
-    pub layer2_normal_transform: [f32; 2],
-    pub layer2_control_transform: [f32; 2],
-    pub layer2_color_transform: [f32; 2],
-    pub layer3_height_scale: f32,
-    pub layer3_opacity: f32,
-    pub layer3_roughness_white: f32,
-    pub layer3_roughness_black: f32,
-    pub layer3_ior: f32,
-    pub layer3_normal_intensity: f32,
-    pub layer3_metallic_white: f32,
-    pub layer3_metallic_black: f32,
-    pub layer3_color_tint: (f32, f32, f32),
-    pub layer3_normal_transform: [f32; 2],
-    pub layer3_control_transform: [f32; 2],
-    pub layer3_color_transform: [f32; 2],
-    pub layer4_height_scale: f32,
-    pub layer4_opacity: f32,
-    pub layer4_roughness_white: f32,
-    pub layer4_roughness_black: f32,
-    pub layer4_ior: f32,
-    pub layer4_normal_intensity: f32,
-    pub layer4_metallic: f32,
-    pub layer4_top_color: (f32, f32, f32),
-    pub layer4_mid_color: (f32, f32, f32),
-    pub layer4_bot_color: (f32, f32, f32),
-    pub layer4_packed_transform: [f32; 2],
+    pub layers: Vec<LevelLayer>,
 }
 
 #[derive(Default, Debug, Serialize)]

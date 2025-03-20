@@ -13,7 +13,6 @@ mod layered_shader;
 mod meter_shader;
 mod parallax_decal;
 pub mod process_material;
-mod regular_level_shader;
 mod self_illum;
 pub mod serde_definitions;
 mod skin_shader;
