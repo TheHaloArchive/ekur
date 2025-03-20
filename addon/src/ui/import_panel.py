@@ -213,7 +213,9 @@ class CoatingImportPanel(Panel):
         layout = self.layout
         if layout is None:
             return
-        material_header, material_body = layout.panel("VIEW3D_PT_import_material")
+        material_header, material_body = layout.panel(
+            "VIEW3D_PT_import_material", default_closed=True
+        )
         material_header.label(icon="MATERIAL", text="Import Material")
 
         if material_body:
@@ -237,7 +239,7 @@ class CoatingImportPanel(Panel):
         layout = self.layout
         if layout is None:
             return
-        model_header, model_body = layout.panel("VIEW3D_PT_import_model")
+        model_header, model_body = layout.panel("VIEW3D_PT_import_model", default_closed=True)
         model_header.label(icon="MESH_CUBE", text="Import Model")
         if model_body:
             model_opts = model_body.box()
@@ -253,7 +255,7 @@ class CoatingImportPanel(Panel):
         layout = self.layout
         if layout is None:
             return
-        ocgd_header, ocgd_body = layout.panel("VIEW3D_PT_import_ocgd")
+        ocgd_header, ocgd_body = layout.panel("VIEW3D_PT_import_ocgd", default_closed=True)
         ocgd_header.label(icon="ARMATURE_DATA", text="Import Spartan")
         if ocgd_body:
             ocgd_body.prop(import_properties, "use_purp_rig")
@@ -277,7 +279,7 @@ class CoatingImportPanel(Panel):
         layout = self.layout
         if layout is None:
             return
-        level_header, level_body = layout.panel("VIEW3D_PT_import_level")
+        level_header, level_body = layout.panel("VIEW3D_PT_import_level", default_closed=True)
         level_header.label(icon="MESH_GRID", text="Import Level")
         if level_body:
             level_opts = level_body.box()
@@ -288,7 +290,7 @@ class CoatingImportPanel(Panel):
         layout = self.layout
         if layout is None or context is None:
             return
-        forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge")
+        forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge", default_closed=True)
         forge_header.label(icon="TOOL_SETTINGS", text="Import Forge")
         if forge_body:
             forge_opts = forge_body.box()
@@ -306,7 +308,7 @@ class CoatingImportPanel(Panel):
         layout = self.layout
         if layout is None:
             return
-        forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge_map")
+        forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge_map", default_closed=True)
         forge_header.label(icon="MAT_SPHERE_SKY", text="Import Forge Map")
         if forge_body:
             forge_opts = forge_body.box()
