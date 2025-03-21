@@ -18,6 +18,7 @@ from bpy.types import (
     ShaderNodeBump,
     ShaderNodeClamp,
     ShaderNodeCombineColor,
+    ShaderNodeCombineRGB,
     ShaderNodeCombineXYZ,
     ShaderNodeGamma,
     ShaderNodeGroup,
@@ -52,14 +53,14 @@ __all__ = ["HIMS"]
 class HIMS:
     def __init__(self) -> None:
         self.node_tree: NodeTree | None = bpy.data.node_groups.get(
-            "Halo Infinite Shader 3.1.1 by Chunch and ChromaCore"
+            "Halo Infinite Shader 3.1.2 by Chunch and ChromaCore"
         )
         if self.node_tree:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
                 type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Halo Infinite Shader 3.1.1 by Chunch and ChromaCore",
+                name="Halo Infinite Shader 3.1.2 by Chunch and ChromaCore",
             )
         self.create_sockets()
         self.create_nodes()
@@ -82,6 +83,7 @@ class HIMS:
         _ = create_socket(interface, "Bake Unity Mask Map", NodeSocketColor, False, outputs)
         _ = create_socket(interface, "Bake Unity Smoothness Map", NodeSocketColor, False, outputs)
         _ = create_socket(interface, "Bake ID Mask", NodeSocketColor, False, outputs)
+        _ = create_socket(interface, "Bake ORM", NodeSocketColor, False, outputs)
 
         textures = interface.new_panel("Base Textures")
         asg = create_socket(interface, "ASG Texture", NodeSocketColor, panel=textures)
@@ -113,7 +115,7 @@ class HIMS:
 
         zone1 = interface.new_panel("Zone 1")
         _ = create_socket(interface, "", NodeSocketBool, panel=zone1)
-        interface.items_tree[29].hide_value = True  # pyright: ignore[reportAttributeAccessIssue]
+        interface.items_tree[30].hide_value = True  # pyright: ignore[reportAttributeAccessIssue]
         _ = create_socket(interface, "Zone 1 Gradient Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Rough Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Norm Out", NodeSocketColor, panel=zone1)
@@ -588,6 +590,12 @@ class HIMS:
         _ = self.node_tree.links.new(mult_yscale.outputs[0], combinemult.inputs[0])
         _ = self.node_tree.links.new(combinemult.outputs[0], mapping_1.inputs[3])
 
+        combine_orm = create_node(nodes, 0, 0, ShaderNodeCombineRGB)
+        _ = self.node_tree.links.new(gamma_002.outputs[0], combine_orm.inputs[0])
+        _ = self.node_tree.links.new(gamma_003.outputs[0], combine_orm.inputs[1])
+        _ = self.node_tree.links.new(gamma_004.outputs[0], combine_orm.inputs[2])
+        _ = self.node_tree.links.new(combine_orm.outputs[0], group_output_17.inputs[12])
+
         _: NodeLink
         _ = self.node_tree.links.new(group_002_4.outputs[0], infinite_color.inputs[3])
         _ = self.node_tree.links.new(group_004.outputs[0], infinite_color.inputs[4])
@@ -757,7 +765,7 @@ class HIMS:
         _ = self.node_tree.links.new(reroute_001_4.outputs[0], reroute_002_4.inputs[0])
         _ = self.node_tree.links.new(reroute_1.outputs[0], reroute_003_1.inputs[0])
         _ = self.node_tree.links.new(reroute_003_1.outputs[0], reroute_004_4.inputs[0])
-        _ = self.node_tree.links.new(reroute_052.outputs[0], group_output_17.inputs[4])
+        _ = self.node_tree.links.new(reroute_013_3.outputs[0], group_output_17.inputs[4])
         _ = self.node_tree.links.new(reroute_004_4.outputs[0], reroute_005_4.inputs[0])
         _ = self.node_tree.links.new(reroute_005_4.outputs[0], mix_005_6.inputs[6])
         _ = self.node_tree.links.new(group_013.outputs[0], reroute_008.inputs[0])
