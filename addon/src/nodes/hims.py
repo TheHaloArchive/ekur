@@ -28,6 +28,7 @@ from bpy.types import (
     ShaderNodeMix,
     ShaderNodeNormalMap,
     ShaderNodeSeparateColor,
+    ShaderNodeSeparateRGB,
     ShaderNodeTexCoord,
     ShaderNodeTexNoise,
     ShaderNodeTree,
@@ -246,6 +247,7 @@ class HIMS:
         scale_options = interface.new_panel("Scale Options")
         _ = create_socket(interface, "Base Scale X", NodeSocketFloat, panel=scale_options)
         _ = create_socket(interface, "Base Scale Y", NodeSocketFloat, panel=scale_options)
+        _ = create_socket(interface, "ASG Cubic", NodeSocketColor, panel=scale_options)
 
     def create_nodes(self) -> None:
         if self.node_tree is None:
@@ -596,6 +598,10 @@ class HIMS:
         _ = self.node_tree.links.new(gamma_004.outputs[0], combine_orm.inputs[2])
         _ = self.node_tree.links.new(combine_orm.outputs[0], group_output_17.inputs[12])
 
+        separate_asg_cubic = create_node(nodes, 0, 0, ShaderNodeSeparateRGB)
+        _ = self.node_tree.links.new(separate_asg_cubic.outputs[1], colorramp.inputs[0])
+        _ = self.node_tree.links.new(group_input.outputs[124], separate_asg_cubic.inputs[0])
+
         _: NodeLink
         _ = self.node_tree.links.new(group_002_4.outputs[0], infinite_color.inputs[3])
         _ = self.node_tree.links.new(group_004.outputs[0], infinite_color.inputs[4])
@@ -715,7 +721,6 @@ class HIMS:
         _ = self.node_tree.links.new(group_input.outputs[0], group_017.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_018.inputs[0])
 
-        _ = self.node_tree.links.new(reroute_014_3.outputs[0], colorramp.inputs[0])
         _ = self.node_tree.links.new(group_input.outputs[0], group_020.inputs[0])
         _ = self.node_tree.links.new(group_020.outputs[0], group_009.inputs[12])
         _ = self.node_tree.links.new(group_020.outputs[0], group_001_4.inputs[12])

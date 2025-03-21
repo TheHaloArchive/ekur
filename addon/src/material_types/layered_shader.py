@@ -73,7 +73,6 @@ class LayeredShader:
         textures = self.material["textures"]
         if textures.get("Asg"):
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
-            tex.interpolation = "Cubic"
             if (
                 tex.image
                 and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
@@ -91,6 +90,9 @@ class LayeredShader:
                 for i in transparencies:
                     _ = self.node_tree.links.new(invert.outputs[0], self.shader.inputs[i])
             _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
+            tex2 = self.create_image(self.node_tree, textures["Asg"], -2705)
+            tex2.interpolation = "Cubic"
+            _ = self.node_tree.links.new(tex2.outputs[0], self.shader.inputs[124])
         if textures.get("Mask0"):
             self.has_mask0 = True
             tex = self.create_image(self.node_tree, textures["Mask0"], 80)
