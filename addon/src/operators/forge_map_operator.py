@@ -56,7 +56,10 @@ class ForgeMapOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:
         props = get_import_properties()
         data = get_data_folder()
-        objects = get_forge_map(props.asset_id, props.version_id)
+        split = props.url.split("/")
+        if len(split) < 8:
+            return {"CANCELLED"}
+        objects = get_forge_map(split[6], split[7])
         objects_path = Path(f"{data}/forge_objects.json")
         definition = read_json_file(objects_path, ForgeObjectDefinition)
         if definition is None:

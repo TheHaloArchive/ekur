@@ -169,7 +169,6 @@ class AddonPreferencesType:
     deploy_folder: str = ""
     dump_textures: bool = True
     is_campaign: bool = False
-    enable_forge: bool = False
 
 
 def get_data_folder() -> str:
@@ -233,8 +232,7 @@ class ImportPropertiesType:
     objects: str = ""
     sort_objects: bool = False
     object_representation: str = ""
-    asset_id: str = ""
-    version_id: str = ""
+    url: str = ""
     output_path: str = ""
     output_workflow: str = ""
     width: int = 1024

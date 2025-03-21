@@ -66,12 +66,6 @@ class EkurPreferences(AddonPreferences):
         default=False,
     )
 
-    enable_forge: bpy.props.BoolProperty(
-        name="Enable Forge Map Importer",
-        description="Whether to enable Forge map importer or not. Please note that this is experimental and may not work as expected.",
-        default=False,
-    )
-
     def draw(self, _context: Context | None):
         layout = self.layout
         box = layout.box()
@@ -80,9 +74,6 @@ class EkurPreferences(AddonPreferences):
         box.prop(self, "deploy_folder")
         box.prop(self, "dump_textures")
         box.prop(self, "is_campaign")
-        experimental_box = box.box()
-        experimental_box.label(text="Experimental", icon="ERROR")
-        experimental_box.prop(self, "enable_forge")
         box2 = layout.box()
         _ = box2.operator("ekur.downloadfiles")
         _ = box2.operator("ekur.dumpfiles")

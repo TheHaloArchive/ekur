@@ -181,8 +181,7 @@ class ImportProperties(PropertyGroup):
         name="Object Representation", items=GrabStrings.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
-    asset_id: StringProperty(name="Asset ID", default="")
-    version_id: StringProperty(name="Version ID", default="")
+    url: StringProperty(name="Url", default="")
     output_path: StringProperty(name="Output Path", default="", subtype="DIR_PATH")
     output_workflow: EnumProperty(
         name="Output Workflow",
@@ -253,8 +252,7 @@ class CoatingImportPanel(Panel):
         self.draw_level(import_properties)
         if not prefs.is_campaign:
             self.draw_forge(context, import_properties)
-        if prefs.enable_forge:
-            self.draw_forge_map(import_properties)
+        self.draw_forge_map(import_properties)
         self.draw_bake_menu(import_properties)
 
     def draw_material_options(self, import_properties: ImportPropertiesType) -> None:
@@ -360,8 +358,9 @@ class CoatingImportPanel(Panel):
         forge_header.label(icon="MAT_SPHERE_SKY", text="Import Forge Map")
         if forge_body:
             forge_opts = forge_body.box()
-            forge_opts.prop(import_properties, "asset_id")
-            forge_opts.prop(import_properties, "version_id")
+            forge_opts.prop(import_properties, "url")
+            op = forge_opts.operator("wm.url_open", text="Browse Maps", icon="URL")
+            op.url = "https://cylix.guide/discovery/"  # pyright: ignore[reportAttributeAccessIssue]
             _ = forge_body.operator("ekur.importforgemap")
 
     def draw_bake_menu(self, import_properties: ImportPropertiesType) -> None:
