@@ -41,6 +41,8 @@ class Layer:
         if not self.node_tree:
             return
         interface = self.node_tree.interface
+        if not interface:
+            return
 
         outputs = interface.new_panel("Outputs")
         _ = create_socket(interface, "Gradient Out", NodeSocketFloat, False, outputs)
