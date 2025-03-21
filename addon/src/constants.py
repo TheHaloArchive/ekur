@@ -3,6 +3,6 @@
 
 __all__ = ["version", "version_string", "EMPTY_TEXTURES"]
 
-version = (1, 0, 1)
+version = (1, 1, 0)
 version_string = ".".join(str(v) for v in version)
 EMPTY_TEXTURES = [10098, 580203186, 92914]
