@@ -10,6 +10,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    working-directory: ./addon
 
     steps:
       - uses: actions/checkout@v4
@@ -20,9 +21,6 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       
-      - name: Change directory to addon
-        run: cd addon
-
       - name: Set up Python
         run: uv python install
 
