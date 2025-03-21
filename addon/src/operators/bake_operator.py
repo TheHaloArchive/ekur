@@ -163,8 +163,6 @@ class BakingOperator(Operator):
             if img is None:
                 img = bpy.data.images.new(mat_name, props.height, props.width)
             tex_node.image = img
-            if m != "Color" and m != "SpecColor":
-                img.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue, reportOptionalMemberAccess]
             object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
             bpy.ops.object.bake(  # pyright: ignore[reportUnknownMemberType]
                 type="EMIT",
