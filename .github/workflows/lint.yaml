@@ -10,8 +10,10 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    working-directory: ./addon
-
+    defaults:
+      run:
+        working-directory: ./addon
+   
     steps:
       - uses: actions/checkout@v4
 
