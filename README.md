@@ -104,6 +104,7 @@ Texture baking allows you to easily export materials into different engines/prog
 - `Width`: Width of the output textures.
 - `Height`: Height of the output textures.
 - `Pixel Padding`: Advanced: Margin for baked textures.
+- `Bit Depth`: Bit depth of output textures.
 - `Bake Detail Normals`: Whether to output a secondary normal map comprised of the detail layer in HIMS.
 - `Merge Textures Into Single Bake`: Whether to overlay different materials of a specific object into each other.
 - `Bake Ambient Occlusion`: Bakes out a separate AO map.

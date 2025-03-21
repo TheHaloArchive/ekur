@@ -237,6 +237,7 @@ class ImportPropertiesType:
     output_workflow: str = ""
     width: int = 1024
     height: int = 1024
+    bit_depth: str = "8"
     bake_detail_normals: bool = False
     merge_textures: bool = False
     bake_ao: bool = False
