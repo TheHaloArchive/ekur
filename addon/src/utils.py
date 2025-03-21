@@ -235,6 +235,19 @@ class ImportPropertiesType:
     object_representation: str = ""
     asset_id: str = ""
     version_id: str = ""
+    output_path: str = ""
+    output_workflow: str = ""
+    width: int = 1024
+    height: int = 1024
+    bake_detail_normals: bool = False
+    merge_textures: bool = False
+    bake_ao: bool = False
+    bake_layer_map: bool = False
+    advanced_bake: bool = False
+    selected_layer: str = ""
+    selected_objects: str = ""
+    pixel_padding: int = 16
+    uv_to_bake_to: str = ""
 
 
 def get_import_properties() -> ImportPropertiesType:

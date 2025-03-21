@@ -5,7 +5,7 @@
 import random
 from typing import final
 
-from bpy.props import BoolProperty, EnumProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
+from bpy.props import BoolProperty, EnumProperty, IntProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, Operator
 
 from ..utils import ImportPropertiesType, get_addon_preferences, get_import_properties
@@ -183,6 +183,53 @@ class ImportProperties(PropertyGroup):
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
     asset_id: StringProperty(name="Asset ID", default="")
     version_id: StringProperty(name="Version ID", default="")
+    output_path: StringProperty(name="Output Path", default="", subtype="DIR_PATH")
+    output_workflow: EnumProperty(
+        name="Output Workflow",
+        description="Workflow to use for baking textures.",
+        items=[
+            ("PBR MetRough", "PBR MetRough", ""),
+            ("PBR SpecGloss", "PBR SpecGloss", ""),
+            ("PBR MetRoughSpecColor", "PBR MetRoughSpecColor", ""),
+            ("PBR ORM", "PBR ORM", ""),
+            ("Unity Smoothness/Mask", "Unity Smoothness/Mask", ""),
+        ],
+    )
+    width: IntProperty(name="Width", default=1024)
+    height: IntProperty(name="Height", default=1024)
+    bake_detail_normals: BoolProperty(name="Bake Detail Normals", default=False)
+    merge_textures: BoolProperty(name="Merge Textures Into Single Bake", default=False)
+    bake_ao: BoolProperty(name="Bake Ambient Occlusion", default=False)
+    bake_layer_map: BoolProperty(name="Bake Layer Map", default=False)
+    advanced_bake: BoolProperty(name="Toggle Advanced Bake Options", default=False)
+    selected_layer: EnumProperty(
+        name="Selected Layer",
+        description="Layer to bake for objects.",
+        items=[
+            ("None", "None", ""),
+            ("Color", "Color", ""),
+            ("Metallic", "Metallic", ""),
+            ("Roughness", "Roughness", ""),
+            ("Emission", "Emission", ""),
+            ("Specular", "Specular", ""),
+            ("SpecColor", "SpecColor", ""),
+            ("AO", "AO", ""),
+            ("Normal", "Normal", ""),
+            ("Unity Mask Map", "Unity Mask Map", ""),
+            ("Smoothness", "Smoothness", ""),
+            ("ID Mask", "ID Mask", ""),
+            ("ORM", "ORM", ""),
+        ],
+    )
+    selected_objects: EnumProperty(
+        name="Objects to Bake",
+        description="Objects to bake for.",
+        items=[("Selected", "Selected", ""), ("All", "All", "")],
+    )
+    pixel_padding: IntProperty(name="Pixel Padding", default=16)
+    uv_to_bake_to: EnumProperty(
+        name="UV Map to Bake To", items=[("UV0", "UV0", ""), ("UV1", "UV1", ""), ("UV2", "UV2", "")]
+    )
 
 
 @final
@@ -208,6 +255,7 @@ class CoatingImportPanel(Panel):
             self.draw_forge(context, import_properties)
         if prefs.enable_forge:
             self.draw_forge_map(import_properties)
+        self.draw_bake_menu(import_properties)
 
     def draw_material_options(self, import_properties: ImportPropertiesType) -> None:
         layout = self.layout
@@ -315,3 +363,29 @@ class CoatingImportPanel(Panel):
             forge_opts.prop(import_properties, "asset_id")
             forge_opts.prop(import_properties, "version_id")
             _ = forge_body.operator("ekur.importforgemap")
+
+    def draw_bake_menu(self, import_properties: ImportPropertiesType) -> None:
+        layout = self.layout
+        if layout is None:
+            return
+        bake_header, bake_body = layout.panel("VIEW3D_PT_bake_menu", default_closed=True)
+        bake_header.label(icon="SHADING_TEXTURE", text="Bake Textures")
+        if bake_body:
+            bake_opts = bake_body.box()
+            bake_opts.prop(import_properties, "output_path")
+            bake_opts.prop(import_properties, "output_workflow")
+            bake_opts.prop(import_properties, "width")
+            bake_opts.prop(import_properties, "height")
+            bake_opts.prop(import_properties, "pixel_padding")
+            bake_opts.prop(import_properties, "bake_detail_normals")
+            bake_opts.prop(import_properties, "merge_textures")
+            bake_opts.prop(import_properties, "bake_ao")
+            bake_opts.prop(import_properties, "bake_layer_map")
+            bake_opts.prop(import_properties, "uv_to_bake_to")
+            bake_opts.prop(import_properties, "advanced_bake")
+            if import_properties.advanced_bake:
+                advanced_opts = bake_opts.box()
+                advanced_opts.prop(import_properties, "selected_layer")
+                advanced_opts.prop(import_properties, "selected_objects")
+                _ = advanced_opts.operator("ekur.toggleadvancedbake")
+            _ = bake_body.operator("ekur.baketextures")
