@@ -91,6 +91,25 @@ A common use case for the addon is of course, to create renders of your spartans
 
 Ekur can also import forge objects using a menu similar to the game, automatically choosing the default coating for the selected forge objects. Please note that due to the nature of Infinite's forge mode most objects look a bit flat, and not all objects have materials as of this release.
 
+#### Texture Baker
+<h1 align="center">
+  <picture>
+    <img style="margin: 0; padding: 0" src="./assets/img/texture_baker.jpg">
+  </picture>
+</h1>
+
+Texture baking allows you to easily export materials into different engines/programs. Ekur has support for baking on HIMS (layered) shaders, and gives you the following options for import:
+- `Output Path`: Path to where your baked textures should end up in.
+- `Output Workflow`: You can choose between PBR MetRough, PBR SpecGloss, PBR MetRoughSpec, PBR ORM and Unity Smoothness/Mask; depending on the program you're going to import your baked textures in.
+- `Width`: Width of the output textures.
+- `Height`: Height of the output textures.
+- `Pixel Padding`: Advanced: Margin for baked textures.
+- `Bake Detail Normals`: Whether to output a secondary normal map comprised of the detail layer in HIMS.
+- `Merge Textures Into Single Bake`: Whether to overlay different materials of a specific object into each other.
+- `Bake Ambient Occlusion`: Bakes out a separate AO map.
+- `Bake Layer Map`: Bakes out a separate layer (color change) map.
+- `UV Map to Bake To`: Specific UV to transfer textures to.
+
 #### Experimental: Level Importer
 <h1 align="center">
   <picture>
@@ -99,6 +118,15 @@ Ekur can also import forge objects using a menu similar to the game, automatical
 </h1>
 
 Map geometry from multiplayer maps (non-forge, as of now) can also be imported by selecting a json file inside the "levels" directory of your data folder, but materials and props are currently not supported.
+
+#### Experimental: Forge Map Importer
+<h1 align="center">
+  <picture>
+    <img style="margin: 0; padding: 0" src="./assets/img/forge_map_importer.jpg">
+  </picture>
+</h1>
+
+Forge maps can also be imported to a limited capacity by pasting in a URL from cylix.guide!
 
 ### FAQ
 #### Are campaign assets supported?
