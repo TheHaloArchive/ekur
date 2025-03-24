@@ -6,12 +6,13 @@
 Ekur - A multi-purpose importer for Halo Infinite.
 """
 
+from pathlib import Path
 from typing import cast, final
 import bpy
 from bpy.types import AddonPreferences, Context
 from bpy.utils import register_class, unregister_class  # pyright: ignore[reportUnknownVariableType]
 
-
+from .src.utils import get_package_name
 from .src.operators.material_operator import ImportMaterialOperator
 from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
 from .src.operators.dump_files_operator import DumpFilesOperator
@@ -23,7 +24,7 @@ from .src.operators.spartan_online_operator import ImportSpartanVanityOperator
 from .src.operators.download_files_operator import DownloadFilesOperator
 from .src.operators.forge_map_operator import ForgeMapOperator
 from .src.operators.bake_operator import BakingOperator, AdvancedBakeOperator
-from .src.constants import version
+from .src.constants import version, version_string
 
 bl_info = {
     "name": "Ekur",
@@ -34,6 +35,11 @@ bl_info = {
     "category": "Import-Export",
     "support": "COMMUNITY",
 }
+
+
+def dump_exists() -> bool:
+    extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+    return (Path(extension_path) / version_string).exists()
 
 
 @final
@@ -68,6 +74,16 @@ class EkurPreferences(AddonPreferences):
 
     def draw(self, _context: Context | None):
         layout = self.layout
+        if not dump_exists():
+            layout.label(
+                icon="ERROR", text="You have not yet dumped the required files for this version!"
+            )
+        if not cast(bool, bpy.app.online_access):
+            layout.label(
+                icon="ERROR",
+                text="Online access is disabled! Enable it in System < Network < Allow Online Access",
+            )
+            return
         box = layout.box()
         box.label(text="Paths", icon="FILE_FOLDER")
         box.prop(self, "data_folder")

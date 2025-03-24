@@ -49,4 +49,6 @@ class DumpFilesOperator(Operator):
             logging.error(f"Ekur was not found at {ekur_save_path}!")
             return {"CANCELLED"}
         _ = subprocess.run(proc)
+        with open(f"{extension_path}/{version_string}", "w") as f:
+            _ = f.write(version_string)
         return {"FINISHED"}
