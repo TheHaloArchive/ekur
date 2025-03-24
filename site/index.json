@@ -1,0 +1,30 @@
+{
+  "version": "v1",
+  "blocklist": [],
+  "data": [
+    {
+      "schema_version": "1.0.0",
+      "id": "ekur",
+      "name": "Ekur",
+      "tagline": "A multi-purpose importer for Halo Infinite",
+      "version": "1.1.0",
+      "type": "add-on",
+      "maintainer": "Surasia <https://github.com/Surasia>",
+      "license": [
+        "SPDX:GPL-3.0-or-later"
+      ],
+      "blender_version_min": "4.3.0",
+      "permissions": {
+        "files": "For selecting JSON files containing coating data",
+        "network": "Downloading and saving strings and Ekur executable"
+      },
+      "tags": [
+        "Import-Export",
+        "Pipeline"
+      ],
+      "archive_url": "./ekur-1.1.0.zip",
+      "archive_size": 92356,
+      "archive_hash": "sha256:b6ac13ae930244a6af215985edd2b634f6da5bf41308aaad7dc5dfcb2cb27676"
+    }
+  ]
+}

@@ -10,7 +10,7 @@ wheels/
 .venv
 
 # Blender stuff
-*.zip
+addon/*.zip
 
 # Cargo
 ekur/target
