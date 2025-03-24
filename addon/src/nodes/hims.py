@@ -771,7 +771,7 @@ class HIMS:
         _ = self.node_tree.links.new(separate_color_001.outputs[1], yellow.inputs[0])
         _ = self.node_tree.links.new(separate_color_001.outputs[2], magenta.inputs[0])
         _ = self.node_tree.links.new(srgb.outputs[0], math_001_4.inputs[0])
-        _ = self.node_tree.links.new(srgb.outputs[2], colorramp_001.inputs[0])
+        _ = self.node_tree.links.new(separate_asg_cubic.outputs[2], colorramp_001.inputs[0])
         _ = self.node_tree.links.new(texture_coordinate.outputs[2], mapping_1.inputs[0])
         _ = self.node_tree.links.new(yellow.outputs[2], magenta.inputs[6])
         _ = self.node_tree.links.new(zone3.outputs[0], infinite_color.inputs[5])
