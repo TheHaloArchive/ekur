@@ -216,7 +216,10 @@ class BakingOperator(Operator):
             i: int = 0
             for material in materials:
                 if material.node_tree:
-                    self.bake_material(material, object, props, tex_nodes[i])
+                    if props.merge_textures:
+                        self.bake_material(material, object, props, tex_nodes[i])
+                    else:
+                        self.bake_material(material, object, props, None)
                     material.node_tree.nodes.remove(tex_nodes[i])  # pyright: ignore[reportUnknownMemberType]
                     i += 1
 
