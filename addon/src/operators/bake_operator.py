@@ -22,6 +22,18 @@ PRESETS = {
     "PBR MetRoughSpecColor": {"Color": 1, "Roughness": 3, "Metallic": 2, "SpecColor": 6},
     "PBR ORM": {"Color": 1, "ORM": 12, "Emission": 4},
     "Unity Smoothness/Mask": {"Color": 1, "MaskMap": 9, "Smoothness": 10, "Emission": 4},
+    "Color": {"Color": 1},
+    "Metallic": {"Metallic": 2},
+    "Roughness": {"Roughness": 3},
+    "Emission": {"Emission": 4},
+    "Specular": {"Specular": 5},
+    "SpecColor": {"SpecColor": 6},
+    "AO": {"AO": 7},
+    "Normal": {"Normal": 8},
+    "Unity Mask Map": {"Unity Mask Map": 9},
+    "Smoothness": {"Smoothness": 10},
+    "ID Mask": {"ID Mask": 11},
+    "ORM": {"ORM": 12},
 }
 
 INDEXES = [

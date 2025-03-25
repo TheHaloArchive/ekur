@@ -199,6 +199,18 @@ class ImportProperties(PropertyGroup):
             ("PBR MetRoughSpecColor", "PBR MetRoughSpecColor", ""),
             ("PBR ORM", "PBR ORM", ""),
             ("Unity Smoothness/Mask", "Unity Smoothness/Mask", ""),
+            ("Color", "Color", ""),
+            ("Metallic", "Metallic", ""),
+            ("Roughness", "Roughness", ""),
+            ("Emission", "Emission", ""),
+            ("Specular", "Specular", ""),
+            ("SpecColor", "SpecColor", ""),
+            ("AO", "AO", ""),
+            ("Normal", "Normal", ""),
+            ("Unity Mask Map", "Unity Mask Map", ""),
+            ("Smoothness", "Smoothness", ""),
+            ("ID Mask", "ID Mask", ""),
+            ("ORM", "ORM", ""),
         ],
     )
     width: IntProperty(name="Width", default=1024)
