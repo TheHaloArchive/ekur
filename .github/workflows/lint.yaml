@@ -34,3 +34,6 @@ jobs:
 
       - name: Run basedpyright check
         run: uv run basedpyright
+
+      - name: Run tests
+        run: uv run pytest

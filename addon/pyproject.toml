@@ -22,5 +22,6 @@ line-length = 100
 [tool.uv]
 dev-dependencies = [
     "basedpyright>=1.28.3",
+    "pytest>=8.3.5",
     "ruff>=0.11.1",
 ]
