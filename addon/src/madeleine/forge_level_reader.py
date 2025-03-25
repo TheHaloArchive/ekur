@@ -2,7 +2,7 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader, BytesIO
 import logging
-from typing import cast
+from typing import Self, cast
 import urllib.request
 import urllib.error
 
@@ -11,12 +11,27 @@ from .bond_reader import get_base_struct
 
 
 class ForgeObject:
+    index: int = 0
     global_id: int = 0
     position: list[float] = []
     rotation_up: list[float] = []
     rotation_forward: list[float] = []
     scale: list[float] = []
     variant: int = 0
+
+
+class ForgeFolderEntry:
+    name: str = ""
+    index: int = 0
+    parent: int = 0
+
+
+class ForgeFolder:
+    name: str = ""
+    id: int = 0
+    parent: int = 0
+    objects: list[ForgeFolderEntry] = []
+    subcategories: list[Self] = []
 
 
 def get_forge_item(item: BondValue) -> ForgeObject | None:
@@ -98,16 +113,69 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
             forge_object.scale[1] = element.value
         elif element.id == 2 and type(element.value) is float:
             forge_object.scale[2] = element.value
-    """
-    for idx, axis in enumerate(forge_object.scale):
-        if round(axis, 2) == 1 and idx > 0:
-            forge_object.scale[idx - 1] = forge_object.scale[idx]
-    """
     return forge_object
 
 
-def get_forge_map(asset_id: str, version_id: str) -> list[ForgeObject]:
+def get_objects(value: BondValue) -> ForgeFolderEntry:
+    object = ForgeFolderEntry()
+    index = value.get_by_id(8)
+    if index and type(index.value) is int:
+        object.index = index.value
+    name = value.get_by_id(2)
+    if name and type(name.value) is str:
+        object.name = name.value
+    parent = value.get_by_id(6)
+    if parent and type(parent.value) is int:
+        object.parent = parent.value
+    return object
+
+
+def get_category(value: BondValue) -> list[ForgeFolder]:
+    folders = value.get_by_id(0)
+    forge_categories: list[ForgeFolder] = []
+    if not folders:
+        return forge_categories
+    for folder in folders.get_elements():
+        root_folder = ForgeFolder()
+        name = folder.get_by_id(2)
+        if name and type(name.value) is str:
+            root_folder.name = name.value
+        id = folder.get_by_id(0)  # if id does not exist, root!
+        if id and type(id.value) is int:
+            root_folder.id = id.value
+        obj_subfolders = folder.get_by_id(1)
+        if not obj_subfolders:
+            continue
+        for obj_sub in obj_subfolders.get_elements():
+            is_subfolder = obj_sub.get_by_id(0) is None
+            if is_subfolder:
+                subfolder = ForgeFolder()
+                id = obj_sub.get_by_id(1)
+                if id and type(id.value) is int:
+                    subfolder.id = id.value
+                name = obj_sub.get_by_id(2)
+                if name and type(name.value) is str:
+                    subfolder.name = name.value
+                parent = obj_sub.get_by_id(5)
+                if parent and type(parent.value) is int:
+                    subfolder.parent = parent.value
+                subfolder_objects = obj_sub.get_by_id(7)
+                if not subfolder_objects:
+                    continue
+                for object in subfolder_objects.get_elements():
+                    ob = get_objects(object)
+                    if ob.parent == subfolder.id:
+                        subfolder.objects.append(ob)
+                root_folder.subcategories.append(subfolder)
+            else:
+                root_folder.objects.append(get_objects(obj_sub))
+        forge_categories.append(root_folder)
+    return forge_categories
+
+
+def get_forge_map(asset_id: str, version_id: str) -> tuple[list[ForgeObject], list[ForgeFolder]]:
     objects: list[ForgeObject] = []
+    categories: list[ForgeFolder] = []
     url = f"https://blobs-infiniteugc.svc.halowaypoint.com/ugcstorage/map/{asset_id}/{version_id}/map.mvar"
     try:
         with urllib.request.urlopen(url) as response:  # pyright: ignore[reportAny]
@@ -115,11 +183,15 @@ def get_forge_map(asset_id: str, version_id: str) -> list[ForgeObject]:
             base_struct = get_base_struct(cast(BufferedReader, BytesIO(response)))  # pyright: ignore[reportAny, reportInvalidCast]
             base = base_struct.get_by_id(3)
             if base:
-                for item in base.get_elements():
+                for idx, item in enumerate(base.get_elements()):
                     forge_object = get_forge_item(item)
                     if forge_object:
+                        forge_object.index = idx
                         objects.append(forge_object)
+            folders = base_struct.get_by_id(6)
+            if folders:
+                categories = get_category(folders)
 
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download forge map: {e.status}")
-    return objects
+    return objects, categories

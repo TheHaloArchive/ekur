@@ -4,14 +4,14 @@ from pathlib import Path
 from typing import final
 
 import bpy
-from bpy.types import Context, Object, Operator
+from bpy.types import Collection, Context, Object, Operator
 from mathutils import Matrix, Vector
 
 from ..model.importer.model_importer import ModelImporter
 
 from ..json_definitions import ForgeObjectDefinition
 
-from ..madeleine.forge_level_reader import get_forge_map
+from ..madeleine.forge_level_reader import ForgeFolder, get_forge_map
 from ..utils import get_data_folder, get_import_properties, read_json_file
 
 
@@ -53,18 +53,48 @@ class ForgeMapOperator(Operator):
         self._geometry_cache[global_id] = source_objects
         return source_objects
 
+    def create_categories(
+        self, category: ForgeFolder, parent: Collection, is_subcat: bool = False
+    ) -> tuple[Collection, list[tuple[ForgeFolder, Collection]]]:
+        category_collection = bpy.data.collections.new(category.name)
+        parent.children.link(category_collection)  # pyright: ignore[reportUnknownMemberType]
+        if is_subcat:
+            return category_collection, []
+        subcats: list[tuple[ForgeFolder, Collection]] = []
+        for subcat in category.subcategories:
+            if subcat.parent == category.id:
+                subcats.append(
+                    (subcat, self.create_categories(subcat, category_collection, True)[0])
+                )
+        return category_collection, subcats
+
     def execute(self, context: Context | None) -> set[str]:
         props = get_import_properties()
         data = get_data_folder()
         split = props.url.split("/")
         if len(split) < 8:
             return {"CANCELLED"}
-        objects = get_forge_map(split[6], split[7])
+        objects, categories = get_forge_map(split[6], split[7])
         objects_path = Path(f"{data}/forge_objects.json")
         definition = read_json_file(objects_path, ForgeObjectDefinition)
-        if definition is None:
+        if definition is None or context is None or context.scene is None:
             return {"CANCELLED"}
+        cats: dict[ForgeFolder, tuple[Collection, list[tuple[ForgeFolder, Collection]]]] = {}
+        for category in categories:
+            cats[category] = self.create_categories(category, context.scene.collection)
         for object in objects:
+            main_collection: Collection | None = None
+            for folder, (collection, children) in cats.items():
+                for obj in folder.objects:
+                    if obj.index == object.index and obj.parent == folder.id:
+                        main_collection = collection
+                        break
+                for child, collection in children:
+                    for obj in child.objects:
+                        if obj.index == object.index and obj.parent == child.id:
+                            main_collection = collection
+                            break
+
             object_def = definition["objects"].get(str(object.global_id))
             if object_def is None:
                 continue
@@ -108,11 +138,13 @@ class ForgeMapOperator(Operator):
                         instance_obj.rotation_mode = "QUATERNION"
                         instance_obj.rotation_quaternion = quat
                         instance_obj.scale = object.scale
-                    if (
-                        bpy.context.scene
-                        and instance_obj.name not in bpy.context.scene.collection.objects
-                    ):
-                        bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                        if main_collection:
+                            main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                        elif (
+                            bpy.context.scene
+                            and instance_obj.name not in bpy.context.scene.collection.objects
+                        ):
+                            bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
 
         self._geometry_cache = {}
         return {"FINISHED"}

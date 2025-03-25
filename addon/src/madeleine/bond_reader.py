@@ -61,7 +61,11 @@ def read_map(data: BufferedReader) -> dict[BondValue, BondValue]:
 
 def read_wstring(data: BufferedReader) -> str:
     length = uleb128_decode(data)
-    return data.read(length * 2).decode("utf-16")
+    try:
+        dat = data.read(length * 2).decode("utf-16")
+        return dat
+    except UnicodeDecodeError:
+        return ""
 
 
 def read_string(data: BufferedReader) -> str:
