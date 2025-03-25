@@ -29,11 +29,7 @@ class ForgeMapOperator(Operator):
     _geometry_cache: dict[str, list[Object]] = {}
 
     def _get_or_create_geometry(self, global_id: str) -> list[Object]:
-        if (
-            global_id in self._geometry_cache
-            or bpy.context.collection is None
-            or bpy.context.scene is None
-        ):
+        if global_id in self._geometry_cache or bpy.context.scene is None:
             return self._geometry_cache[global_id]
 
         data = get_data_folder()
@@ -51,8 +47,8 @@ class ForgeMapOperator(Operator):
 
         source_objects = imported_objects
         for source_object in source_objects:
-            if source_object.name in bpy.context.collection.objects:
-                bpy.context.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
+            if source_object.name in bpy.context.scene.collection.objects:
+                bpy.context.scene.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
             master_collection.objects.link(source_object)  # pyright: ignore[reportUnknownMemberType]
 
         self._geometry_cache[global_id] = source_objects
@@ -95,7 +91,7 @@ class ForgeMapOperator(Operator):
         data = get_data_folder()
         split = props.url.split("/")
         asset, version = "", ""
-        if split[3] == "cylix.guide":
+        if split[2] == "cylix.guide":
             asset, version = split[6], split[7]
         if split[2] == "www.halowaypoint.com":
             asset = split[6]
@@ -109,17 +105,21 @@ class ForgeMapOperator(Operator):
         for category in categories:
             cats[category] = self.create_categories(category, context.scene.collection)
         for object in objects:
+            name: str = ""
             main_collection: Collection | None = None
-            for folder, (collection, children) in cats.items():
-                for obj in folder.objects:
-                    if obj.index == object.index and obj.parent == folder.id:
-                        main_collection = collection
-                        break
-                for child, collection in children:
-                    for obj in child.objects:
-                        if obj.index == object.index and obj.parent == child.id:
+            if props.import_folders:
+                for folder, (collection, children) in cats.items():
+                    for obj in folder.objects:
+                        if obj.index == object.index and obj.parent == folder.id:
+                            if obj.name != "":
+                                name = obj.name
                             main_collection = collection
-                            break
+                    for child, collection in children:
+                        for obj in child.objects:
+                            if obj.index == object.index and obj.parent == child.id:
+                                if obj.name != "":
+                                    name = obj.name
+                                main_collection = collection
 
             object_def = definition["objects"].get(str(object.global_id))
             if object_def is None:
@@ -143,8 +143,10 @@ class ForgeMapOperator(Operator):
                     objects = source_objects
                 for obj in objects:
                     instance_obj = bpy.data.objects.new(
-                        name=f"{obj.name}_instance", object_data=obj.data
+                        name=f"{representation[0]['name']}_instance", object_data=obj.data
                     )
+                    if name != "":
+                        instance_obj.name = name
 
                     instance_obj.location = object.position
                     forward = Vector(object.rotation_forward).normalized()

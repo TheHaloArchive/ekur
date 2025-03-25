@@ -143,6 +143,8 @@ def get_category(value: BondValue) -> list[ForgeFolder]:
         id = folder.get_by_id(0)  # if id does not exist, root!
         if id and type(id.value) is int:
             root_folder.id = id.value
+        else:
+            root_folder.id = 4294967295
         obj_subfolders = folder.get_by_id(1)
         if not obj_subfolders:
             continue

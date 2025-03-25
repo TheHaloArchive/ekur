@@ -70,7 +70,11 @@ def read_wstring(data: BufferedReader) -> str:
 
 def read_string(data: BufferedReader) -> str:
     length = uleb128_decode(data)
-    return data.read(length).decode("utf-8")
+    try:
+        dat = data.read(length).decode("utf-8")
+        return dat
+    except UnicodeDecodeError:
+        return ""
 
 
 def read_value(id: int, type: BondType, data: BufferedReader) -> BondValue:
