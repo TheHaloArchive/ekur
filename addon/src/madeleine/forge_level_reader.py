@@ -2,7 +2,7 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader, BytesIO
 import logging
-from typing import Self, cast
+from typing import Self
 import urllib.request
 import urllib.error
 
@@ -173,24 +173,36 @@ def get_category(value: BondValue) -> list[ForgeFolder]:
     return forge_categories
 
 
-def get_forge_map(asset_id: str, version_id: str) -> tuple[list[ForgeObject], list[ForgeFolder]]:
+def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[ForgeFolder]]:
+    objects: list[ForgeObject] = []
+    categories: list[ForgeFolder] = []
+    base_struct = get_base_struct(reader)
+    base = base_struct.get_by_id(3)
+    if base:
+        for idx, item in enumerate(base.get_elements()):
+            forge_object = get_forge_item(item)
+            if forge_object:
+                forge_object.index = idx
+                objects.append(forge_object)
+    folders = base_struct.get_by_id(6)
+    if folders:
+        categories = get_category(folders)
+    return objects, categories
+
+
+def get_forge_map(
+    asset_id: str, version_id: str, file: str
+) -> tuple[list[ForgeObject], list[ForgeFolder]]:
     objects: list[ForgeObject] = []
     categories: list[ForgeFolder] = []
     url = f"https://blobs-infiniteugc.svc.halowaypoint.com/ugcstorage/map/{asset_id}/{version_id}/map.mvar"
+    if file != "":
+        with open(file, "rb") as f:
+            return read_forge_map(f)
     try:
         with urllib.request.urlopen(url) as response:  # pyright: ignore[reportAny]
             response = response.read()  # pyright: ignore[reportAny]
-            base_struct = get_base_struct(cast(BufferedReader, BytesIO(response)))  # pyright: ignore[reportAny, reportInvalidCast]
-            base = base_struct.get_by_id(3)
-            if base:
-                for idx, item in enumerate(base.get_elements()):
-                    forge_object = get_forge_item(item)
-                    if forge_object:
-                        forge_object.index = idx
-                        objects.append(forge_object)
-            folders = base_struct.get_by_id(6)
-            if folders:
-                categories = get_category(folders)
+            objects, categories = read_forge_map(BytesIO(response))  # pyright: ignore[reportAny, reportArgumentType]
 
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download forge map: {e.status}")

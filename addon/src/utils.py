@@ -233,6 +233,8 @@ class ImportPropertiesType:
     sort_objects: bool = False
     object_representation: str = ""
     url: str = ""
+    use_file: bool = False
+    mvar_file: str = ""
     output_path: str = ""
     output_workflow: str = ""
     width: int = 1024

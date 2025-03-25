@@ -181,7 +181,13 @@ class ImportProperties(PropertyGroup):
         name="Object Representation", items=GrabStrings.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
-    url: StringProperty(name="Url", default="")
+    url: StringProperty(name="URL", default="")
+    use_file: BoolProperty(name="Use MVAR File", default=False)
+    mvar_file: StringProperty(
+        name="MVAR File",
+        description="Path to .mvar file to import.",
+        subtype="FILE_PATH",
+    )
     output_path: StringProperty(name="Output Path", default="", subtype="DIR_PATH")
     output_workflow: EnumProperty(
         name="Output Workflow",
@@ -360,8 +366,13 @@ class CoatingImportPanel(Panel):
         if forge_body:
             forge_opts = forge_body.box()
             forge_opts.prop(import_properties, "url")
-            op = forge_opts.operator("wm.url_open", text="Browse Maps", icon="URL")
+            op = forge_opts.operator("wm.url_open", text="Browse Maps (Cylix)", icon="URL")
             op.url = "https://cylix.guide/discovery/"  # pyright: ignore[reportAttributeAccessIssue]
+            op = forge_opts.operator("wm.url_open", text="Browse Maps (Waypoint)", icon="URL")
+            op.url = "https://www.halowaypoint.com/halo-infinite/ugc/browse"  # pyright: ignore[reportAttributeAccessIssue]
+            forge_opts.prop(import_properties, "use_file")
+            if import_properties.use_file:
+                forge_opts.prop(import_properties, "mvar_file")
             _ = forge_body.operator("ekur.importforgemap")
 
     def draw_bake_menu(self, import_properties: ImportPropertiesType) -> None:

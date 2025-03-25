@@ -1,7 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+import logging
 from pathlib import Path
+import re
 from typing import final
+import urllib.error
+import urllib.request
+
 
 import bpy
 from bpy.types import Collection, Context, Object, Operator
@@ -68,13 +73,34 @@ class ForgeMapOperator(Operator):
                 )
         return category_collection, subcats
 
+    def get_waypoint_version(self) -> str:
+        props = get_import_properties()
+        try:
+            with (
+                urllib.request.urlopen(props.url) as response,  # pyright: ignore[reportAny]
+            ):
+                html: str = response.read().decode("utf-8")  # pyright: ignore[reportAny]
+                match = re.search(
+                    r"""VersionId"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})""",
+                    html,
+                )
+                if match:
+                    return match.group(1)
+        except urllib.error.HTTPError as e:
+            logging.error(f"Failed to download waypoint html: {e.status}")
+        return ""
+
     def execute(self, context: Context | None) -> set[str]:
         props = get_import_properties()
         data = get_data_folder()
         split = props.url.split("/")
-        if len(split) < 8:
-            return {"CANCELLED"}
-        objects, categories = get_forge_map(split[6], split[7])
+        asset, version = "", ""
+        if split[3] == "cylix.guide":
+            asset, version = split[6], split[7]
+        if split[2] == "www.halowaypoint.com":
+            asset = split[6]
+            version = self.get_waypoint_version()
+        objects, categories = get_forge_map(asset, version, props.mvar_file)
         objects_path = Path(f"{data}/forge_objects.json")
         definition = read_json_file(objects_path, ForgeObjectDefinition)
         if definition is None or context is None or context.scene is None:
