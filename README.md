@@ -11,9 +11,11 @@ A multi-purpose blender importer for Halo Infinite.
 If you want to support the work I do, please consider buying me a coffee: https://ko-fi.com/surasia
 
 ### First-Time Installation/Setup
-Download the zip file included in the [latest release](https://github.com/Surasia/Ekur/releases/latest) and install it by going into Blender preferences (Edit < Preferences), navigating to "Add-ons" and clicking on the "Install from disk" button in the drop-down menu.
+To install the addon into Blender, navigate to the "Get Extensions" tab in Blender inside the preferences menu, click on the add button in the "Repositories" drop down and add `https://surasia.me/ekur/index.json` as a remote repository. If you wish to receive automatic updates, you can also enable that here.
 
-Once the addon is installed, open the drop down for the "Ekur" addon and set your paths.
+Now, you can search for the "Ekur" addon inside the same menu and click on install.
+
+Once the addon is installed, open the drop down for "Ekur" inside the "Add-ons" menu and set your paths.
 - Data Folder: Location to where files should be extracted. Make sure that the drive containing this folder has at least 30GBs of storage.
 
 - Deploy Folder: This is a folder inside the installation directory for Halo Infinite, called "deploy". You can find your installation folder by clicking "Browse Local Files" in the context menu for the game in Steam.
@@ -127,7 +129,7 @@ Map geometry from multiplayer maps (non-forge, as of now) can also be imported b
   </picture>
 </h1>
 
-Forge maps can also be imported to a limited capacity by pasting in a URL from cylix.guide!
+Forge maps can also be imported to a limited capacity by pasting in a URL from cylix.guide or Halo Waypoint!
 
 ### FAQ
 #### Are campaign assets supported?

@@ -1,10 +1,12 @@
 [project]
 name = "ekuraddon"
-version = "1.1.0"
+version = "1.1.1"
 description = "A multi-purpose importer for Halo Infinite."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["fake-bpy-module-latest"]
+dependencies = [
+    "fake-bpy-module-latest",
+]
 
 [tool.pyright]
 venvPath = "."
@@ -18,4 +20,7 @@ reportImplicitOverride = false
 line-length = 100
 
 [tool.uv]
-dev-dependencies = ["basedpyright>=1.28.3", "ruff>=0.11.1"]
+dev-dependencies = [
+    "basedpyright>=1.28.3",
+    "ruff>=0.11.1",
+]
