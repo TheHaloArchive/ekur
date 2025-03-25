@@ -4,11 +4,11 @@ on:
   push:
     branches: ["master"]
     paths:
-      - "ekur/"
+      - "**.rs"
   pull_request:
     branches: ["master"]
     paths:
-      - "ekur/"
+      - "**.rs"
 
 env:
   CARGO_TERM_COLOR: always
