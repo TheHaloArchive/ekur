@@ -3,8 +3,12 @@ name: Python Lint/Check
 on:
   push:
     branches: ["master"]
+    paths:
+      - "addon/"
   pull_request:
     branches: ["master"]
+    paths:
+      - "addon/"
 
 jobs:
   lint:
@@ -21,7 +25,6 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
       
       - name: Set up Python
         run: uv python install

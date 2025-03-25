@@ -3,8 +3,12 @@ name: Cargo test/clippy/build
 on:
   push:
     branches: ["master"]
+    paths:
+      - "ekur/"
   pull_request:
     branches: ["master"]
+    paths:
+      - "ekur/"
 
 env:
   CARGO_TERM_COLOR: always
