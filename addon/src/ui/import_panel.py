@@ -183,6 +183,7 @@ class ImportProperties(PropertyGroup):
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
     url: StringProperty(name="URL", default="")
     use_file: BoolProperty(name="Use MVAR File", default=False)
+    import_folders: BoolProperty(name="Import Folders", default=True)
     mvar_file: StringProperty(
         name="MVAR File",
         description="Path to .mvar file to import.",
@@ -344,7 +345,7 @@ class CoatingImportPanel(Panel):
         if layout is None or context is None:
             return
         forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge", default_closed=True)
-        forge_header.label(icon="TOOL_SETTINGS", text="Import Forge")
+        forge_header.label(icon="TOOL_SETTINGS", text="Import Forge Object")
         if forge_body:
             forge_opts = forge_body.box()
             forge_opts.prop(import_properties, "sort_objects")
@@ -366,6 +367,7 @@ class CoatingImportPanel(Panel):
         if forge_body:
             forge_opts = forge_body.box()
             forge_opts.prop(import_properties, "url")
+            forge_opts.prop(import_properties, "import_folders")
             op = forge_opts.operator("wm.url_open", text="Browse Maps (Cylix)", icon="URL")
             op.url = "https://cylix.guide/discovery/"  # pyright: ignore[reportAttributeAccessIssue]
             op = forge_opts.operator("wm.url_open", text="Browse Maps (Waypoint)", icon="URL")

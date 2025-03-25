@@ -235,6 +235,7 @@ class ImportPropertiesType:
     url: str = ""
     use_file: bool = False
     mvar_file: str = ""
+    import_folders: bool = True
     output_path: str = ""
     output_workflow: str = ""
     width: int = 1024
