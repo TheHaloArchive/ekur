@@ -27,11 +27,7 @@ class ImportLevelOperator(Operator):
         data_folder: str,
         materials: list[int],
     ) -> list[Object]:
-        if (
-            global_id in self._geometry_cache
-            or bpy.context.collection is None
-            or bpy.context.scene is None
-        ):
+        if global_id in self._geometry_cache or bpy.context.scene is None:
             return self._geometry_cache[global_id]
 
         path = f"{data_folder}/runtime_geo/{global_id}.ekur"
@@ -48,8 +44,8 @@ class ImportLevelOperator(Operator):
 
         source_objects = imported_objects
         for source_object in source_objects:
-            if source_object.name in bpy.context.collection.objects:
-                bpy.context.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
+            if source_object.name in bpy.context.scene.collection.objects:
+                bpy.context.scene.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
             master_collection.objects.link(source_object)  # pyright: ignore[reportUnknownMemberType]
 
         self._geometry_cache[global_id] = source_objects
