@@ -268,6 +268,9 @@ def assign_value(
     index: int,
     value: float | tuple[float, float, float] | tuple[float, float, float, float] | bool,
 ) -> None:
+    if len(node.inputs) <= index:
+        logging.warning(f"Node {node.name} does not have an input at index {index}")
+        return
     if type(value) is bool:
         cast(NodeSocketBool, node.inputs[index]).default_value = value
     if type(value) is tuple and len(value) == 3:
