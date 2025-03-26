@@ -91,11 +91,12 @@ class ForgeMapOperator(Operator):
         data = get_data_folder()
         split = props.url.split("/")
         asset, version = "", ""
-        if split[2] == "cylix.guide":
-            asset, version = split[6], split[7]
-        if split[2] == "www.halowaypoint.com":
-            asset = split[6]
-            version = self.get_waypoint_version()
+        if not props.use_file:
+            if split[2] == "cylix.guide":
+                asset, version = split[6], split[7]
+            if split[2] == "www.halowaypoint.com":
+                asset = split[6]
+                version = self.get_waypoint_version()
         objects, categories = get_forge_map(asset, version, props.mvar_file)
         objects_path = Path(f"{data}/forge_objects.json")
         definition = read_json_file(objects_path, ForgeObjectDefinition)
