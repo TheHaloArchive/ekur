@@ -54,6 +54,38 @@ INDEXES = [
 
 
 @final
+class AlignBakeOperator(Operator):
+    bl_idname = "ekur.alignbake"
+    bl_label = "Align"
+
+    def execute(self, context: Context | None) -> set[str]:
+        selected_objects = bpy.context.selected_objects
+        props = get_import_properties()
+        if len(selected_objects) >= 1 and len(selected_objects[0].material_slots) >= 1:
+            if selected_objects[0].active_material_index is None:
+                return {"CANCELLED"}
+            material_slot = selected_objects[0].material_slots[
+                selected_objects[0].active_material_index
+            ]
+            if not material_slot.material or not material_slot.material.node_tree:
+                return {"CANCELLED"}
+            group = material_slot.material.node_tree.nodes.get("Group")
+            if not group:
+                return {"CANCELLED"}
+            if not group.inputs[0].links:
+                return {"CANCELLED"}
+            tex = group.inputs[0].links[0].from_node
+            if not tex:
+                return {"CANCELLED"}
+            tex = cast(ShaderNodeTexImage, tex)
+            if tex.image:
+                props.height = tex.image.size[0]
+                props.width = tex.image.size[1]
+
+        return {"FINISHED"}
+
+
+@final
 class AdvancedBakeOperator(Operator):
     bl_idname = "ekur.toggleadvancedbake"
     bl_label = "Toggle"

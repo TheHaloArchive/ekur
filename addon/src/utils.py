@@ -250,6 +250,8 @@ class ImportPropertiesType:
     selected_objects: str = ""
     pixel_padding: int = 16
     uv_to_bake_to: str = ""
+    center_x_uv: bool = False
+    center_y_uv: bool = False
 
 
 def get_import_properties() -> ImportPropertiesType:

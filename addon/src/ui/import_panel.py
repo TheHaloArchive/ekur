@@ -249,6 +249,8 @@ class ImportProperties(PropertyGroup):
     uv_to_bake_to: EnumProperty(
         name="UV Map to Bake To", items=[("UV0", "UV0", ""), ("UV1", "UV1", ""), ("UV2", "UV2", "")]
     )
+    center_x_uv: BoolProperty(name="Center X UV", default=False)
+    center_y_uv: BoolProperty(name="Center Y UV", default=False)
 
 
 @final
@@ -401,6 +403,7 @@ class CoatingImportPanel(Panel):
             bake_opts.prop(import_properties, "output_workflow")
             bake_opts.prop(import_properties, "width")
             bake_opts.prop(import_properties, "height")
+            _ = bake_opts.operator("ekur.alignbake")
             bake_opts.prop(import_properties, "pixel_padding")
             bake_opts.prop(import_properties, "bit_depth")
             bake_opts.prop(import_properties, "bake_detail_normals")
@@ -409,6 +412,8 @@ class CoatingImportPanel(Panel):
             bake_opts.prop(import_properties, "bake_layer_map")
             bake_opts.prop(import_properties, "uv_to_bake_to")
             bake_opts.prop(import_properties, "advanced_bake")
+            bake_opts.prop(import_properties, "center_x_uv")
+            bake_opts.prop(import_properties, "center_y_uv")
             if import_properties.advanced_bake:
                 advanced_opts = bake_opts.box()
                 advanced_opts.prop(import_properties, "selected_layer")
