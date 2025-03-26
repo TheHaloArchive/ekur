@@ -184,6 +184,7 @@ class BakingOperator(Operator):
         props: ImportPropertiesType,
         tex_node: ShaderNodeTexImage | None,
     ) -> None:
+        mat_name = ""
         if material.node_tree is None:
             return
         shader = material.node_tree.nodes.get("Group")
@@ -201,6 +202,7 @@ class BakingOperator(Operator):
             if not tex_node:
                 tex_node = create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
             material.node_tree.nodes.active = tex_node
+
             if props.merge_textures:
                 mat_name = f"{object.name}_{m}"
             img = bpy.data.images.get(mat_name)
@@ -218,11 +220,15 @@ class BakingOperator(Operator):
             img.save_render(f"{props.output_path}/{mat_name}.png")  # pyright: ignore[reportUnknownMemberType]
 
         _ = material.node_tree.links.new(shader.outputs[0], mat_output.inputs[0])
+        if shader.inputs[0].links:
+            texture_node = shader.inputs[0].links[0].from_node
+            if texture_node and type(texture_node) is ShaderNodeTexImage and texture_node.image:
+                texture_node.image.reload()  # pyright: ignore[reportUnknownMemberType]
         if shader.inputs[3].links:
             texture_node = shader.inputs[3].links[0].from_node
             if texture_node and type(texture_node) is ShaderNodeTexImage and texture_node.image:
                 texture_node.image.save(  # pyright: ignore[reportUnknownMemberType]
-                    filepath=f"{props.output_path}/{material.name}_BaseNormal.png"
+                    filepath=f"{props.output_path}/{mat_name}_BaseNormal.png"
                 )
 
     def execute(self, context: Context | None) -> set[str]:
@@ -243,6 +249,15 @@ class BakingOperator(Operator):
         for object in selected_objects:
             if type(object.data) is Mesh:
                 object.data.uv_layers.active_index = int(props.uv_to_bake_to.split("UV")[-1])
+                uv = object.data.uv_layers.active
+                if uv is None:
+                    continue
+                if props.center_x_uv:
+                    for uvd in uv.data:
+                        uvd.uv[0] -= 1.0
+                if props.center_y_uv:
+                    for uvd in uv.data:
+                        uvd.uv[1] -= 1.0
             if props.bake_detail_normals:
                 self.bake_detail(object, duplicate_collection)  # pyright: ignore[reportPossiblyUnboundVariable]
 
@@ -260,14 +275,23 @@ class BakingOperator(Operator):
             i: int = 0
             for material in materials:
                 if material.node_tree:
-                    for node in material.node_tree.nodes:
-                        node.select = False
                     if props.merge_textures:
                         self.bake_material(material, object, props, tex_nodes[i])
                         material.node_tree.nodes.remove(tex_nodes[i])  # pyright: ignore[reportUnknownMemberType]
                         i += 1
+
                     else:
                         self.bake_material(material, object, props, None)
+            if type(object.data) is Mesh:
+                uv = object.data.uv_layers.active
+                if uv is None:
+                    continue
+                if props.center_x_uv:
+                    for uvd in uv.data:
+                        uvd.uv[0] -= 1.0
+                if props.center_y_uv:
+                    for uvd in uv.data:
+                        uvd.uv[1] -= 1.0
 
         if props.bake_detail_normals:
             bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable]
