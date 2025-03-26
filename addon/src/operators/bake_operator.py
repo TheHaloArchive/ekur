@@ -230,10 +230,10 @@ class BakingOperator(Operator):
                 if material.node_tree:
                     if props.merge_textures:
                         self.bake_material(material, object, props, tex_nodes[i])
+                        material.node_tree.nodes.remove(tex_nodes[i])  # pyright: ignore[reportUnknownMemberType]
+                        i += 1
                     else:
                         self.bake_material(material, object, props, None)
-                    material.node_tree.nodes.remove(tex_nodes[i])  # pyright: ignore[reportUnknownMemberType]
-                    i += 1
 
         if props.bake_detail_normals:
             bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable]
