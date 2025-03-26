@@ -144,9 +144,14 @@ class LayeredShader:
             reg = style["regions"][str(style_info["region_name"])]
         self.index = 0
 
-        for i, intention in enumerate(intentions[: style_info["supported_layers"]]):
-            intention = str(intention)
-            self.find_intention(intention, reg, all, globals, i, is_old_system)
+        if reg and is_old_system and len(reg["layers"]) > style_info["supported_layers"]:
+            for i, intention in enumerate(intentions[: len(reg["layers"])]):
+                intention = str(intention)
+                self.find_intention(intention, reg, all, globals, i, is_old_system)
+        else:
+            for i, intention in enumerate(intentions[: style_info["supported_layers"]]):
+                intention = str(intention)
+                self.find_intention(intention, reg, all, globals, i, is_old_system)
 
         assign_value(self.shader, 7, style["grime_amount"])
         if style["grime_swatch"]["disabled"]:
