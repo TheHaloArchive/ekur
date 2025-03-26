@@ -9,6 +9,9 @@ function build_addon() {
   blender --command extension build
   blender --command extension server-generate --repo-dir=. --html
   blender --command extension server-generate --repo-dir=.
+  cd ../site
+  rm -f *.zip
+  cd ../addon
   mv *.zip ../site/
   mv *.html ../site/
   mv *.json ../site/
