@@ -13,3 +13,4 @@ addon/*.zip
 
 # Cargo
 ekur/target
+build/ekur*

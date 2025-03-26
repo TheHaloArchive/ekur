@@ -112,6 +112,8 @@ Texture baking allows you to easily export materials into different engines/prog
 - `Bake Ambient Occlusion`: Bakes out a separate AO map.
 - `Bake Layer Map`: Bakes out a separate layer (color change) map.
 - `UV Map to Bake To`: Specific UV to transfer textures to.
+- `Center X UV`: Shift UV to the left by 1
+- `Center Y UV`: Shift UV down by 1
 
 #### Experimental: Level Importer
 <h1 align="center">
