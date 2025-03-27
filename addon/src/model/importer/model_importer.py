@@ -32,9 +32,21 @@ class ModelImporter:
         materials: list[int] | None = None,
         custom_rig: Object | None = None,
     ) -> list[Object]:
+        """
+        Imports the model from the given path.
+
+        Args:
+        - model_path: The path to the model file.
+        - bones: Whether to import bones.
+        - materials: Optional list of materials to use (useful for RTGOs)
+        - custom_rig: Optional custom rig to use.
+
+        Returns:
+        - The list of imported objects.
+        """
         properties = get_import_properties()
         model = Path(model_path)
-        if not model.exists():
+        if not model.exists() or model.is_dir():
             logging.warning(f"Model path does not exist: {model}")
             return []
         with open(model_path, "rb") as f:
@@ -44,35 +56,51 @@ class ModelImporter:
         if properties.import_bones and bones:
             if custom_rig is None:
                 self.rig = import_bones(self.model)
-                self.rig.scale = MESH_SCALE
+                scl = (properties.scale_factor,) * 3
+                self.rig.scale = Vector(MESH_SCALE) * Vector(scl)
             else:
                 self.rig = custom_rig
             if properties.import_markers:
                 self.markers = import_markers(self.model, self.rig)
-            objects = self.import_model()
+            objects = self._import_model()
         else:
-            objects = self.import_model()
+            objects = self._import_model()
         return objects
 
-    def create_uv(
+    def _create_uv(
         self,
         mesh: Mesh,
         uv: list[NormalizedVector2],
         uv_scale: list[tuple[float, float, float]],
         index: int,
     ) -> None:
+        """
+        Create a UV layer for the mesh. Gets compression info from the bounding box, scales the UVs,
+        and assigns them to the mesh.
+
+        Args:
+        - mesh: The mesh to create the UV layer for.
+        - uv: The UV coordinates to assign.
+        - uv_scale: The UV scale (compression) to apply.
+        - index: The index of the UV layer.
+        """
         uv0 = [x.vector for x in uv]
         uv_layer = mesh.uv_layers.new(name=f"UV{index}")
         for loop in range(len(mesh.loops)):
-            if loop >= len(mesh.loops):
-                break
             uv_layer.data[mesh.loops[loop].index].uv = (
                 uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
                 1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
             )
 
-    def create_material_indices(self, section: Section, mesh: Mesh) -> None:
-        material_slots = {}
+    def _create_material_indices(self, section: Section, mesh: Mesh) -> None:
+        """
+        Create material indices for the mesh. Assigns materials to the mesh based on the shader index of the submeshes.
+
+        Args:
+        - section: The section to create the material indices for.
+        - mesh: The mesh to assign the materials to.
+        """
+        material_slots: dict[int, Material] = {}
         material_slot_indices: dict[int, int] = {}
         for submesh in range(len(section.submeshes)):
             first_face = section.submeshes[submesh].index_start
@@ -87,16 +115,31 @@ class ModelImporter:
             m.use_nodes = True
             if m.name not in mesh.materials:
                 mesh.materials.append(m)  # pyright: ignore[reportUnknownMemberType]
-            material_slots[section.submeshes[submesh].shader_index] = mesh.materials[-1]
-            material_slot_indices[section.submeshes[submesh].shader_index] = len(
-                material_slot_indices
-            )
-            for face in part_faces:
-                face.material_index = material_slot_indices[section.submeshes[submesh].shader_index]
+            if len(mesh.materials) > 0:
+                mat = mesh.materials[-1]
+                if mat:
+                    material_slots[section.submeshes[submesh].shader_index] = mat
+                material_slot_indices[section.submeshes[submesh].shader_index] = len(
+                    material_slot_indices
+                )
+                for face in part_faces:
+                    face.material_index = material_slot_indices[
+                        section.submeshes[submesh].shader_index
+                    ]
 
-    def create_skinning(
+    def _create_skinning(
         self, obj: Object, name: str, armature: Object, section: Section, mesh: Mesh
     ) -> None:
+        """
+        Create skinning for the mesh. Assigns vertex groups to the mesh based on the bone indices and weights.
+
+        Args:
+        - obj: The object to assign the vertex groups to.
+        - name: The name of the collection to assign to the armature.
+        - armature: The armature to assign the vertex groups to.
+        - section: The section to create the skinning for.
+        - mesh: The mesh to assign the vertex groups to.
+        """
         vertex_count = len(section.vertex_buffer.position_buffer.positions)
         modifier = cast(ArmatureModifier, obj.modifiers.new(f"{name}::armature", "ARMATURE"))
         if section.use_dual_quat:
@@ -120,28 +163,54 @@ class ModelImporter:
                     if bi <= len(obj.vertex_groups):
                         obj.vertex_groups[bi].add([vi], bw, "REPLACE")  # pyright: ignore[reportUnknownMemberType]
 
+        # Removes that weird shading that happens when you twist a bone
         for p in mesh.polygons:
             p.use_smooth = True
 
-    def create_color(self, section: Section, mesh: Mesh) -> None:
+    def _create_color(self, section: Section, mesh: Mesh) -> None:
+        """
+        Create vertex colors for the mesh. Assigns vertex colors to the mesh based on the color buffer.
+
+        Args:
+        - section: The section to create the vertex colors for.
+        - mesh: The mesh to assign the vertex colors to.
+        """
         for i, color in enumerate(section.vertex_buffer.color_buffer.color):
             ca = mesh.color_attributes.new(name=f"Color{i}", type="BYTE_COLOR", domain="FACE")
             for loop in range(len(mesh.loops) // 3):
                 ca.data[loop].color = color  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
 
-    def create_normals(self, section: Section, mesh: Mesh) -> None:
+    def _create_normals(self, section: Section, mesh: Mesh) -> None:
+        """
+        Create normals for the mesh. Assigns normals to the mesh based on the normal buffer.
+
+        Args:
+        - section: The section to create the normals for.
+        - mesh: The mesh to assign the normals to.
+        """
         normals = [x.vector.to_tuple() for x in section.vertex_buffer.normal_buffer.normals]
         mesh.shade_smooth()  # pyright: ignore[reportUnknownMemberType]
         mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportUnknownMemberType, reportArgumentType]
         _ = mesh.validate()
         mesh.update()  # pyright: ignore[reportUnknownMemberType]
 
-    def create_section(self, section: Section) -> Object:
+    def _create_section(self, section: Section) -> Object | None:
+        """
+        Create a section (submesh) of the model.
+
+        Args:
+        - section: The section to create the object for.
+
+        Returns:
+        - The object representing the section.
+        """
         permutation_name = section.permutation_name
         region_name = section.region_name
         collection_name = f"{self.model.header.tag_id}_{permutation_name}_{region_name}"
         import_properties = get_import_properties()
 
+        if len(self.model.bounding_boxes) == 0:
+            return None
         model_scale = self.model.bounding_boxes[0].model_scale
         uv_scale = self.model.bounding_boxes[0].uv_scale
         uv_scale1 = self.model.bounding_boxes[0].uv1_scale
@@ -160,25 +229,31 @@ class ModelImporter:
         obj = bpy.data.objects.new(collection_name, mesh)
         obj["region_name"] = region_name
         obj["permutation_name"] = permutation_name
-        obj.scale = MESH_SCALE
+        obj.scale = Vector(MESH_SCALE) * Vector((import_properties.scale_factor,) * 3)
         mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportUnknownMemberType]
         if section.vertex_flags.has_uv0:
-            self.create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
+            self._create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
         if section.vertex_flags.has_uv1:
-            self.create_uv(mesh, section.vertex_buffer.uv1_buffer.uv, uv_scale1, 1)
+            self._create_uv(mesh, section.vertex_buffer.uv1_buffer.uv, uv_scale1, 1)
         if section.vertex_flags.has_uv2:
-            self.create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale2, 2)
+            self._create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale2, 2)
 
         if import_properties.import_materials:
-            self.create_material_indices(section, mesh)
+            self._create_material_indices(section, mesh)
         if import_properties.import_vertex_color:
-            self.create_color(section, mesh)
+            self._create_color(section, mesh)
         if self.rig:
-            self.create_skinning(obj, collection_name, self.rig, section, mesh)
+            self._create_skinning(obj, collection_name, self.rig, section, mesh)
 
         return obj
 
-    def import_model(self) -> list[Object]:
+    def _import_model(self) -> list[Object]:
+        """
+        Imports the model by creating sections.
+
+        Returns:
+        - The list of imported objects.
+        """
         materials: list[Material] = []
         properties = get_import_properties()
         if properties.import_materials:
@@ -190,7 +265,8 @@ class ModelImporter:
         objects: list[Object] = []
 
         for section in self.model.sections:
-            obj = self.create_section(section)
-            self.create_normals(section, cast(Mesh, obj.data))
-            objects.append(obj)
+            obj = self._create_section(section)
+            if obj:
+                self._create_normals(section, cast(Mesh, obj.data))
+                objects.append(obj)
         return objects

@@ -254,6 +254,7 @@ class ImportPropertiesType:
     uv_to_bake_to: str = ""
     center_x_uv: bool = False
     center_y_uv: bool = False
+    scale_factor: float = 1.0
 
 
 def get_import_properties() -> ImportPropertiesType:

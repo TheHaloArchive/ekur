@@ -5,7 +5,7 @@
 import random
 from typing import final
 
-from bpy.props import BoolProperty, EnumProperty, IntProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
+from bpy.props import BoolProperty, EnumProperty, FloatProperty, IntProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, Operator
 
 from ..utils import ImportPropertiesType, get_addon_preferences, get_import_properties
@@ -99,6 +99,11 @@ class ImportProperties(PropertyGroup):
         name="Import Vertex Color",
         description="Whether to import vertex color as a mesh attribute for models that support it.",
         default=False,
+    )
+    scale_factor: FloatProperty(
+        name="Scale Factor",
+        description="Factor to scale the mesh up by from its in-game size.",
+        default=1.0,
     )
     level_path: StringProperty(
         default="",
@@ -317,6 +322,7 @@ class CoatingImportPanel(Panel):
             model_opts.prop(import_properties, "import_materials")
             model_opts.prop(import_properties, "import_collections")
             model_opts.prop(import_properties, "import_vertex_color")
+            model_opts.prop(import_properties, "scale_factor")
             _ = model_body.operator("ekur.importmodel")
 
     def draw_ocgd(self, import_properties: ImportPropertiesType) -> None:

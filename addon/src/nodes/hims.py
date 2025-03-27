@@ -45,7 +45,7 @@ from .scratch_global_toggle import ScratchGlobalToggle
 from .infinite_masking_sorter import InfiniteMaskingSorter
 from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, get_import_properties
 
 __all__ = ["HIMS"]
 
@@ -68,6 +68,7 @@ class HIMS:
     def create_sockets(self) -> None:
         if self.node_tree is None or self.node_tree.interface is None:
             return
+        props = get_import_properties()
         interface = self.node_tree.interface
         outputs = interface.new_panel("Outputs")
         _: NodeSocket
@@ -103,13 +104,13 @@ class HIMS:
 
         _ = create_socket(interface, "Grime Amount", NodeSocketFloat, panel=settings)
         grime_h = create_socket(interface, "Grime Height Toggle", NodeSocketFloat, panel=settings)
-        grime_h.default_value = 3.048
+        grime_h.default_value = 3.048 * props.scale_factor
         grime_hs = create_socket(interface, "Grime Height Scale", NodeSocketFloat, panel=settings)
         grime_hs.default_value = 50.0
         ao_amount = create_socket(interface, "AO Amount", NodeSocketFloat, panel=settings)
         ao_amount.default_value = 1.0
         sh = create_socket(interface, "Scratch Height Amount", NodeSocketFloat, panel=settings)
-        sh.default_value = 3.048
+        sh.default_value = 3.048 * props.scale_factor
         gs = create_socket(interface, "Global Scratch Toggle", NodeSocketBool, panel=settings)
         gs.default_value = True
 
