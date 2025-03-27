@@ -2,6 +2,7 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 import struct
+import logging
 from typing import cast
 
 from .madeleine import BondValue
@@ -65,6 +66,7 @@ def read_wstring(data: BufferedReader) -> str:
         dat = data.read(length * 2).decode("utf-16")
         return dat
     except UnicodeDecodeError:
+        logging.error("UnicodeDecodeError while reading wstring!")
         return ""
 
 
@@ -74,6 +76,7 @@ def read_string(data: BufferedReader) -> str:
         dat = data.read(length).decode("utf-8")
         return dat
     except UnicodeDecodeError:
+        logging.error("UnicodeDecodeError while reading string!")
         return ""
 
 

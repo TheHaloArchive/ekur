@@ -19,6 +19,7 @@ from bpy.types import (
     NodeTreeInterface,
     NodeTreeInterfacePanel,
     Object,
+    ShaderNodeTexImage,
     ShaderNodeTree,
 )
 
@@ -38,6 +39,7 @@ __all__ = [
     "get_import_properties",
     "AddonPreferencesType",
     "import_custom_rig",
+    "create_image",
 ]
 
 
@@ -303,3 +305,10 @@ def import_custom_rig() -> Object | None:
         logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
     object = bpy.data.objects.get("Spartan_Control_Rig_V2")
     return object
+
+
+def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:
+    texture = create_node(nodes, -300, y, ShaderNodeTexImage)
+    texture.hide = True
+    texture.image = read_texture(name)
+    return texture
