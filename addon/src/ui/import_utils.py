@@ -64,7 +64,7 @@ def get_styles(context: Context) -> tuple[str, CommonStyleList] | None:
         if styles_cache and bl_material.name in styles_cache:
             return (bl_material.name, styles_cache[bl_material.name])
 
-        definition_path = Path(f"{data}/materials/{bl_material.name}.json")
+        definition_path = Path(f"{data}/materials/{bl_material.name.split('.')[0]}.json")
         if not definition_path.exists():
             logging.warning(f"Material path does not exist!: {definition_path}")
             return
