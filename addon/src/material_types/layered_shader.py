@@ -15,6 +15,8 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..constants import ANY_REGION, MP_VISOR, TRANSPARENT_INTENTIONS
+
 from ..json_definitions import (
     CoatingGlobalEntries,
     CommonCoating,
@@ -35,9 +37,6 @@ from ..utils import (
     read_json_file,
     read_texture,
 )
-
-MP_VISOR: int = 1420626520
-ANY_REGION: str = "192819851"
 
 __all__ = ["LayeredShader"]
 
@@ -77,10 +76,7 @@ class LayeredShader:
                 tex.image
                 and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
                 and self.material["style_info"]
-                and (
-                    self.material["style_info"]["base_intention"] == -783606968
-                    or self.material["style_info"]["base_intention"] == -1010104944
-                )
+                and self.material["style_info"]["base_intention"] in TRANSPARENT_INTENTIONS
             ):
                 invert = create_node(self.node_tree.nodes, 0, 120, ShaderNodeInvert)
                 if props.flip_alpha:

@@ -16,6 +16,8 @@ class BufferFlags:
         self.has_blend_indices: bool = False
         self.has_blend_weights: bool = False
         self.has_blend_weights_extra: bool = False
+        self.has_blendshape_index: bool = False
+        self.has_blendshape_position: bool = False
 
     def read(self, reader: BufferedReader) -> None:
         self.has_position = bool.from_bytes(reader.read(1))
@@ -27,3 +29,5 @@ class BufferFlags:
         self.has_blend_indices = bool.from_bytes(reader.read(1))
         self.has_blend_weights = bool.from_bytes(reader.read(1))
         self.has_blend_weights_extra = bool.from_bytes(reader.read(1))
+        self.has_blendshape_index = bool.from_bytes(reader.read(1))
+        self.has_blendshape_position = bool.from_bytes(reader.read(1))

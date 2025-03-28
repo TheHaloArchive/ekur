@@ -426,6 +426,19 @@ pub struct DefaultNodeOrientations {
 }
 
 #[derive(Default, Debug, TagStructure)]
+#[data(size(0x44))]
+pub struct BlendShapeCompression {
+    #[data(offset(0x00))]
+    pub position_scale: FieldRealPoint3D,
+    #[data(offset(0x0C))]
+    pub position_offset: FieldRealPoint3D,
+    #[data(offset(0x18))]
+    pub normal_scale: FieldRealPoint3D,
+    #[data(offset(0x24))]
+    pub normal_offset: FieldRealPoint3D,
+}
+
+#[derive(Default, Debug, TagStructure)]
 #[data(size(0x298))]
 pub struct RenderModel {
     #[data(offset(0x00))]
@@ -452,6 +465,8 @@ pub struct RenderModel {
     pub total_vertex_buffer_count: FieldLongInteger,
     #[data(offset(324))]
     pub resources: FieldBlock<MeshResourceGroupBlock>,
+    #[data(offset(0x194))]
+    pub blend_shape_compression: FieldBlock<BlendShapeCompression>,
     #[data(offset(0x20C))]
     pub default_node_orientations: FieldBlock<DefaultNodeOrientations>,
 }

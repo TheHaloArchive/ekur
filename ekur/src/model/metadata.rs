@@ -3,7 +3,7 @@
 use crate::{
     definitions::{
         particle_model::ParticleModel,
-        render_model::{BoundingBoxBlock, LodFlags, SectionLods},
+        render_model::{BlendShapeCompression, BoundingBoxBlock, LodFlags, SectionLods},
         runtime_geo::RuntimeGeo,
     },
     model::bone::create_node,
@@ -43,6 +43,7 @@ pub(super) fn write_header(reader: &mut BufWriter<File>, model: &RenderModel) ->
         .count();
     reader.write_u32::<LE>(section_size as u32)?;
     reader.write_u32::<LE>(model.bounding_boxes.size)?;
+    reader.write_u32::<LE>(model.blend_shape_compression.size)?;
     Ok(())
 }
 
@@ -67,6 +68,7 @@ pub(super) fn write_header_rtgo(reader: &mut BufWriter<File>, model: &RuntimeGeo
         .count();
     reader.write_u32::<LE>(section_size as u32)?;
     reader.write_u32::<LE>(model.bounding_boxes.size)?;
+    reader.write_u32::<LE>(0)?;
     Ok(())
 }
 
@@ -94,6 +96,7 @@ pub(super) fn write_header_particle(
         .count();
     reader.write_u32::<LE>(section_size as u32)?;
     reader.write_u32::<LE>(model.bounding_boxes.size)?;
+    reader.write_u32::<LE>(0)?;
     Ok(())
 }
 
@@ -229,6 +232,27 @@ pub(super) fn write_bounding_boxes(
         writer.write_f32::<LE>(bounding_box.u_bounds_2.max)?;
         writer.write_f32::<LE>(bounding_box.v_bounds_2.min)?;
         writer.write_f32::<LE>(bounding_box.v_bounds_2.max)?;
+    }
+    Ok(())
+}
+
+pub(super) fn write_blendshape_boxes(
+    writer: &mut BufWriter<File>,
+    bounding_boxes: &FieldBlock<BlendShapeCompression>,
+) -> Result<()> {
+    for bounding_box in &bounding_boxes.elements {
+        writer.write_f32::<LE>(bounding_box.position_scale.x)?;
+        writer.write_f32::<LE>(bounding_box.position_scale.y)?;
+        writer.write_f32::<LE>(bounding_box.position_scale.z)?;
+        writer.write_f32::<LE>(bounding_box.position_offset.x)?;
+        writer.write_f32::<LE>(bounding_box.position_offset.y)?;
+        writer.write_f32::<LE>(bounding_box.position_offset.z)?;
+        writer.write_f32::<LE>(bounding_box.normal_scale.x)?;
+        writer.write_f32::<LE>(bounding_box.normal_scale.y)?;
+        writer.write_f32::<LE>(bounding_box.normal_scale.z)?;
+        writer.write_f32::<LE>(bounding_box.normal_offset.x)?;
+        writer.write_f32::<LE>(bounding_box.normal_offset.y)?;
+        writer.write_f32::<LE>(bounding_box.normal_offset.z)?;
     }
     Ok(())
 }

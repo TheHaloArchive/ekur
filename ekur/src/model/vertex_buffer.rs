@@ -73,6 +73,14 @@ pub(super) fn get_vertex_buffer(
                     vertex_buffers.blend_weights_extra =
                         Some(write_buffer(vertex_buffer, &resource_buffer)?);
                 }
+                VertexBufferUsage::BlendshapeIndex => {
+                    vertex_buffers.blendshape_index =
+                        Some(write_buffer(vertex_buffer, &resource_buffer)?);
+                }
+                VertexBufferUsage::BlendshapePosition => {
+                    vertex_buffers.blendshape_position =
+                        Some(write_buffer(vertex_buffer, &resource_buffer)?);
+                }
                 _ => {}
             }
         }

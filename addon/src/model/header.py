@@ -16,6 +16,7 @@ class ModelHeader:
         self.material_count: int = 0
         self.section_count: int = 0
         self.bounding_box_count: int = 0
+        self.blendshape_bounding_box_count: int = 0
 
     def read(self, reader: BufferedReader) -> None:
         self.magic = reader.read(4).decode("utf-8")
@@ -29,3 +30,4 @@ class ModelHeader:
         self.material_count = int.from_bytes(reader.read(4), "little")
         self.section_count = int.from_bytes(reader.read(4), "little")
         self.bounding_box_count = int.from_bytes(reader.read(4), "little")
+        self.blendshape_bounding_box_count = int.from_bytes(reader.read(4), "little")

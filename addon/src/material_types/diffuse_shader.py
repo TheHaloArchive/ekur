@@ -8,7 +8,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..constants import EMPTY_TEXTURES
+from ..constants import EMPTY_CONTROL, EMPTY_TEXTURES
 
 from ..json_definitions import CommonMaterial
 from ..nodes.diffuse_shader import DiffuseShader
@@ -32,7 +32,7 @@ class DiffuseShaderType:
             _ = self.tree.links.new(img.outputs[1], nodes.inputs[11])
 
         control = self.material["textures"].get("Control")
-        if control and control != 11617:
+        if control and control != EMPTY_CONTROL:
             img = create_image(self.tree.nodes, -100, str(control))
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
 

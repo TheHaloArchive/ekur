@@ -23,6 +23,7 @@ use crate::definitions::{
     runtime_geo::RuntimeGeo,
 };
 
+use super::metadata::write_blendshape_boxes;
 use super::{
     index_buffer::write_index_buffer,
     metadata::{
@@ -67,6 +68,8 @@ pub(super) struct VertexBuffers {
     pub(super) blend_indices: Option<Vec<u8>>,
     pub(super) blend_weights: Option<Vec<u8>>,
     pub(super) blend_weights_extra: Option<Vec<u8>>,
+    pub(super) blendshape_index: Option<Vec<u8>>,
+    pub(super) blendshape_position: Option<Vec<u8>>,
 }
 
 fn write_section(
@@ -137,6 +140,8 @@ fn write_section(
     data_exists(lod_data, api_resource, writer, VU::BlendIndices0)?;
     data_exists(lod_data, api_resource, writer, VU::BlendWeights0)?;
     data_exists(lod_data, api_resource, writer, VU::BlendWeights1)?;
+    data_exists(lod_data, api_resource, writer, VU::BlendshapeIndex)?;
+    data_exists(lod_data, api_resource, writer, VU::BlendshapePosition)?;
 
     let mut model = VertexBuffers::default();
     get_vertex_buffer(api_resource, lod_data, buffers, &mut model)?;
@@ -184,6 +189,12 @@ fn write_section(
     if let Some(ref blend1w) = model.blend_weights_extra {
         writer.write_all(blend1w.as_slice())?;
     }
+    if let Some(blend) = model.blendshape_index {
+        writer.write_all(blend.as_slice())?;
+    }
+    if let Some(blend) = model.blendshape_position {
+        writer.write_all(blend.as_slice())?;
+    }
     Ok(())
 }
 
@@ -208,9 +219,11 @@ pub fn process_models(
         write_markers(&mut writer, model.1, string_mappings)?;
         write_bounding_boxes(&mut writer, &model.1.bounding_boxes)?;
         write_materials(&mut writer, model.1)?;
+        write_blendshape_boxes(&mut writer, &model.1.blend_shape_compression)?;
 
         let buffers = get_buffers(model, modules, &Vec::new())?;
         let api_resource = model.1.resources.elements.first();
+
         for (section_index, section) in model.1.sections.elements.iter().enumerate() {
             let (region_name, permutation_name) = get_region_permutation(model.1, section_index)?;
             write_section(
