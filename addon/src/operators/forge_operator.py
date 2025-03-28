@@ -43,38 +43,40 @@ class ForgeOperator(Operator):
                 if subcategory["objects"] is None:
                     continue
                 for obj in subcategory["objects"]:
-                    if obj["name"] == selected_model:
-                        for representation in obj["representations"]:
-                            if representation["name"] == represnt:
-                                model_path = Path(f"{data}/models/{representation['model']}.ekur")
-                                objects = ModelImporter().start_import(str(model_path), bones=False)
-                                collection = bpy.data.collections.new(obj["name"])
-                                count = 0
-                                for bl_obj in objects:
-                                    if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
-                                        bl_obj.data.uv_layers["UV1"].active_render = True
-                                        bl_obj.data.uv_layers["UV1"].active = True
-                                    if str(representation["name_int"]) == str(
-                                        bl_obj["permutation_name"]  # pyright: ignore[reportAny]
-                                    ):
-                                        count += 1
-                                        collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
-                                if count == 0:
-                                    for bl_obj in objects:
-                                        if bl_obj["permutation_name"] == 528041935:
-                                            count += 1
-                                            collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
-                                if count == 0:
-                                    for bl_obj in objects:
-                                        collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
-                                context.scene.collection.children.link(collection)  # pyright: ignore[reportUnknownMemberType]
-                                for object in collection.objects:
-                                    object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-                                    if context.view_layer:
-                                        context.view_layer.objects.active = object
-                                    properties.use_default = False
-                                    properties.coat_id = str(obj["id"])
-                                    import_materials()
-                                break
+                    if not obj["name"] == selected_model:
+                        continue
+                    for representation in obj["representations"]:
+                        if not representation["name"] == represnt:
+                            continue
+                        model_path = Path(f"{data}/models/{representation['model']}.ekur")
+                        objects = ModelImporter().start_import(str(model_path), bones=False)
+                        collection = bpy.data.collections.new(obj["name"])
+                        count = 0
+                        for bl_obj in objects:
+                            if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
+                                bl_obj.data.uv_layers["UV1"].active_render = True
+                                bl_obj.data.uv_layers["UV1"].active = True
+                            if str(representation["name_int"]) == str(
+                                bl_obj["permutation_name"]  # pyright: ignore[reportAny]
+                            ):
+                                count += 1
+                                collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
+                        if count == 0:
+                            for bl_obj in objects:
+                                if bl_obj["permutation_name"] == 528041935:
+                                    count += 1
+                                    collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
+                        if count == 0:
+                            for bl_obj in objects:
+                                collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
+                        context.scene.collection.children.link(collection)  # pyright: ignore[reportUnknownMemberType]
+                        for object in collection.objects:
+                            object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+                            if context.view_layer:
+                                context.view_layer.objects.active = object
+                            properties.use_default = False
+                            properties.coat_id = str(obj["id"])
+                            import_materials()
+                        break
 
         return {"FINISHED"}
