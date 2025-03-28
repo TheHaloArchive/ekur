@@ -53,6 +53,23 @@ INDEXES = [
 ]
 
 
+def get_width_height(material: Material) -> tuple[int, int]:
+    if not material.node_tree:
+        return (1, 1)
+    group = material.node_tree.nodes.get("Group")
+    if not group:
+        return (1, 1)
+    if not group.inputs[0].links:
+        return (1, 1)
+    tex = group.inputs[0].links[0].from_node
+    if not tex:
+        return (1, 1)
+    tex = cast(ShaderNodeTexImage, tex)
+    if tex.image:
+        return (tex.image.size[1], tex.image.size[0])
+    return (1, 1)
+
+
 @final
 class AlignBakeOperator(Operator):
     bl_idname = "ekur.alignbake"
@@ -69,19 +86,9 @@ class AlignBakeOperator(Operator):
             ]
             if not material_slot.material or not material_slot.material.node_tree:
                 return {"CANCELLED"}
-            group = material_slot.material.node_tree.nodes.get("Group")
-            if not group:
-                return {"CANCELLED"}
-            if not group.inputs[0].links:
-                return {"CANCELLED"}
-            tex = group.inputs[0].links[0].from_node
-            if not tex:
-                return {"CANCELLED"}
-            tex = cast(ShaderNodeTexImage, tex)
-            if tex.image:
-                props.height = tex.image.size[0]
-                props.width = tex.image.size[1]
-
+            width, height = get_width_height(material_slot.material)
+            props.width = width
+            props.height = height
         return {"FINISHED"}
 
 
@@ -161,8 +168,12 @@ class BakingOperator(Operator):
             else:
                 tex_node = create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
             img = bpy.data.images.get(mat_name)
+            height = props.height
+            width = props.width
+            if props.align_bakes:
+                width, height = get_width_height(material)
             if img is None:
-                img = bpy.data.images.new(mat_name, props.height, props.width)
+                img = bpy.data.images.new(mat_name, height, width)
 
             img.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue, reportOptionalMemberAccess]
             material.node_tree.nodes.active = tex_node
@@ -206,8 +217,12 @@ class BakingOperator(Operator):
             if props.merge_textures:
                 mat_name = f"{object.name}_{m}"
             img = bpy.data.images.get(mat_name)
+            width = props.width
+            height = props.height
+            if props.align_bakes:
+                width, height = get_width_height(material)
             if img is None:
-                img = bpy.data.images.new(mat_name, props.height, props.width)
+                img = bpy.data.images.new(mat_name, height, width)
             tex_node.image = img
             object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
             bpy.ops.object.bake(  # pyright: ignore[reportUnknownMemberType]
@@ -249,17 +264,8 @@ class BakingOperator(Operator):
         for object in selected_objects:
             if type(object.data) is Mesh:
                 object.data.uv_layers.active_index = int(props.uv_to_bake_to.split("UV")[-1])
-                uv = object.data.uv_layers.active
-                if uv is None:
-                    continue
-                if props.center_x_uv:
-                    for uvd in uv.data:
-                        uvd.uv[0] -= 1.0
-                if props.center_y_uv:
-                    for uvd in uv.data:
-                        uvd.uv[1] -= 1.0
-            if props.bake_detail_normals:
-                self.bake_detail(object, duplicate_collection)  # pyright: ignore[reportPossiblyUnboundVariable]
+                if props.bake_detail_normals:
+                    self.bake_detail(object, duplicate_collection)  # pyright: ignore[reportPossiblyUnboundVariable]
 
             materials = [
                 material.material for material in object.material_slots if material.material
@@ -282,16 +288,6 @@ class BakingOperator(Operator):
 
                     else:
                         self.bake_material(material, object, props, None)
-            if type(object.data) is Mesh:
-                uv = object.data.uv_layers.active
-                if uv is None:
-                    continue
-                if props.center_x_uv:
-                    for uvd in uv.data:
-                        uvd.uv[0] -= 1.0
-                if props.center_y_uv:
-                    for uvd in uv.data:
-                        uvd.uv[1] -= 1.0
 
         if props.bake_detail_normals:
             bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable]

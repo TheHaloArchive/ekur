@@ -4,6 +4,8 @@ import json
 import logging
 from pathlib import Path
 from typing import TypeVar, cast
+import urllib.request
+import urllib.error
 
 import bpy
 from bpy.types import (
@@ -40,6 +42,7 @@ __all__ = [
     "AddonPreferencesType",
     "import_custom_rig",
     "create_image",
+    "download_file",
 ]
 
 
@@ -252,9 +255,8 @@ class ImportPropertiesType:
     selected_objects: str = ""
     pixel_padding: int = 16
     uv_to_bake_to: str = ""
-    center_x_uv: bool = False
-    center_y_uv: bool = False
     scale_factor: float = 1.0
+    align_bakes: bool = False
 
 
 def get_import_properties() -> ImportPropertiesType:
@@ -313,3 +315,14 @@ def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:
     texture.hide = True
     texture.image = read_texture(name)
     return texture
+
+
+def download_file(url: str, file_path: str) -> None:
+    try:
+        with (
+            urllib.request.urlopen(url) as response,  # pyright: ignore[reportAny]
+            open(file_path, "wb") as out_file,
+        ):
+            _ = out_file.write(response.read())  # pyright: ignore[reportAny]
+    except urllib.error.HTTPError as e:
+        logging.error(f"Failed to download: {url}: {e.status}")

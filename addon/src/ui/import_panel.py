@@ -254,8 +254,11 @@ class ImportProperties(PropertyGroup):
     uv_to_bake_to: EnumProperty(
         name="UV Map to Bake To", items=[("UV0", "UV0", ""), ("UV1", "UV1", ""), ("UV2", "UV2", "")]
     )
-    center_x_uv: BoolProperty(name="Center X UV", default=False)
-    center_y_uv: BoolProperty(name="Center Y UV", default=False)
+    align_bakes: BoolProperty(
+        name="Align All Bakes Automatically",
+        description="Bakes materials by their texture dimensions.",
+        default=False,
+    )
 
 
 @final
@@ -418,8 +421,7 @@ class CoatingImportPanel(Panel):
             bake_opts.prop(import_properties, "bake_layer_map")
             bake_opts.prop(import_properties, "uv_to_bake_to")
             bake_opts.prop(import_properties, "advanced_bake")
-            bake_opts.prop(import_properties, "center_x_uv")
-            bake_opts.prop(import_properties, "center_y_uv")
+            bake_opts.prop(import_properties, "align_bakes")
             if import_properties.advanced_bake:
                 advanced_opts = bake_opts.box()
                 advanced_opts.prop(import_properties, "selected_layer")
