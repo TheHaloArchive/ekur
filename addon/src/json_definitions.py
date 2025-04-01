@@ -244,6 +244,7 @@ class ForgeObjectRepresentation(TypedDict):
     name_int: int
     model: int
     variant: int
+    is_rtgo: bool
 
 
 class ForgeObject(TypedDict):
