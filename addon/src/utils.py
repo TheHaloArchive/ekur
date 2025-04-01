@@ -257,6 +257,8 @@ class ImportPropertiesType:
     uv_to_bake_to: str = ""
     scale_factor: float = 1.0
     align_bakes: bool = False
+    merge_objects: bool = False
+    save_normals: bool = False
 
 
 def get_import_properties() -> ImportPropertiesType:

@@ -194,7 +194,8 @@ class BakingOperator(Operator):
         object: Object,
         props: ImportPropertiesType,
         tex_node: ShaderNodeTexImage | None,
-    ) -> None:
+        override_mat: str = "",
+    ) -> str | None:
         mat_name = ""
         if material.node_tree is None:
             return
@@ -203,18 +204,23 @@ class BakingOperator(Operator):
         if not shader or not mat_output:
             return
         preset = PRESETS[props.output_workflow]
+
         if props.bake_ao:
             preset["AO"] = 7
         if props.bake_layer_map:
             preset["LayerMap"] = 11
         for m, idx in preset.items():
+            if idx >= len(shader.outputs):
+                return
             _ = material.node_tree.links.new(shader.outputs[idx], mat_output.inputs[0])
             mat_name = f"{material.name}_{m}"
+            if override_mat != "":
+                mat_name = f"{override_mat}_{m}"
             if not tex_node:
                 tex_node = create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
             material.node_tree.nodes.active = tex_node
 
-            if props.merge_textures:
+            if props.merge_textures and not props.merge_objects:
                 mat_name = f"{object.name}_{m}"
             img = bpy.data.images.get(mat_name)
             width = props.width
@@ -239,12 +245,20 @@ class BakingOperator(Operator):
             texture_node = shader.inputs[0].links[0].from_node
             if texture_node and type(texture_node) is ShaderNodeTexImage and texture_node.image:
                 texture_node.image.reload()  # pyright: ignore[reportUnknownMemberType]
-        if shader.inputs[3].links:
+
+        if len(shader.inputs) > 3 and shader.inputs[3].links:
             texture_node = shader.inputs[3].links[0].from_node
-            if texture_node and type(texture_node) is ShaderNodeTexImage and texture_node.image:
+            if (
+                texture_node
+                and type(texture_node) is ShaderNodeTexImage
+                and texture_node.image
+                and props.save_normals
+            ):
                 texture_node.image.save(  # pyright: ignore[reportUnknownMemberType]
                     filepath=f"{props.output_path}/{mat_name}_BaseNormal.png"
                 )
+        if props.merge_textures and props.merge_objects:
+            return material.name
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None or context.scene is None:
@@ -261,6 +275,8 @@ class BakingOperator(Operator):
             duplicate_collection = bpy.data.collections.new("Duplicate")
             context.collection.children.link(duplicate_collection)  # pyright: ignore[reportUnknownMemberType]
 
+        override_mat: str = ""
+
         for object in selected_objects:
             if type(object.data) is Mesh:
                 object.data.uv_layers.active_index = int(props.uv_to_bake_to.split("UV")[-1])
@@ -271,7 +287,7 @@ class BakingOperator(Operator):
                 material.material for material in object.material_slots if material.material
             ]
             tex_nodes = []
-            if props.merge_textures:
+            if props.merge_textures or props.merge_objects:
                 tex_nodes = [
                     create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
                     for material in materials
@@ -281,13 +297,15 @@ class BakingOperator(Operator):
             i: int = 0
             for material in materials:
                 if material.node_tree:
-                    if props.merge_textures:
-                        self.bake_material(material, object, props, tex_nodes[i])
+                    if props.merge_textures or props.merge_objects:
+                        m = self.bake_material(material, object, props, tex_nodes[i], override_mat)
+                        if props.merge_objects and m:
+                            override_mat = m
                         material.node_tree.nodes.remove(tex_nodes[i])  # pyright: ignore[reportUnknownMemberType]
                         i += 1
 
                     else:
-                        self.bake_material(material, object, props, None)
+                        _ = self.bake_material(material, object, props, None)
 
         if props.bake_detail_normals:
             bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable]

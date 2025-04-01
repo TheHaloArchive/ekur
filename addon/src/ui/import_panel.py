@@ -223,6 +223,7 @@ class ImportProperties(PropertyGroup):
     bit_depth: EnumProperty(name="Bit Depth", items=[("8", "8", ""), ("16", "16", "")])
     bake_detail_normals: BoolProperty(name="Bake Detail Normals", default=False)
     merge_textures: BoolProperty(name="Merge Textures Into Single Bake", default=False)
+    merge_objects: BoolProperty(name="Merge Objects Into Single Bake", default=False)
     bake_ao: BoolProperty(name="Bake Ambient Occlusion", default=False)
     bake_layer_map: BoolProperty(name="Bake Layer Map", default=False)
     advanced_bake: BoolProperty(name="Toggle Advanced Bake Options", default=False)
@@ -257,6 +258,11 @@ class ImportProperties(PropertyGroup):
     align_bakes: BoolProperty(
         name="Align All Bakes Automatically",
         description="Bakes materials by their texture dimensions.",
+        default=False,
+    )
+    save_normals: BoolProperty(
+        name="Save Normals",
+        description="Save the base normals from the game.",
         default=False,
     )
 
@@ -410,18 +416,21 @@ class CoatingImportPanel(Panel):
             bake_opts = bake_body.box()
             bake_opts.prop(import_properties, "output_path")
             bake_opts.prop(import_properties, "output_workflow")
-            bake_opts.prop(import_properties, "width")
-            bake_opts.prop(import_properties, "height")
-            _ = bake_opts.operator("ekur.alignbake")
+            bake_opts.prop(import_properties, "align_bakes")
+            if not import_properties.align_bakes:
+                bake_opts.prop(import_properties, "width")
+                bake_opts.prop(import_properties, "height")
+                _ = bake_opts.operator("ekur.alignbake")
             bake_opts.prop(import_properties, "pixel_padding")
             bake_opts.prop(import_properties, "bit_depth")
-            bake_opts.prop(import_properties, "bake_detail_normals")
+            bake_opts.prop(import_properties, "save_normals")
             bake_opts.prop(import_properties, "merge_textures")
+            bake_opts.prop(import_properties, "merge_objects")
+            bake_opts.prop(import_properties, "bake_detail_normals")
             bake_opts.prop(import_properties, "bake_ao")
             bake_opts.prop(import_properties, "bake_layer_map")
             bake_opts.prop(import_properties, "uv_to_bake_to")
             bake_opts.prop(import_properties, "advanced_bake")
-            bake_opts.prop(import_properties, "align_bakes")
             if import_properties.advanced_bake:
                 advanced_opts = bake_opts.box()
                 advanced_opts.prop(import_properties, "selected_layer")
