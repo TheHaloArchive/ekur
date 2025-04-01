@@ -12,6 +12,7 @@ from ..json_definitions import (
     CommonStyleList,
     CommonLayer,
     CustomizationGlobals,
+    ForgeMaterial,
     ForgeObjectCategory,
     ForgeObjectDefinition,
 )
@@ -30,6 +31,7 @@ visor_cache: list[tuple[str, str, str]] | None = None
 styles_cache: dict[str, CommonStyleList] | None = None
 style_cache: dict[str, list[tuple[str, str, str]]] | None = None
 object_definition: ForgeObjectDefinition | None = None
+material_cache: list[tuple[str, str, str]] | None = None
 
 
 def natural_sort_key(s: str) -> list[int | str]:
@@ -64,7 +66,7 @@ def get_styles(context: Context) -> tuple[str, CommonStyleList] | None:
         if styles_cache and bl_material.name in styles_cache:
             return (bl_material.name, styles_cache[bl_material.name])
 
-        definition_path = Path(f"{data}/materials/{bl_material.name}.json")
+        definition_path = Path(f"{data}/materials/{bl_material.name.split('.')[0]}.json")
         if not definition_path.exists():
             logging.warning(f"Material path does not exist!: {definition_path}")
             return
@@ -132,6 +134,24 @@ class GrabStrings:
         for entry in globals["themes"]:
             all_cores.append((str(entry["name"]), str(entry["name"]), ""))
         return all_cores
+
+    def forge_materials(self, _context: Context | None) -> list[tuple[str, str, str]]:
+        global material_cache
+        if material_cache:
+            return material_cache
+        all_materials: list[tuple[str, str, str]] = []
+        data = get_data_folder()
+        globals_path = Path(f"{data}/forge_materials.json")
+        if not globals_path.exists():
+            return all_materials
+        globals = read_json_file(globals_path, ForgeMaterial)
+        if globals is None:
+            return all_materials
+        for entry in globals["layers"].items():
+            all_materials.append((str(entry[0]), str(entry[0]), ""))
+        material_cache = all_materials
+        material_cache.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+        return all_materials
 
     def get_object_definition(self, _context: Context) -> ForgeObjectDefinition | None:
         global object_definition

@@ -2,6 +2,7 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 
+from .blendshape_bounding_box_buffer import BlendShapeBoundingBox
 from .section import Section
 from .bounding_box import BoundingBox
 from .marker import Marker
@@ -21,6 +22,7 @@ class Model:
         self.bounding_boxes: list[BoundingBox] = []
         self.materials: list[int] = []
         self.sections: list[Section] = []
+        self.blendshape_bounding_boxes: list[BlendShapeBoundingBox] = []
 
     def read(self, reader: BufferedReader) -> None:
         self.header.read(reader)
@@ -43,6 +45,10 @@ class Model:
         for _ in range(self.header.material_count):
             material = int.from_bytes(reader.read(4), "little", signed=True)
             self.materials.append(material)
+        for _ in range(self.header.blendshape_bounding_box_count):
+            blendshape_bounding_box = BlendShapeBoundingBox()
+            blendshape_bounding_box.read(reader)
+            self.blendshape_bounding_boxes.append(blendshape_bounding_box)
         for _ in range(self.header.section_count):
             section = Section()
             section.read(reader)

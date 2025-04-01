@@ -244,6 +244,7 @@ class ForgeObjectRepresentation(TypedDict):
     name_int: int
     model: int
     variant: int
+    is_rtgo: bool
 
 
 class ForgeObject(TypedDict):
@@ -341,3 +342,7 @@ class Coating(TypedDict):
 
 class Attachment(TypedDict):
     TagId: int
+
+
+class ForgeMaterial(TypedDict):
+    layers: dict[str, CommonLayer]

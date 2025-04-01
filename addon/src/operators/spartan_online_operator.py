@@ -32,10 +32,15 @@ def import_attachments(
     attachment: Object,
     rig: Object | None,
 ) -> None:
+    props = get_import_properties()
     if marker.name == name or alt_name in marker.name:
         empty_global_transform = marker.matrix_world
         mesh_global_transform = attachment.matrix_world
-        offset = -(mesh_global_transform.translation - empty_global_transform.translation) * 3.048
+        offset = (
+            -(mesh_global_transform.translation - empty_global_transform.translation)
+            * 3.048
+            * props.scale_factor
+        )
         attachment.location = offset
         attachment.rotation_euler = (0.0, 0.0, 0.0)
         modifier = cast(ArmatureModifier, attachment.modifiers.new(f"{name}::armature", "ARMATURE"))

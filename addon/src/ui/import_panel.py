@@ -5,7 +5,7 @@
 import random
 from typing import final
 
-from bpy.props import BoolProperty, EnumProperty, IntProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
+from bpy.props import BoolProperty, EnumProperty, FloatProperty, IntProperty, StringProperty  # pyright: ignore[reportUnknownVariableType]
 from bpy.types import Context, Panel, PropertyGroup, Operator
 
 from ..utils import ImportPropertiesType, get_addon_preferences, get_import_properties
@@ -100,6 +100,11 @@ class ImportProperties(PropertyGroup):
         description="Whether to import vertex color as a mesh attribute for models that support it.",
         default=False,
     )
+    scale_factor: FloatProperty(
+        name="Scale Factor",
+        description="Factor to scale the mesh up by from its in-game size.",
+        default=1.0,
+    )
     level_path: StringProperty(
         default="",
         name="Level Path",
@@ -181,6 +186,14 @@ class ImportProperties(PropertyGroup):
         name="Object Representation", items=GrabStrings.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
+    override_materials: BoolProperty(name="Override Materials", default=False)
+    layer1: EnumProperty(name="Layer 1", items=GrabStrings.forge_materials)
+    layer2: EnumProperty(name="Layer 2", items=GrabStrings.forge_materials)
+    layer3: EnumProperty(name="Layer 3", items=GrabStrings.forge_materials)
+    grime: EnumProperty(name="Grime", items=GrabStrings.forge_materials)
+    grime_amount: FloatProperty(name="Grime Amount")
+    scratch_amount: FloatProperty(name="Scratch Amount")
+
     url: StringProperty(name="URL", default="")
     use_file: BoolProperty(name="Use MVAR File", default=False)
     import_folders: BoolProperty(name="Import Folders", default=True)
@@ -218,6 +231,7 @@ class ImportProperties(PropertyGroup):
     bit_depth: EnumProperty(name="Bit Depth", items=[("8", "8", ""), ("16", "16", "")])
     bake_detail_normals: BoolProperty(name="Bake Detail Normals", default=False)
     merge_textures: BoolProperty(name="Merge Textures Into Single Bake", default=False)
+    merge_objects: BoolProperty(name="Merge Objects Into Single Bake", default=False)
     bake_ao: BoolProperty(name="Bake Ambient Occlusion", default=False)
     bake_layer_map: BoolProperty(name="Bake Layer Map", default=False)
     advanced_bake: BoolProperty(name="Toggle Advanced Bake Options", default=False)
@@ -249,8 +263,16 @@ class ImportProperties(PropertyGroup):
     uv_to_bake_to: EnumProperty(
         name="UV Map to Bake To", items=[("UV0", "UV0", ""), ("UV1", "UV1", ""), ("UV2", "UV2", "")]
     )
-    center_x_uv: BoolProperty(name="Center X UV", default=False)
-    center_y_uv: BoolProperty(name="Center Y UV", default=False)
+    align_bakes: BoolProperty(
+        name="Align All Bakes Automatically",
+        description="Bakes materials by their texture dimensions.",
+        default=False,
+    )
+    save_normals: BoolProperty(
+        name="Save Normals",
+        description="Save the base normals from the game.",
+        default=False,
+    )
 
 
 @final
@@ -263,7 +285,7 @@ class CoatingImportPanel(Panel):
 
     def draw(self, context: Context | None) -> None:
         layout = self.layout
-        if layout is None:
+        if layout is None or context is None:
             return
         import_properties = get_import_properties()
         prefs = get_addon_preferences()
@@ -317,6 +339,7 @@ class CoatingImportPanel(Panel):
             model_opts.prop(import_properties, "import_materials")
             model_opts.prop(import_properties, "import_collections")
             model_opts.prop(import_properties, "import_vertex_color")
+            model_opts.prop(import_properties, "scale_factor")
             _ = model_body.operator("ekur.importmodel")
 
     def draw_ocgd(self, import_properties: ImportPropertiesType) -> None:
@@ -371,6 +394,14 @@ class CoatingImportPanel(Panel):
                 forge_opts.prop(import_properties, "objects")
                 forge_opts.prop(import_properties, "object_representation")
             _ = forge_body.operator("ekur.importforge")
+            forge_opts.prop(import_properties, "override_materials")
+            if import_properties.override_materials:
+                forge_opts.prop(import_properties, "layer1")
+                forge_opts.prop(import_properties, "layer2")
+                forge_opts.prop(import_properties, "layer3")
+                forge_opts.prop(import_properties, "grime")
+                forge_opts.prop(import_properties, "grime_amount")
+                forge_opts.prop(import_properties, "scratch_amount")
 
     def draw_forge_map(self, import_properties: ImportPropertiesType) -> None:
         layout = self.layout
@@ -401,19 +432,21 @@ class CoatingImportPanel(Panel):
             bake_opts = bake_body.box()
             bake_opts.prop(import_properties, "output_path")
             bake_opts.prop(import_properties, "output_workflow")
-            bake_opts.prop(import_properties, "width")
-            bake_opts.prop(import_properties, "height")
-            _ = bake_opts.operator("ekur.alignbake")
+            bake_opts.prop(import_properties, "align_bakes")
+            if not import_properties.align_bakes:
+                bake_opts.prop(import_properties, "width")
+                bake_opts.prop(import_properties, "height")
+                _ = bake_opts.operator("ekur.alignbake")
             bake_opts.prop(import_properties, "pixel_padding")
             bake_opts.prop(import_properties, "bit_depth")
-            bake_opts.prop(import_properties, "bake_detail_normals")
+            bake_opts.prop(import_properties, "save_normals")
             bake_opts.prop(import_properties, "merge_textures")
+            bake_opts.prop(import_properties, "merge_objects")
+            bake_opts.prop(import_properties, "bake_detail_normals")
             bake_opts.prop(import_properties, "bake_ao")
             bake_opts.prop(import_properties, "bake_layer_map")
             bake_opts.prop(import_properties, "uv_to_bake_to")
             bake_opts.prop(import_properties, "advanced_bake")
-            bake_opts.prop(import_properties, "center_x_uv")
-            bake_opts.prop(import_properties, "center_y_uv")
             if import_properties.advanced_bake:
                 advanced_opts = bake_opts.box()
                 advanced_opts.prop(import_properties, "selected_layer")

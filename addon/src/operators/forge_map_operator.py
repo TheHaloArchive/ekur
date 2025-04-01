@@ -34,6 +34,8 @@ class ForgeMapOperator(Operator):
 
         data = get_data_folder()
         path = f"{data}/models/{global_id}.ekur"
+        if not Path(path).exists():
+            path = f"{data}/runtime_geo/{global_id}.ekur"
         geo_importer = ModelImporter()
         imported_objects = geo_importer.start_import(path, bones=False)
 
@@ -126,54 +128,63 @@ class ForgeMapOperator(Operator):
             if object_def is None:
                 continue
             representation = [
-                representation
-                for representation in object_def["representations"]
-                if representation["name_int"] == object.variant
-                or representation["variant"] == object.variant
-                or representation["variant"] == 0
+                m
+                for m in object_def["representations"]
+                if m["name_int"] == object.variant
+                if not m["is_rtgo"]
             ]
-            if len(representation) == 0 and object_def["representations"] != []:
-                representation = object_def["representations"]
-
-            if len(representation) >= 1:
-                source_objects = self._get_or_create_geometry(str(representation[0]["model"]))
-                objects = [
-                    obj for obj in source_objects if object.variant == obj["permutation_name"]
+            if len(representation) == 0:
+                representation = [
+                    m
+                    for m in object_def["representations"]
+                    if m["variant"] == object.variant
+                    if not m["is_rtgo"]
                 ]
-                if len(objects) == 0:
-                    objects = source_objects
-                for obj in objects:
-                    instance_obj = bpy.data.objects.new(
-                        name=f"{representation[0]['name']}_instance", object_data=obj.data
-                    )
-                    if name != "":
-                        instance_obj.name = name
+            if len(representation) == 0:
+                representation = [
+                    m for m in object_def["representations"] if m["name_int"] == object.variant
+                ]
+            if len(representation) == 0:
+                continue
+            source_objects = self._get_or_create_geometry(str(representation[0]["model"]))
+            objects = [obj for obj in source_objects if object.variant == obj["permutation_name"]]
+            if len(objects) == 0:
+                objects = [obj for obj in source_objects if object.variant == obj["region_name"]]
+            if len(objects) == 0:
+                objects = source_objects
+            for obj in objects:
+                instance_obj = bpy.data.objects.new(
+                    name=f"{representation[0]['name']}_instance", object_data=obj.data
+                )
+                instance_obj["permutation_name"] = obj["permutation_name"]
+                instance_obj["region_name"] = obj["region_name"]
+                if name != "":
+                    instance_obj.name = name
 
-                    instance_obj.location = object.position
-                    forward = Vector(object.rotation_forward).normalized()
-                    up = Vector(object.rotation_up).normalized()
-                    right = forward.cross(up)
-                    if type(up) is Vector and type(right) is Vector:
-                        right = right.normalized()
-                        rot_matrix = Matrix(
-                            (
-                                (forward[0], -right[0], up[0], 0.0),
-                                (forward[1], -right[1], up[1], 0.0),
-                                (forward[2], -right[2], up[2], 0.0),
-                                (0.0, 0.0, 0.0, 1.0),
-                            )
+                instance_obj.location = object.position
+                forward = Vector(object.rotation_forward).normalized()
+                up = Vector(object.rotation_up).normalized()
+                right = forward.cross(up)
+                if type(up) is Vector and type(right) is Vector:
+                    right = right.normalized()
+                    rot_matrix = Matrix(
+                        (
+                            (forward[0], -right[0], up[0], 0.0),
+                            (forward[1], -right[1], up[1], 0.0),
+                            (forward[2], -right[2], up[2], 0.0),
+                            (0.0, 0.0, 0.0, 1.0),
                         )
-                        quat = rot_matrix.to_quaternion()
-                        instance_obj.rotation_mode = "QUATERNION"
-                        instance_obj.rotation_quaternion = quat
-                        instance_obj.scale = object.scale
-                        if main_collection:
-                            main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
-                        elif (
-                            bpy.context.scene
-                            and instance_obj.name not in bpy.context.scene.collection.objects
-                        ):
-                            bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
-
+                    )
+                    quat = rot_matrix.to_quaternion()
+                    instance_obj.rotation_mode = "QUATERNION"
+                    instance_obj.rotation_quaternion = quat
+                    instance_obj.scale = object.scale
+                    if main_collection:
+                        main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                    elif (
+                        bpy.context.scene
+                        and instance_obj.name not in bpy.context.scene.collection.objects
+                    ):
+                        bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
         self._geometry_cache = {}
         return {"FINISHED"}

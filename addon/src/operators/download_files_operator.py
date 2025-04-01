@@ -1,16 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
-from pathlib import Path
 import platform
 from typing import cast, final
-import urllib.error
-import urllib.request
 
 import bpy
 from bpy.types import Context, Operator
 
-from ..utils import get_package_name
+from ..utils import download_file, get_package_name
 
 from ..constants import version_string
 
@@ -32,7 +29,7 @@ class DownloadFilesOperator(Operator):
             logging.error("Online access is disabled")
             return {"CANCELLED"}
         extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
-        ekur_save_path = Path(f"{extension_path}/ekur-{version_string}")
+        ekur_save_path = f"{extension_path}/ekur-{version_string}"
         save_path = f"{extension_path}/strings.txt"
         visors_path = f"{extension_path}/all_visors.json"
         regions_path = f"{extension_path}/regions_and_permutations.json"
@@ -40,58 +37,13 @@ class DownloadFilesOperator(Operator):
 
         ekur_url = f"https://github.com/Surasia/ekur/releases/download/{version_string}/ekur-{version_string}"
         if platform.system() == "Windows":
-            ekur_save_path = Path(f"{ekur_save_path}.exe")
+            ekur_save_path = f"{ekur_save_path}.exe"
             ekur_url = f"{ekur_url}.exe"
 
-        if not ekur_save_path.exists():
-            try:
-                with (
-                    urllib.request.urlopen(ekur_url) as response,  # pyright: ignore[reportAny]
-                    open(ekur_save_path, "wb") as out_file,
-                ):
-                    _ = out_file.write(response.read())  # pyright: ignore[reportAny]
-            except urllib.error.HTTPError as e:
-                logging.error(f"Failed to download ekur: {e.status}")
-                return {"CANCELLED"}
-
-        try:
-            with (
-                urllib.request.urlopen(STRINGS_URL) as response,  # pyright: ignore[reportAny]
-                open(save_path, "wb") as out_file,
-            ):
-                _ = out_file.write(response.read())  # pyright: ignore[reportAny]
-        except urllib.error.HTTPError as e:
-            logging.error(f"Failed to download strings.txt: {e}")
-            return {"CANCELLED"}
-
-        try:
-            with (
-                urllib.request.urlopen(CUSTOM_RIG_URL) as response,  # pyright: ignore[reportAny]
-                open(customs_path, "wb") as out_file,
-            ):
-                _ = out_file.write(response.read())  # pyright: ignore[reportAny]
-        except urllib.error.HTTPError as e:
-            logging.error(f"Failed to download custom rig: {e}")
-            return {"CANCELLED"}
-
-        try:
-            with (
-                urllib.request.urlopen(VISORS_URL) as response,  # pyright: ignore[reportAny]
-                open(visors_path, "w") as out_file,
-            ):
-                _ = out_file.write(response.read().decode("utf-8"))  # pyright: ignore[reportAny]
-        except urllib.error.HTTPError as e:
-            logging.error(f"Failed to download all_visors.json: {e.status}")
-            return {"CANCELLED"}
-
-        try:
-            with (
-                urllib.request.urlopen(REGIONS_URL) as response,  # pyright: ignore[reportAny]
-                open(regions_path, "w") as out_file,
-            ):
-                _ = out_file.write(response.read().decode("utf-8"))  # pyright: ignore[reportAny]
-        except urllib.error.HTTPError as e:
-            logging.error(f"Failed to download regions_and_permutations.json: {e.status}")
-            return {"CANCELLED"}
+        download_file(ekur_url, ekur_save_path)
+        download_file(STRINGS_URL, save_path)
+        download_file(CUSTOM_RIG_URL, customs_path)
+        download_file(VISORS_URL, visors_path)
+        download_file(REGIONS_URL, regions_path)
 
         return {"FINISHED"}

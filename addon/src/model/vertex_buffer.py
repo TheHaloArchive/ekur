@@ -3,6 +3,8 @@
 from collections.abc import Iterable, Iterator
 from io import BufferedReader
 
+from .blendshape_index_buffer import BlendShapeIndexBuffer
+from .blendshape_position_buffer import BlendShapePositionBuffer
 from .vertex_type import VertexType
 from .weight_extra_buffer import WeightExtraBuffer
 from .weight_buffer import WeightBuffer
@@ -28,6 +30,8 @@ class VertexBuffers:
         self.weight_index_buffer: WeightIndexBuffer = WeightIndexBuffer()
         self.weight_buffer: WeightBuffer = WeightBuffer()
         self.weight_extra_buffer: WeightExtraBuffer = WeightExtraBuffer()
+        self.blendshape_index_buffer: BlendShapeIndexBuffer = BlendShapeIndexBuffer()
+        self.blendshape_position_buffer: BlendShapePositionBuffer = BlendShapePositionBuffer()
 
     def read(self, reader: BufferedReader, flags: BufferFlags) -> None:
         self.flags = flags
@@ -49,6 +53,10 @@ class VertexBuffers:
             self.weight_buffer.read(reader)
         if flags.has_blend_weights_extra:
             self.weight_extra_buffer.read(reader)
+        if flags.has_blendshape_index:
+            self.blendshape_index_buffer.read(reader)
+        if flags.has_blendshape_position:
+            self.blendshape_position_buffer.read(reader)
 
     def enumerate_blendpairs(
         self, mesh_flags: VertexType

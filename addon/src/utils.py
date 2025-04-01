@@ -4,6 +4,8 @@ import json
 import logging
 from pathlib import Path
 from typing import TypeVar, cast
+import urllib.request
+import urllib.error
 
 import bpy
 from bpy.types import (
@@ -19,6 +21,7 @@ from bpy.types import (
     NodeTreeInterface,
     NodeTreeInterfacePanel,
     Object,
+    ShaderNodeTexImage,
     ShaderNodeTree,
 )
 
@@ -38,6 +41,8 @@ __all__ = [
     "get_import_properties",
     "AddonPreferencesType",
     "import_custom_rig",
+    "create_image",
+    "download_file",
 ]
 
 
@@ -250,8 +255,17 @@ class ImportPropertiesType:
     selected_objects: str = ""
     pixel_padding: int = 16
     uv_to_bake_to: str = ""
-    center_x_uv: bool = False
-    center_y_uv: bool = False
+    scale_factor: float = 1.0
+    align_bakes: bool = False
+    merge_objects: bool = False
+    save_normals: bool = False
+    override_materials: bool = False
+    layer1: str = ""
+    layer2: str = ""
+    layer3: str = ""
+    grime: str = ""
+    grime_amount: float = 0.0
+    scratch_amount: float = 0.0
 
 
 def get_import_properties() -> ImportPropertiesType:
@@ -303,3 +317,21 @@ def import_custom_rig() -> Object | None:
         logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
     object = bpy.data.objects.get("Spartan_Control_Rig_V2")
     return object
+
+
+def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:
+    texture = create_node(nodes, -300, y, ShaderNodeTexImage)
+    texture.hide = True
+    texture.image = read_texture(name)
+    return texture
+
+
+def download_file(url: str, file_path: str) -> None:
+    try:
+        with (
+            urllib.request.urlopen(url) as response,  # pyright: ignore[reportAny]
+            open(file_path, "wb") as out_file,
+        ):
+            _ = out_file.write(response.read())  # pyright: ignore[reportAny]
+    except urllib.error.HTTPError as e:
+        logging.error(f"Failed to download: {url}: {e.status}")

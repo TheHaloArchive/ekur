@@ -28,6 +28,7 @@ struct ForgeObjectRepresentation {
     name_int: i32,
     model: i32,
     variant: i32,
+    is_rtgo: bool,
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -90,6 +91,7 @@ fn get_object_info(
                 name_int: representation.representation_name.0,
                 model: 0,
                 variant: representation.crate_variant.0,
+                is_rtgo: false,
             };
 
             if let Some(model) = match representation.object_definition.group.as_str() {
@@ -122,6 +124,19 @@ fn get_object_info(
                 represent.model = model.render_model.global_id;
                 forge_object.representations.push(represent);
             };
+        }
+        for variant in &data.forge_asset_variants.elements {
+            let representation = ForgeObjectRepresentation {
+                name: strings
+                    .get(&variant.variant_name.0)
+                    .unwrap_or(&variant.variant_name.0.to_string())
+                    .to_string(),
+                name_int: variant.variant_name.0,
+                model: variant.underlying_geo.global_id,
+                variant: 0,
+                is_rtgo: true,
+            };
+            forge_object.representations.push(representation);
         }
 
         object_definitions.push(forge_object);
@@ -292,8 +307,22 @@ pub fn process_forge_objects(
                 name_int: representation.representation_name.0,
                 model: model.render_model.global_id,
                 variant: representation.crate_variant.0,
+                is_rtgo: false,
             };
             definition.representations.push(forge_object);
+        }
+        for variant in &thing.1.forge_asset_variants.elements {
+            let representation = ForgeObjectRepresentation {
+                name: strings
+                    .get(&variant.variant_name.0)
+                    .unwrap_or(&variant.variant_name.0.to_string())
+                    .to_string(),
+                name_int: variant.variant_name.0,
+                model: variant.underlying_geo.global_id,
+                variant: 0,
+                is_rtgo: true,
+            };
+            definition.representations.push(representation);
         }
         forge_object_definition.objects.insert(thing.0, definition);
     }

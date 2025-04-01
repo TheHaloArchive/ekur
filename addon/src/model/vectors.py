@@ -99,6 +99,27 @@ class Vector3:
         return Vector((self.x, self.y, self.z))
 
 
+class WordVector3DNormalizedWith4Word:
+    def __init__(self) -> None:
+        self.x: float = 0.0
+        self.y: float = 0.0
+        self.z: float = 0.0
+        self.index: int = 0
+
+    def read(self, reader: BufferedReader) -> None:
+        x = int.from_bytes(reader.read(2), "little")
+        y = int.from_bytes(reader.read(2), "little")
+        z = int.from_bytes(reader.read(2), "little")
+        self.index = int.from_bytes(reader.read(2), "little")
+        self.x = x / 65535.0
+        self.y = y / 65535.0
+        self.z = z / 65535.0
+
+    @property
+    def vector(self) -> Vector:
+        return Vector((self.x, self.y, self.z))
+
+
 class NormalizedVector2:
     def __init__(self) -> None:
         self.x: float = 0.0
