@@ -149,6 +149,8 @@ class ForgeMapOperator(Operator):
             source_objects = self._get_or_create_geometry(str(representation[0]["model"]))
             objects = [obj for obj in source_objects if object.variant == obj["permutation_name"]]
             if len(objects) == 0:
+                objects = [obj for obj in source_objects if object.variant == obj["region_name"]]
+            if len(objects) == 0:
                 objects = source_objects
             for obj in objects:
                 instance_obj = bpy.data.objects.new(
