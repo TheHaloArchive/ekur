@@ -34,6 +34,8 @@ class ForgeMapOperator(Operator):
 
         data = get_data_folder()
         path = f"{data}/models/{global_id}.ekur"
+        if not Path(path).exists():
+            path = f"{data}/runtime_geo/{global_id}.ekur"
         geo_importer = ModelImporter()
         imported_objects = geo_importer.start_import(path, bones=False)
 

@@ -123,6 +123,20 @@ fn get_object_info(
                 forge_object.representations.push(represent);
             };
         }
+        if forge_object.representations.is_empty() {
+            for variant in &data.forge_asset_variants.elements {
+                let representation = ForgeObjectRepresentation {
+                    name: strings
+                        .get(&variant.variant_name.0)
+                        .unwrap_or(&variant.variant_name.0.to_string())
+                        .to_string(),
+                    name_int: variant.variant_name.0,
+                    model: variant.underlying_geo.global_id,
+                    variant: 0,
+                };
+                forge_object.representations.push(representation);
+            }
+        }
 
         object_definitions.push(forge_object);
     }
@@ -294,6 +308,20 @@ pub fn process_forge_objects(
                 variant: representation.crate_variant.0,
             };
             definition.representations.push(forge_object);
+        }
+        if definition.representations.is_empty() {
+            for variant in &thing.1.forge_asset_variants.elements {
+                let representation = ForgeObjectRepresentation {
+                    name: strings
+                        .get(&variant.variant_name.0)
+                        .unwrap_or(&variant.variant_name.0.to_string())
+                        .to_string(),
+                    name_int: variant.variant_name.0,
+                    model: variant.underlying_geo.global_id,
+                    variant: 0,
+                };
+                definition.representations.push(representation);
+            }
         }
         forge_object_definition.objects.insert(thing.0, definition);
     }
