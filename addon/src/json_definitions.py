@@ -341,3 +341,7 @@ class Coating(TypedDict):
 
 class Attachment(TypedDict):
     TagId: int
+
+
+class ForgeMaterial(TypedDict):
+    layers: dict[str, CommonLayer]

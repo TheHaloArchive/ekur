@@ -186,6 +186,14 @@ class ImportProperties(PropertyGroup):
         name="Object Representation", items=GrabStrings.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
+    override_materials: BoolProperty(name="Override Materials", default=False)
+    layer1: EnumProperty(name="Layer 1", items=GrabStrings.forge_materials)
+    layer2: EnumProperty(name="Layer 2", items=GrabStrings.forge_materials)
+    layer3: EnumProperty(name="Layer 3", items=GrabStrings.forge_materials)
+    grime: EnumProperty(name="Grime", items=GrabStrings.forge_materials)
+    grime_amount: FloatProperty(name="Grime Amount")
+    scratch_amount: FloatProperty(name="Scratch Amount")
+
     url: StringProperty(name="URL", default="")
     use_file: BoolProperty(name="Use MVAR File", default=False)
     import_folders: BoolProperty(name="Import Folders", default=True)
@@ -277,7 +285,7 @@ class CoatingImportPanel(Panel):
 
     def draw(self, context: Context | None) -> None:
         layout = self.layout
-        if layout is None:
+        if layout is None or context is None:
             return
         import_properties = get_import_properties()
         prefs = get_addon_preferences()
@@ -386,6 +394,14 @@ class CoatingImportPanel(Panel):
                 forge_opts.prop(import_properties, "objects")
                 forge_opts.prop(import_properties, "object_representation")
             _ = forge_body.operator("ekur.importforge")
+            forge_opts.prop(import_properties, "override_materials")
+            if import_properties.override_materials:
+                forge_opts.prop(import_properties, "layer1")
+                forge_opts.prop(import_properties, "layer2")
+                forge_opts.prop(import_properties, "layer3")
+                forge_opts.prop(import_properties, "grime")
+                forge_opts.prop(import_properties, "grime_amount")
+                forge_opts.prop(import_properties, "scratch_amount")
 
     def draw_forge_map(self, import_properties: ImportPropertiesType) -> None:
         layout = self.layout

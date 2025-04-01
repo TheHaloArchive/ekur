@@ -149,10 +149,16 @@ class LayeredShader:
                 intention = str(intention)
                 self.find_intention(intention, reg, all, globals, i, is_old_system)
 
+        props = get_import_properties()
         assign_value(self.shader, 7, style["grime_amount"])
+        if style["grime_amount"] != 0.0:
+            props.grime_amount = style["grime_amount"]
+
         if style["grime_swatch"]["disabled"]:
             assign_value(self.shader, 7, 0.0)
         assign_value(self.shader, 17, style["scratch_amount"])
+        if style["scratch_amount"] != 0.0:
+            props.scratch_amount = style["scratch_amount"]
         assign_value(self.shader, 12, True)  # Global Scratch Toggle
         assign_value(self.shader, 122, style_info["texel_density"][0])
         assign_value(self.shader, 123, style_info["texel_density"][1])

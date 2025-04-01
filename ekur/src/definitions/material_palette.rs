@@ -36,6 +36,8 @@ pub struct MaterialSwatchEntry {
     pub emissive_intensity: FieldReal,
     #[data(offset(0x2C))]
     pub emissive_amount: FieldReal,
+    #[data(offset(0x30))]
+    pub notes: FieldStringId,
 }
 
 #[derive(Default, Debug, TagStructure)]

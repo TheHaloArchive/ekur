@@ -259,6 +259,13 @@ class ImportPropertiesType:
     align_bakes: bool = False
     merge_objects: bool = False
     save_normals: bool = False
+    override_materials: bool = False
+    layer1: str = ""
+    layer2: str = ""
+    layer3: str = ""
+    grime: str = ""
+    grime_amount: float = 0.0
+    scratch_amount: float = 0.0
 
 
 def get_import_properties() -> ImportPropertiesType:

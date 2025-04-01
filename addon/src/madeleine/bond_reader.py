@@ -11,6 +11,15 @@ from .bond_types import BondType
 
 
 def type_and_id(data: BufferedReader) -> tuple[int, BondType]:
+    """
+    Gets the type and ID of a BondValue.
+
+    Args:
+    - data: Reader to get the data from.
+
+    Returns:
+    - ID and BondType of the BondValue.
+    """
     id_and_type = data.read(1)[0]
     bond_type = BondType(id_and_type & 0x1F)
     id = id_and_type >> 5
@@ -22,6 +31,15 @@ def type_and_id(data: BufferedReader) -> tuple[int, BondType]:
 
 
 def get_type_count(data: BufferedReader) -> tuple[BondType, int]:
+    """
+    Gets the type and count of an enumerable (like a list or set)
+
+    Args:
+    - data: Reader to get the data from.
+
+    Returns:
+    - BondType and count of the BondValue.
+    """
     len_and_type = data.read(1)[0]
     bond_type = BondType(len_and_type & 0x1F)
     length = len_and_type >> 5
@@ -33,7 +51,14 @@ def get_type_count(data: BufferedReader) -> tuple[BondType, int]:
 
 
 def read_blobs(data: BufferedReader, count: int) -> None:
-    _ = data.read(count)
+    """
+    Skips over a specified amount of bytes that may contain arbitrary data.
+
+    Args:
+    - data: Reader to get the data from.
+    - count: Number of bytes to read.
+    """
+    _ = data.seek(count, 1)
 
 
 def read_list(data: BufferedReader, type: BondType) -> list[BondValue]:

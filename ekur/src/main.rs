@@ -29,6 +29,7 @@ use materials::process_material::process_materials_campaign;
 use materials::serde_definitions::TextureType;
 use model::serialize::process_models;
 use serialize::customization_globals::process_object_globals;
+use serialize::forge_materials::process_forge_materials;
 use serialize::forge_object::process_forge_objects;
 use serialize::scenario_bsp::process_scenarios;
 use serialize::stringlist::process_stringlists;
@@ -185,19 +186,21 @@ fn extract_runtime_coatings(
 fn extract_material_coatings(
     modules: &mut [ModuleFile],
     swatches: &HashMap<i32, MaterialSwatchTag>,
+    palettes: &HashMap<i32, MaterialPaletteTag>,
     save: &str,
     strings: &HashMap<i32, String>,
 ) -> Result<()> {
     std::fs::create_dir_all(format!("{}/material_coatings/", save))?;
     let material_styles = get_tags::<MaterialStylesTag>("mwsy", modules)?;
-    let material_palette = get_tags::<MaterialPaletteTag>("mwpl", modules)?;
-    process_material_coatings(&material_styles, &material_palette, swatches, save, strings)?;
+    process_material_coatings(&material_styles, palettes, swatches, save, strings)?;
     Ok(())
 }
 
 fn extract_forge_objects(
     modules: &mut [ModuleFile],
     models: &HashMap<i32, ModelDefinition>,
+    palettes: &HashMap<i32, MaterialPaletteTag>,
+    swatches: &HashMap<i32, MaterialSwatchTag>,
     save: &str,
 ) -> Result<()> {
     let mut manifest = ForgeObjectManifest::default();
@@ -210,7 +213,11 @@ fn extract_forge_objects(
         stringlists.extend(get_models::<UnicodeStringListGroup>("uslg", module, idx)?);
     }
     let strings = process_stringlists(&stringlists, modules)?;
+    let palette = palettes.get(&1339504468);
     process_forge_objects(modules, &manifest, models, &strings, save)?;
+    if let Some(palette) = palette {
+        process_forge_materials(palette, swatches, &strings, save)?;
+    }
     Ok(())
 }
 
@@ -232,6 +239,7 @@ fn main() -> Result<()> {
     let attachments = get_tags::<AttachmentConfiguration>("ocad", &mut modules)?;
     let models = get_tags::<ModelDefinition>("hlmt", &mut modules)?;
     let coat_swatch = get_tags::<CoatingSwatchPODTag>("cmsw", &mut modules)?;
+    let material_palettes = get_tags::<MaterialPaletteTag>("mwpl", &mut modules)?;
 
     if !args.is_campaign {
         let themes = get_tags::<ObjectTheme>("ocur", &mut modules)?;
@@ -243,7 +251,13 @@ fn main() -> Result<()> {
             save,
             &string_mappings,
         )?;
-        extract_forge_objects(&mut modules, &models, save)?;
+        extract_forge_objects(
+            &mut modules,
+            &models,
+            &material_palettes,
+            &material_swatches,
+            save,
+        )?;
     }
     extract_scenarios(&mut modules, save)?;
     extract_visor_data(&mut modules, &material_swatches, save)?;
@@ -251,7 +265,13 @@ fn main() -> Result<()> {
     extract_coating_globals(&mut modules, &coat_swatch, save)?;
     extract_styles(&mut modules, save, &string_mappings)?;
     extract_runtime_coatings(&mut modules, &coat_swatch, save)?;
-    extract_material_coatings(&mut modules, &material_swatches, save, &string_mappings)?;
+    extract_material_coatings(
+        &mut modules,
+        &material_swatches,
+        &material_palettes,
+        save,
+        &string_mappings,
+    )?;
     if !args.skip_bitmaps {
         extract_all_bitmaps(
             &mut modules,
