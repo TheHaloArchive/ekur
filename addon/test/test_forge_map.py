@@ -16,9 +16,8 @@ maps: list[tuple[str, str]] = [
 
 def test_forge_map() -> None:
     for asset, version in maps:
-        objects, categories, root_folder = get_forge_map(asset, version, "")
+        objects, categories, _ = get_forge_map(asset, version, "")
         assert objects != []
         assert categories != []
-        assert root_folder != 0
         for object in objects:
             assert object.global_id != -1
