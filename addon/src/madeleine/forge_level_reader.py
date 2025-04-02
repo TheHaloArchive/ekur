@@ -175,7 +175,7 @@ def get_category(value: BondValue) -> list[ForgeFolder]:
     return forge_categories
 
 
-def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[ForgeFolder]]:
+def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[ForgeFolder], int]:
     objects: list[ForgeObject] = []
     categories: list[ForgeFolder] = []
     base_struct = get_base_struct(reader)
@@ -187,16 +187,21 @@ def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[Forg
                 forge_object.index = idx
                 objects.append(forge_object)
     folders = base_struct.get_by_id(6)
+    root_folder = 0
     if folders:
         categories = get_category(folders)
-    return objects, categories
+        root = folders.get_by_id(1)
+        if root and type(root.value) is int:
+            root_folder = root.value
+    return objects, categories, root_folder
 
 
 def get_forge_map(
     asset_id: str, version_id: str, file: str
-) -> tuple[list[ForgeObject], list[ForgeFolder]]:
+) -> tuple[list[ForgeObject], list[ForgeFolder], int]:
     objects: list[ForgeObject] = []
     categories: list[ForgeFolder] = []
+    root_folder: int = 0
     url = f"https://blobs-infiniteugc.svc.halowaypoint.com/ugcstorage/map/{asset_id}/{version_id}/map.mvar"
     if file != "":
         with open(file, "rb") as f:
@@ -204,8 +209,8 @@ def get_forge_map(
     try:
         with urllib.request.urlopen(url) as response:  # pyright: ignore[reportAny]
             response = response.read()  # pyright: ignore[reportAny]
-            objects, categories = read_forge_map(BytesIO(response))  # pyright: ignore[reportAny, reportArgumentType]
+            objects, categories, root_folder = read_forge_map(BytesIO(response))  # pyright: ignore[reportAny, reportArgumentType]
 
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download forge map: {e.status}")
-    return objects, categories
+    return objects, categories, root_folder

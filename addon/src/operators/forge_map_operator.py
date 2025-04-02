@@ -99,7 +99,7 @@ class ForgeMapOperator(Operator):
             if split[2] == "www.halowaypoint.com":
                 asset = split[6]
                 version = self.get_waypoint_version()
-        objects, categories = get_forge_map(asset, version, props.mvar_file)
+        objects, categories, root = get_forge_map(asset, version, props.mvar_file)
         objects_path = Path(f"{data}/forge_objects.json")
         definition = read_json_file(objects_path, ForgeObjectDefinition)
         if definition is None or context is None or context.scene is None:
@@ -107,6 +107,7 @@ class ForgeMapOperator(Operator):
         cats: dict[ForgeFolder, tuple[Collection, list[tuple[ForgeFolder, Collection]]]] = {}
         for category in categories:
             cats[category] = self.create_categories(category, context.scene.collection)
+        root_folder = [col for col in cats.items() if col[0].id == root][0]
         for object in objects:
             name: str = ""
             main_collection: Collection | None = None
@@ -181,10 +182,7 @@ class ForgeMapOperator(Operator):
                     instance_obj.scale = object.scale
                     if main_collection:
                         main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
-                    elif (
-                        bpy.context.scene
-                        and instance_obj.name not in bpy.context.scene.collection.objects
-                    ):
-                        bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                    else:
+                        root_folder[1][0].objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
         self._geometry_cache = {}
         return {"FINISHED"}
