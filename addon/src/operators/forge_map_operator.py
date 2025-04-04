@@ -13,9 +13,7 @@ from bpy.types import Collection, Context, Object, Operator
 from mathutils import Matrix, Vector
 
 from ..model.importer.model_importer import ModelImporter
-
 from ..json_definitions import ForgeObjectDefinition
-
 from ..madeleine.forge_level_reader import ForgeFolder, get_forge_map
 from ..utils import get_data_folder, get_import_properties, read_json_file
 
@@ -107,7 +105,10 @@ class ForgeMapOperator(Operator):
         cats: dict[ForgeFolder, tuple[Collection, list[tuple[ForgeFolder, Collection]]]] = {}
         for category in categories:
             cats[category] = self.create_categories(category, context.scene.collection)
-        root_folder = [col for col in cats.items() if col[0].id == root][0]
+        rootf = [col for col in cats.items() if col[0].id == root]
+        root_folder = None
+        if rootf != []:
+            root_folder = rootf[0]
         for object in objects:
             name: str = ""
             main_collection: Collection | None = None
@@ -128,26 +129,23 @@ class ForgeMapOperator(Operator):
             object_def = definition["objects"].get(str(object.global_id))
             if object_def is None:
                 continue
-            representation = [
-                m
-                for m in object_def["representations"]
-                if m["name_int"] == object.variant
-                if not m["is_rtgo"]
-            ]
-            if len(representation) == 0:
-                representation = [
-                    m
-                    for m in object_def["representations"]
-                    if m["variant"] == object.variant
-                    if not m["is_rtgo"]
-                ]
-            if len(representation) == 0:
-                representation = [
-                    m for m in object_def["representations"] if m["name_int"] == object.variant
-                ]
-            if len(representation) == 0:
+            repres = None
+            non_rtgo = [m for m in object_def["representations"] if not m["is_rtgo"]]
+            matching = [m for m in non_rtgo if m["name_int"] == object.variant]
+            if object.variant == 0 or len(non_rtgo) == 1:
+                repres = non_rtgo[0]
+            elif len(matching) == 0 and len(non_rtgo) > 1:
+                repres = non_rtgo[1]
+            elif len(non_rtgo) == 0 and len(object_def["representations"]) != 0:
+                repres = object_def["representations"][0]
+            elif len(matching) > 0:
+                repres = matching[0]
+            else:
+                print(object.__dict__)
+
+            if not repres:
                 continue
-            source_objects = self._get_or_create_geometry(str(representation[0]["model"]))
+            source_objects = self._get_or_create_geometry(str(repres["model"]))
             objects = [obj for obj in source_objects if object.variant == obj["permutation_name"]]
             if len(objects) == 0:
                 objects = [obj for obj in source_objects if object.variant == obj["region_name"]]
@@ -155,14 +153,13 @@ class ForgeMapOperator(Operator):
                 objects = source_objects
             for obj in objects:
                 instance_obj = bpy.data.objects.new(
-                    name=f"{representation[0]['name']}_instance", object_data=obj.data
+                    name=f"[{object.mode.name}] {repres['name']}_instance", object_data=obj.data
                 )
-                instance_obj["permutation_name"] = obj["permutation_name"]
-                instance_obj["region_name"] = obj["region_name"]
+                instance_obj["variant_index"] = object.variant_index
                 if name != "":
                     instance_obj.name = name
 
-                instance_obj.location = object.position
+                instance_obj.location = Vector(object.position)
                 forward = Vector(object.rotation_forward).normalized()
                 up = Vector(object.rotation_up).normalized()
                 right = forward.cross(up)
@@ -182,7 +179,10 @@ class ForgeMapOperator(Operator):
                     instance_obj.scale = object.scale
                     if main_collection:
                         main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
-                    else:
+                    elif root_folder:
                         root_folder[1][0].objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                    elif bpy.context.scene:
+                        bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+
         self._geometry_cache = {}
         return {"FINISHED"}
