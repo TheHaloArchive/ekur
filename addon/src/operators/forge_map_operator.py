@@ -13,7 +13,7 @@ from bpy.types import Collection, Context, Object, Operator
 from mathutils import Matrix, Vector
 
 from ..model.importer.model_importer import ModelImporter
-from ..json_definitions import ForgeObjectDefinition
+from ..json_definitions import ForgeObjectDefinition, ForgeObjectRepresentation
 from ..madeleine.forge_level_reader import ForgeFolder, get_forge_map
 from ..utils import get_data_folder, get_import_properties, read_json_file
 
@@ -109,6 +109,8 @@ class ForgeMapOperator(Operator):
         root_folder = None
         if rootf != []:
             root_folder = rootf[0]
+        if not root_folder:
+            root_folder = [fol for fol in rootf if fol[0].id == 4294967295][0]
         for object in objects:
             name: str = ""
             main_collection: Collection | None = None
@@ -129,7 +131,7 @@ class ForgeMapOperator(Operator):
             object_def = definition["objects"].get(str(object.global_id))
             if object_def is None:
                 continue
-            repres = None
+            repres: None | ForgeObjectRepresentation = None
             non_rtgo = [m for m in object_def["representations"] if not m["is_rtgo"]]
             matching = [m for m in non_rtgo if m["name_int"] == object.variant]
             if object.variant == 0 or len(non_rtgo) == 1:
@@ -140,8 +142,7 @@ class ForgeMapOperator(Operator):
                 repres = object_def["representations"][0]
             elif len(matching) > 0:
                 repres = matching[0]
-
-            if not repres:
+            else:
                 continue
             source_objects = self._get_or_create_geometry(str(repres["model"]))
             objects = [obj for obj in source_objects if object.variant == obj["permutation_name"]]
@@ -153,7 +154,6 @@ class ForgeMapOperator(Operator):
                 instance_obj = bpy.data.objects.new(
                     name=f"[{object.mode.name}] {repres['name']}_instance", object_data=obj.data
                 )
-                instance_obj["variant_index"] = object.variant_index
                 if name != "":
                     instance_obj.name = name
 
