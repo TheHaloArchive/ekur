@@ -24,3 +24,10 @@ class BondType(IntEnum):
     Int64 = 17
     Wstring = 18
     Unavailable = 127
+
+
+class ForgeObjectMode(IntEnum):
+    Dynamic = 1
+    Static = 2
+    Telescoping = 3
+    Kit = 4

@@ -6,6 +6,7 @@ from typing import Self
 import urllib.request
 import urllib.error
 
+from .bond_types import ForgeObjectMode
 from .madeleine import BondValue
 from .bond_reader import get_base_struct
 
@@ -18,6 +19,8 @@ class ForgeObject:
     rotation_forward: list[float] = []
     scale: list[float] = []
     variant: int = 0
+    mode: ForgeObjectMode = ForgeObjectMode(2)
+    variant_index: int = 0
 
 
 class ForgeFolderEntry:
@@ -82,19 +85,20 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     if not properties:
         return
     variant_selector = properties.get_by_id(24)
-    if not variant_selector:
-        return
-    variant_selector = variant_selector.get_value(0)
-    if not variant_selector:
-        return
-    variant = variant_selector.get_value(1)
-    if not variant:
-        return
-    variant = variant.get_value(0)
-    if not variant:
-        return
-    if type(variant.value) is int:
-        forge_object.variant = variant.value
+    if variant_selector:
+        variant_selector = variant_selector.get_value(0)
+        if variant_selector:
+            index = variant_selector.get_by_id(0)
+            if index and type(index.value) is int:
+                forge_object.mode = ForgeObjectMode(index.value)
+            variant_id = variant_selector.get_by_id(2)
+            if variant_id and type(variant_id.value) is int:
+                forge_object.variant_index = variant_id.value
+            variant = variant_selector.get_by_id(1)
+            if variant:
+                variant = variant.get_by_id(0)
+                if variant and type(variant.value) is int:
+                    forge_object.variant = variant.value
 
     scale_selector = properties.get_by_id(23)
     if not scale_selector:
@@ -213,4 +217,9 @@ def get_forge_map(
 
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download forge map: {e.status}")
+
+    unique_variants: set[int] = set()
+    for object in objects:
+        unique_variants.add(object.variant_index)
+    print(unique_variants)
     return objects, categories, root_folder

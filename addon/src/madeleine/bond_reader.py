@@ -62,6 +62,16 @@ def read_blobs(data: BufferedReader, count: int) -> None:
 
 
 def read_list(data: BufferedReader, type: BondType) -> list[BondValue]:
+    """
+    Reads a list of elements of specified type.
+
+    Args:
+    - data: Reader to get the data from.
+    - type: Type of the elements of the list.
+
+    Returns:
+    - List of read elements
+    """
     type, count = get_type_count(data)
     values: list[BondValue] = []
     if type == BondType.List or type == BondType.Int8 or type == BondType.Uint8:
@@ -74,6 +84,15 @@ def read_list(data: BufferedReader, type: BondType) -> list[BondValue]:
 
 
 def read_map(data: BufferedReader) -> dict[BondValue, BondValue]:
+    """
+    Reads a key-value pair map determining the type of both.
+
+    Args:
+    - data: Reader to get the data from.
+
+    Returns:
+    - Dictionary of read elements.
+    """
     key_type = BondType(data.read(1)[0] & 0x1F)
     value_type = BondType(data.read(1)[0] & 0x1F)
     count = uleb128_decode(data)
@@ -86,6 +105,16 @@ def read_map(data: BufferedReader) -> dict[BondValue, BondValue]:
 
 
 def read_wstring(data: BufferedReader) -> str:
+    """
+    Reads a wide (UTF-16) string determining its length (in characters).
+
+    Args:
+    - data: Reader to get the data from.
+
+    Returns:
+    - String read from the buffer
+    - Empty string if UnicodeDecodeError is encountered.
+    """
     length = uleb128_decode(data)
     try:
         dat = data.read(length * 2).decode("utf-16")
@@ -96,6 +125,16 @@ def read_wstring(data: BufferedReader) -> str:
 
 
 def read_string(data: BufferedReader) -> str:
+    """
+    Reads a UTF-8 string determining its length (in characters).
+
+    Args:
+    - data: Reader to get the data from.
+
+    Returns:
+    - String read from the buffer
+    - Empty string if UnicodeDecodeError is encountered.
+    """
     length = uleb128_decode(data)
     try:
         dat = data.read(length).decode("utf-8")
