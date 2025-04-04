@@ -7,6 +7,8 @@ import bpy
 from bpy.types import ArmatureModifier, Material, Mesh, Object
 from mathutils import Vector
 
+from ..rtgo_offset import RtgoOffset
+
 from ...utils import get_import_properties
 from .bone import import_bones
 from .markers import import_markers
@@ -194,7 +196,7 @@ class ModelImporter:
         _ = mesh.validate()
         mesh.update()  # pyright: ignore[reportUnknownMemberType]
 
-    def _create_section(self, section: Section) -> Object | None:
+    def _create_section(self, section: Section, offset: RtgoOffset | None = None) -> Object | None:
         """
         Create a section (submesh) of the model.
 
@@ -245,6 +247,9 @@ class ModelImporter:
         if self.rig:
             self._create_skinning(obj, collection_name, self.rig, section, mesh)
 
+        if offset:
+            obj.location = offset.position.vector
+            obj["permutation_name"] = offset.name
         return obj
 
     def _import_model(self) -> list[Object]:
@@ -264,8 +269,12 @@ class ModelImporter:
                 materials.append(mat)
         objects: list[Object] = []
 
-        for section in self.model.sections:
-            obj = self._create_section(section)
+        for idx, section in enumerate(self.model.sections):
+            per_mesh_data = None
+            per_mesh_datas = [pmd for pmd in self.model.offsets if pmd.mesh_index == idx]
+            if per_mesh_datas != []:
+                per_mesh_data = per_mesh_datas[0]
+            obj = self._create_section(section, per_mesh_data)
             if obj:
                 self._create_normals(section, cast(Mesh, obj.data))
                 objects.append(obj)

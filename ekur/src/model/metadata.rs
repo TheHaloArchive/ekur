@@ -25,6 +25,7 @@ const MAGIC: &str = "SURA";
 pub(super) fn write_header(reader: &mut BufWriter<File>, model: &RenderModel) -> Result<()> {
     reader.write_all(MAGIC.as_bytes())?;
     reader.write_i32::<LE>(model.any_tag.internal_struct.tag_id)?;
+    reader.write_u8(0)?;
     reader.write_u32::<LE>(model.regions.size)?;
     reader.write_u32::<LE>(model.nodes.size)?;
     reader.write_u32::<LE>(model.marker_groups.size)?;
@@ -50,6 +51,7 @@ pub(super) fn write_header(reader: &mut BufWriter<File>, model: &RenderModel) ->
 pub(super) fn write_header_rtgo(reader: &mut BufWriter<File>, model: &RuntimeGeo) -> Result<()> {
     reader.write_all(MAGIC.as_bytes())?;
     reader.write_i32::<LE>(model.any_tag.internal_struct.tag_id)?;
+    reader.write_u8(1)?;
     reader.write_u32::<LE>(0)?;
     reader.write_u32::<LE>(0)?;
     reader.write_u32::<LE>(model.markers.size)?;
@@ -69,6 +71,7 @@ pub(super) fn write_header_rtgo(reader: &mut BufWriter<File>, model: &RuntimeGeo
     reader.write_u32::<LE>(section_size as u32)?;
     reader.write_u32::<LE>(model.bounding_boxes.size)?;
     reader.write_u32::<LE>(0)?;
+    reader.write_u32::<LE>(model.per_mesh_data.size)?;
     Ok(())
 }
 
@@ -78,6 +81,7 @@ pub(super) fn write_header_particle(
 ) -> Result<()> {
     reader.write_all(MAGIC.as_bytes())?;
     reader.write_i32::<LE>(model.any_tag.internal_struct.tag_id)?;
+    reader.write_u8(0)?;
     reader.write_u32::<LE>(0)?;
     reader.write_u32::<LE>(0)?;
     reader.write_u32::<LE>(0)?;

@@ -249,6 +249,14 @@ pub fn process_models(
         write_markers_rtgo(&mut writer, model.1, string_mappings)?;
         write_bounding_boxes(&mut writer, &model.1.bounding_boxes)?;
 
+        for per_mesh in &model.1.per_mesh_data.elements {
+            writer.write_i32::<LE>(per_mesh.name.0)?;
+            writer.write_i16::<LE>(per_mesh.mesh_index.0)?;
+            writer.write_all(&per_mesh.position.x.to_le_bytes())?;
+            writer.write_all(&per_mesh.position.y.to_le_bytes())?;
+            writer.write_all(&per_mesh.position.z.to_le_bytes())?;
+        }
+
         let buffers = get_buffers(model, modules, &Vec::new())?;
         let api_resource = model.1.mesh_resource_groups.elements.first();
         for (section_index, section) in model.1.sections.elements.iter().enumerate() {

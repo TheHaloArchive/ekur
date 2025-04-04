@@ -2,6 +2,7 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 
+from .rtgo_offset import RtgoOffset
 from .blendshape_bounding_box_buffer import BlendShapeBoundingBox
 from .section import Section
 from .bounding_box import BoundingBox
@@ -20,6 +21,7 @@ class Model:
         self.bones: list[Bone] = []
         self.markers: list[Marker] = []
         self.bounding_boxes: list[BoundingBox] = []
+        self.offsets: list[RtgoOffset] = []
         self.materials: list[int] = []
         self.sections: list[Section] = []
         self.blendshape_bounding_boxes: list[BlendShapeBoundingBox] = []
@@ -42,6 +44,10 @@ class Model:
             bounding_box = BoundingBox()
             bounding_box.read(reader)
             self.bounding_boxes.append(bounding_box)
+        for _ in range(self.header.offset_count):
+            offset = RtgoOffset()
+            offset.read(reader)
+            self.offsets.append(offset)
         for _ in range(self.header.material_count):
             material = int.from_bytes(reader.read(4), "little", signed=True)
             self.materials.append(material)
