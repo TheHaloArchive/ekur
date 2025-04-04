@@ -140,8 +140,6 @@ class ForgeMapOperator(Operator):
                 repres = object_def["representations"][0]
             elif len(matching) > 0:
                 repres = matching[0]
-            else:
-                print(object.__dict__)
 
             if not repres:
                 continue

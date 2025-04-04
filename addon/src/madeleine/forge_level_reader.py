@@ -218,8 +218,4 @@ def get_forge_map(
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download forge map: {e.status}")
 
-    unique_variants: set[int] = set()
-    for object in objects:
-        unique_variants.add(object.variant_index)
-    print(unique_variants)
     return objects, categories, root_folder
