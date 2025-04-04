@@ -13,7 +13,3 @@ updates:
     directory: "/addon/" # Location of package manifests
     schedule:
       interval: "weekly"
-    groups:
-      python-packages:
-        patterns:
-          - "*"
