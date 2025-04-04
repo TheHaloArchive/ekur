@@ -27,7 +27,6 @@ class BlendShapePositionBuffer:
 
         unique_index: set[int] = set()
         unique_index.update([x.index for x in positions])
-        print(unique_index)
 
         for unique in unique_index:
             self.positions.append([x for x in positions if x.index == unique])
