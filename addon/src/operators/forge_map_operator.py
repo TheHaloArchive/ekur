@@ -10,12 +10,36 @@ import urllib.request
 
 import bpy
 from bpy.types import Collection, Context, Object, Operator
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
+
+from ..constants import INCORRECT_RTGOS
 
 from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import ForgeObjectDefinition, ForgeObjectRepresentation
 from ..madeleine.forge_level_reader import ForgeFolder, get_forge_map
 from ..utils import get_data_folder, get_import_properties, read_json_file
+
+
+def apply_rtgo_transform(
+    pos: list[float],
+    offset: Vector,
+    scale: list[float],
+    rotation: Quaternion,
+) -> list[float]:
+    scaled_offset = Vector(
+        (
+            offset[0] * scale[0],
+            offset[1] * scale[1],
+            offset[2] * scale[2],
+        )
+    )
+    scaled_offset.rotate(rotation)  # pyright: ignore[reportUnknownMemberType]
+    new_axis: list[float] = [
+        pos[0] + scaled_offset[0],
+        pos[1] + scaled_offset[1],
+        pos[2] + scaled_offset[2],
+    ]
+    return new_axis
 
 
 @final
@@ -110,7 +134,7 @@ class ForgeMapOperator(Operator):
         if rootf != []:
             root_folder = rootf[0]
         if not root_folder:
-            root_folder = [fol for fol in rootf if fol[0].id == 4294967295][0]
+            root_folder = [fol for fol in cats.items() if fol[0].id == 4294967295][0]
         for object in objects:
             name: str = ""
             main_collection: Collection | None = None
@@ -134,10 +158,13 @@ class ForgeMapOperator(Operator):
             repres: None | ForgeObjectRepresentation = None
             non_rtgo = [m for m in object_def["representations"] if not m["is_rtgo"]]
             matching = [m for m in non_rtgo if m["name_int"] == object.variant]
-            if object.variant == 0 or len(non_rtgo) == 1:
+            if (object.variant == 0 and len(non_rtgo) > 0) or len(non_rtgo) == 1:
                 repres = non_rtgo[0]
             elif len(matching) == 0 and len(non_rtgo) > 1:
-                repres = non_rtgo[1]
+                if object.global_id in INCORRECT_RTGOS:
+                    repres = non_rtgo[0]
+                else:
+                    repres = non_rtgo[1]
             elif len(non_rtgo) == 0 and len(object_def["representations"]) != 0:
                 repres = object_def["representations"][0]
             elif len(matching) > 0:
@@ -157,7 +184,6 @@ class ForgeMapOperator(Operator):
                 if name != "":
                     instance_obj.name = name
 
-                instance_obj.location = Vector(object.position)
                 forward = Vector(object.rotation_forward).normalized()
                 up = Vector(object.rotation_up).normalized()
                 right = forward.cross(up)
@@ -172,6 +198,9 @@ class ForgeMapOperator(Operator):
                         )
                     )
                     quat = rot_matrix.to_quaternion()
+                    instance_obj.location = Vector(
+                        apply_rtgo_transform(object.position, obj.location, object.scale, quat)
+                    )
                     instance_obj.rotation_mode = "QUATERNION"
                     instance_obj.rotation_quaternion = quat
                     instance_obj.scale = object.scale
