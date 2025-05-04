@@ -12,7 +12,7 @@ import bpy
 from bpy.types import Collection, Context, Object, Operator
 from mathutils import Matrix, Quaternion, Vector
 
-from ..constants import INCORRECT_RTGOS
+from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
 
 from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import ForgeObjectDefinition, ForgeObjectRepresentation
@@ -178,6 +178,14 @@ class ForgeMapOperator(Operator):
             if len(objects) == 0:
                 objects = source_objects
             for obj in objects:
+                if props.remove_blockers:
+                    mats = [
+                        m
+                        for m in obj.material_slots
+                        if m.material and m.material.name in BLOCKER_MATERIAL
+                    ]
+                    if len(mats) > 0:
+                        continue
                 instance_obj = bpy.data.objects.new(
                     name=f"[{object.mode.name}] {repres['name']}_instance", object_data=obj.data
                 )

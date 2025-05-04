@@ -197,6 +197,7 @@ class ImportProperties(PropertyGroup):
     url: StringProperty(name="URL", default="")
     use_file: BoolProperty(name="Use MVAR File", default=False)
     import_folders: BoolProperty(name="Import Folders", default=True)
+    remove_blockers: BoolProperty(name="Remove Blockers", default=True)
     mvar_file: StringProperty(
         name="MVAR File",
         description="Path to .mvar file to import.",
@@ -413,6 +414,7 @@ class CoatingImportPanel(Panel):
             forge_opts = forge_body.box()
             forge_opts.prop(import_properties, "url")
             forge_opts.prop(import_properties, "import_folders")
+            forge_opts.prop(import_properties, "remove_blockers")
             op = forge_opts.operator("wm.url_open", text="Browse Maps (Cylix)", icon="URL")
             op.url = "https://cylix.guide/discovery/"  # pyright: ignore[reportAttributeAccessIssue]
             op = forge_opts.operator("wm.url_open", text="Browse Maps (Waypoint)", icon="URL")

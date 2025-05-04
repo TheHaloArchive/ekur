@@ -266,6 +266,7 @@ class ImportPropertiesType:
     grime: str = ""
     grime_amount: float = 0.0
     scratch_amount: float = 0.0
+    remove_blockers: bool = True
 
 
 def get_import_properties() -> ImportPropertiesType:

@@ -10,6 +10,7 @@ __all__ = [
     "ANY_REGION",
     "TRANSPARENT_INTENTIONS",
     "INCORRECT_RTGOS",
+    "BLOCKER_MATERIAL",
 ]
 
 version = (1, 1, 5)
@@ -31,4 +32,12 @@ INCORRECT_RTGOS: list[int] = [
     -2048057069,
     -453665744,
     1100028612,
+]
+BLOCKER_MATERIAL: list[str] = [
+    "-878406789",
+    "965740555",
+    "-1888813254",
+    "1338044235",
+    "2117287907",
+    "-955918340",
 ]
