@@ -503,9 +503,10 @@ class HIMS:
 
         _: NodeLink
         _ = self.node_tree.links.new(addtovoronoi.outputs[0], multvoronoi2.inputs[0])
-        _ = self.node_tree.links.new(bump.outputs[0], bump_001.inputs[3])
         if bpy.app.version > (4, 4, 0):
             _ = self.node_tree.links.new(bump.outputs[0], bump_001.inputs[4])
+        else:
+            _ = self.node_tree.links.new(bump.outputs[0], bump_001.inputs[3])
         _ = self.node_tree.links.new(bump_001.outputs[0], group_output_17.inputs[8])
         _ = self.node_tree.links.new(bump_001.outputs[0], principled_bsdf.inputs[5])
         _ = self.node_tree.links.new(clamp_001.outputs[0], group_022.inputs[4])
@@ -759,21 +760,25 @@ class HIMS:
         _ = self.node_tree.links.new(mix_006_7.outputs[2], group_output_17.inputs[6])
         _ = self.node_tree.links.new(mix_11.outputs[2], principled_bsdf.inputs[0])
         _ = self.node_tree.links.new(mult.outputs[0], math_003_2.inputs[0])
-        _ = self.node_tree.links.new(mult2.outputs[0], bump_001.inputs[2])
         if bpy.app.version > (4, 4, 0):
             _ = self.node_tree.links.new(mult2.outputs[0], bump_001.inputs[3])
-        _ = self.node_tree.links.new(mult3.outputs[0], bump.inputs[2])
+        else:
+            _ = self.node_tree.links.new(mult2.outputs[0], bump_001.inputs[2])
         if bpy.app.version > (4, 4, 0):
             _ = self.node_tree.links.new(mult3.outputs[0], bump.inputs[3])
+        else:
+            _ = self.node_tree.links.new(mult3.outputs[0], bump.inputs[2])
+
         _ = self.node_tree.links.new(mult_xscale.outputs[0], combinemult.inputs[1])
         _ = self.node_tree.links.new(mult_yscale.outputs[0], combinemult.inputs[0])
         _ = self.node_tree.links.new(multvoronoi.outputs[0], addtovoronoi.inputs[0])
         _ = self.node_tree.links.new(multvoronoi2.outputs[0], mult.inputs[1])
         _ = self.node_tree.links.new(musgrave_texture.outputs[0], multvoronoi.inputs[0])
         _ = self.node_tree.links.new(nogrimecol.outputs[0], infinite_color.inputs[11])
-        _ = self.node_tree.links.new(normal_map.outputs[0], bump.inputs[3])
         if bpy.app.version > (4, 4, 0):
             _ = self.node_tree.links.new(normal_map.outputs[0], bump.inputs[4])
+        else:
+            _ = self.node_tree.links.new(normal_map.outputs[0], bump.inputs[3])
         _ = self.node_tree.links.new(principled_bsdf.outputs[0], group_output_17.inputs[0])
         _ = self.node_tree.links.new(separate_asg_cubic.outputs[1], colorramp.inputs[0])
         _ = self.node_tree.links.new(separate_color_001.outputs[0], cyan.inputs[0])
