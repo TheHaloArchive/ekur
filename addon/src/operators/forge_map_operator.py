@@ -110,10 +110,8 @@ class ForgeMapOperator(Operator):
             logging.error(f"Failed to download waypoint html: {e.status}")
         return ""
 
-    def execute(self, context: Context | None) -> set[str]:
+    def get_asset_version(self, split: list[str]) -> tuple[str, str]:
         props = get_import_properties()
-        data = get_data_folder()
-        split = props.url.split("/")
         asset, version = "", ""
         if not props.use_file:
             if split[2] == "cylix.guide":
@@ -121,21 +119,28 @@ class ForgeMapOperator(Operator):
             if split[2] == "www.halowaypoint.com":
                 asset = split[6]
                 version = self.get_waypoint_version()
-        objects, categories, root = get_forge_map(asset, version, props.mvar_file)
+        return asset, version
+
+    def execute(self, context: Context | None) -> set[str]:
+        props = get_import_properties()
+        data = get_data_folder()
+        split = props.url.split("/")
+        asset, version = self.get_asset_version(split)
+        level = get_forge_map(asset, version, props.mvar_file)
         objects_path = Path(f"{data}/forge_objects.json")
         definition = read_json_file(objects_path, ForgeObjectDefinition)
         if definition is None or context is None or context.scene is None:
             return {"CANCELLED"}
         cats: dict[ForgeFolder, tuple[Collection, list[tuple[ForgeFolder, Collection]]]] = {}
-        for category in categories:
+        for category in level.categories:
             cats[category] = self.create_categories(category, context.scene.collection)
-        rootf = [col for col in cats.items() if col[0].id == root]
+        rootf = [col for col in cats.items() if col[0].id == level.root_category]
         root_folder = None
         if rootf != []:
             root_folder = rootf[0]
         if not root_folder:
             root_folder = [fol for fol in cats.items() if fol[0].id == 4294967295][0]
-        for object in objects:
+        for object in level.objects:
             name: str = ""
             main_collection: Collection | None = None
             if props.import_folders:

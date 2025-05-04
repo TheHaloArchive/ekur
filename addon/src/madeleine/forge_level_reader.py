@@ -56,6 +56,13 @@ class ForgeFolder:
     subcategories: list[Self] = []
 
 
+class ForgeLevel:
+    objects: list[ForgeObject] = []
+    categories: list[ForgeFolder] = []
+    materials: list[ForgeMaterial] = []
+    root_category: int = 0
+
+
 def get_forge_item(item: BondValue) -> ForgeObject | None:
     forge_object = ForgeObject()
     id_struct = item.get_by_id(2)
@@ -237,9 +244,8 @@ def read_layer(value: BondValue) -> ForgeLayer:
     return layer
 
 
-def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[ForgeFolder], int]:
-    objects: list[ForgeObject] = []
-    categories: list[ForgeFolder] = []
+def read_forge_map(reader: BufferedReader) -> ForgeLevel:
+    level = ForgeLevel()
     base_struct = get_base_struct(reader)
     base = base_struct.get_by_id(3)
     if base:
@@ -247,10 +253,9 @@ def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[Forg
             forge_object = get_forge_item(item)
             if forge_object:
                 forge_object.index = idx
-                objects.append(forge_object)
+                level.objects.append(forge_object)
     folders = base_struct.get_by_id(6)
     mats = base_struct.get_by_id(8)
-    materials: list[ForgeMaterial] = []
     if mats:
         for mat in mats.get_elements():
             material = ForgeMaterial()
@@ -276,23 +281,19 @@ def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[Forg
                 if type(id.value) is int:
                     material.name = id.value
 
-            materials.append(material)
+            level.materials.append(material)
 
-    root_folder = 0
     if folders:
-        categories = get_category(folders)
+        level.categories = get_category(folders)
+
         root = folders.get_by_id(1)
         if root and type(root.value) is int:
-            root_folder = root.value
-    return objects, categories, root_folder
+            level.root_category = root.value
+    return level
 
 
-def get_forge_map(
-    asset_id: str, version_id: str, file: str
-) -> tuple[list[ForgeObject], list[ForgeFolder], int]:
-    objects: list[ForgeObject] = []
-    categories: list[ForgeFolder] = []
-    root_folder: int = 0
+def get_forge_map(asset_id: str, version_id: str, file: str) -> ForgeLevel:
+    level = ForgeLevel()
     url = f"https://blobs-infiniteugc.svc.halowaypoint.com/ugcstorage/map/{asset_id}/{version_id}/map.mvar"
     if file != "":
         with open(file, "rb") as f:
@@ -300,9 +301,9 @@ def get_forge_map(
     try:
         with urllib.request.urlopen(url) as response:  # pyright: ignore[reportAny]
             response = response.read()  # pyright: ignore[reportAny]
-            objects, categories, root_folder = read_forge_map(BytesIO(response))  # pyright: ignore[reportAny, reportArgumentType]
+            level = read_forge_map(BytesIO(response))  # pyright: ignore[reportAny, reportArgumentType]
 
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download forge map: {e.status}")
 
-    return objects, categories, root_folder
+    return level
