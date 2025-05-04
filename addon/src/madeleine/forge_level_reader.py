@@ -11,6 +11,24 @@ from .madeleine import BondValue
 from .bond_reader import get_base_struct
 
 
+class ForgeLayer:
+    swatch: int = 0
+    color: int = 0
+    color_intensity: float = 0.0
+    color_spread: float = 0.0
+    roughness: float = 0.0
+    force_metallic: bool = False
+    force_off_metallic: bool = False
+
+
+class ForgeMaterial:
+    name: int = 0
+    layers: list[ForgeLayer] = []
+    grime: int = 0
+    scratch_amount: float = 0.0
+    grime_amount: float = 0.0
+
+
 class ForgeObject:
     index: int = 0
     global_id: int = 0
@@ -21,6 +39,7 @@ class ForgeObject:
     variant: int = 0
     mode: ForgeObjectMode = ForgeObjectMode(2)
     variant_index: int = 0
+    material_id: int = 0
 
 
 class ForgeFolderEntry:
@@ -84,6 +103,17 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     properties = item.get_by_id(8)
     if not properties:
         return
+
+    material_id = properties.get_by_id(0)
+    if material_id:
+        misc_properties = material_id.get_by_id(0)
+        if misc_properties:
+            matprops = misc_properties.get_by_id(13)
+            if matprops and len(matprops.get_elements()) > 0:
+                m = matprops.get_elements()[0].value
+                if type(m) is int:
+                    forge_object.material_id = m
+
     variant_selector = properties.get_by_id(24)
     if variant_selector:
         variant_selector = variant_selector.get_value(0)
@@ -179,6 +209,34 @@ def get_category(value: BondValue) -> list[ForgeFolder]:
     return forge_categories
 
 
+def read_layer(value: BondValue) -> ForgeLayer:
+    layer = ForgeLayer()
+    _swatch_id = value.get_by_id(1)
+    if _swatch_id and len(_swatch_id.get_elements()) > 0:
+        swatch_id = _swatch_id.get_elements()[0]
+        if type(swatch_id.value) is int:
+            layer.swatch = swatch_id.value
+    color = value.get_by_id(10)
+    if color and type(color.value) is int:
+        layer.color = color.value
+    color_intensity = value.get_by_id(3)
+    if color_intensity and type(color_intensity.value) is float:
+        layer.color_intensity = color_intensity.value
+    color_spread = value.get_by_id(8)
+    if color_spread and type(color_spread.value) is float:
+        layer.color_spread = color_spread.value
+    roughness = value.get_by_id(4)
+    if roughness and type(roughness.value) is float:
+        layer.roughness = roughness.value
+    force_on = value.get_by_id(5)
+    if force_on and type(force_on.value) is bool:
+        layer.force_metallic = force_on.value
+    force_off = value.get_by_id(6)
+    if force_off and type(force_off.value) is bool:
+        layer.force_off_metallic = force_off.value
+    return layer
+
+
 def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[ForgeFolder], int]:
     objects: list[ForgeObject] = []
     categories: list[ForgeFolder] = []
@@ -191,6 +249,35 @@ def read_forge_map(reader: BufferedReader) -> tuple[list[ForgeObject], list[Forg
                 forge_object.index = idx
                 objects.append(forge_object)
     folders = base_struct.get_by_id(6)
+    mats = base_struct.get_by_id(8)
+    materials: list[ForgeMaterial] = []
+    if mats:
+        for mat in mats.get_elements():
+            material = ForgeMaterial()
+            layers = [mat.get_by_id(3), mat.get_by_id(4), mat.get_by_id(5), mat.get_by_id(6)]
+            for layer in layers:
+                if layer:
+                    material.layers.append(read_layer(layer))
+            scratch_amount = mat.get_by_id(9)
+            if scratch_amount and type(scratch_amount.value) is float:
+                material.scratch_amount = scratch_amount.value
+            grime_amount = mat.get_by_id(10)
+            if grime_amount and type(grime_amount.value) is float:
+                material.grime_amount = grime_amount.value
+            grime = mat.get_by_id(8)
+            if grime and len(grime.get_elements()) > 0:
+                grime_id = grime.get_elements()[0]
+                if type(grime_id.value) is int:
+                    material.grime = grime_id.value
+
+            id = mat.get_by_id(1)
+            if id and len(id.get_elements()) > 0:
+                id = id.get_elements()[0]
+                if type(id.value) is int:
+                    material.name = id.value
+
+            materials.append(material)
+
     root_folder = 0
     if folders:
         categories = get_category(folders)
