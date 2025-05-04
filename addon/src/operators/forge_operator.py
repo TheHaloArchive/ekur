@@ -109,11 +109,13 @@ class ForgeOperator(Operator):
                 if idx == 3:
                     self.index = 97
                 l1 = [layer for layer in globals["layers"].items() if layer[0] == lay][0]
-                layer = Layer(l1[1], l1[0])
+                layer = Layer(l1[1]["layer"], l1[0])
                 swatch = create_node(mat.node_tree.nodes, 0, 0, ShaderNodeGroup)
                 swatch.node_tree = cast(ShaderNodeTree, layer.node_tree)
                 is_grime = idx == 3
-                self.import_layer(material, shader, swatch, mat, l1[1]["emissive_amount"], is_grime)
+                self.import_layer(
+                    material, shader, swatch, mat, l1[1]["layer"]["emissive_amount"], is_grime
+                )
                 self.index += 14
 
     def execute(self, context: Context | None) -> set[str]:

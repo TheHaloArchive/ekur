@@ -6,6 +6,7 @@ use anyhow::Result;
 use bitmap::extract::extract_all_bitmaps;
 use clap::Parser;
 use definitions::customization_globals::CustomizationGlobals;
+use definitions::forge_globals::ForgeGlobals;
 use definitions::forge_manifest::ForgeObjectManifest;
 use definitions::material::MaterialTagCampaign;
 use definitions::model::ModelDefinition;
@@ -204,11 +205,16 @@ fn extract_forge_objects(
     save: &str,
 ) -> Result<()> {
     let mut manifest = ForgeObjectManifest::default();
+    let mut globals = ForgeGlobals::default();
     let mut stringlists = HashMap::new();
     for (idx, module) in modules.iter_mut().enumerate() {
         let m = module.read_tag_from_id(-117678174)?;
         if let Some(m) = m {
             m.read_metadata(&mut manifest)?;
+        }
+        let m = module.read_tag_from_id(81)?;
+        if let Some(m) = m {
+            m.read_metadata(&mut globals)?;
         }
         stringlists.extend(get_models::<UnicodeStringListGroup>("uslg", module, idx)?);
     }
@@ -216,7 +222,7 @@ fn extract_forge_objects(
     let palette = palettes.get(&1339504468);
     process_forge_objects(modules, &manifest, models, &strings, save)?;
     if let Some(palette) = palette {
-        process_forge_materials(palette, swatches, &strings, save)?;
+        process_forge_materials(palette, swatches, &strings, &globals, save)?;
     }
     Ok(())
 }

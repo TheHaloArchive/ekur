@@ -21,12 +21,19 @@ class ForgeLayer:
     force_off_metallic: bool = False
 
 
-class ForgeMaterial:
-    name: int = 0
-    layers: list[ForgeLayer] = []
-    grime: int = 0
-    scratch_amount: float = 0.0
-    grime_amount: float = 0.0
+class ForgeMat:
+    name: int
+    layers: list[ForgeLayer]
+    grime: int
+    scratch_amount: float
+    grime_amount: float
+
+    def __init__(self):
+        self.name = 0
+        self.layers = []  # Each instance gets its own list
+        self.grime = 0
+        self.scratch_amount = 0.0
+        self.grime_amount = 0.0
 
 
 class ForgeObject:
@@ -59,7 +66,7 @@ class ForgeFolder:
 class ForgeLevel:
     objects: list[ForgeObject] = []
     categories: list[ForgeFolder] = []
-    materials: list[ForgeMaterial] = []
+    materials: list[ForgeMat] = []
     root_category: int = 0
 
 
@@ -258,7 +265,7 @@ def read_forge_map(reader: BufferedReader) -> ForgeLevel:
     mats = base_struct.get_by_id(8)
     if mats:
         for mat in mats.get_elements():
-            material = ForgeMaterial()
+            material = ForgeMat()
             layers = [mat.get_by_id(3), mat.get_by_id(4), mat.get_by_id(5), mat.get_by_id(6)]
             for layer in layers:
                 if layer:

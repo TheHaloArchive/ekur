@@ -6,6 +6,7 @@ pub mod coating_swatch;
 pub mod crate_block;
 pub mod customization_globals;
 pub mod equipment;
+pub mod forge_globals;
 pub mod forge_manifest;
 pub mod forge_object_definition;
 pub mod material;

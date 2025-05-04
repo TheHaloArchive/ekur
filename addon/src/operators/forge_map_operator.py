@@ -9,15 +9,28 @@ import urllib.request
 
 
 import bpy
-from bpy.types import Collection, Context, Object, Operator
+from bpy.types import (
+    Collection,
+    Context,
+    Mesh,
+    Object,
+    Operator,
+)
 from mathutils import Matrix, Quaternion, Vector
 
 from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
 
 from ..model.importer.model_importer import ModelImporter
-from ..json_definitions import ForgeObjectDefinition, ForgeObjectRepresentation
-from ..madeleine.forge_level_reader import ForgeFolder, get_forge_map
-from ..utils import get_data_folder, get_import_properties, read_json_file
+from ..json_definitions import (
+    ForgeObjectDefinition,
+    ForgeObjectRepresentation,
+)
+from ..madeleine.forge_level_reader import ForgeFolder, ForgeMat, get_forge_map
+from ..utils import (
+    get_data_folder,
+    get_import_properties,
+    read_json_file,
+)
 
 
 def apply_rtgo_transform(
@@ -49,6 +62,10 @@ class ForgeMapOperator(Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     _geometry_cache: dict[str, list[Object]] = {}
+
+    def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
+        super().__init__(*args, **kwargs)
+        self.index: int = 0
 
     def _get_or_create_geometry(self, global_id: str) -> list[Object]:
         if global_id in self._geometry_cache or bpy.context.scene is None:
@@ -139,7 +156,11 @@ class ForgeMapOperator(Operator):
         if rootf != []:
             root_folder = rootf[0]
         if not root_folder:
-            root_folder = [fol for fol in cats.items() if fol[0].id == 4294967295][0]
+            root = [fol for fol in cats.items() if fol[0].id == 4294967295]
+            if len(root) > 0:
+                root_folder = root[0]
+        if not root_folder:
+            root_folder = [col for col in cats.items()][0]
         for object in level.objects:
             name: str = ""
             main_collection: Collection | None = None
@@ -194,6 +215,7 @@ class ForgeMapOperator(Operator):
                 instance_obj = bpy.data.objects.new(
                     name=f"[{object.mode.name}] {repres['name']}_instance", object_data=obj.data
                 )
+
                 if name != "":
                     instance_obj.name = name
 
@@ -223,6 +245,14 @@ class ForgeMapOperator(Operator):
                         root_folder[1][0].objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
                     elif bpy.context.scene:
                         bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+
+                if type(instance_obj.data) is Mesh and "UV1" in instance_obj.data.uv_layers:
+                    instance_obj.data.uv_layers["UV1"].active_render = True
+                    instance_obj.data.uv_layers["UV1"].active = True
+
+                instance_obj.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+                if context.view_layer:
+                    context.view_layer.objects.active = instance_obj
 
         self._geometry_cache = {}
         return {"FINISHED"}

@@ -344,5 +344,11 @@ class Attachment(TypedDict):
     TagId: int
 
 
+class ForgeLayer(TypedDict):
+    name: int
+    layer: CommonLayer
+
+
 class ForgeMaterial(TypedDict):
-    layers: dict[str, CommonLayer]
+    layers: dict[str, ForgeLayer]
+    colors: list[tuple[float, float, float]]
