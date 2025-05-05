@@ -176,7 +176,7 @@ class ForgeOperator(Operator):
                             if context.view_layer:
                                 context.view_layer.objects.active = object
                             properties.use_default = False
-                            properties.coat_id = str(obj["id"])
+                            properties.coat_id = str(representation["style"])
                             import_materials()
                             if properties.override_materials:
                                 self.import_materials(object)

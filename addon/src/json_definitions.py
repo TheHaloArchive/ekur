@@ -244,12 +244,14 @@ class ForgeObjectRepresentation(TypedDict):
     name_int: int
     model: int
     variant: int
+    style: int
     is_rtgo: bool
 
 
 class ForgeObject(TypedDict):
     name: str
     id: int
+    default_variant: int
     representations: list[ForgeObjectRepresentation]
 
 

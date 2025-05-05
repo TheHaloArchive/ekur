@@ -3,7 +3,7 @@
 import logging
 from pathlib import Path
 import re
-from typing import final
+from typing import cast, final
 import urllib.error
 import urllib.request
 
@@ -12,21 +12,34 @@ import bpy
 from bpy.types import (
     Collection,
     Context,
+    Material,
     Mesh,
+    Node,
     Object,
     Operator,
+    ShaderNodeGroup,
+    ShaderNodeMix,
+    ShaderNodeTree,
 )
 from mathutils import Matrix, Quaternion, Vector
+
+from ..nodes.layer import Layer
+
+from .material_operator import import_materials
 
 from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
 
 from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import (
+    CommonMaterial,
+    ForgeMaterial,
     ForgeObjectDefinition,
     ForgeObjectRepresentation,
 )
-from ..madeleine.forge_level_reader import ForgeFolder, ForgeMat, get_forge_map
+from ..madeleine.forge_level_reader import ForgeFolder, ForgeLevel, get_forge_map
 from ..utils import (
+    assign_value,
+    create_node,
     get_data_folder,
     get_import_properties,
     read_json_file,
@@ -67,11 +80,46 @@ class ForgeMapOperator(Operator):
         super().__init__(*args, **kwargs)
         self.index: int = 0
 
-    def _get_or_create_geometry(self, global_id: str) -> list[Object]:
+    def import_layer(
+        self,
+        material: CommonMaterial,
+        shader: ShaderNodeGroup,
+        swatch: Node,
+        mat: Material,
+        emissive: float,
+        is_grime: bool,
+    ) -> None:
+        if material["style_info"]:
+            assign_value(swatch, 0, material["style_info"]["texel_density"][0])
+            assign_value(swatch, 1, material["style_info"]["texel_density"][1])
+            assign_value(swatch, 6, material["style_info"]["material_offset"][0])
+            assign_value(swatch, 7, material["style_info"]["material_offset"][1])
+        if not mat.node_tree:
+            return
+        _ = mat.node_tree.links.new(swatch.outputs[0], shader.inputs[14 + self.index])
+        _ = mat.node_tree.links.new(swatch.outputs[1], shader.inputs[15 + self.index])
+        _ = mat.node_tree.links.new(swatch.outputs[2], shader.inputs[16 + self.index])
+        if is_grime:
+            _ = mat.node_tree.links.new(swatch.outputs[5], shader.inputs[17 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[6], shader.inputs[20 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[7], shader.inputs[21 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[8], shader.inputs[22 + self.index])
+        else:
+            assign_value(shader, 22 + self.index, emissive)
+            _ = mat.node_tree.links.new(swatch.outputs[3], shader.inputs[18 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[4], shader.inputs[19 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[5], shader.inputs[20 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[6], shader.inputs[23 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[7], shader.inputs[24 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[8], shader.inputs[25 + self.index])
+            _ = mat.node_tree.links.new(swatch.outputs[9], shader.inputs[26 + self.index])
+
+    def _get_or_create_geometry(self, global_id: str, style: int) -> list[Object]:
         if global_id in self._geometry_cache or bpy.context.scene is None:
             return self._geometry_cache[global_id]
 
         data = get_data_folder()
+        props = get_import_properties()
         path = f"{data}/models/{global_id}.ekur"
         if not Path(path).exists():
             path = f"{data}/runtime_geo/{global_id}.ekur"
@@ -83,14 +131,18 @@ class ForgeMapOperator(Operator):
             master_collection = bpy.data.collections.new("Master Geometries")
             bpy.context.scene.collection.children.link(master_collection)  # pyright: ignore[reportUnknownMemberType]
 
-        master_collection.hide_viewport = True
-        master_collection.hide_render = True
-
         source_objects = imported_objects
         for source_object in source_objects:
             if source_object.name in bpy.context.scene.collection.objects:
                 bpy.context.scene.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
             master_collection.objects.link(source_object)  # pyright: ignore[reportUnknownMemberType]
+            source_object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+            if bpy.context.view_layer:
+                bpy.context.view_layer.objects.active = source_object
+            props.use_default = False
+            props.coat_id = str(style)
+            import_materials()
+            source_object.select_set(False)  # pyright: ignore[reportUnknownMemberType]
 
         self._geometry_cache[global_id] = source_objects
         return source_objects
@@ -138,19 +190,15 @@ class ForgeMapOperator(Operator):
                 version = self.get_waypoint_version()
         return asset, version
 
-    def execute(self, context: Context | None) -> set[str]:
-        props = get_import_properties()
-        data = get_data_folder()
-        split = props.url.split("/")
-        asset, version = self.get_asset_version(split)
-        level = get_forge_map(asset, version, props.mvar_file)
-        objects_path = Path(f"{data}/forge_objects.json")
-        definition = read_json_file(objects_path, ForgeObjectDefinition)
-        if definition is None or context is None or context.scene is None:
-            return {"CANCELLED"}
+    def create_category(
+        self, context_col: Collection, level: ForgeLevel
+    ) -> tuple[
+        dict[ForgeFolder, tuple[Collection, list[tuple[ForgeFolder, Collection]]]],
+        tuple[ForgeFolder, tuple[Collection, list[tuple[ForgeFolder, Collection]]]],
+    ]:
         cats: dict[ForgeFolder, tuple[Collection, list[tuple[ForgeFolder, Collection]]]] = {}
         for category in level.categories:
-            cats[category] = self.create_categories(category, context.scene.collection)
+            cats[category] = self.create_categories(category, context_col)
         rootf = [col for col in cats.items() if col[0].id == level.root_category]
         root_folder = None
         if rootf != []:
@@ -161,7 +209,23 @@ class ForgeMapOperator(Operator):
                 root_folder = root[0]
         if not root_folder:
             root_folder = [col for col in cats.items()][0]
+        return cats, root_folder
+
+    def execute(self, context: Context | None) -> set[str]:
+        props = get_import_properties()
+        data = get_data_folder()
+        split = props.url.split("/")
+        asset, version = self.get_asset_version(split)
+        level = get_forge_map(asset, version, props.mvar_file)
+        objects_path = Path(f"{data}/forge_objects.json")
+        definition = read_json_file(objects_path, ForgeObjectDefinition)
+        globals_path = Path(f"{data}/forge_materials.json")
+        globals = read_json_file(globals_path, ForgeMaterial)
+        if definition is None or context is None or context.scene is None or globals is None:
+            return {"CANCELLED"}
+        cats, root_folder = self.create_category(context.scene.collection, level)
         for object in level.objects:
+            self.index = 0
             name: str = ""
             main_collection: Collection | None = None
             if props.import_folders:
@@ -197,7 +261,7 @@ class ForgeMapOperator(Operator):
                 repres = matching[0]
             else:
                 continue
-            source_objects = self._get_or_create_geometry(str(repres["model"]))
+            source_objects = self._get_or_create_geometry(str(repres["model"]), repres["style"])
             objects = [obj for obj in source_objects if object.variant == obj["permutation_name"]]
             if len(objects) == 0:
                 objects = [obj for obj in source_objects if object.variant == obj["region_name"]]
@@ -212,8 +276,11 @@ class ForgeMapOperator(Operator):
                     ]
                     if len(mats) > 0:
                         continue
+                if obj.data is None:
+                    continue
                 instance_obj = bpy.data.objects.new(
-                    name=f"[{object.mode.name}] {repres['name']}_instance", object_data=obj.data
+                    name=f"[{object.mode.name}] {repres['name']}_instance",
+                    object_data=obj.data.copy(),
                 )
 
                 if name != "":
@@ -250,9 +317,121 @@ class ForgeMapOperator(Operator):
                     instance_obj.data.uv_layers["UV1"].active_render = True
                     instance_obj.data.uv_layers["UV1"].active = True
 
-                instance_obj.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-                if context.view_layer:
-                    context.view_layer.objects.active = instance_obj
+                forge_material = [mat for mat in level.materials if mat.name == object.material_id]
+                color = (0.0, 0.0, 0.0)
+                for mat in instance_obj.material_slots:
+                    definition_path = Path(f"{data}/materials/{mat.material.name}.json")
+                    common_material = read_json_file(definition_path, CommonMaterial)
+
+                    alt_name = f"{mat.name}_{object.material_id}"
+                    material = bpy.data.materials.get(alt_name)
+                    if material:
+                        mat.material = material
+                        continue
+                    elif mat.material:
+                        mat.material = mat.material.copy()
+
+                    name = mat.name
+                    if len(mat.name.split(".")) > 1:
+                        name = mat.name.split(".")[0]
+                    alt_name = f"{name}_{object.material_id}"
+
+                    if mat.material is None:
+                        continue
+                    mat.material.name = alt_name
+
+                    if not mat.material.node_tree:
+                        continue
+
+                    shader = mat.material.node_tree.nodes.get("Group")
+                    if not shader:
+                        continue
+                    shader = cast(ShaderNodeGroup, shader)
+                    if not shader.node_tree:
+                        continue
+                    if (
+                        shader.node_tree.name
+                        != "Halo Infinite Shader 3.1.2 by Chunch and ChromaCore"
+                    ):
+                        continue
+
+                    if len(forge_material) > 0:
+                        assign_value(shader, 7, forge_material[0].grime_amount)
+                        assign_value(shader, 17, forge_material[0].scratch_amount)
+                        for layer in forge_material[0].layers:
+                            l1 = [
+                                lay
+                                for lay in globals["layers"].items()
+                                if lay[1]["name"] == layer.swatch
+                            ]
+                            if len(l1) > 0 and layer.swatch != 0 and common_material:
+                                l1 = l1[0]
+                                layerm = Layer(l1[1]["layer"], l1[0])
+                                swatch = create_node(
+                                    mat.material.node_tree.nodes, 0, 0, ShaderNodeGroup
+                                )
+                                swatch.node_tree = cast(ShaderNodeTree, layerm.node_tree)
+                                self.import_layer(
+                                    common_material,
+                                    shader,
+                                    swatch,
+                                    mat.material,
+                                    l1[1]["layer"]["emissive_amount"],
+                                    False,
+                                )
+                                self.index += 14
+
+                        for idx, layer in enumerate(forge_material[0].layers):
+                            link = shader.inputs[(idx + 1) * 14].links
+                            if len(globals["colors"]) > layer.color:
+                                color = globals["colors"][layer.color]
+                            if link:
+                                swatch = link[0].from_node
+                                if swatch:
+                                    mixrgb = create_node(
+                                        mat.material.node_tree.nodes, 0, 0, ShaderNodeMix
+                                    )
+                                    mixrgb.data_type = "RGBA"
+                                    mixrgb.blend_type = "COLOR"
+                                    assign_value(mixrgb, 0, layer.color_intensity)
+                                    assign_value(mixrgb, 7, (*color, 1.0))
+                                    _ = mat.material.node_tree.links.new(
+                                        swatch.outputs[6], mixrgb.inputs[6]
+                                    )
+                                    _ = mat.material.node_tree.links.new(
+                                        mixrgb.outputs[2], shader.inputs[(idx + 1) * 23]
+                                    )
+                                    mixrgb = create_node(
+                                        mat.material.node_tree.nodes, 0, 0, ShaderNodeMix
+                                    )
+                                    mixrgb.data_type = "RGBA"
+                                    mixrgb.blend_type = "COLOR"
+                                    assign_value(mixrgb, 0, layer.color_intensity)
+                                    assign_value(mixrgb, 7, (*color, 1.0))
+                                    _ = mat.material.node_tree.links.new(
+                                        swatch.outputs[7], mixrgb.inputs[6]
+                                    )
+                                    _ = mat.material.node_tree.links.new(
+                                        mixrgb.outputs[2], shader.inputs[(idx + 1) * 24]
+                                    )
+                                    mixrgb = create_node(
+                                        mat.material.node_tree.nodes, 0, 0, ShaderNodeMix
+                                    )
+                                    mixrgb.data_type = "RGBA"
+                                    mixrgb.blend_type = "COLOR"
+                                    assign_value(mixrgb, 0, layer.color_intensity)
+                                    assign_value(mixrgb, 7, (*color, 1.0))
+                                    _ = mat.material.node_tree.links.new(
+                                        swatch.outputs[8], mixrgb.inputs[6]
+                                    )
+                                    _ = mat.material.node_tree.links.new(
+                                        mixrgb.outputs[2], shader.inputs[(idx + 1) * 25]
+                                    )
 
         self._geometry_cache = {}
+        master_collection = bpy.data.collections.get("Master Geometries")
+        if master_collection:
+            master_collection.hide_viewport = True
+            master_collection.hide_render = True
+
         return {"FINISHED"}

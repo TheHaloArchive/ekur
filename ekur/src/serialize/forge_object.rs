@@ -28,6 +28,7 @@ struct ForgeObjectRepresentation {
     name_int: i32,
     model: i32,
     variant: i32,
+    style: i32,
     is_rtgo: bool,
 }
 
@@ -35,6 +36,7 @@ struct ForgeObjectRepresentation {
 struct ForgeObject {
     id: i32,
     name: String,
+    default_variant: i32,
     representations: Vec<ForgeObjectRepresentation>,
 }
 
@@ -73,14 +75,15 @@ fn get_object_info(
             .unwrap_or(&object.name.0.to_string())
             .to_string();
 
-        let mut forge_object = ForgeObject {
-            id: object.name.0,
-            name,
-            ..Default::default()
-        };
         let data = forge_data.get(&object.forge_object.global_id);
         let Some(data) = data else {
             continue;
+        };
+        let mut forge_object = ForgeObject {
+            id: object.name.0,
+            name,
+            default_variant: data.default_representation.0,
+            ..Default::default()
         };
         for representation in &data.object_representations.elements {
             let mut represent = ForgeObjectRepresentation {
@@ -92,6 +95,7 @@ fn get_object_info(
                 model: 0,
                 variant: representation.crate_variant.0,
                 is_rtgo: false,
+                ..Default::default()
             };
 
             if let Some(model) = match representation.object_definition.group.as_str() {
@@ -121,6 +125,14 @@ fn get_object_info(
                 let Some(model) = model else {
                     continue;
                 };
+                let style = model
+                    .variants
+                    .elements
+                    .iter()
+                    .find(|x| x.name.0 == represent.variant);
+                if let Some(style) = style {
+                    represent.style = style.style.0;
+                }
                 represent.model = model.render_model.global_id;
                 forge_object.representations.push(represent);
             };
@@ -135,6 +147,7 @@ fn get_object_info(
                 model: variant.underlying_geo.global_id,
                 variant: 0,
                 is_rtgo: true,
+                ..Default::default()
             };
             forge_object.representations.push(representation);
         }
@@ -265,6 +278,7 @@ pub fn process_forge_objects(
                 .get(&thing.0)
                 .unwrap_or(&thing.0.to_string())
                 .to_string(),
+            default_variant: thing.1.default_representation.0,
             ..Default::default()
         };
         for representation in &thing.1.object_representations.elements {
@@ -299,7 +313,12 @@ pub fn process_forge_objects(
                 continue;
             };
 
-            let forge_object = ForgeObjectRepresentation {
+            let variant = model
+                .variants
+                .elements
+                .iter()
+                .find(|x| x.name.0 == representation.crate_variant.0);
+            let mut forge_object = ForgeObjectRepresentation {
                 name: strings
                     .get(&representation.representation_name.0)
                     .unwrap_or(&representation.representation_name.0.to_string())
@@ -308,7 +327,11 @@ pub fn process_forge_objects(
                 model: model.render_model.global_id,
                 variant: representation.crate_variant.0,
                 is_rtgo: false,
+                ..Default::default()
             };
+            if let Some(variant) = variant {
+                forge_object.style = variant.style.0;
+            }
             definition.representations.push(forge_object);
         }
         for variant in &thing.1.forge_asset_variants.elements {
@@ -321,6 +344,7 @@ pub fn process_forge_objects(
                 model: variant.underlying_geo.global_id,
                 variant: 0,
                 is_rtgo: true,
+                ..Default::default()
             };
             definition.representations.push(representation);
         }
