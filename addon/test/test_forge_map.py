@@ -16,8 +16,8 @@ maps: list[tuple[str, str]] = [
 
 def test_forge_map() -> None:
     for asset, version in maps:
-        objects, categories, _ = get_forge_map(asset, version, "")
-        assert objects != []
-        assert categories != []
-        for object in objects:
+        forgelevel = get_forge_map(asset, version, "")
+        assert forgelevel.objects != []
+        assert forgelevel.categories != []
+        for object in forgelevel.objects:
             assert object.global_id != -1
