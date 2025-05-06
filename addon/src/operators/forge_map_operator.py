@@ -23,6 +23,8 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
+from ..ui.material_options import get_material_options
+
 from ..nodes.layer import Layer
 
 from .material_operator import import_materials
@@ -119,7 +121,7 @@ class ForgeMapOperator(Operator):
             return self._geometry_cache[global_id]
 
         data = get_data_folder()
-        props = get_import_properties()
+        props = get_material_options()
         path = f"{data}/models/{global_id}.ekur"
         if not Path(path).exists():
             path = f"{data}/runtime_geo/{global_id}.ekur"
@@ -139,8 +141,8 @@ class ForgeMapOperator(Operator):
             source_object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
             if bpy.context.view_layer:
                 bpy.context.view_layer.objects.active = source_object
-            props.use_default = False
-            props.coat_id = str(style)
+            props.use_default_coating = False
+            props.coating_id = str(style)
             import_materials()
             source_object.select_set(False)  # pyright: ignore[reportUnknownMemberType]
 
@@ -289,29 +291,30 @@ class ForgeMapOperator(Operator):
                 forward = Vector(object.rotation_forward).normalized()
                 up = Vector(object.rotation_up).normalized()
                 right = forward.cross(up)
-                if type(up) is Vector and type(right) is Vector:
-                    right = right.normalized()
-                    rot_matrix = Matrix(
-                        (
-                            (forward[0], -right[0], up[0], 0.0),
-                            (forward[1], -right[1], up[1], 0.0),
-                            (forward[2], -right[2], up[2], 0.0),
-                            (0.0, 0.0, 0.0, 1.0),
-                        )
+                if type(up) is not Vector or type(right) is not Vector:
+                    continue
+                right = right.normalized()
+                rot_matrix = Matrix(
+                    (
+                        (forward[0], -right[0], up[0], 0.0),
+                        (forward[1], -right[1], up[1], 0.0),
+                        (forward[2], -right[2], up[2], 0.0),
+                        (0.0, 0.0, 0.0, 1.0),
                     )
-                    quat = rot_matrix.to_quaternion()
-                    instance_obj.location = Vector(
-                        apply_rtgo_transform(object.position, obj.location, object.scale, quat)
-                    )
-                    instance_obj.rotation_mode = "QUATERNION"
-                    instance_obj.rotation_quaternion = quat
-                    instance_obj.scale = object.scale
-                    if main_collection:
-                        main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
-                    elif root_folder:
-                        root_folder[1][0].objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
-                    elif bpy.context.scene:
-                        bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                )
+                quat = rot_matrix.to_quaternion()
+                instance_obj.location = Vector(
+                    apply_rtgo_transform(object.position, obj.location, object.scale, quat)
+                )
+                instance_obj.rotation_mode = "QUATERNION"
+                instance_obj.rotation_quaternion = quat
+                instance_obj.scale = object.scale
+                if main_collection:
+                    main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                elif root_folder:
+                    root_folder[1][0].objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                elif bpy.context.scene:
+                    bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
 
                 if type(instance_obj.data) is Mesh and "UV1" in instance_obj.data.uv_layers:
                     instance_obj.data.uv_layers["UV1"].active_render = True

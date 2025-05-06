@@ -30,10 +30,7 @@ class Layer:
         if self.node_tree:
             return
         else:
-            self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name=name,
-            )
+            self.node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name=name)
         self.create_sockets()
         self.create_nodes()
 

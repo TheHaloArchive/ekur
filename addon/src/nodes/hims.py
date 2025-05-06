@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from typing import cast
 import bpy
+
+from typing import cast
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -34,6 +35,7 @@ from bpy.types import (
     ShaderNodeValToRGB,
 )
 
+
 from .detail_normals import DetailNormals
 from .infinite_color import InfiniteColor
 from .mask_toggles import MaskToggles
@@ -45,7 +47,8 @@ from .scratch_global_toggle import ScratchGlobalToggle
 from .infinite_masking_sorter import InfiniteMaskingSorter
 from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
 
-from ..utils import assign_value, create_node, create_socket, get_import_properties
+from ..ui.model_options import get_model_options
+from ..utils import assign_value, create_node, create_socket
 
 __all__ = ["HIMS"]
 
@@ -59,8 +62,7 @@ class HIMS:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Halo Infinite Shader 3.1.2 by Chunch and ChromaCore",
+                type="ShaderNodeTree", name="Halo Infinite Shader 3.1.2 by Chunch and ChromaCore"
             )
         self.create_sockets()
         self.create_nodes()
@@ -68,7 +70,7 @@ class HIMS:
     def create_sockets(self) -> None:
         if self.node_tree is None or self.node_tree.interface is None:
             return
-        props = get_import_properties()
+        props = get_model_options()
         interface = self.node_tree.interface
         outputs = interface.new_panel("Outputs")
         _: NodeSocket

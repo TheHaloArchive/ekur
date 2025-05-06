@@ -27,8 +27,7 @@ class ColorDecal:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Color Decal Shader",
+                type="ShaderNodeTree", name="Color Decal Shader"
             )
         self.create_sockets()
         self.create_nodes()

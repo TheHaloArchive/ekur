@@ -15,6 +15,8 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..ui.material_options import get_material_options
+
 from ..nodes.layer import Layer
 from .material_operator import import_materials
 from ..json_definitions import CommonMaterial, ForgeMaterial, ForgeObjectDefinition
@@ -122,6 +124,7 @@ class ForgeOperator(Operator):
         if context is None:
             return {"CANCELLED"}
         properties = get_import_properties()
+        matprops = get_material_options()
         selected_model = properties.objects
 
         represnt = properties.object_representation
@@ -175,8 +178,8 @@ class ForgeOperator(Operator):
                             object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
                             if context.view_layer:
                                 context.view_layer.objects.active = object
-                            properties.use_default = False
-                            properties.coat_id = str(representation["style"])
+                            matprops.use_default_coating = False
+                            matprops.coating_id = str(representation["style"])
                             import_materials()
                             if properties.override_materials:
                                 self.import_materials(object)

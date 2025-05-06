@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+
 from typing import cast
 from bpy.types import (
     ShaderNodeGroup,
@@ -8,15 +9,15 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from .material_types import MaterialType
 from ..nodes.decal import Decal
-
 from ..utils import assign_value, create_image, create_node
 from ..json_definitions import CommonMaterial
 
 __all__ = ["DecalShader"]
 
 
-class DecalShader:
+class DecalShader(MaterialType):
     def __init__(self, material: CommonMaterial, material_tree: ShaderNodeTree) -> None:
         self.material: CommonMaterial = material
         self.tree: ShaderNodeTree = material_tree

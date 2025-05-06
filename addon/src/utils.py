@@ -3,6 +3,7 @@
 import json
 import logging
 from pathlib import Path
+import re
 from typing import TypeVar, cast
 import urllib.request
 import urllib.error
@@ -10,7 +11,6 @@ import urllib.error
 import bpy
 from bpy.types import (
     Image,
-    MaterialSlot,
     Node,
     NodeSocket,
     NodeSocketBool,
@@ -29,7 +29,6 @@ from .exceptions import NodeInterfaceDoesNotExist
 
 __all__ = [
     "read_texture",
-    "get_materials",
     "read_json_file",
     "remove_nodes",
     "create_socket",
@@ -74,20 +73,6 @@ def read_texture(texturepath: str) -> Image | None:
     return image
 
 
-def get_materials() -> list[MaterialSlot]:
-    """Get all materials from the selected objects or all objects in the scene.
-
-    Returns:
-        A list of all material slots.
-    """
-    data_source = bpy.data.objects
-    properties = get_import_properties()
-    if properties.selected_only:
-        data_source = bpy.context.selected_objects
-    meshes = [obj for obj in data_source if obj.type == "MESH"]
-    return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
-
-
 JsonT = TypeVar("JsonT")
 
 
@@ -104,7 +89,7 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT | None:
         logging.warning(f"File path does not exist!: {file_path}")
         return
     with open(file_path, "r") as file:
-        data: T = json.load(file)  # pyright: ignore[reportUnknownVariableType]
+        data: T = json.load(file)  # pyright: ignore[reportAny]
         return data  # pyright: ignore[reportUnknownVariableType]
 
 
@@ -206,32 +191,7 @@ def get_addon_preferences() -> AddonPreferencesType:
 
 
 class ImportPropertiesType:
-    use_default: bool = False
-    coat_id: str = ""
-    toggle_damage: bool = False
-    selected_only: bool = False
-    flip_alpha: bool = False
-    sort_by_name: bool = False
-    coatings: str = ""
-    toggle_visors: bool = False
-    visors: str = ""
-    model_path: str = ""
-    import_materials: bool = False
-    import_markers: bool = False
-    import_bones: bool = False
-    import_collections: bool = False
-    import_vertex_color: bool = False
     level_path: str = ""
-    import_specific_core: bool = False
-    import_names: bool = False
-    use_purp_rig: bool = False
-    gamertag: str = ""
-    body_type: str = ""
-    left_arm: str = ""
-    right_arm: str = ""
-    left_leg: str = ""
-    right_leg: str = ""
-    core: str = ""
     root_category: str = ""
     subcategory: str = ""
     objects: str = ""
@@ -255,7 +215,6 @@ class ImportPropertiesType:
     selected_objects: str = ""
     pixel_padding: int = 16
     uv_to_bake_to: str = ""
-    scale_factor: float = 1.0
     align_bakes: bool = False
     merge_objects: bool = False
     save_normals: bool = False
@@ -299,7 +258,7 @@ def assign_value(
 
 
 def import_custom_rig() -> Object | None:
-    prefs = get_import_properties()
+    prefs = bpy.context.scene.spartan_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
     if not prefs.use_purp_rig:
         return None
     extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
@@ -336,3 +295,18 @@ def download_file(url: str, file_path: str) -> None:
             _ = out_file.write(response.read())  # pyright: ignore[reportAny]
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download: {url}: {e.status}")
+
+
+_nsre = re.compile("([0-9]+)")
+
+
+def natural_sort_key(s: str) -> list[int | str]:
+    """Natural sort order implementation.
+
+    Args:
+        s: String to sort
+
+    Returns:
+        Sorted list of strings and integers
+    """
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(_nsre, s[1])]

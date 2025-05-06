@@ -24,8 +24,7 @@ class InfiniteMaskingSorter:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Infinite Masking Sorter",
+                type="ShaderNodeTree", name="Infinite Masking Sorter"
             )
         self.create_sockets()
         self.create_nodes()

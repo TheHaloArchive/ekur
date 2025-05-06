@@ -17,7 +17,10 @@ else:
 
     from .src.utils import get_package_name
     from .src.operators.material_operator import ImportMaterialOperator
-    from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
+    from .src.ui.import_panel import CoatingImportPanel, ImportProperties
+    from .src.ui.material_options import MaterialOptions
+    from .src.ui.model_options import ModelOptions
+    from .src.ui.spartan_options import SpartanOptions
     from .src.operators.dump_files_operator import DumpFilesOperator
     from .src.operators.model_operator import ImportModelOperator
     from .src.operators.spartan_operator import ImportSpartanOperator
@@ -27,6 +30,7 @@ else:
     from .src.operators.download_files_operator import DownloadFilesOperator
     from .src.operators.forge_map_operator import ForgeMapOperator
     from .src.operators.bake_operator import BakingOperator, AdvancedBakeOperator, AlignBakeOperator
+    from .src.operators.randomize_coating import RandomizeCoatingOperator
     from .src.constants import version, version_string
 
     bl_info = {
@@ -113,6 +117,12 @@ else:
         register_class(BakingOperator)
         register_class(AdvancedBakeOperator)
         register_class(AlignBakeOperator)
+        register_class(MaterialOptions)
+        register_class(ModelOptions)
+        register_class(SpartanOptions)
+        bpy.types.Scene.material_properties = bpy.props.PointerProperty(type=MaterialOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.model_properties = bpy.props.PointerProperty(type=ModelOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.spartan_properties = bpy.props.PointerProperty(type=SpartanOptions)  # pyright: ignore[reportAttributeAccessIssue]
         bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
 
     def unregister():
@@ -132,4 +142,10 @@ else:
         unregister_class(BakingOperator)
         unregister_class(AdvancedBakeOperator)
         unregister_class(AlignBakeOperator)
+        unregister_class(MaterialOptions)
+        unregister_class(ModelOptions)
+        unregister_class(SpartanOptions)
+        del bpy.types.Scene.material_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.model_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.spartan_properties  # pyright: ignore[reportAttributeAccessIssue]
         del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]

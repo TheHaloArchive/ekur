@@ -1,22 +1,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+import bpy
+
 from pathlib import Path
 from typing import cast
-import bpy
 from bpy.types import ArmatureModifier, Material, Mesh, Object
 from mathutils import Vector
 
-from ..rtgo_offset import RtgoOffset
-
-from ...utils import get_import_properties
 from .bone import import_bones
 from .markers import import_markers
+from ..rtgo_offset import RtgoOffset
 from ..metadata import Model
 from ..section import Section
 from ..vectors import NormalizedVector2
+from ...constants import FEET_TO_METER
+from ...ui.model_options import get_model_options
 
-MESH_SCALE = (3.048, 3.048, 3.048)
 
 __all__ = ["ModelImporter"]
 
@@ -46,7 +46,7 @@ class ModelImporter:
         Returns:
         - The list of imported objects.
         """
-        properties = get_import_properties()
+        options = get_model_options()
         model = Path(model_path)
         if not model.exists() or model.is_dir():
             logging.warning(f"Model path does not exist: {model}")
@@ -55,14 +55,14 @@ class ModelImporter:
             self.model.read(f)
         if materials:
             self.model.materials = materials
-        if properties.import_bones and bones:
+        if options.import_bones and bones:
             if custom_rig is None:
                 self.rig = import_bones(self.model)
-                scl = (properties.scale_factor,) * 3
-                self.rig.scale = Vector(MESH_SCALE) * Vector(scl)
+                scl = (options.scale_factor,) * 3
+                self.rig.scale = Vector((FEET_TO_METER, FEET_TO_METER, FEET_TO_METER)) * Vector(scl)
             else:
                 self.rig = custom_rig
-            if properties.import_markers:
+            if options.import_markers:
                 self.markers = import_markers(self.model, self.rig)
             objects = self._import_model()
         else:
@@ -209,7 +209,7 @@ class ModelImporter:
         permutation_name = section.permutation_name
         region_name = section.region_name
         collection_name = f"{self.model.header.tag_id}_{permutation_name}_{region_name}"
-        import_properties = get_import_properties()
+        options = get_model_options()
 
         if len(self.model.bounding_boxes) == 0:
             return None
@@ -231,7 +231,9 @@ class ModelImporter:
         obj = bpy.data.objects.new(collection_name, mesh)
         obj["region_name"] = region_name
         obj["permutation_name"] = permutation_name
-        obj.scale = Vector(MESH_SCALE) * Vector((import_properties.scale_factor,) * 3)
+        obj.scale = Vector((FEET_TO_METER, FEET_TO_METER, FEET_TO_METER)) * Vector(
+            (options.scale_factor,) * 3
+        )
         mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportUnknownMemberType]
         if section.vertex_flags.has_uv0:
             self._create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
@@ -240,11 +242,11 @@ class ModelImporter:
         if section.vertex_flags.has_uv2:
             self._create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale2, 2)
 
-        if import_properties.import_materials:
+        if options.import_materials:
             self._create_material_indices(section, mesh)
-        if import_properties.import_vertex_color:
+        if options.import_vertex_color:
             self._create_color(section, mesh)
-        if self.rig:
+        if self.rig and options.import_bones:
             self._create_skinning(obj, collection_name, self.rig, section, mesh)
 
         if offset:
@@ -260,8 +262,8 @@ class ModelImporter:
         - The list of imported objects.
         """
         materials: list[Material] = []
-        properties = get_import_properties()
-        if properties.import_materials:
+        options = get_model_options()
+        if options.import_materials:
             for mat in self.model.materials:
                 mat = bpy.data.materials.get(str(mat))
                 if not mat:

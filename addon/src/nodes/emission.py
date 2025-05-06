@@ -23,10 +23,7 @@ class Emission:
         if self.node_tree:
             return
         else:
-            self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Emission",
-            )
+            self.node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name="Emission")
         self.create_sockets()
         self.create_nodes()
 

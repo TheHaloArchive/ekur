@@ -2,21 +2,19 @@
 # Copyright © 2025 Surasia
 import logging
 import platform
-from typing import cast, final
-
 import bpy
+
+from typing import cast, final
 from bpy.types import Context, Operator
 
 from ..utils import download_file, get_package_name
-
 from ..constants import version_string
 
 STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
-VISORS_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/all_visors.json"
-REGIONS_URL = (
-    "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/regions_and_permutations.json"
-)
-CUSTOM_RIG_URL = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets/purp.blend"
+EKUR = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets"
+REGIONS_URL = f"{EKUR}/regions_and_permutations.json"
+CUSTOM_RIG_URL = f"{EKUR}/purp.blend"
+VISORS_URL = f"{EKUR}/all_visors.json"
 
 
 @final

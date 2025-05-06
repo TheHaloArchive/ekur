@@ -15,8 +15,7 @@ class ScratchGlobalToggle:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Scratch Global Toggle",
+                type="ShaderNodeTree", name="Scratch Global Toggle"
             )
         self.create_sockets()
         self.create_nodes()

@@ -22,10 +22,7 @@ class RoughnessMath:
         if self.node_tree:
             return
         else:
-            self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Roughness Math",
-            )
+            self.node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name="Roughness Math")
         self.create_sockets()
         self.create_nodes()
 

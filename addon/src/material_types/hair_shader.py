@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+
 from typing import cast
 from bpy.types import (
     ShaderNodeGroup,
@@ -9,6 +10,7 @@ from bpy.types import (
     ShaderNodeUVMap,
 )
 
+from .material_types import MaterialType
 from ..nodes.hair import Hair
 from ..utils import assign_value, create_image, create_node
 from ..json_definitions import CommonMaterial
@@ -16,7 +18,7 @@ from ..json_definitions import CommonMaterial
 __all__ = ["HairShader"]
 
 
-class HairShader:
+class HairShader(MaterialType):
     def __init__(self, material: CommonMaterial, material_tree: ShaderNodeTree) -> None:
         self.material: CommonMaterial = material
         self.tree: ShaderNodeTree = material_tree
@@ -27,6 +29,8 @@ class HairShader:
             img = create_image(self.tree.nodes, -100, str(self.material["textures"]["Color"]))
             if img.image and img.image.colorspace_settings:
                 img.image.colorspace_settings.name = "sRGB"  # pyright: ignore[reportAttributeAccessIssue]
+            else:
+                logging.warning("Image node does not have image colorspace or image texture!")
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
             _ = self.tree.links.new(img.outputs[1], nodes.inputs[1])
 

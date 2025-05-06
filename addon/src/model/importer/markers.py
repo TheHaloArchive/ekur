@@ -4,7 +4,8 @@ import bpy
 from bpy.types import Object
 from mathutils import Matrix, Quaternion, Vector
 
-from ...utils import get_import_properties
+from ...ui.model_options import get_model_options
+from ...constants import FEET_TO_METER
 
 from ..marker import Marker, MarkerInstance
 
@@ -48,7 +49,7 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
     Returns:
     - The list of imported markers (as empties)
     """
-    props = get_import_properties()
+    props = get_model_options()
     MARKER_SIZE = 0.01 * props.scale_factor
     bone_transforms = get_bone_transforms(model)
     markers: list[Object] = []
@@ -60,7 +61,9 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
             marker_obj = bpy.data.objects.new(str(name), None)
             marker_obj.empty_display_type = "SPHERE"
             marker_obj.empty_display_size = MARKER_SIZE
-            marker_obj.scale = Vector((3.048, 3.048, 3.048)) * Vector((props.scale_factor,) * 3)
+            marker_obj.scale = Vector((FEET_TO_METER, FEET_TO_METER, FEET_TO_METER)) * Vector(
+                (props.scale_factor,) * 3
+            )
             world_transform = (
                 Matrix.Translation([v for v in instance.position.vector])
                 @ Quaternion(instance.rotation.vector).to_matrix().to_4x4()

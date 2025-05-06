@@ -29,8 +29,7 @@ class SelfIllum:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Self-Illumination Shader",
+                type="ShaderNodeTree", name="Self-Illumination Shader"
             )
         self.create_sockets()
         self.create_nodes()

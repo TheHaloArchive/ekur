@@ -5,11 +5,10 @@ import logging
 import operator
 from typing import cast
 import bpy
-from bpy.types import EditBone, Object
+from bpy.types import Armature, EditBone, Object
 from mathutils import Matrix
 
-from ...utils import get_import_properties
-
+from ...ui.model_options import get_model_options
 from ..bone import Bone
 from ..metadata import Model
 
@@ -76,17 +75,16 @@ def get_bone_transforms(model: Model) -> list[Matrix]:
     return result
 
 
-def import_bones(model: Model) -> Object:
+def create_armature(model: Model) -> tuple[Armature, Object]:
     """
-    Import the bones from the given model.
+    Creates a new armature given a model.
 
     Args:
-    - model: The model to import the bones from.
+    - model: The model to create the armature from.
 
     Returns:
-    - The armature object containing the bones.
+    - The armature data and object.
     """
-    props = get_import_properties()
     armature_data = bpy.data.armatures.new(f"{model.header.tag_id}_Armature")
     armature_obj = bpy.data.objects.new(f"{model.header.tag_id}_Armature", armature_data)
 
@@ -102,7 +100,21 @@ def import_bones(model: Model) -> Object:
     else:
         logging.warning("No view layer found to set the armature object to!")
     bpy.ops.object.mode_set(mode="EDIT")  # pyright: ignore[reportUnknownMemberType]
+    return armature_data, armature_obj
 
+
+def import_bones(model: Model) -> Object:
+    """
+    Import the bones from the given model.
+
+    Args:
+    - model: The model to import the bones from.
+
+    Returns:
+    - The armature object containing the bones.
+    """
+    props = get_model_options()
+    armature_data, armature_obj = create_armature(model)
     bone_transforms = get_bone_transforms(model)
 
     editbones: list[EditBone] = []

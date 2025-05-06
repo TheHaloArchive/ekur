@@ -30,10 +30,7 @@ class Hair:
         if self.node_tree:
             return
         else:
-            self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Hair Shader",
-            )
+            self.node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name="Hair Shader")
         self.create_sockets()
         self.create_nodes()
 

@@ -24,10 +24,7 @@ class InfiniteMatts:
         if self.node_tree:
             return
         else:
-            self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Infinite Matts",
-            )
+            self.node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name="Infinite Matts")
         self.create_sockets()
         self.create_nodes()
 
