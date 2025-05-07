@@ -2,13 +2,14 @@
 # Copyright © 2025 Surasia
 import json
 import logging
-from pathlib import Path
 import re
-from typing import TypeVar, cast
 import urllib.request
 import urllib.error
-
 import bpy
+
+
+from pathlib import Path
+from typing import TypeVar, cast
 from bpy.types import (
     Image,
     Node,
@@ -85,7 +86,7 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT | None:
         logging.warning(f"File path does not exist!: {file_path}")
         return
     with open(file_path, "r") as file:
-        data: T = cast(T, json.load(file))
+        data: T = cast(T, json.load(file))  # pyright: ignore[reportUnknownVariableType]
         return data  # pyright: ignore[reportUnknownVariableType]
 
 

@@ -91,8 +91,8 @@ class ImportSpartanVanityOperator(Operator):
             url=f"https://cylix.guide/api/vanity/profile/{options.gamertag.replace(' ', '-')}"
         )
         index = self.request(url="https://hi.cylix.guide/index.json")
-        armor: CylixVanityResponse = json.loads(vanity)  # pyright: ignore[reportAny]
-        index_json: CylixIndex = json.loads(index)  # pyright: ignore[reportAny]
+        armor: CylixVanityResponse = json.loads(vanity)
+        index_json: CylixIndex = json.loads(index)
 
         customization_path = Path(f"{data}/customization_globals.json")
         customization_globals = read_json_file(customization_path, CustomizationGlobals)
