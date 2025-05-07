@@ -7,40 +7,25 @@ import urllib.request
 import bpy
 
 from pathlib import Path
-from typing import cast, final
+from typing import final
 from bpy.types import (
     Collection,
     Context,
-    Material,
     Mesh,
-    Node,
     Object,
     Operator,
-    ShaderNodeGroup,
-    ShaderNodeMix,
-    ShaderNodeTree,
 )
 from mathutils import Matrix, Quaternion, Vector
 
 from .material_operator import import_materials
 from ..ui.forge_map_options import get_forge_map_options
 from ..ui.material_options import get_material_options
-from ..nodes.layer import Layer
 from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
 from ..model.importer.model_importer import ModelImporter
-from ..json_definitions import (
-    CommonMaterial,
-    ForgeMaterial,
-    ForgeObjectDefinition,
-    ForgeObjectRepresentation,
-)
+from ..json_definitions import ForgeMaterial, ForgeObjectDefinition, ForgeObjectRepresentation
+
 from ..madeleine.forge_level_reader import ForgeFolder, ForgeLevel, get_forge_map
-from ..utils import (
-    assign_value,
-    create_node,
-    get_data_folder,
-    read_json_file,
-)
+from ..utils import get_data_folder, read_json_file
 
 
 def apply_rtgo_transform(
@@ -76,40 +61,6 @@ class ForgeMapOperator(Operator):
     def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
         super().__init__(*args, **kwargs)
         self.index: int = 0
-
-    def import_layer(
-        self,
-        material: CommonMaterial,
-        shader: ShaderNodeGroup,
-        swatch: Node,
-        mat: Material,
-        emissive: float,
-        is_grime: bool,
-    ) -> None:
-        if material["style_info"]:
-            assign_value(swatch, 0, material["style_info"]["texel_density"][0])
-            assign_value(swatch, 1, material["style_info"]["texel_density"][1])
-            assign_value(swatch, 6, material["style_info"]["material_offset"][0])
-            assign_value(swatch, 7, material["style_info"]["material_offset"][1])
-        if not mat.node_tree:
-            return
-        _ = mat.node_tree.links.new(swatch.outputs[0], shader.inputs[14 + self.index])
-        _ = mat.node_tree.links.new(swatch.outputs[1], shader.inputs[15 + self.index])
-        _ = mat.node_tree.links.new(swatch.outputs[2], shader.inputs[16 + self.index])
-        if is_grime:
-            _ = mat.node_tree.links.new(swatch.outputs[5], shader.inputs[17 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[6], shader.inputs[20 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[7], shader.inputs[21 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[8], shader.inputs[22 + self.index])
-        else:
-            assign_value(shader, 22 + self.index, emissive)
-            _ = mat.node_tree.links.new(swatch.outputs[3], shader.inputs[18 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[4], shader.inputs[19 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[5], shader.inputs[20 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[6], shader.inputs[23 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[7], shader.inputs[24 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[8], shader.inputs[25 + self.index])
-            _ = mat.node_tree.links.new(swatch.outputs[9], shader.inputs[26 + self.index])
 
     def _get_or_create_geometry(self, global_id: str, style: int) -> list[Object]:
         if global_id in self._geometry_cache or bpy.context.scene is None:
@@ -314,119 +265,6 @@ class ForgeMapOperator(Operator):
                 if type(instance_obj.data) is Mesh and "UV1" in instance_obj.data.uv_layers:
                     instance_obj.data.uv_layers["UV1"].active_render = True
                     instance_obj.data.uv_layers["UV1"].active = True
-
-                forge_material = [mat for mat in level.materials if mat.name == object.material_id]
-                color = (0.0, 0.0, 0.0)
-                for mat in instance_obj.material_slots:
-                    if not mat.material:
-                        continue
-                    definition_path = Path(f"{data}/materials/{mat.material.name}.json")
-                    common_material = read_json_file(definition_path, CommonMaterial)
-
-                    alt_name = f"{mat.name}_{object.material_id}"
-                    material = bpy.data.materials.get(alt_name)
-                    if material:
-                        mat.material = material
-                        continue
-                    elif mat.material:
-                        mat.material = mat.material.copy()
-
-                    name = mat.name
-                    if len(mat.name.split(".")) > 1:
-                        name = mat.name.split(".")[0]
-                    alt_name = f"{name}_{object.material_id}"
-
-                    mat.material.name = alt_name
-
-                    if not mat.material.node_tree:
-                        continue
-
-                    shader = mat.material.node_tree.nodes.get("Group")
-                    if not shader:
-                        continue
-                    shader = cast(ShaderNodeGroup, shader)
-                    if not shader.node_tree:
-                        continue
-                    if (
-                        shader.node_tree.name
-                        != "Halo Infinite Shader 3.1.2 by Chunch and ChromaCore"
-                    ):
-                        continue
-
-                    if len(forge_material) > 0:
-                        assign_value(shader, 7, forge_material[0].grime_amount)
-                        assign_value(shader, 17, forge_material[0].scratch_amount)
-                        for layer in forge_material[0].layers:
-                            l1 = [
-                                lay
-                                for lay in globals["layers"].items()
-                                if lay[1]["name"] == layer.swatch
-                            ]
-                            if len(l1) > 0 and layer.swatch != 0 and common_material:
-                                l1 = l1[0]
-                                layerm = Layer(l1[1]["layer"], l1[0])
-                                swatch = create_node(
-                                    mat.material.node_tree.nodes, 0, 0, ShaderNodeGroup
-                                )
-                                swatch.node_tree = cast(ShaderNodeTree, layerm.node_tree)
-                                self.import_layer(
-                                    common_material,
-                                    shader,
-                                    swatch,
-                                    mat.material,
-                                    l1[1]["layer"]["emissive_amount"],
-                                    False,
-                                )
-                                self.index += 14
-
-                        for idx, layer in enumerate(forge_material[0].layers):
-                            link = shader.inputs[(idx + 1) * 14].links
-                            if len(globals["colors"]) > layer.color:
-                                color = globals["colors"][layer.color]
-                            if link:
-                                swatch = link[0].from_node
-                                if swatch:
-                                    mixrgb = create_node(
-                                        mat.material.node_tree.nodes, 0, 0, ShaderNodeMix
-                                    )
-                                    mixrgb.data_type = "RGBA"
-                                    mixrgb.blend_type = "COLOR"
-                                    assign_value(mixrgb, 0, layer.color_intensity)
-                                    assign_value(mixrgb, 7, (*color, 1.0))
-                                    _ = mat.material.node_tree.links.new(
-                                        swatch.outputs[6], mixrgb.inputs[6]
-                                    )
-                                    _ = mat.material.node_tree.links.new(
-                                        mixrgb.outputs[2], shader.inputs[(idx + 1) * 23]
-                                    )
-                                    mixrgb = create_node(
-                                        mat.material.node_tree.nodes, 0, 0, ShaderNodeMix
-                                    )
-                                    mixrgb.data_type = "RGBA"
-                                    mixrgb.blend_type = "COLOR"
-                                    assign_value(mixrgb, 0, layer.color_intensity)
-                                    assign_value(mixrgb, 7, (*color, 1.0))
-                                    _ = mat.material.node_tree.links.new(
-                                        swatch.outputs[7], mixrgb.inputs[6]
-                                    )
-                                    _ = mat.material.node_tree.links.new(
-                                        mixrgb.outputs[2], shader.inputs[(idx + 1) * 24]
-                                    )
-                                    mixrgb = create_node(
-                                        mat.material.node_tree.nodes, 0, 0, ShaderNodeMix
-                                    )
-                                    mixrgb.data_type = "RGBA"
-                                    mixrgb.blend_type = "COLOR"
-                                    assign_value(mixrgb, 0, layer.color_intensity)
-                                    assign_value(mixrgb, 7, (*color, 1.0))
-                                    _ = mat.material.node_tree.links.new(
-                                        swatch.outputs[8], mixrgb.inputs[6]
-                                    )
-                                    _ = mat.material.node_tree.links.new(
-                                        mixrgb.outputs[2], shader.inputs[(idx + 1) * 25]
-                                    )
-
-        self._geometry_cache = {}
         master_collection = bpy.data.collections.get("Master Geometries")
         if master_collection:
             master_collection.hide_viewport = True
