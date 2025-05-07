@@ -11,6 +11,16 @@ from .bond_types import ForgeObjectMode
 from .madeleine import BondValue
 from .bond_reader import get_base_struct
 
+__all__ = [
+    "ForgeLayer",
+    "ForgeMat",
+    "ForgeObject",
+    "ForgeFolder",
+    "ForgeFolderEntry",
+    "ForgeLevel",
+    "get_forge_map",
+]
+
 
 class ForgeLayer:
     swatch: int = 0

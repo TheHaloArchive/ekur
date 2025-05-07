@@ -9,7 +9,6 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from .material_types import MaterialType
 from ..constants import EMPTY_CONTROL, EMPTY_TEXTURES
 from ..json_definitions import CommonMaterial
 from ..nodes.diffuse_shader import DiffuseShader
@@ -18,7 +17,7 @@ from ..utils import assign_value, create_image, create_node
 __all__ = ["DiffuseShaderType"]
 
 
-class DiffuseShaderType(MaterialType):
+class DiffuseShaderType:
     def __init__(self, material: CommonMaterial, material_tree: ShaderNodeTree) -> None:
         self.material: CommonMaterial = material
         self.tree: ShaderNodeTree = material_tree

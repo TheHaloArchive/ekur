@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
+
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -13,9 +14,9 @@ from bpy.types import (
     ShaderNodeSeparateColor,
 )
 
-from ..utils import assign_value, create_node, create_socket
 from .norm_normalize import NormNormalize
 from .normal_map_combine_orientation import NormalMapCombineOrientation
+from ..utils import assign_value, create_node, create_socket
 
 __all__ = ["DetailNormals"]
 

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+import bpy
+
 from pathlib import Path
 from typing import final
-
-import bpy
 from bpy.types import Context, MaterialSlot, Operator, ShaderNodeTree
 
 from ..ui.material_options import get_material_options

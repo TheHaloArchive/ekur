@@ -10,7 +10,6 @@ from bpy.types import (
     ShaderNodeUVMap,
 )
 
-from .material_types import MaterialType
 from ..nodes.hair import Hair
 from ..utils import assign_value, create_image, create_node
 from ..json_definitions import CommonMaterial
@@ -18,7 +17,7 @@ from ..json_definitions import CommonMaterial
 __all__ = ["HairShader"]
 
 
-class HairShader(MaterialType):
+class HairShader:
     def __init__(self, material: CommonMaterial, material_tree: ShaderNodeTree) -> None:
         self.material: CommonMaterial = material
         self.tree: ShaderNodeTree = material_tree

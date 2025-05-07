@@ -10,6 +10,20 @@ from .madeleine import BondValue
 from .uleb import uleb128_decode, sleb128_decode
 from .bond_types import BondType
 
+__all__ = [
+    "type_and_id",
+    "get_type_count",
+    "read_blobs",
+    "read_list",
+    "read_map",
+    "read_wstring",
+    "read_string",
+    "read_value",
+    "read_field",
+    "read_struct",
+    "get_base_struct",
+]
+
 
 def type_and_id(data: BufferedReader) -> tuple[int, BondType]:
     """

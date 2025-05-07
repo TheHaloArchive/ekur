@@ -41,6 +41,11 @@ class ModelOptions(PropertyGroup):
         description="Factor to scale the mesh up by from its in-game size.",
         default=1.0,
     )
+    bone_size: FloatProperty(
+        name="Bone Size",
+        description="Factor to scale up bones by.",
+        default=0.03,
+    )
 
 
 class ModelOptionsType:
@@ -51,6 +56,7 @@ class ModelOptionsType:
     import_collections: bool = True
     import_vertex_color: bool = False
     scale_factor: float = 1.0
+    bone_size: float = 0.03
 
 
 def get_model_options() -> ModelOptionsType:
@@ -74,4 +80,5 @@ def draw_model_options(layout: UILayout, props: ModelOptionsType) -> None:
         model_opts.prop(props, "import_collections")
         model_opts.prop(props, "import_vertex_color")
         model_opts.prop(props, "scale_factor")
+        model_opts.prop(props, "bone_size")
         _ = model_body.operator("ekur.importmodel")

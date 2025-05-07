@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from typing import cast, final
 import bpy
+
+from typing import cast, final
 from bpy.types import (
     Collection,
     Context,
@@ -14,7 +15,8 @@ from bpy.types import (
     ShaderNodeTexImage,
 )
 
-from ..utils import ImportPropertiesType, create_node, get_import_properties
+from ..ui.bake_options import BakeOptionsType, get_bake_options
+from ..utils import create_node
 
 PRESETS = {
     "PBR MetRough": {"Color": 1, "Roughness": 3, "Metallic": 2, "Emission": 4},
@@ -77,7 +79,7 @@ class AlignBakeOperator(Operator):
 
     def execute(self, context: Context | None) -> set[str]:
         selected_objects = bpy.context.selected_objects
-        props = get_import_properties()
+        options = get_bake_options()
         if len(selected_objects) >= 1 and len(selected_objects[0].material_slots) >= 1:
             if selected_objects[0].active_material_index is None:
                 return {"CANCELLED"}
@@ -87,8 +89,8 @@ class AlignBakeOperator(Operator):
             if not material_slot.material or not material_slot.material.node_tree:
                 return {"CANCELLED"}
             width, height = get_width_height(material_slot.material)
-            props.width = width
-            props.height = height
+            options.width = width
+            options.height = height
         return {"FINISHED"}
 
 
@@ -98,9 +100,9 @@ class AdvancedBakeOperator(Operator):
     bl_label = "Toggle"
 
     def execute(self, context: Context | None) -> set[str]:
-        props = get_import_properties()
+        options = get_bake_options()
         datasource = bpy.context.selected_objects
-        if props.selected_objects == "All" and bpy.context.scene:
+        if options.selected_objects == "All" and bpy.context.scene:
             datasource = bpy.data.objects
         for object in datasource:
             if object.type != "MESH" or not object.material_slots:
@@ -113,7 +115,7 @@ class AdvancedBakeOperator(Operator):
                 if not shader or not material_output or not len(shader.outputs) > 12:
                     continue
                 for idx, m in enumerate(INDEXES):
-                    if m == props.selected_layer:
+                    if m == options.selected_layer:
                         _ = material.material.node_tree.links.new(
                             shader.outputs[idx], material_output.inputs[0]
                         )
@@ -126,7 +128,7 @@ class BakingOperator(Operator):
     bl_label = "Bake"
 
     def bake_detail(self, object: Object, col: Collection) -> None:
-        props = get_import_properties()
+        options = get_bake_options()
         duplicate = object.copy()
         if not object.data or not bpy.context.collection:
             return
@@ -145,7 +147,7 @@ class BakingOperator(Operator):
             material.material for material in duplicate.material_slots if material.material
         ]
         tex_nodes = []
-        if props.merge_textures:
+        if options.merge_textures:
             tex_nodes = [
                 create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
                 for material in dup_materials
@@ -162,15 +164,15 @@ class BakingOperator(Operator):
                 cast(NodeSocketColor, rgb_value.outputs[0]).default_value = val
                 _ = material.node_tree.links.new(rgb_value.outputs[0], shader.inputs[3])
             mat_name = f"{material.name}_DetailNormal"
-            if props.merge_textures:
+            if options.merge_textures:
                 mat_name = f"{object.name}_DetailNormal"
                 tex_node = tex_nodes[idx]
             else:
                 tex_node = create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
             img = bpy.data.images.get(mat_name)
-            height = props.height
-            width = props.width
-            if props.align_bakes:
+            height = options.height
+            width = options.width
+            if options.align_bakes:
                 width, height = get_width_height(material)
             if img is None:
                 img = bpy.data.images.new(mat_name, height, width)
@@ -183,16 +185,16 @@ class BakingOperator(Operator):
                 type="NORMAL",
                 save_mode="EXTERNAL",
                 pass_filter={"NONE"},
-                margin=props.pixel_padding,
+                margin=options.pixel_padding,
             )
-            img.save_render(f"{props.output_path}/{mat_name}.png")  # pyright: ignore[reportUnknownMemberType]
+            img.save_render(f"{options.output_path}/{mat_name}.png")  # pyright: ignore[reportUnknownMemberType]
             duplicate.select_set(False)  # pyright: ignore[reportUnknownMemberType]
 
     def bake_material(
         self,
         material: Material,
         object: Object,
-        props: ImportPropertiesType,
+        options: BakeOptionsType,
         tex_node: ShaderNodeTexImage | None,
         override_mat: str = "",
     ) -> str | None:
@@ -203,11 +205,11 @@ class BakingOperator(Operator):
         mat_output = material.node_tree.nodes.get("Material Output")
         if not shader or not mat_output:
             return
-        preset = PRESETS[props.output_workflow]
+        preset = PRESETS[options.output_workflow]
 
-        if props.bake_ao:
+        if options.bake_ao:
             preset["AO"] = 7
-        if props.bake_layer_map:
+        if options.bake_layer_map:
             preset["LayerMap"] = 11
         for m, idx in preset.items():
             if idx >= len(shader.outputs):
@@ -220,12 +222,12 @@ class BakingOperator(Operator):
                 tex_node = create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
             material.node_tree.nodes.active = tex_node
 
-            if props.merge_textures and not props.merge_objects:
+            if options.merge_textures and not options.merge_objects:
                 mat_name = f"{object.name}_{m}"
             img = bpy.data.images.get(mat_name)
-            width = props.width
-            height = props.height
-            if props.align_bakes:
+            width = options.width
+            height = options.height
+            if options.align_bakes:
                 width, height = get_width_height(material)
             if img is None:
                 img = bpy.data.images.new(mat_name, height, width)
@@ -236,9 +238,9 @@ class BakingOperator(Operator):
                 save_mode="EXTERNAL",
                 use_clear=False,
                 pass_filter={"EMIT"},
-                margin=props.pixel_padding,
+                margin=options.pixel_padding,
             )
-            img.save_render(f"{props.output_path}/{mat_name}.png")  # pyright: ignore[reportUnknownMemberType]
+            img.save_render(f"{options.output_path}/{mat_name}.png")  # pyright: ignore[reportUnknownMemberType]
 
         _ = material.node_tree.links.new(shader.outputs[0], mat_output.inputs[0])
         if shader.inputs[0].links:
@@ -252,26 +254,26 @@ class BakingOperator(Operator):
                 texture_node
                 and type(texture_node) is ShaderNodeTexImage
                 and texture_node.image
-                and props.save_normals
+                and options.save_normals
             ):
                 texture_node.image.save(  # pyright: ignore[reportUnknownMemberType]
-                    filepath=f"{props.output_path}/{mat_name}_BaseNormal.png"
+                    filepath=f"{options.output_path}/{mat_name}_BaseNormal.png"
                 )
-        if props.merge_textures and props.merge_objects:
+        if options.merge_textures and options.merge_objects:
             return material.name
 
     def execute(self, context: Context | None) -> set[str]:
         if context is None or context.scene is None:
             return {"CANCELLED"}
         selected_objects = bpy.context.selected_objects
-        props = get_import_properties()
+        options = get_bake_options()
         settings = context.scene.render.image_settings
-        if props.bit_depth == "16":
+        if options.bit_depth == "16":
             settings.color_depth = "16"
         else:
             settings.color_depth = "8"
 
-        if props.bake_detail_normals and context.collection:
+        if options.bake_detail_normals and context.collection:
             duplicate_collection = bpy.data.collections.new("Duplicate")
             context.collection.children.link(duplicate_collection)  # pyright: ignore[reportUnknownMemberType]
 
@@ -279,15 +281,15 @@ class BakingOperator(Operator):
 
         for object in selected_objects:
             if type(object.data) is Mesh:
-                object.data.uv_layers.active_index = int(props.uv_to_bake_to.split("UV")[-1])
-                if props.bake_detail_normals:
+                object.data.uv_layers.active_index = int(options.uv_to_bake_to.split("UV")[-1])
+                if options.bake_detail_normals:
                     self.bake_detail(object, duplicate_collection)  # pyright: ignore[reportPossiblyUnboundVariable]
 
             materials = [
                 material.material for material in object.material_slots if material.material
             ]
             tex_nodes = []
-            if props.merge_textures or props.merge_objects:
+            if options.merge_textures or options.merge_objects:
                 tex_nodes = [
                     create_node(material.node_tree.nodes, 0, 0, ShaderNodeTexImage)
                     for material in materials
@@ -297,17 +299,19 @@ class BakingOperator(Operator):
             i: int = 0
             for material in materials:
                 if material.node_tree:
-                    if props.merge_textures or props.merge_objects:
-                        m = self.bake_material(material, object, props, tex_nodes[i], override_mat)
-                        if props.merge_objects and m:
+                    if options.merge_textures or options.merge_objects:
+                        m = self.bake_material(
+                            material, object, options, tex_nodes[i], override_mat
+                        )
+                        if options.merge_objects and m:
                             override_mat = m
                         material.node_tree.nodes.remove(tex_nodes[i])  # pyright: ignore[reportUnknownMemberType]
                         i += 1
 
                     else:
-                        _ = self.bake_material(material, object, props, None)
+                        _ = self.bake_material(material, object, options, None)
 
-        if props.bake_detail_normals:
+        if options.bake_detail_normals:
             bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable]
         bpy.ops.outliner.orphans_purge()  # pyright: ignore[reportUnknownMemberType]
         return {"FINISHED"}

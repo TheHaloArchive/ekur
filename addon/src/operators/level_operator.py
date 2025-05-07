@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+import bpy
+
 from pathlib import Path
 from typing import final
-import bpy
 from bpy.types import Context, Operator, Object
 from mathutils import Matrix
 
+from ..ui.level_options import get_level_options
 from ..json_definitions import Level
 from ..model.importer.model_importer import ModelImporter
-from ..utils import get_data_folder, get_import_properties, read_json_file
+from ..utils import get_data_folder, read_json_file
 
 __all__ = ["ImportLevelOperator"]
 
@@ -19,7 +21,10 @@ class ImportLevelOperator(Operator):
     bl_label = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
-    _geometry_cache: dict[str, list[Object]] = {}
+    def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
+        super().__init__(*args, **kwargs)
+        self.index: int = 0
+        self._geometry_cache = {}
 
     def _get_or_create_geometry(
         self,
@@ -52,11 +57,12 @@ class ImportLevelOperator(Operator):
         return source_objects
 
     def execute(self, context: Context | None) -> set[str]:
+        self._geometry_cache: dict[str, list[Object]] = {}
         if context is None or context.collection is None:
             return {"CANCELLED"}
-        import_props = get_import_properties()
+        options = get_level_options()
 
-        level_path = Path(import_props.level_path)
+        level_path = Path(options.level_path)
         level = read_json_file(level_path, Level)
         if level is None:
             return {"CANCELLED"}

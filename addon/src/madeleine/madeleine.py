@@ -3,6 +3,8 @@
 from typing import Self
 from .bond_types import BondType
 
+__all__ = ["BondValue"]
+
 
 class BondValue:
     id: int = 0

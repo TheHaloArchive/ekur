@@ -46,7 +46,6 @@ from .color_mixer import ColorMixer
 from .scratch_global_toggle import ScratchGlobalToggle
 from .infinite_masking_sorter import InfiniteMaskingSorter
 from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
-
 from ..ui.model_options import get_model_options
 from ..utils import assign_value, create_node, create_socket
 

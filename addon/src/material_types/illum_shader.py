@@ -9,7 +9,6 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from .material_types import MaterialType
 from ..constants import EMPTY_TEXTURES
 from ..json_definitions import CommonMaterial
 from ..nodes.illum import SelfIllum
@@ -19,7 +18,7 @@ from ..utils import assign_value, create_image, create_node
 __all__ = ["IllumShader"]
 
 
-class IllumShader(MaterialType):
+class IllumShader:
     def __init__(self, material: CommonMaterial, material_tree: ShaderNodeTree) -> None:
         self.material: CommonMaterial = material
         self.tree: ShaderNodeTree = material_tree

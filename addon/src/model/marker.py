@@ -2,7 +2,6 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 
-
 from .vectors import Vector3, Vector4
 
 __all__ = ["MarkerInstance", "Marker"]

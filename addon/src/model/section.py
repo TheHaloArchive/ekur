@@ -3,7 +3,6 @@
 from io import BufferedReader
 
 from .buffer_flags import BufferFlags
-
 from .vertex_buffer import VertexBuffers
 from .vertex_type import VertexType
 from .index_buffer import IndexBuffer

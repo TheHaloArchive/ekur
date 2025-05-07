@@ -6,8 +6,9 @@ import bpy
 from pathlib import Path
 from typing import final
 from bpy.types import Collection, Context, Object, Operator
+
 from ..ui.spartan_options import get_spartan_options
-from ..operators.spartan_online_operator import import_attachments
+from ..operators.spartan_online_operator import import_attachments, import_custom_rig
 from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import (
     CustomizationGlobals,
@@ -18,7 +19,6 @@ from ..json_definitions import (
 from ..utils import (
     get_data_folder,
     get_package_name,
-    import_custom_rig,
     read_json_file,
 )
 
@@ -135,6 +135,7 @@ class ImportSpartanOperator(Operator):
     ) -> None:
         data_folder = get_data_folder()
         options = get_spartan_options()
+
         if len(region["permutations"]) > 0 and id == "KIT":
             region["permutations"] = [region["permutations"][0]]
         for perm in region["permutation_regions"]:
@@ -166,6 +167,7 @@ class ImportSpartanOperator(Operator):
                                 mode.name = f"{region['name']}_{perm_name['name']}"
                         if mode.name not in region_collection.objects:
                             region_collection.objects.link(mode)  # pyright: ignore[reportUnknownMemberType]
+
                 if perm_region["attachment"]:
                     attach_name = names.get(str(perm_region["attachment"]["tag_id"]))
                     model_path = f"{data_folder}/models/{perm_region['attachment']['model']}.ekur"

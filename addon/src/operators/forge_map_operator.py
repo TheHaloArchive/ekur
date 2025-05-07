@@ -1,14 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
-from pathlib import Path
 import re
-from typing import cast, final
 import urllib.error
 import urllib.request
-
-
 import bpy
+
+from pathlib import Path
+from typing import cast, final
 from bpy.types import (
     Collection,
     Context,
@@ -23,14 +22,11 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
-from ..ui.material_options import get_material_options
-
-from ..nodes.layer import Layer
-
 from .material_operator import import_materials
-
+from ..ui.forge_map_options import get_forge_map_options
+from ..ui.material_options import get_material_options
+from ..nodes.layer import Layer
 from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
-
 from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import (
     CommonMaterial,
@@ -43,7 +39,6 @@ from ..utils import (
     assign_value,
     create_node,
     get_data_folder,
-    get_import_properties,
     read_json_file,
 )
 
@@ -165,10 +160,10 @@ class ForgeMapOperator(Operator):
         return category_collection, subcats
 
     def get_waypoint_version(self) -> str:
-        props = get_import_properties()
+        options = get_forge_map_options()
         try:
             with (
-                urllib.request.urlopen(props.url) as response,  # pyright: ignore[reportAny]
+                urllib.request.urlopen(options.url) as response,  # pyright: ignore[reportAny]
             ):
                 html: str = response.read().decode("utf-8")  # pyright: ignore[reportAny]
                 match = re.search(
@@ -182,9 +177,9 @@ class ForgeMapOperator(Operator):
         return ""
 
     def get_asset_version(self, split: list[str]) -> tuple[str, str]:
-        props = get_import_properties()
+        options = get_forge_map_options()
         asset, version = "", ""
-        if not props.use_file:
+        if not options.use_file:
             if split[2] == "cylix.guide":
                 asset, version = split[6], split[7]
             if split[2] == "www.halowaypoint.com":
@@ -214,11 +209,11 @@ class ForgeMapOperator(Operator):
         return cats, root_folder
 
     def execute(self, context: Context | None) -> set[str]:
-        props = get_import_properties()
+        options = get_forge_map_options()
         data = get_data_folder()
-        split = props.url.split("/")
+        split = options.url.split("/")
         asset, version = self.get_asset_version(split)
-        level = get_forge_map(asset, version, props.mvar_file)
+        level = get_forge_map(asset, version, options.mvar_file)
         objects_path = Path(f"{data}/forge_objects.json")
         definition = read_json_file(objects_path, ForgeObjectDefinition)
         globals_path = Path(f"{data}/forge_materials.json")
@@ -230,7 +225,7 @@ class ForgeMapOperator(Operator):
             self.index = 0
             name: str = ""
             main_collection: Collection | None = None
-            if props.import_folders:
+            if options.import_folders:
                 for folder, (collection, children) in cats.items():
                     for obj in folder.objects:
                         if obj.index == object.index and obj.parent == folder.id:
@@ -270,7 +265,7 @@ class ForgeMapOperator(Operator):
             if len(objects) == 0:
                 objects = source_objects
             for obj in objects:
-                if props.remove_blockers:
+                if options.remove_blockers:
                     mats = [
                         m
                         for m in obj.material_slots
@@ -323,6 +318,8 @@ class ForgeMapOperator(Operator):
                 forge_material = [mat for mat in level.materials if mat.name == object.material_id]
                 color = (0.0, 0.0, 0.0)
                 for mat in instance_obj.material_slots:
+                    if not mat.material:
+                        continue
                     definition_path = Path(f"{data}/materials/{mat.material.name}.json")
                     common_material = read_json_file(definition_path, CommonMaterial)
 
@@ -339,8 +336,6 @@ class ForgeMapOperator(Operator):
                         name = mat.name.split(".")[0]
                     alt_name = f"{name}_{object.material_id}"
 
-                    if mat.material is None:
-                        continue
                     mat.material.name = alt_name
 
                     if not mat.material.node_tree:

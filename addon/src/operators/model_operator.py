@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from typing import final
-
 import bpy
+
+from typing import cast, final
 from bpy.types import Collection, Context, Operator
 
 from ..ui.model_options import get_model_options
@@ -33,8 +33,8 @@ class ImportModelOperator(Operator):
 
         if options.import_collections:
             for object in objects:
-                permutation_name: int = object["permutation_name"]
-                region_name: int = object["permutation_name"]
+                permutation_name: int = cast(int, object["permutation_name"])
+                region_name: int = cast(int, object["permutation_name"])
 
                 region_collection_name = f"{region_name}_{permutation_name}"
                 if permutation_name not in collections:

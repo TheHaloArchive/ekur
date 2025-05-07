@@ -2,6 +2,8 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 
+__all__ = ["uleb128_decode", "sleb128_decode"]
+
 
 def uleb128_decode(data: BufferedReader) -> int:
     result = 0

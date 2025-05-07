@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
-from pathlib import Path
 import platform
 import subprocess
-from typing import final
-
 import bpy
+
+from pathlib import Path
+from typing import final
 from bpy.types import Context, Operator
 
 from ..utils import get_addon_preferences, get_data_folder, get_package_name

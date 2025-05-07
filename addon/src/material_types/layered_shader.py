@@ -15,6 +15,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..ui.forge_object_options import get_forge_object_options
 from ..ui.material_options import get_material_options
 from ..constants import ANY_REGION, MP_VISOR, TRANSPARENT_INTENTIONS
 from ..json_definitions import (
@@ -32,7 +33,6 @@ from ..utils import (
     assign_value,
     create_node,
     get_data_folder,
-    get_import_properties,
     get_package_name,
     read_json_file,
     read_texture,
@@ -149,7 +149,7 @@ class LayeredShader:
                 intention = str(intention)
                 self.find_intention(intention, reg, all, globals, i, is_old_system)
 
-        props = get_import_properties()
+        props = get_forge_object_options()
         assign_value(self.shader, 7, style["grime_amount"])
         if style["grime_amount"] != 0.0:
             props.grime_amount = style["grime_amount"]

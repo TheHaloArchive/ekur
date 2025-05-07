@@ -1,6 +1,5 @@
 from random import choice
 from typing import final
-
 from bpy.types import Context, Operator
 
 from ..ui.material_options import get_material_options, get_styles

@@ -26,7 +26,29 @@ from ..json_definitions import (
     CylixVanityResponse,
     RegionData,
 )
-from ..utils import get_data_folder, import_custom_rig, read_json_file
+from ..utils import get_data_folder, get_package_name, read_json_file
+
+
+def import_custom_rig() -> Object | None:
+    prefs = get_spartan_options()
+    if not prefs.use_purp_rig:
+        return None
+    extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+    custom_rig_path = Path(extension_path) / "purp.blend"
+    if custom_rig_path.exists():
+        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
+            data_from,  # pyright: ignore[reportUnknownVariableType]
+            data_to,  # pyright: ignore[reportUnknownVariableType]
+        ):
+            data_to.objects = [
+                name
+                for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                if name == "Spartan_Control_Rig_V2"
+            ]
+    else:
+        logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
+    object = bpy.data.objects.get("Spartan_Control_Rig_V2")
+    return object
 
 
 def import_attachments(

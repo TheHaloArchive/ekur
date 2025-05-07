@@ -20,7 +20,6 @@ from bpy.types import (
     Nodes,
     NodeTreeInterface,
     NodeTreeInterfacePanel,
-    Object,
     ShaderNodeTexImage,
     ShaderNodeTree,
 )
@@ -36,10 +35,7 @@ __all__ = [
     "assign_value",
     "get_data_folder",
     "get_addon_preferences",
-    "ImportPropertiesType",
-    "get_import_properties",
     "AddonPreferencesType",
-    "import_custom_rig",
     "create_image",
     "download_file",
 ]
@@ -89,7 +85,7 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT | None:
         logging.warning(f"File path does not exist!: {file_path}")
         return
     with open(file_path, "r") as file:
-        data: T = json.load(file)  # pyright: ignore[reportAny]
+        data: T = cast(T, json.load(file))
         return data  # pyright: ignore[reportUnknownVariableType]
 
 
@@ -190,55 +186,6 @@ def get_addon_preferences() -> AddonPreferencesType:
     return cast(AddonPreferencesType, preferences)  # pyright: ignore[reportInvalidCast]
 
 
-class ImportPropertiesType:
-    level_path: str = ""
-    root_category: str = ""
-    subcategory: str = ""
-    objects: str = ""
-    sort_objects: bool = False
-    object_representation: str = ""
-    url: str = ""
-    use_file: bool = False
-    mvar_file: str = ""
-    import_folders: bool = True
-    output_path: str = ""
-    output_workflow: str = ""
-    width: int = 1024
-    height: int = 1024
-    bit_depth: str = "8"
-    bake_detail_normals: bool = False
-    merge_textures: bool = False
-    bake_ao: bool = False
-    bake_layer_map: bool = False
-    advanced_bake: bool = False
-    selected_layer: str = ""
-    selected_objects: str = ""
-    pixel_padding: int = 16
-    uv_to_bake_to: str = ""
-    align_bakes: bool = False
-    merge_objects: bool = False
-    save_normals: bool = False
-    override_materials: bool = False
-    layer1: str = ""
-    layer2: str = ""
-    layer3: str = ""
-    grime: str = ""
-    grime_amount: float = 0.0
-    scratch_amount: float = 0.0
-    remove_blockers: bool = True
-
-
-def get_import_properties() -> ImportPropertiesType:
-    """Get the import properties from the scene.
-
-    Returns:
-        The import properties.
-    """
-    if bpy.context.scene is None:
-        return ImportPropertiesType()
-    return cast(ImportPropertiesType, bpy.context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
-
-
 def assign_value(
     node: Node,
     index: int,
@@ -255,28 +202,6 @@ def assign_value(
         cast(NodeSocketFloat, node.inputs[index]).default_value = value
     if type(value) is tuple and len(value) == 4:
         cast(NodeSocketColor, node.inputs[index]).default_value = value
-
-
-def import_custom_rig() -> Object | None:
-    prefs = bpy.context.scene.spartan_properties  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
-    if not prefs.use_purp_rig:
-        return None
-    extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
-    custom_rig_path = Path(extension_path) / "purp.blend"
-    if custom_rig_path.exists():
-        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
-            data_from,  # pyright: ignore[reportUnknownVariableType]
-            data_to,  # pyright: ignore[reportUnknownVariableType]
-        ):
-            data_to.objects = [
-                name
-                for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                if name == "Spartan_Control_Rig_V2"
-            ]
-    else:
-        logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
-    object = bpy.data.objects.get("Spartan_Control_Rig_V2")
-    return object
 
 
 def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:

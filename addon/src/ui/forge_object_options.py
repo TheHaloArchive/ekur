@@ -1,21 +1,14 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-import re
+# pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
+import bpy
+
 from pathlib import Path
+from typing import cast
+from bpy.props import BoolProperty, EnumProperty, FloatProperty
+from bpy.types import Context, PropertyGroup, UILayout
 
-from bpy.types import Context
+from ..json_definitions import ForgeMaterial, ForgeObjectCategory, ForgeObjectDefinition
+from ..utils import get_data_folder, natural_sort_key, read_json_file
 
-from ..json_definitions import (
-    ForgeMaterial,
-    ForgeObjectCategory,
-    ForgeObjectDefinition,
-)
-
-from ..utils import get_data_folder, get_import_properties, natural_sort_key, read_json_file
-
-_nsre = re.compile("([0-9]+)")
-
-__all__ = ["GrabStrings"]
 
 root_category_cache: list[tuple[str, str, str]] | None = None
 sub_category_cache: dict[str, list[tuple[str, str, str]]] | None = None
@@ -25,7 +18,7 @@ object_definition: ForgeObjectDefinition | None = None
 material_cache: list[tuple[str, str, str]] | None = None
 
 
-class GrabStrings:
+class ForgeObjectLogic:
     def forge_materials(self, _context: Context | None) -> list[tuple[str, str, str]]:
         global material_cache
         if material_cache:
@@ -59,7 +52,7 @@ class GrabStrings:
     def get_category(
         self, context: Context, category: str, subcat: str | None = None
     ) -> ForgeObjectCategory | None:
-        objects = GrabStrings().get_object_definition(context)
+        objects = ForgeObjectLogic().get_object_definition(context)
         if objects is None:
             return
         for entry in objects["root_categories"]:
@@ -76,10 +69,10 @@ class GrabStrings:
         if root_category_cache:
             return root_category_cache
         categories: list[tuple[str, str, str]] = []
-        properties = get_import_properties()
+        properties = get_forge_object_options()
         if context is None:
             return categories
-        objects = GrabStrings().get_object_definition(context)
+        objects = ForgeObjectLogic().get_object_definition(context)
         if objects is None:
             return categories
 
@@ -93,14 +86,14 @@ class GrabStrings:
     def subcategories(self, context: Context | None) -> list[tuple[str, str, str]]:
         global sub_category_cache
         subcategories: list[tuple[str, str, str]] = []
-        properties = get_import_properties()
+        properties = get_forge_object_options()
         if context is None:
             return subcategories
 
         root_category = properties.root_category
         if sub_category_cache and root_category in sub_category_cache:
             return sub_category_cache[root_category]
-        category = GrabStrings().get_category(context, root_category)
+        category = ForgeObjectLogic().get_category(context, root_category)
         if category and category["sub_categories"]:
             for subcat in category["sub_categories"]:
                 subcategories.append((subcat["name"], subcat["name"], ""))
@@ -112,13 +105,13 @@ class GrabStrings:
     def objects(self, context: Context | None) -> list[tuple[str, str, str]]:
         global object_cache
         subcategories: list[tuple[str, str, str]] = []
-        properties = get_import_properties()
+        properties = get_forge_object_options()
         if context is None:
             return subcategories
 
         root_category = properties.root_category
         subcategory = properties.subcategory
-        category = GrabStrings().get_category(context, root_category)
+        category = ForgeObjectLogic().get_category(context, root_category)
         if object_cache and subcategory in object_cache:
             return object_cache[subcategory]
         if category and subcategory and category["sub_categories"]:
@@ -135,14 +128,14 @@ class GrabStrings:
     def object_representations(self, context: Context | None) -> list[tuple[str, str, str]]:
         global object_repr_cache
         subcategories: list[tuple[str, str, str]] = []
-        properties = get_import_properties()
+        properties = get_forge_object_options()
         if context is None:
             return subcategories
 
         root_category = properties.root_category
         subcategory = properties.subcategory
         object_name = properties.objects
-        category = GrabStrings().get_category(context, root_category, subcategory)
+        category = ForgeObjectLogic().get_category(context, root_category, subcategory)
         if object_repr_cache and object_name in object_repr_cache:
             return object_repr_cache[object_name]
         if category and category["objects"]:
@@ -155,3 +148,70 @@ class GrabStrings:
 
         object_repr_cache = {object_name: subcategories}
         return subcategories
+
+
+class ForgeObjectOptions(PropertyGroup):
+    root_category: EnumProperty(
+        name="Root Category", description="", items=ForgeObjectLogic.root_categories
+    )
+    subcategory: EnumProperty(name="Subcategory", items=ForgeObjectLogic.subcategories)
+    objects: EnumProperty(name="Object", items=ForgeObjectLogic.objects)
+    object_representation: EnumProperty(
+        name="Object Representation", items=ForgeObjectLogic.object_representations
+    )
+    sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
+    override_materials: BoolProperty(name="Override Materials", default=False)
+    layer1: EnumProperty(name="Layer 1", items=ForgeObjectLogic.forge_materials)
+    layer2: EnumProperty(name="Layer 2", items=ForgeObjectLogic.forge_materials)
+    layer3: EnumProperty(name="Layer 3", items=ForgeObjectLogic.forge_materials)
+    grime: EnumProperty(name="Grime", items=ForgeObjectLogic.forge_materials)
+    grime_amount: FloatProperty(name="Grime Amount")
+    scratch_amount: FloatProperty(name="Scratch Amount")
+
+
+class ForgeObjectOptionsType:
+    root_category: str = ""
+    subcategory: str = ""
+    objects: str = ""
+    object_representation: str = ""
+    sort_objects: bool = True
+    override_materials: bool = False
+    layer1: str = ""
+    layer2: str = ""
+    layer3: str = ""
+    grime: str = ""
+    grime_amount: float = 0.0
+    scratch_amount: float = 0.0
+
+
+def get_forge_object_options() -> ForgeObjectOptionsType:
+    if bpy.context.scene is None:
+        return ForgeObjectOptionsType()
+    props: ForgeObjectOptionsType = bpy.context.scene.forge_object_properties  # pyright: ignore[reportAttributeAccessIssue]
+    if props:
+        return cast(ForgeObjectOptionsType, props)
+    return ForgeObjectOptionsType()
+
+
+def draw_forge_object_options(layout: UILayout, props: ForgeObjectOptionsType) -> None:
+    forge_header, forge_body = layout.panel("VIEW3D_PT_import_forge", default_closed=True)
+    forge_header.label(icon="TOOL_SETTINGS", text="Import Forge Object")
+    if forge_body:
+        forge_opts = forge_body.box()
+        forge_opts.prop(props, "sort_objects")
+        forge_opts.prop(props, "root_category")
+        category = props.root_category
+        cat = ForgeObjectLogic().get_category(bpy.context, category)
+        if cat and cat["sub_categories"]:
+            forge_opts.prop(props, "subcategory")
+            forge_opts.prop(props, "objects")
+            forge_opts.prop(props, "object_representation")
+        _ = forge_body.operator("ekur.importforge")
+        forge_opts.prop(props, "override_materials")
+        if props.override_materials:
+            forge_opts.prop(props, "layer1")
+            forge_opts.prop(props, "layer2")
+            forge_opts.prop(props, "layer3")
+            forge_opts.prop(props, "grime")
+            forge_opts.prop(props, "grime_amount")
+            forge_opts.prop(props, "scratch_amount")

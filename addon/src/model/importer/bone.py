@@ -1,21 +1,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from functools import reduce
 import logging
 import operator
-from typing import cast
 import bpy
+
 from bpy.types import Armature, EditBone, Object
 from mathutils import Matrix
+from typing import cast
+from functools import reduce
 
-from ...ui.model_options import get_model_options
 from ..bone import Bone
 from ..metadata import Model
+from ...ui.model_options import get_model_options
 
 __all__ = ["import_bones", "get_bone_transforms"]
 
 
-def create_transform(rot_matrix: Matrix, trans_matrix: Matrix) -> Matrix:
+def _create_transform(rot_matrix: Matrix, trans_matrix: Matrix) -> Matrix:
     """
     Create a transformation matrix from the given rotation and translation matrices.
 
@@ -33,7 +34,7 @@ def create_transform(rot_matrix: Matrix, trans_matrix: Matrix) -> Matrix:
     return Matrix.Translation(translation * 1) @ rotation.to_matrix().to_4x4()
 
 
-def get_bone_lineage(model: Model, bone: Bone) -> list[Bone]:
+def _get_bone_lineage(model: Model, bone: Bone) -> list[Bone]:
     """
     Get the lineage (list of bones up to it) of the given bone.
 
@@ -65,9 +66,9 @@ def get_bone_transforms(model: Model) -> list[Matrix]:
     """
     result: list[Matrix] = []
     for bone in model.bones:
-        lineage = get_bone_lineage(model, bone)
+        lineage = _get_bone_lineage(model, bone)
         transforms = [
-            create_transform(x.rotation_matrix.matrix, x.transformation_matrix.matrix)
+            _create_transform(x.rotation_matrix.matrix, x.transformation_matrix.matrix)
             for x in lineage
         ]
         res = cast(Matrix, reduce(operator.matmul, transforms))
@@ -75,7 +76,7 @@ def get_bone_transforms(model: Model) -> list[Matrix]:
     return result
 
 
-def create_armature(model: Model) -> tuple[Armature, Object]:
+def _create_armature(model: Model) -> tuple[Armature, Object]:
     """
     Creates a new armature given a model.
 
@@ -114,7 +115,7 @@ def import_bones(model: Model) -> Object:
     - The armature object containing the bones.
     """
     props = get_model_options()
-    armature_data, armature_obj = create_armature(model)
+    armature_data, armature_obj = _create_armature(model)
     bone_transforms = get_bone_transforms(model)
 
     editbones: list[EditBone] = []
@@ -124,7 +125,7 @@ def import_bones(model: Model) -> Object:
 
     for i, bone in enumerate(model.bones):
         editbone = editbones[i]  # directly accessing the list is fine here
-        editbone.length = 0.03 * props.scale_factor
+        editbone.length = props.scale_factor * props.bone_size
         editbone.matrix = bone_transforms[i]
         if bone.parent_index >= 0:
             editbone.parent = editbones[bone.parent_index]

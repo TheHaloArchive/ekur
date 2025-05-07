@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
+
 from bpy.types import Object
 from mathutils import Matrix, Quaternion, Vector
 
+from .bone import get_bone_transforms
+from ..marker import Marker, MarkerInstance
+from ..metadata import Model
 from ...ui.model_options import get_model_options
 from ...constants import FEET_TO_METER
 
-from ..marker import Marker, MarkerInstance
-
-from .bone import get_bone_transforms
-from ..metadata import Model
 
 __all__ = ["import_markers"]
 
@@ -50,7 +50,7 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
     - The list of imported markers (as empties)
     """
     props = get_model_options()
-    MARKER_SIZE = 0.01 * props.scale_factor
+    marker_size = 0.01 * props.scale_factor
     bone_transforms = get_bone_transforms(model)
     markers: list[Object] = []
 
@@ -60,7 +60,7 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
 
             marker_obj = bpy.data.objects.new(str(name), None)
             marker_obj.empty_display_type = "SPHERE"
-            marker_obj.empty_display_size = MARKER_SIZE
+            marker_obj.empty_display_size = marker_size
             marker_obj.scale = Vector((FEET_TO_METER, FEET_TO_METER, FEET_TO_METER)) * Vector(
                 (props.scale_factor,) * 3
             )
