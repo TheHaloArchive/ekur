@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
+
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -25,10 +26,7 @@ class BetterUVScaling:
         if self.node_tree:
             return
         else:
-            self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="BetterUVScaling",
-            )
+            self.node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name="BetterUVScaling")
         self.create_sockets()
         self.create_nodes()
 

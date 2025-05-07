@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from io import BufferedReader
 import logging
+
+from io import BufferedReader
 
 __all__ = ["ModelHeader"]
 
@@ -23,7 +24,7 @@ class ModelHeader:
     def read(self, reader: BufferedReader) -> None:
         self.magic = reader.read(4).decode("utf-8")
         if self.magic != "SURA":
-            logging.critical(f"Invalid magic: {self.magic}")
+            logging.critical(f"Invalid magic: {self.magic}, expected SURA!")
             return
         self.tag_id = int.from_bytes(reader.read(4), "little", signed=True)
         self.is_rtgo = bool(reader.read(1)[0])

@@ -2,8 +2,14 @@
 # Copyright © 2025 Surasia
 from enum import IntEnum
 
+__all__ = ["BondType", "ForgeObjectMode"]
+
 
 class BondType(IntEnum):
+    """
+    Type of Bond value.
+    """
+
     Stop = 0
     StopBase = 1
     Bool = 2
@@ -27,6 +33,10 @@ class BondType(IntEnum):
 
 
 class ForgeObjectMode(IntEnum):
+    """
+    Different types of modes that a Forge Object can have.
+    """
+
     Dynamic = 1
     Static = 2
     Telescoping = 3

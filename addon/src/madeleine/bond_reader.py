@@ -1,13 +1,28 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from io import BufferedReader
 import struct
 import logging
+
+from io import BufferedReader
 from typing import cast
 
 from .madeleine import BondValue
 from .uleb import uleb128_decode, sleb128_decode
 from .bond_types import BondType
+
+__all__ = [
+    "type_and_id",
+    "get_type_count",
+    "read_blobs",
+    "read_list",
+    "read_map",
+    "read_wstring",
+    "read_string",
+    "read_value",
+    "read_field",
+    "read_struct",
+    "get_base_struct",
+]
 
 
 def type_and_id(data: BufferedReader) -> tuple[int, BondType]:
@@ -145,6 +160,17 @@ def read_string(data: BufferedReader) -> str:
 
 
 def read_value(id: int, type: BondType, data: BufferedReader) -> BondValue:
+    """
+    Reads a value by creating a new value and matching by type.
+
+    Args:
+    - id: ID of value
+    - type: Type of value to be created
+    - data: Reader to get the data from
+
+    Returns:
+    - Newly created BondValue.
+    """
     val = BondValue(id, type, None)
     match type:
         case BondType.Struct:
@@ -177,12 +203,30 @@ def read_value(id: int, type: BondType, data: BufferedReader) -> BondValue:
 
 
 def read_field(data: BufferedReader) -> BondValue:
+    """
+    Identifies the ID and type of a Bond value, reading it depending on its type.
+
+    Args:
+    - data: Reader to get the data from
+
+    Returns:
+    - Newly created BondValue.
+    """
     id, type = type_and_id(data)
     val = read_value(id, type, data)
     return val
 
 
 def read_struct(data: BufferedReader) -> list[BondValue]:
+    """
+    Reads a 'struct' BondValue by getting its length and reading until encountering either a `Stop` or `StopBase` value.
+
+    Args:
+    - data: Reader to get the data from
+
+    Returns:
+    - List of values read by struct.
+    """
     _length = uleb128_decode(data)
     values: list[BondValue] = []
     while True:
@@ -191,11 +235,20 @@ def read_struct(data: BufferedReader) -> list[BondValue]:
             case BondType.Stop:
                 break
             case BondType.StopBase:
-                ...
+                pass
             case _:
                 values.append(val)
     return values
 
 
 def get_base_struct(data: BufferedReader) -> BondValue:
+    """
+    Gets the base (id 0) struct from the reader.
+
+    Args:
+    - data: Reader to get the data from
+
+    Returns:
+    - BondValue containing the resulting base struct.
+    """
     return BondValue(0, BondType.Struct, read_struct(data))

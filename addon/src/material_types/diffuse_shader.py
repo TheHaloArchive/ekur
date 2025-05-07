@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+
 from typing import cast
 from bpy.types import (
     ShaderNodeGroup,
@@ -9,7 +10,6 @@ from bpy.types import (
 )
 
 from ..constants import EMPTY_CONTROL, EMPTY_TEXTURES
-
 from ..json_definitions import CommonMaterial
 from ..nodes.diffuse_shader import DiffuseShader
 from ..utils import assign_value, create_image, create_node

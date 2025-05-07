@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
+
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -29,8 +30,7 @@ class SelfIllum:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Self-Illumination Shader",
+                type="ShaderNodeTree", name="Self-Illumination Shader"
             )
         self.create_sockets()
         self.create_nodes()

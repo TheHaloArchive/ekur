@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from io import BufferedReader
 import struct
 
+from io import BufferedReader
+from typing import cast
 from mathutils import Matrix, Vector
 
 __all__ = [
@@ -219,7 +220,7 @@ class NormalizedVector1010102PackedAsUnorm:
 
         length_sq = self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w
         if abs(length_sq) > 1e-6:
-            length: float = (length_sq) ** 0.5
+            length: float = cast(float, (length_sq) ** 0.5)
             self.x /= length
             self.y /= length
             self.z /= length

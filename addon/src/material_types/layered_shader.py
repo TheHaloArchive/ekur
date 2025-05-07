@@ -2,10 +2,10 @@
 # Copyright © 2025 Surasia
 import json
 import logging
+import bpy
+
 from pathlib import Path
 from typing import cast
-
-import bpy
 from bpy.types import (
     NodeTree,
     ShaderNodeGroup,
@@ -15,8 +15,9 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..ui.forge_object_options import get_forge_object_options
+from ..ui.material_options import get_material_options
 from ..constants import ANY_REGION, MP_VISOR, TRANSPARENT_INTENTIONS
-
 from ..json_definitions import (
     CoatingGlobalEntries,
     CommonCoating,
@@ -32,7 +33,6 @@ from ..utils import (
     assign_value,
     create_node,
     get_data_folder,
-    get_import_properties,
     get_package_name,
     read_json_file,
     read_texture,
@@ -68,7 +68,7 @@ class LayeredShader:
         return texture
 
     def create_textures(self) -> None:
-        props = get_import_properties()
+        props = get_material_options()
         textures = self.material["textures"]
         if textures.get("Asg"):
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
@@ -104,10 +104,10 @@ class LayeredShader:
     def process_styles(self, custom_id: int = 0) -> None:
         style = self.styles["default_style"]["reference"]
         data = get_data_folder()
-        import_props = get_import_properties()
-        custom_style = import_props.coat_id
-        coating = import_props.coatings
-        use_default = import_props.use_default
+        import_props = get_material_options()
+        custom_style = import_props.coating_id
+        coating = import_props.coating
+        use_default = import_props.use_default_coating
 
         if custom_style != "" and not use_default and self.styles["styles"].get(custom_style):
             style = self.styles["styles"][custom_style]["reference"]
@@ -149,7 +149,7 @@ class LayeredShader:
                 intention = str(intention)
                 self.find_intention(intention, reg, all, globals, i, is_old_system)
 
-        props = get_import_properties()
+        props = get_forge_object_options()
         assign_value(self.shader, 7, style["grime_amount"])
         if style["grime_amount"] != 0.0:
             props.grime_amount = style["grime_amount"]
@@ -169,7 +169,7 @@ class LayeredShader:
         swatch = cast(ShaderNodeTree, Layer(style["grime_swatch"], grime_hash).node_tree)
         emissive_amount = style["grime_swatch"]["emissive_amount"]
         self.create_swatch(swatch, top, 6.9, emissive_amount, is_grime=True)
-        toggle_damage = get_import_properties().toggle_damage
+        toggle_damage = get_material_options().disable_damage
         if toggle_damage and style_info["supported_layers"] == 7:
             assign_value(self.shader, 97, False)
         if toggle_damage and style_info["supported_layers"] == 4:
@@ -273,15 +273,15 @@ class LayeredShader:
             i: Index of the intention.
         """
         layer = self.get_intention(intention, mat_reg, any_reg, globals, is_old_system, i)
-        properties = get_import_properties()
+        properties = get_material_options()
         extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         info = self.material.get("style_info")
-        if i == 0 and info and info["region_name"] == MP_VISOR and properties.toggle_visors:
+        if i == 0 and info and info["region_name"] == MP_VISOR and properties.override_visor:
             visors_path = Path(f"{extension_path}/all_visors.json")
             visors = read_json_file(visors_path, dict[str, CommonLayer])
             if visors is None:
                 return
-            layer = visors[properties.visors]
+            layer = visors[properties.visor]
         if layer:
             swatch = cast(
                 ShaderNodeTree, Layer(layer, f"{intention}_{hash(json.dumps(layer))}").node_tree

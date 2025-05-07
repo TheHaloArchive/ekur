@@ -1,14 +1,25 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from io import BufferedReader, BytesIO
 import logging
-from typing import Self
 import urllib.request
 import urllib.error
+
+from typing import Self
+from io import BufferedReader, BytesIO
 
 from .bond_types import ForgeObjectMode
 from .madeleine import BondValue
 from .bond_reader import get_base_struct
+
+__all__ = [
+    "ForgeLayer",
+    "ForgeMat",
+    "ForgeObject",
+    "ForgeFolder",
+    "ForgeFolderEntry",
+    "ForgeLevel",
+    "get_forge_map",
+]
 
 
 class ForgeLayer:
@@ -39,10 +50,10 @@ class ForgeMat:
 class ForgeObject:
     index: int = 0
     global_id: int = 0
-    position: list[float] = []
-    rotation_up: list[float] = []
-    rotation_forward: list[float] = []
-    scale: list[float] = []
+    position: list[float] = [0.0, 0.0, 0.0]
+    rotation_up: list[float] = [0.0, 0.0, 0.0]
+    rotation_forward: list[float] = [0.0, 0.0, 0.0]
+    scale: list[float] = [1.0, 1.0, 1.0]
     variant: int = 0
     mode: ForgeObjectMode = ForgeObjectMode(2)
     variant_index: int = 0
@@ -83,7 +94,6 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     position_selector = item.get_by_id(3)
     if not position_selector:
         return
-    forge_object.position = [0.0, 0.0, 0.0]
     for element in position_selector.get_elements():
         if element.id == 0 and type(element.value) is float:
             forge_object.position[0] = element.value
@@ -94,7 +104,6 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     rotation_selector = item.get_by_id(4)
     if not rotation_selector:
         return
-    forge_object.rotation_up = [0.0, 0.0, 0.0]
     for value in rotation_selector.get_elements():
         if value.id == 0 and type(value.value) is float:
             forge_object.rotation_up[0] = value.value
@@ -105,8 +114,6 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     rotation_selector = item.get_by_id(5)
     if not rotation_selector:
         return
-    forge_object.rotation_forward = [0.0, 0.0, 0.0]
-    forge_object.scale = [1.0, 1.0, 1.0]
     for value in rotation_selector.get_elements():
         if value.id == 0 and type(value.value) is float:
             forge_object.rotation_forward[0] = value.value

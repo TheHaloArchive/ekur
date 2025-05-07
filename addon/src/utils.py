@@ -2,15 +2,16 @@
 # Copyright © 2025 Surasia
 import json
 import logging
-from pathlib import Path
-from typing import TypeVar, cast
+import re
 import urllib.request
 import urllib.error
-
 import bpy
+
+
+from pathlib import Path
+from typing import TypeVar, cast
 from bpy.types import (
     Image,
-    MaterialSlot,
     Node,
     NodeSocket,
     NodeSocketBool,
@@ -20,7 +21,6 @@ from bpy.types import (
     Nodes,
     NodeTreeInterface,
     NodeTreeInterfacePanel,
-    Object,
     ShaderNodeTexImage,
     ShaderNodeTree,
 )
@@ -29,7 +29,6 @@ from .exceptions import NodeInterfaceDoesNotExist
 
 __all__ = [
     "read_texture",
-    "get_materials",
     "read_json_file",
     "remove_nodes",
     "create_socket",
@@ -37,10 +36,7 @@ __all__ = [
     "assign_value",
     "get_data_folder",
     "get_addon_preferences",
-    "ImportPropertiesType",
-    "get_import_properties",
     "AddonPreferencesType",
-    "import_custom_rig",
     "create_image",
     "download_file",
 ]
@@ -74,20 +70,6 @@ def read_texture(texturepath: str) -> Image | None:
     return image
 
 
-def get_materials() -> list[MaterialSlot]:
-    """Get all materials from the selected objects or all objects in the scene.
-
-    Returns:
-        A list of all material slots.
-    """
-    data_source = bpy.data.objects
-    properties = get_import_properties()
-    if properties.selected_only:
-        data_source = bpy.context.selected_objects
-    meshes = [obj for obj in data_source if obj.type == "MESH"]
-    return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
-
-
 JsonT = TypeVar("JsonT")
 
 
@@ -104,7 +86,7 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT | None:
         logging.warning(f"File path does not exist!: {file_path}")
         return
     with open(file_path, "r") as file:
-        data: T = json.load(file)  # pyright: ignore[reportUnknownVariableType]
+        data: T = cast(T, json.load(file))  # pyright: ignore[reportUnknownVariableType]
         return data  # pyright: ignore[reportUnknownVariableType]
 
 
@@ -205,81 +187,6 @@ def get_addon_preferences() -> AddonPreferencesType:
     return cast(AddonPreferencesType, preferences)  # pyright: ignore[reportInvalidCast]
 
 
-class ImportPropertiesType:
-    use_default: bool = False
-    coat_id: str = ""
-    toggle_damage: bool = False
-    selected_only: bool = False
-    flip_alpha: bool = False
-    sort_by_name: bool = False
-    coatings: str = ""
-    toggle_visors: bool = False
-    visors: str = ""
-    model_path: str = ""
-    import_materials: bool = False
-    import_markers: bool = False
-    import_bones: bool = False
-    import_collections: bool = False
-    import_vertex_color: bool = False
-    level_path: str = ""
-    import_specific_core: bool = False
-    import_names: bool = False
-    use_purp_rig: bool = False
-    gamertag: str = ""
-    body_type: str = ""
-    left_arm: str = ""
-    right_arm: str = ""
-    left_leg: str = ""
-    right_leg: str = ""
-    core: str = ""
-    root_category: str = ""
-    subcategory: str = ""
-    objects: str = ""
-    sort_objects: bool = False
-    object_representation: str = ""
-    url: str = ""
-    use_file: bool = False
-    mvar_file: str = ""
-    import_folders: bool = True
-    output_path: str = ""
-    output_workflow: str = ""
-    width: int = 1024
-    height: int = 1024
-    bit_depth: str = "8"
-    bake_detail_normals: bool = False
-    merge_textures: bool = False
-    bake_ao: bool = False
-    bake_layer_map: bool = False
-    advanced_bake: bool = False
-    selected_layer: str = ""
-    selected_objects: str = ""
-    pixel_padding: int = 16
-    uv_to_bake_to: str = ""
-    scale_factor: float = 1.0
-    align_bakes: bool = False
-    merge_objects: bool = False
-    save_normals: bool = False
-    override_materials: bool = False
-    layer1: str = ""
-    layer2: str = ""
-    layer3: str = ""
-    grime: str = ""
-    grime_amount: float = 0.0
-    scratch_amount: float = 0.0
-    remove_blockers: bool = True
-
-
-def get_import_properties() -> ImportPropertiesType:
-    """Get the import properties from the scene.
-
-    Returns:
-        The import properties.
-    """
-    if bpy.context.scene is None:
-        return ImportPropertiesType()
-    return cast(ImportPropertiesType, bpy.context.scene.import_properties)  # pyright: ignore[reportAttributeAccessIssue]
-
-
 def assign_value(
     node: Node,
     index: int,
@@ -298,28 +205,6 @@ def assign_value(
         cast(NodeSocketColor, node.inputs[index]).default_value = value
 
 
-def import_custom_rig() -> Object | None:
-    prefs = get_import_properties()
-    if not prefs.use_purp_rig:
-        return None
-    extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
-    custom_rig_path = Path(extension_path) / "purp.blend"
-    if custom_rig_path.exists():
-        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
-            data_from,  # pyright: ignore[reportUnknownVariableType]
-            data_to,  # pyright: ignore[reportUnknownVariableType]
-        ):
-            data_to.objects = [
-                name
-                for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                if name == "Spartan_Control_Rig_V2"
-            ]
-    else:
-        logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
-    object = bpy.data.objects.get("Spartan_Control_Rig_V2")
-    return object
-
-
 def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:
     texture = create_node(nodes, -300, y, ShaderNodeTexImage)
     texture.hide = True
@@ -336,3 +221,18 @@ def download_file(url: str, file_path: str) -> None:
             _ = out_file.write(response.read())  # pyright: ignore[reportAny]
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download: {url}: {e.status}")
+
+
+_nsre = re.compile("([0-9]+)")
+
+
+def natural_sort_key(s: str) -> list[int | str]:
+    """Natural sort order implementation.
+
+    Args:
+        s: String to sort
+
+    Returns:
+        Sorted list of strings and integers
+    """
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(_nsre, s[1])]

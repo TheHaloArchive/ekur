@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
+
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -25,8 +26,7 @@ class InfiniteMaskingSorterNoGrime:
             return
         else:
             self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Infinite Masking Sorter noGrime",
+                type="ShaderNodeTree", name="Infinite Masking Sorter noGrime"
             )
         self.create_sockets()
         self.create_nodes()

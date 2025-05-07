@@ -1,6 +1,6 @@
 [project]
 name = "ekuraddon"
-version = "1.1.5"
+version = "1.1.6"
 description = "A multi-purpose importer for Halo Infinite."
 readme = "README.md"
 requires-python = ">=3.13"

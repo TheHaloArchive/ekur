@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from typing import final
-
 import bpy
+
+from typing import cast, final
 from bpy.types import Collection, Context, Operator
 
-from ..utils import get_import_properties
-
+from ..ui.model_options import get_model_options
 from ..model.importer.model_importer import ModelImporter
 
 __all__ = ["ImportModelOperator"]
@@ -21,8 +20,8 @@ class ImportModelOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:
         if context is None or context.scene is None:
             return {"CANCELLED"}
-        properties = get_import_properties()
-        model_path = properties.model_path
+        options = get_model_options()
+        model_path = options.model_path
         model_name = model_path.split("/")[-1]
         if model_name == model_path:
             model_name = model_path.split("\\")[-1]
@@ -32,10 +31,10 @@ class ImportModelOperator(Operator):
         model_collection = bpy.data.collections.new(model_name)
         context.scene.collection.children.link(model_collection)  # pyright: ignore[reportUnknownMemberType]
 
-        if properties.import_collections:
+        if options.import_collections:
             for object in objects:
-                permutation_name: int = object["permutation_name"]
-                region_name: int = object["permutation_name"]
+                permutation_name: int = cast(int, object["permutation_name"])
+                region_name: int = cast(int, object["permutation_name"])
 
                 region_collection_name = f"{region_name}_{permutation_name}"
                 if permutation_name not in collections:

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
+import bpy
+
 from pathlib import Path
 from typing import cast, final
-
-import bpy
 from bpy.types import (
     Context,
     Material,
@@ -15,6 +15,8 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..ui.forge_object_options import get_forge_object_options
+from ..ui.material_options import get_material_options
 from ..nodes.layer import Layer
 from .material_operator import import_materials
 from ..json_definitions import CommonMaterial, ForgeMaterial, ForgeObjectDefinition
@@ -22,7 +24,6 @@ from ..utils import (
     assign_value,
     create_node,
     get_data_folder,
-    get_import_properties,
     read_json_file,
 )
 from ..model.importer.model_importer import ModelImporter
@@ -75,7 +76,7 @@ class ForgeOperator(Operator):
             _ = mat.node_tree.links.new(swatch.outputs[9], shader.inputs[26 + self.index])
 
     def import_materials(self, object: Object) -> None:
-        props = get_import_properties()
+        options = get_forge_object_options()
         materials = [mat.material for mat in object.material_slots if mat.material]
         data = get_data_folder()
         globals_path = Path(f"{data}/forge_materials.json")
@@ -102,9 +103,9 @@ class ForgeOperator(Operator):
                 continue
             if shader.node_tree.name != "Halo Infinite Shader 3.1.2 by Chunch and ChromaCore":
                 continue
-            layers = [props.layer1, props.layer2, props.layer3, props.grime]
-            assign_value(shader, 7, props.grime_amount)
-            assign_value(shader, 17, props.scratch_amount)
+            layers = [options.layer1, options.layer2, options.layer3, options.grime]
+            assign_value(shader, 7, options.grime_amount)
+            assign_value(shader, 17, options.scratch_amount)
             for idx, lay in enumerate(layers):
                 if idx == 3:
                     self.index = 97
@@ -121,10 +122,11 @@ class ForgeOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:
         if context is None:
             return {"CANCELLED"}
-        properties = get_import_properties()
-        selected_model = properties.objects
+        options = get_forge_object_options()
+        matprops = get_material_options()
+        selected_model = options.objects
 
-        represnt = properties.object_representation
+        represnt = options.object_representation
         data = get_data_folder()
 
         objects_path = Path(f"{data}/forge_objects.json")
@@ -175,10 +177,10 @@ class ForgeOperator(Operator):
                             object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
                             if context.view_layer:
                                 context.view_layer.objects.active = object
-                            properties.use_default = False
-                            properties.coat_id = str(obj["id"])
+                            matprops.use_default_coating = False
+                            matprops.coating_id = str(representation["style"])
                             import_materials()
-                            if properties.override_materials:
+                            if options.override_materials:
                                 self.import_materials(object)
                         break
 

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+
 from typing import cast
 from bpy.types import (
     ShaderNodeGroup,
@@ -27,6 +28,8 @@ class HairShader:
             img = create_image(self.tree.nodes, -100, str(self.material["textures"]["Color"]))
             if img.image and img.image.colorspace_settings:
                 img.image.colorspace_settings.name = "sRGB"  # pyright: ignore[reportAttributeAccessIssue]
+            else:
+                logging.warning("Image node does not have image colorspace or image texture!")
             _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
             _ = self.tree.links.new(img.outputs[1], nodes.inputs[1])
 

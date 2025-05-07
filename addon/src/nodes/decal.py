@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from typing import cast
 import bpy
+
+from typing import cast
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -22,8 +23,8 @@ from bpy.types import (
     ShaderNodeValToRGB,
 )
 
-from ..utils import assign_value, create_node, create_socket
 from .norm_normalize import NormNormalize
+from ..utils import assign_value, create_node, create_socket
 
 __all__ = ["Decal"]
 
@@ -34,10 +35,7 @@ class Decal:
         if self.node_tree:
             return
         else:
-            self.node_tree = bpy.data.node_groups.new(
-                type="ShaderNodeTree",  # pyright: ignore[reportArgumentType]
-                name="Decal Shader",
-            )
+            self.node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name="Decal Shader")
         self.create_sockets()
         self.create_nodes()
 

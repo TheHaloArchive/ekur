@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-from io import BufferedReader
-from ..exceptions import IncorrectStrideValue
 import struct
+
+from io import BufferedReader
+from typing import cast
+
+from ..exceptions import IncorrectStrideValue
 
 __all__ = ["WeightExtraBuffer"]
 
@@ -19,5 +22,5 @@ class WeightExtraBuffer:
             raise IncorrectStrideValue("Invalid WeightExtra buffer stride")
         self.count = int.from_bytes(reader.read(4), "little")
         for _ in range(self.count):
-            value: float = struct.unpack("f", reader.read(4))[0]
+            value: float = cast(float, struct.unpack("f", reader.read(4))[0])
             self.values.append(value)

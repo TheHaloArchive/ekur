@@ -291,6 +291,10 @@
         "name": "Petal Metal",
         "permutations": {}
     },
+    "1508073100": {
+        "name": "Pierced Plate",
+        "permutations": {}
+    },
     "798520866": {
         "name": "Pro Doc",
         "permutations": {}
@@ -423,6 +427,10 @@
         "name": "TAC/Infinity Rig",
         "permutations": {}
     },
+    "-1937692451": {
+        "name": "TAC/Kemeris",
+        "permutations": {}
+    },
     "-1415982837": {
         "name": "TAC/Kukri Machete",
         "permutations": {}
@@ -475,12 +483,20 @@
         "name": "TAC/Paradise Rig",
         "permutations": {}
     },
+    "855035761": {
+        "name": "TAC/Project AETHR",
+        "permutations": {}
+    },
     "636139123": {
         "name": "TAC/Recon Package",
         "permutations": {}
     },
     "801559339": {
         "name": "TAC/Sapper Rig",
+        "permutations": {}
+    },
+    "501629724": {
+        "name": "TAC/SHRD Plate",
         "permutations": {}
     },
     "836619605": {
@@ -523,6 +539,10 @@
         "name": "Twin Dragons",
         "permutations": {}
     },
+    "-1304550309": {
+        "name": "UA/AAM",
+        "permutations": {}
+    },
     "1384783917": {
         "name": "UA/Ajka",
         "permutations": {}
@@ -551,6 +571,10 @@
         "name": "UA/Double Guard",
         "permutations": {}
     },
+    "1047076383": {
+        "name": "UA/DSTT",
+        "permutations": {}
+    },
     "902221509": {
         "name": "UA/Eger",
         "permutations": {}
@@ -559,12 +583,24 @@
         "name": "UA/ELORIC",
         "permutations": {}
     },
+    "-444825366": {
+        "name": "UA/EOD",
+        "permutations": {}
+    },
+    "987064396": {
+        "name": "UA/FASA",
+        "permutations": {}
+    },
     "-369431970": {
         "name": "UA/INTERCEPT",
         "permutations": {}
     },
     "-26408973": {
         "name": "UA/Kontakt Plate",
+        "permutations": {}
+    },
+    "1385302243": {
+        "name": "UA/Kwibil",
         "permutations": {}
     },
     "78363103": {
@@ -631,12 +667,20 @@
         "name": "UA/Ringeck",
         "permutations": {}
     },
+    "2038669627": {
+        "name": "UA/RTC4",
+        "permutations": {}
+    },
     "-614716029": {
         "name": "UA/SACRIFICE",
         "permutations": {}
     },
     "-2100611142": {
         "name": "UA/SATeK",
+        "permutations": {}
+    },
+    "-944153168": {
+        "name": "UA/SECOPS Plate",
         "permutations": {}
     },
     "772384468": {
@@ -673,6 +717,10 @@
     },
     "-175987489": {
         "name": "UA/X800 Plate",
+        "permutations": {}
+    },
+    "2111697577": {
+        "name": "UA/XG-102 Kyn",
         "permutations": {}
     },
     "-360455081": {
@@ -1231,6 +1279,9 @@
             "-1858988123": {
                 "name": "EOD"
             },
+            "1052850167": {
+                "name": "EOD GEN1"
+            },
             "249176778": {
                 "name": "ERINYES"
             },
@@ -1239,6 +1290,9 @@
             },
             "-1515390571": {
                 "name": "EVA [C]"
+            },
+            "-1378910931": {
+                "name": "EVA GEN1"
             },
             "1037833293": {
                 "name": "Exo"
@@ -1260,6 +1314,9 @@
             },
             "-956485138": {
                 "name": "Fomorian"
+            },
+            "-698141591": {
+                "name": "FOTUS"
             },
             "1035005871": {
                 "name": "GRENADIER"
@@ -1347,6 +1404,9 @@
             },
             "666700231": {
                 "name": "LECHUZA"
+            },
+            "-1623969747": {
+                "name": "Liberator"
             },
             "191705154": {
                 "name": "LINEBREAKER"
@@ -1441,6 +1501,9 @@
             "2129531761": {
                 "name": "Orcus"
             },
+            "-1452015763": {
+                "name": "ORION IIC"
+            },
             "-1203427874": {
                 "name": "OSTEO"
             },
@@ -1461,6 +1524,9 @@
             },
             "37019581": {
                 "name": "PROJECT CORSAC"
+            },
+            "-571307684": {
+                "name": "Raider"
             },
             "500323191": {
                 "name": "RAKSHASA"
@@ -1486,14 +1552,26 @@
             "1227469950": {
                 "name": "ROCKEYE"
             },
+            "822497906": {
+                "name": "Rogue"
+            },
             "1455046189": {
                 "name": "Savage"
+            },
+            "861597986": {
+                "name": "Scarred Comet"
             },
             "320838201": {
                 "name": "Scorn"
             },
             "-419729170": {
                 "name": "SCOUT"
+            },
+            "-820997081": {
+                "name": "Scout GEN1"
+            },
+            "1873103065": {
+                "name": "SECOPS"
             },
             "1901299086": {
                 "name": "Security"
@@ -1597,6 +1675,9 @@
             "-2138186235": {
                 "name": "VELES"
             },
+            "1154843178": {
+                "name": "Venator"
+            },
             "-1413796017": {
                 "name": "Vindicator"
             },
@@ -1614,6 +1695,9 @@
             },
             "340442237": {
                 "name": "Warmonger"
+            },
+            "573266145": {
+                "name": "Wetwork"
             },
             "-1443851831": {
                 "name": "Wilhelm"
@@ -1797,6 +1881,10 @@
         "name": "FC-I/FASCIA",
         "permutations": {}
     },
+    "167177321": {
+        "name": "FC-X/MOONANT",
+        "permutations": {}
+    },
     "804569716": {
         "name": "FC/ALFA",
         "permutations": {}
@@ -1861,6 +1949,10 @@
         "name": "HUL-I/LIGHTSPIKE",
         "permutations": {}
     },
+    "-2020507756": {
+        "name": "HUL-I/ODDSQUIRREL",
+        "permutations": {}
+    },
     "859073310": {
         "name": "HUL-I/RS[2]/VENONA",
         "permutations": {}
@@ -1877,6 +1969,10 @@
         "name": "HUL-I/RS/FACELIFT",
         "permutations": {}
     },
+    "-1846781288": {
+        "name": "HUL-I/RS/REDGOPHER",
+        "permutations": {}
+    },
     "-1796215184": {
         "name": "HUL-I/RS/ROSEKEY",
         "permutations": {}
@@ -1887,6 +1983,10 @@
     },
     "-1421740987": {
         "name": "HUL-I/XFTREC/FLAMINGO",
+        "permutations": {}
+    },
+    "-1440305823": {
+        "name": "HUL(3X)/FLATSTICK",
         "permutations": {}
     },
     "-745237212": {
@@ -2023,6 +2123,10 @@
     },
     "160278127": {
         "name": "Oppressor Mark II",
+        "permutations": {}
+    },
+    "-1474914777": {
+        "name": "ORION Visorplate",
         "permutations": {}
     },
     "1949727930": {
@@ -2221,6 +2325,10 @@
         "name": "TAS[2]/PATTERNWOLF",
         "permutations": {}
     },
+    "-2004186331": {
+        "name": "TAS/Atgeir",
+        "permutations": {}
+    },
     "-1766301357": {
         "name": "TAS/BOCUK",
         "permutations": {}
@@ -2269,8 +2377,16 @@
         "name": "TAS/PATTON",
         "permutations": {}
     },
+    "846491595": {
+        "name": "TAS/SKADI",
+        "permutations": {}
+    },
     "-1839662845": {
         "name": "TAS/TIGERMOTH",
+        "permutations": {}
+    },
+    "131796245": {
+        "name": "TAS/TorLINK-TS",
         "permutations": {}
     },
     "1770877234": {
@@ -2293,12 +2409,20 @@
         "name": "Tines of Respect",
         "permutations": {}
     },
+    "1780071502": {
+        "name": "Torque Node",
+        "permutations": {}
+    },
     "1371299084": {
         "name": "UA/Armet",
         "permutations": {}
     },
     "-658094845": {
         "name": "UA/Azhanti",
+        "permutations": {}
+    },
+    "-914488478": {
+        "name": "UA/Blast Shield",
         "permutations": {}
     },
     "804613572": {
@@ -2311,6 +2435,10 @@
     },
     "271487825": {
         "name": "UA/Illus",
+        "permutations": {}
+    },
+    "200618623": {
+        "name": "UA/Koper",
         "permutations": {}
     },
     "-1135974129": {
@@ -2387,6 +2515,10 @@
     },
     "305208975": {
         "name": "X60 Protective Suite",
+        "permutations": {}
+    },
+    "117214246": {
+        "name": "XHEA/Prax",
         "permutations": {}
     },
     "647178904": {
@@ -2467,6 +2599,10 @@
     },
     "160243702": {
         "name": "Burden of Wind",
+        "permutations": {}
+    },
+    "110094697": {
+        "name": "C-Belt",
         "permutations": {}
     },
     "2052042532": {
@@ -2567,6 +2703,10 @@
     },
     "-2083337928": {
         "name": "K-Tech Perflubron",
+        "permutations": {}
+    },
+    "774661814": {
+        "name": "Leg Sleeve",
         "permutations": {}
     },
     "1732458338": {
@@ -2705,6 +2845,10 @@
         "name": "TAC/Boom Loom",
         "permutations": {}
     },
+    "-756218411": {
+        "name": "TAC/ESIS Duty Case",
+        "permutations": {}
+    },
     "-2082800519": {
         "name": "TAC/Gravspinner",
         "permutations": {}
@@ -2765,12 +2909,20 @@
         "name": "TWIN TEETH",
         "permutations": {}
     },
+    "1463797438": {
+        "name": "UA/CTA",
+        "permutations": {}
+    },
     "1056082097": {
         "name": "UA/Front Plate",
         "permutations": {}
     },
     "509951707": {
         "name": "UA/GEN2 Plate",
+        "permutations": {}
+    },
+    "1201557322": {
+        "name": "UA/GPAA",
         "permutations": {}
     },
     "1031506138": {
@@ -2793,6 +2945,14 @@
         "name": "UA/Plate II",
         "permutations": {}
     },
+    "-1436591280": {
+        "name": "UA/SWAP",
+        "permutations": {}
+    },
+    "227651881": {
+        "name": "UA/Thigh Plate",
+        "permutations": {}
+    },
     "170906212": {
         "name": "UA/TYPE 60",
         "permutations": {}
@@ -2809,6 +2969,14 @@
         "name": "UA/ULAP",
         "permutations": {}
     },
+    "359585833": {
+        "name": "UA/VAP",
+        "permutations": {}
+    },
+    "942046932": {
+        "name": "UA/XG-15 Plate",
+        "permutations": {}
+    },
     "2097513883": {
         "name": "UTIL/DAS-M Block 20",
         "permutations": {}
@@ -2817,12 +2985,24 @@
         "name": "UTIL/ENTRENCHING TOOL",
         "permutations": {}
     },
+    "564524142": {
+        "name": "UTIL/GFLOW",
+        "permutations": {}
+    },
+    "1860233061": {
+        "name": "UTIL/HCASE",
+        "permutations": {}
+    },
     "-50446372": {
         "name": "UTIL/IC-SICL",
         "permutations": {}
     },
     "287467042": {
         "name": "UTIL/MEDKIT",
+        "permutations": {}
+    },
+    "-2053716418": {
+        "name": "UTIL/MG-SBS",
         "permutations": {}
     },
     "-81051419": {
@@ -2960,6 +3140,9 @@
             "1868412737": {
                 "name": "Kneecapper"
             },
+            "-698141591": {
+                "name": "Kraken Pad"
+            },
             "-808206339": {
                 "name": "LIFEGUARD OXYLINK"
             },
@@ -3089,14 +3272,23 @@
             "523835643": {
                 "name": "UA/Type DH"
             },
+            "-820997081": {
+                "name": "UA/Type DI"
+            },
             "641000400": {
                 "name": "UA/Type DIO"
             },
             "1616640265": {
                 "name": "UA/Type DP"
             },
+            "-1378910931": {
+                "name": "UA/Type EV"
+            },
             "649265451": {
                 "name": "UA/Type FJ"
+            },
+            "1052850167": {
+                "name": "UA/Type GD"
             },
             "1035005871": {
                 "name": "UA/Type GND"
@@ -3124,6 +3316,9 @@
             },
             "1890283532": {
                 "name": "UA/Type HRP"
+            },
+            "-1623969747": {
+                "name": "UA/Type HS"
             },
             "1756945739": {
                 "name": "UA/Type JFO"
@@ -3155,11 +3350,20 @@
             "320838201": {
                 "name": "UA/Type NRG"
             },
+            "-1452015763": {
+                "name": "UA/TYPE OPX"
+            },
             "1772957832": {
                 "name": "UA/Type OST"
             },
             "1097661765": {
                 "name": "UA/Type PTL"
+            },
+            "822497906": {
+                "name": "UA/Type RA"
+            },
+            "-571307684": {
+                "name": "UA/Type RD"
             },
             "-461200412": {
                 "name": "UA/Type RG"
@@ -3185,8 +3389,14 @@
             "500323191": {
                 "name": "UA/Type SN"
             },
+            "1873103065": {
+                "name": "UA/Type SO"
+            },
             "-1206356951": {
                 "name": "UA/Type SP"
+            },
+            "861597986": {
+                "name": "UA/Type SSO"
             },
             "527336283": {
                 "name": "UA/TYPE SST"
@@ -3200,8 +3410,14 @@
             "126732244": {
                 "name": "UA/TYPE VTP"
             },
+            "573266145": {
+                "name": "UA/Type WW"
+            },
             "-655778073": {
                 "name": "UA/Ullop"
+            },
+            "1154843178": {
+                "name": "UA/XG-95"
             },
             "-1413796017": {
                 "name": "Vindicator Kneeguards"
@@ -3301,6 +3517,9 @@
             "1868412737": {
                 "name": "Kneecapper"
             },
+            "-698141591": {
+                "name": "Kraken Pad"
+            },
             "-808206339": {
                 "name": "LIFEGUARD OXYLINK"
             },
@@ -3430,14 +3649,23 @@
             "523835643": {
                 "name": "UA/Type DH"
             },
+            "-820997081": {
+                "name": "UA/Type DI"
+            },
             "641000400": {
                 "name": "UA/Type DIO"
             },
             "1616640265": {
                 "name": "UA/Type DP"
             },
+            "-1378910931": {
+                "name": "UA/Type EV"
+            },
             "649265451": {
                 "name": "UA/Type FJ"
+            },
+            "1052850167": {
+                "name": "UA/Type GD"
             },
             "1035005871": {
                 "name": "UA/Type GND"
@@ -3465,6 +3693,9 @@
             },
             "1890283532": {
                 "name": "UA/Type HRP"
+            },
+            "-1623969747": {
+                "name": "UA/Type HS"
             },
             "1756945739": {
                 "name": "UA/Type JFO"
@@ -3496,11 +3727,20 @@
             "320838201": {
                 "name": "UA/Type NRG"
             },
+            "-1452015763": {
+                "name": "UA/TYPE OPX"
+            },
             "1772957832": {
                 "name": "UA/Type OST"
             },
             "1097661765": {
                 "name": "UA/Type PTL"
+            },
+            "822497906": {
+                "name": "UA/Type RA"
+            },
+            "-571307684": {
+                "name": "UA/Type RD"
             },
             "-461200412": {
                 "name": "UA/Type RG"
@@ -3526,8 +3766,14 @@
             "500323191": {
                 "name": "UA/Type SN"
             },
+            "1873103065": {
+                "name": "UA/Type SO"
+            },
             "-1206356951": {
                 "name": "UA/Type SP"
+            },
+            "861597986": {
+                "name": "UA/Type SSO"
             },
             "527336283": {
                 "name": "UA/TYPE SST"
@@ -3541,8 +3787,14 @@
             "126732244": {
                 "name": "UA/TYPE VTP"
             },
+            "573266145": {
+                "name": "UA/Type WW"
+            },
             "-655778073": {
                 "name": "UA/Ullop"
+            },
+            "1154843178": {
+                "name": "UA/XG-95"
             },
             "-1413796017": {
                 "name": "Vindicator Kneeguards"
@@ -4295,6 +4547,10 @@
         "name": "SAP/BASE",
         "permutations": {}
     },
+    "-879923950": {
+        "name": "SAP/Boola",
+        "permutations": {}
+    },
     "10043815": {
         "name": "SAP/CDO",
         "permutations": {}
@@ -4333,6 +4589,10 @@
     },
     "842634469": {
         "name": "SAP/HAZOP",
+        "permutations": {}
+    },
+    "693342645": {
+        "name": "SAP/HPAD",
         "permutations": {}
     },
     "605016762": {
@@ -4377,6 +4637,14 @@
     },
     "-1582253654": {
         "name": "SAP/RECON",
+        "permutations": {}
+    },
+    "746173387": {
+        "name": "SAP/ROG",
+        "permutations": {}
+    },
+    "312934584": {
+        "name": "SAP/SAE",
         "permutations": {}
     },
     "658555912": {
@@ -4437,6 +4705,10 @@
     },
     "-1725465532": {
         "name": "SOFTPOINT",
+        "permutations": {}
+    },
+    "-1968304008": {
+        "name": "SOTUS",
         "permutations": {}
     },
     "-1897846463": {
@@ -4563,6 +4835,10 @@
         "name": "UA/Arethor",
         "permutations": {}
     },
+    "637316425": {
+        "name": "UA/BGO-R",
+        "permutations": {}
+    },
     "50483101": {
         "name": "UA/C2SI AP",
         "permutations": {}
@@ -4659,12 +4935,24 @@
         "name": "UA/Nampa",
         "permutations": {}
     },
+    "-847196713": {
+        "name": "UA/Nasica",
+        "permutations": {}
+    },
     "597556218": {
         "name": "UA/NERA-DAP",
         "permutations": {}
     },
+    "73040288": {
+        "name": "UA/Nerva",
+        "permutations": {}
+    },
     "-1337514320": {
         "name": "UA/Norax",
+        "permutations": {}
+    },
+    "2000101380": {
+        "name": "UA/ODP",
         "permutations": {}
     },
     "-632163412": {
@@ -4679,12 +4967,20 @@
         "name": "UA/Prefect",
         "permutations": {}
     },
+    "-1206854350": {
+        "name": "UA/Rath",
+        "permutations": {}
+    },
     "1960621185": {
         "name": "UA/Renfu",
         "permutations": {}
     },
     "303627752": {
         "name": "UA/Rosillo",
+        "permutations": {}
+    },
+    "694594036": {
+        "name": "UA/SO",
         "permutations": {}
     },
     "129867363": {
@@ -4745,6 +5041,10 @@
     },
     "-921491158": {
         "name": "UA/Vorenus",
+        "permutations": {}
+    },
+    "758473269": {
+        "name": "UA/XG-90",
         "permutations": {}
     },
     "803066824": {
@@ -5535,6 +5835,10 @@
         "name": "SAP/BASE",
         "permutations": {}
     },
+    "-2053923984": {
+        "name": "SAP/Boola",
+        "permutations": {}
+    },
     "-1904190780": {
         "name": "SAP/CDO",
         "permutations": {}
@@ -5573,6 +5877,10 @@
     },
     "-795740751": {
         "name": "SAP/HAZOP",
+        "permutations": {}
+    },
+    "-1104583458": {
+        "name": "SAP/HPAD",
         "permutations": {}
     },
     "-1227839975": {
@@ -5617,6 +5925,14 @@
     },
     "1622994315": {
         "name": "SAP/RECON",
+        "permutations": {}
+    },
+    "1144687250": {
+        "name": "SAP/ROG",
+        "permutations": {}
+    },
+    "1313114977": {
+        "name": "SAP/SAE",
         "permutations": {}
     },
     "-786767876": {
@@ -5677,6 +5993,10 @@
     },
     "1590369165": {
         "name": "SOFTPOINT",
+        "permutations": {}
+    },
+    "-1309417410": {
+        "name": "SOTUS",
         "permutations": {}
     },
     "-777605236": {
@@ -5803,6 +6123,10 @@
         "name": "UA/Arethor",
         "permutations": {}
     },
+    "981318226": {
+        "name": "UA/BGO-R",
+        "permutations": {}
+    },
     "410258506": {
         "name": "UA/C2SI AP",
         "permutations": {}
@@ -5899,12 +6223,24 @@
         "name": "UA/Nampa",
         "permutations": {}
     },
+    "-2018024400": {
+        "name": "UA/Nasica",
+        "permutations": {}
+    },
     "-902720857": {
         "name": "UA/NERA-DAP",
         "permutations": {}
     },
+    "798737684": {
+        "name": "UA/Nerva",
+        "permutations": {}
+    },
     "492191528": {
         "name": "UA/Norax",
+        "permutations": {}
+    },
+    "2095255711": {
+        "name": "UA/ODP",
         "permutations": {}
     },
     "-806524077": {
@@ -5919,12 +6255,20 @@
         "name": "UA/Prefect",
         "permutations": {}
     },
+    "1199348182": {
+        "name": "UA/Rath",
+        "permutations": {}
+    },
     "-543827288": {
         "name": "UA/Renfu",
         "permutations": {}
     },
     "87896961": {
         "name": "UA/Rosillo",
+        "permutations": {}
+    },
+    "-1231503164": {
+        "name": "UA/SO",
         "permutations": {}
     },
     "-1874743297": {
@@ -5985,6 +6329,10 @@
     },
     "-1719096426": {
         "name": "UA/Vorenus",
+        "permutations": {}
+    },
+    "950594047": {
+        "name": "UA/XG-90",
         "permutations": {}
     },
     "43533946": {
@@ -6151,6 +6499,10 @@
         "name": "Petal-Polished Wristguard",
         "permutations": {}
     },
+    "-68851306": {
+        "name": "Pike Gauntlets",
+        "permutations": {}
+    },
     "416396641": {
         "name": "Project CASKLOOM",
         "permutations": {}
@@ -6211,6 +6563,10 @@
         "name": "Sundered Plugin",
         "permutations": {}
     },
+    "-1038971427": {
+        "name": "TAC/BCW Whistler",
+        "permutations": {}
+    },
     "1699844739": {
         "name": "TAC/CASC",
         "permutations": {}
@@ -6229,6 +6585,10 @@
     },
     "-1709170885": {
         "name": "TAC/Holodyne Milspec",
+        "permutations": {}
+    },
+    "-177125118": {
+        "name": "TAC/LI-100 Firebee",
         "permutations": {}
     },
     "194291884": {
@@ -6255,6 +6615,10 @@
         "name": "TAC/U-Sense",
         "permutations": {}
     },
+    "1327092535": {
+        "name": "TAC/WC2 Model 11",
+        "permutations": {}
+    },
     "1231845983": {
         "name": "TACSTAR MODEL 2490",
         "permutations": {}
@@ -6265,6 +6629,10 @@
     },
     "-1968007336": {
         "name": "Terminating Process Plugin",
+        "permutations": {}
+    },
+    "-939654520": {
+        "name": "Threatwave MREX",
         "permutations": {}
     },
     "-1820803428": {
@@ -6281,6 +6649,14 @@
     },
     "-1420089264": {
         "name": "UA/DJFP",
+        "permutations": {}
+    },
+    "1395375064": {
+        "name": "UA/EVP",
+        "permutations": {}
+    },
+    "-1257127463": {
+        "name": "UA/KNX Vambrace",
         "permutations": {}
     },
     "-1187299110": {
@@ -6307,8 +6683,28 @@
         "name": "UA/Prefect Buckler",
         "permutations": {}
     },
+    "457402479": {
+        "name": "UA/PSA",
+        "permutations": {}
+    },
+    "-146440828": {
+        "name": "UA/RDR",
+        "permutations": {}
+    },
+    "1424826402": {
+        "name": "UA/SAM",
+        "permutations": {}
+    },
+    "-411976500": {
+        "name": "UA/T1A1",
+        "permutations": {}
+    },
     "-1413970846": {
         "name": "UA/T2A2 Bracer",
+        "permutations": {}
+    },
+    "390167793": {
+        "name": "UA/Type 83",
         "permutations": {}
     },
     "170094857": {

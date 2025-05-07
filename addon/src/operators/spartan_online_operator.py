@@ -2,16 +2,20 @@
 # Copyright © 2025 Surasia
 import json
 import logging
-from pathlib import Path
-from typing import cast, final
 import urllib.request
 import urllib.error
 import bpy
+
+from pathlib import Path
+from typing import cast, final
 from bpy.types import ArmatureModifier, Collection, Context, Mesh, Object, Operator
 
-from .material_operator import import_materials
-from ..model.importer.model_importer import ModelImporter
 
+from .material_operator import import_materials
+from ..ui.model_options import get_model_options
+from ..ui.material_options import get_material_options
+from ..ui.spartan_options import get_spartan_options
+from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import (
     Asset,
     Attachment,
@@ -22,7 +26,29 @@ from ..json_definitions import (
     CylixVanityResponse,
     RegionData,
 )
-from ..utils import get_data_folder, get_import_properties, import_custom_rig, read_json_file
+from ..utils import get_data_folder, get_package_name, read_json_file
+
+
+def import_custom_rig() -> Object | None:
+    prefs = get_spartan_options()
+    if not prefs.use_purp_rig:
+        return None
+    extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
+    custom_rig_path = Path(extension_path) / "purp.blend"
+    if custom_rig_path.exists():
+        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
+            data_from,  # pyright: ignore[reportUnknownVariableType]
+            data_to,  # pyright: ignore[reportUnknownVariableType]
+        ):
+            data_to.objects = [
+                name
+                for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                if name == "Spartan_Control_Rig_V2"
+            ]
+    else:
+        logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
+    object = bpy.data.objects.get("Spartan_Control_Rig_V2")
+    return object
 
 
 def import_attachments(
@@ -32,7 +58,7 @@ def import_attachments(
     attachment: Object,
     rig: Object | None,
 ) -> None:
-    props = get_import_properties()
+    props = get_model_options()
     if marker.name == name or alt_name in marker.name:
         empty_global_transform = marker.matrix_world
         mesh_global_transform = attachment.matrix_world
@@ -59,10 +85,10 @@ class ImportSpartanVanityOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:
         if context is None or context.scene is None:
             return {"CANCELLED"}
-        props = get_import_properties()
+        options = get_spartan_options()
         data = get_data_folder()
         vanity = self.request(
-            url=f"https://cylix.guide/api/vanity/profile/{props.gamertag.replace(' ', '-')}"
+            url=f"https://cylix.guide/api/vanity/profile/{options.gamertag.replace(' ', '-')}"
         )
         index = self.request(url="https://hi.cylix.guide/index.json")
         armor: CylixVanityResponse = json.loads(vanity)
@@ -76,17 +102,17 @@ class ImportSpartanVanityOperator(Operator):
         if not model_path.exists():
             logging.warning(f"Model path does not exist!: {model_path}")
             return {"CANCELLED"}
-        props.toggle_visors = True
+        get_material_options().override_visor = True
         visor_res = [
             visor
             for visor in index_json["manifest"]
             if visor[0].lower() == armor["armor"]["visor"].lower()
         ]
-        props.visors = visor_res[0][1]["title"]
+        get_material_options().visor = visor_res[0][1]["title"]
         importer = ModelImporter()
         rig = import_custom_rig()
         objects = importer.start_import(str(model_path), custom_rig=rig)
-        vanity = bpy.data.collections.new(props.gamertag)
+        vanity = bpy.data.collections.new(options.gamertag)
         core_res = [
             core
             for core in index_json["manifest"]
@@ -122,14 +148,14 @@ class ImportSpartanVanityOperator(Operator):
         self.add_region(base_region, vanity, objects)
         for part in parts:
             self.add_region(part["RegionData"], vanity, objects)
-        match props.body_type:
+        match options.body_type:
             case "Body Type 2":
                 self.add_region(body_type_large, vanity, objects, True)
             case "Body Type 3":
                 self.add_region(body_type_small, vanity, objects, True)
             case _:
                 ...
-        match props.left_arm:
+        match options.left_arm:
             case "Transhumeral":
                 self.add_region(p_left_arm["Full"], vanity, objects, True)
             case "Transradial":
@@ -138,7 +164,7 @@ class ImportSpartanVanityOperator(Operator):
                 self.add_region(p_left_arm["Extremity"], vanity, objects, True)
             case _:
                 ...
-        match props.right_arm:
+        match options.right_arm:
             case "Transhumeral":
                 self.add_region(p_right_arm["Full"], vanity, objects, True)
             case "Transradial":
@@ -147,12 +173,12 @@ class ImportSpartanVanityOperator(Operator):
                 self.add_region(p_right_arm["Extremity"], vanity, objects, True)
             case _:
                 ...
-        match props.left_leg:
+        match options.left_leg:
             case "Transfemoral":
                 self.add_region(p_left_leg["Full"], vanity, objects, True)
             case _:
                 ...
-        match props.right_leg:
+        match options.right_leg:
             case "Transfemoral":
                 self.add_region(p_right_leg["Full"], vanity, objects, True)
             case _:
@@ -167,8 +193,9 @@ class ImportSpartanVanityOperator(Operator):
 
         for object in vanity.objects:
             object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-            props.use_default = False
-            props.coat_id = str(coating_json["StyleId"]["m_identifier"])
+            props = get_material_options()
+            props.use_default_coating = False
+            props.coating_id = str(coating_json["StyleId"]["m_identifier"])
             import_materials()
 
         return {"FINISHED"}

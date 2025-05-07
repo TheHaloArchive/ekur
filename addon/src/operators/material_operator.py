@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+import bpy
+
 from pathlib import Path
 from typing import final
+from bpy.types import Context, MaterialSlot, Operator, ShaderNodeTree
 
-from bpy.types import Context, Operator, ShaderNodeTree
-
-
+from ..ui.material_options import get_material_options
 from ..json_definitions import CommonMaterial, CommonStyleList
 from ..material_types.hair_shader import HairShader
 from ..material_types.skin_shader import SkinShader
@@ -15,9 +16,23 @@ from ..material_types.diffuse_shader import DiffuseShaderType
 from ..material_types.layered_shader import LayeredShader
 from ..material_types.illum_shader import IllumShader
 from ..material_types.color_decal import ColorDecalShader
-from ..utils import get_data_folder, get_materials, read_json_file, remove_nodes
+from ..utils import get_data_folder, read_json_file, remove_nodes
 
 __all__ = ["ImportMaterialOperator"]
+
+
+def get_materials() -> list[MaterialSlot]:
+    """Get all materials from the selected objects or all objects in the scene.
+
+    Returns:
+        A list of all material slots.
+    """
+    data_source = bpy.data.objects
+    properties = get_material_options()
+    if properties.selected_only:
+        data_source = bpy.context.selected_objects
+    meshes = [obj for obj in data_source if obj.type == "MESH"]
+    return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
 
 
 def import_materials() -> None:

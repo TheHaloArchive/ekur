@@ -2,8 +2,8 @@
 # Copyright © 2025 Surasia
 from io import BufferedReader
 
-from ..exceptions import IncorrectStrideValue
 from .vectors import NormalizedVector1010102PackedAsUnorm
+from ..exceptions import IncorrectStrideValue
 
 __all__ = ["NormalBuffer"]
 

@@ -17,7 +17,14 @@ else:
 
     from .src.utils import get_package_name
     from .src.operators.material_operator import ImportMaterialOperator
-    from .src.ui.import_panel import CoatingImportPanel, ImportProperties, RandomizeCoatingOperator
+    from .src.ui.import_panel import EkurImportPanel
+    from .src.ui.material_options import MaterialOptions
+    from .src.ui.model_options import ModelOptions
+    from .src.ui.spartan_options import SpartanOptions
+    from .src.ui.forge_object_options import ForgeObjectOptions
+    from .src.ui.forge_map_options import ForgeMapOptions
+    from .src.ui.bake_options import BakeOptions
+    from .src.ui.level_options import LevelOptions
     from .src.operators.dump_files_operator import DumpFilesOperator
     from .src.operators.model_operator import ImportModelOperator
     from .src.operators.spartan_operator import ImportSpartanOperator
@@ -27,6 +34,7 @@ else:
     from .src.operators.download_files_operator import DownloadFilesOperator
     from .src.operators.forge_map_operator import ForgeMapOperator
     from .src.operators.bake_operator import BakingOperator, AdvancedBakeOperator, AlignBakeOperator
+    from .src.operators.randomize_coating import RandomizeCoatingOperator
     from .src.constants import version, version_string
 
     bl_info = {
@@ -98,9 +106,8 @@ else:
 
     def register():
         register_class(ImportMaterialOperator)
-        register_class(CoatingImportPanel)
+        register_class(EkurImportPanel)
         register_class(EkurPreferences)
-        register_class(ImportProperties)
         register_class(RandomizeCoatingOperator)
         register_class(DownloadFilesOperator)
         register_class(DumpFilesOperator)
@@ -113,13 +120,25 @@ else:
         register_class(BakingOperator)
         register_class(AdvancedBakeOperator)
         register_class(AlignBakeOperator)
-        bpy.types.Scene.import_properties = bpy.props.PointerProperty(type=ImportProperties)  # pyright: ignore[reportAttributeAccessIssue]
+        register_class(MaterialOptions)
+        register_class(ModelOptions)
+        register_class(SpartanOptions)
+        register_class(ForgeObjectOptions)
+        register_class(ForgeMapOptions)
+        register_class(BakeOptions)
+        register_class(LevelOptions)
+        bpy.types.Scene.material_properties = bpy.props.PointerProperty(type=MaterialOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.model_properties = bpy.props.PointerProperty(type=ModelOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.spartan_properties = bpy.props.PointerProperty(type=SpartanOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.forge_map_properties = bpy.props.PointerProperty(type=ForgeMapOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.forge_object_properties = bpy.props.PointerProperty(type=ForgeObjectOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.bake_properties = bpy.props.PointerProperty(type=BakeOptions)  # pyright: ignore[reportAttributeAccessIssue]
+        bpy.types.Scene.level_properties = bpy.props.PointerProperty(type=LevelOptions)  # pyright: ignore[reportAttributeAccessIssue]
 
     def unregister():
         unregister_class(ImportMaterialOperator)
-        unregister_class(CoatingImportPanel)
+        unregister_class(EkurImportPanel)
         unregister_class(EkurPreferences)
-        unregister_class(ImportProperties)
         unregister_class(RandomizeCoatingOperator)
         unregister_class(DownloadFilesOperator)
         unregister_class(DumpFilesOperator)
@@ -132,4 +151,16 @@ else:
         unregister_class(BakingOperator)
         unregister_class(AdvancedBakeOperator)
         unregister_class(AlignBakeOperator)
-        del bpy.types.Scene.import_properties  # pyright: ignore[reportAttributeAccessIssue]
+        unregister_class(MaterialOptions)
+        unregister_class(ModelOptions)
+        unregister_class(SpartanOptions)
+        unregister_class(ForgeObjectOptions)
+        unregister_class(ForgeMapOptions)
+        unregister_class(BakeOptions)
+        del bpy.types.Scene.material_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.model_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.spartan_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.forge_object_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.forge_map_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.bake_properties  # pyright: ignore[reportAttributeAccessIssue]
+        del bpy.types.Scene.level_properties  # pyright: ignore[reportAttributeAccessIssue]
