@@ -23,7 +23,6 @@ class ImportLevelOperator(Operator):
 
     def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
         super().__init__(*args, **kwargs)
-        self.index: int = 0
         self._geometry_cache = {}
 
     def _get_or_create_geometry(

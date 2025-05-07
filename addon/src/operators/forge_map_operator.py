@@ -56,11 +56,9 @@ class ForgeMapOperator(Operator):
     bl_label = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
-    _geometry_cache: dict[str, list[Object]] = {}
-
     def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
         super().__init__(*args, **kwargs)
-        self.index: int = 0
+        self._geometry_cache = {}
 
     def _get_or_create_geometry(self, global_id: str, style: int) -> list[Object]:
         if global_id in self._geometry_cache or bpy.context.scene is None:
@@ -160,6 +158,7 @@ class ForgeMapOperator(Operator):
         return cats, root_folder
 
     def execute(self, context: Context | None) -> set[str]:
+        self._geometry_cache: dict[str, list[Object]] = {}
         options = get_forge_map_options()
         data = get_data_folder()
         split = options.url.split("/")
@@ -173,7 +172,6 @@ class ForgeMapOperator(Operator):
             return {"CANCELLED"}
         cats, root_folder = self.create_category(context.scene.collection, level)
         for object in level.objects:
-            self.index = 0
             name: str = ""
             main_collection: Collection | None = None
             if options.import_folders:
