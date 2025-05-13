@@ -11,7 +11,7 @@ from ..utils import download_file, get_package_name
 from ..constants import version_string
 
 STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
-EKUR = "https://github.com/Surasia/ekur/raw/refs/heads/master/assets"
+EKUR = "https://github.com/TheHaloArchive/ekur/raw/refs/heads/master/assets"
 REGIONS_URL = f"{EKUR}/regions_and_permutations.json"
 CUSTOM_RIG_URL = f"{EKUR}/purp.blend"
 VISORS_URL = f"{EKUR}/all_visors.json"
@@ -33,7 +33,7 @@ class DownloadFilesOperator(Operator):
         regions_path = f"{extension_path}/regions_and_permutations.json"
         customs_path = f"{extension_path}/purp.blend"
 
-        ekur_url = f"https://github.com/Surasia/ekur/releases/download/{version_string}/ekur-{version_string}"
+        ekur_url = f"https://github.com/TheHaloArchive/ekur/releases/download/{version_string}/ekur-{version_string}"
         if platform.system() == "Windows":
             ekur_save_path = f"{ekur_save_path}.exe"
             ekur_url = f"{ekur_url}.exe"

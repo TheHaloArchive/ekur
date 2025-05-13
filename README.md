@@ -11,7 +11,7 @@ A multi-purpose blender importer for Halo Infinite.
 If you want to support the work I do, please consider buying me a coffee: https://ko-fi.com/surasia
 
 ### First-Time Installation/Setup
-To install the addon into Blender, navigate to the "Get Extensions" tab in Blender inside the preferences menu, click on the add button in the "Repositories" drop down and add `https://surasia.me/ekur/index.json` as a remote repository. If you wish to receive automatic updates, you can also enable that here.
+To install the addon into Blender, navigate to the "Get Extensions" tab in Blender inside the preferences menu, click on the add button in the "Repositories" drop down and add `https://thehaloarchive.github.io/ekur/index.json` as a remote repository. If you wish to receive automatic updates, you can also enable that here.
 
 Now, you can search for the "Ekur" addon inside the same menu and click on install.
 
