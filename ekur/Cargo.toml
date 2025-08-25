@@ -17,7 +17,7 @@ image_dds = { version = "0.7.2", default-features = false, features = [
 infinite-rs = { version = "0.12.1", features = ["derive"] }
 num_enum = "0.7.3"
 serde = { version = "1.0.219", features = ["derive"] }
-serde_json = { version = "1.0.140" }
+serde_json = { version = "1.0.143" }
 walkdir = "2.5.0"
 byteorder = "1.5.0"
 
