@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
-
 from typing import cast
+
 from bpy.types import (
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
     ShaderNodeTree,
 )
 
+from ..json_definitions import CommonMaterial
 from ..nodes.color_decal import ColorDecal
 from ..utils import assign_value, create_image, create_node
-from ..json_definitions import CommonMaterial
 
 __all__ = ["ColorDecalShader"]
 

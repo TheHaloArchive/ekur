@@ -2,16 +2,16 @@
 # Copyright © 2025 Surasia
 import logging
 import operator
-import bpy
+from functools import reduce
+from typing import cast
 
+import bpy
 from bpy.types import Armature, EditBone, Object
 from mathutils import Matrix
-from typing import cast
-from functools import reduce
 
+from ...ui.model_options import get_model_options
 from ..bone import Bone
 from ..metadata import Model
-from ...ui.model_options import get_model_options
 
 __all__ = ["import_bones", "get_bone_transforms"]
 
@@ -90,17 +90,17 @@ def _create_armature(model: Model) -> tuple[Armature, Object]:
     armature_obj = bpy.data.objects.new(f"{model.header.tag_id}_Armature", armature_data)
 
     if bpy.context.scene is not None:
-        bpy.context.scene.collection.objects.link(armature_obj)  # pyright: ignore[reportUnknownMemberType]
+        bpy.context.scene.collection.objects.link(armature_obj)
     else:
         logging.warning("No scene found to link the armature to!")
 
-    bpy.ops.object.select_all(action="DESELECT")  # pyright: ignore[reportUnknownMemberType]
-    armature_obj.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+    bpy.ops.object.select_all(action="DESELECT")
+    armature_obj.select_set(True)
     if bpy.context.view_layer is not None:
         bpy.context.view_layer.objects.active = armature_obj
     else:
         logging.warning("No view layer found to set the armature object to!")
-    bpy.ops.object.mode_set(mode="EDIT")  # pyright: ignore[reportUnknownMemberType]
+    bpy.ops.object.mode_set(mode="EDIT")
     return armature_data, armature_obj
 
 
@@ -130,5 +130,5 @@ def import_bones(model: Model) -> Object:
         if bone.parent_index >= 0:
             editbone.parent = editbones[bone.parent_index]
 
-    bpy.ops.object.mode_set(mode="OBJECT")  # pyright: ignore[reportUnknownMemberType]
+    bpy.ops.object.mode_set(mode="OBJECT")
     return armature_obj

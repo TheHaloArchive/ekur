@@ -1,14 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
+import os
 import platform
-import bpy
-
 from typing import cast, final
+
+import bpy
 from bpy.types import Context, Operator
 
-from ..utils import download_file, get_package_name
 from ..constants import version_string
+from ..utils import download_file, get_package_name
 
 STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
 EKUR = "https://github.com/TheHaloArchive/ekur/raw/refs/heads/master/assets"
@@ -39,6 +40,8 @@ class DownloadFilesOperator(Operator):
             ekur_url = f"{ekur_url}.exe"
 
         download_file(ekur_url, ekur_save_path)
+        if platform.system() == "Linux":
+            os.chmod(ekur_save_path, 755)  # make executable
         download_file(STRINGS_URL, save_path)
         download_file(CUSTOM_RIG_URL, customs_path)
         download_file(VISORS_URL, visors_path)

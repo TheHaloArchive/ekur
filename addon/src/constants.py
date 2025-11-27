@@ -14,7 +14,7 @@ __all__ = [
     "BLOCKER_MATERIAL",
 ]
 
-version = (1, 1, 7)
+version = (1, 1, 8)
 version_string = ".".join(str(v) for v in version)
 EMPTY_TEXTURES = [10098, 580203186, 92914]
 EMPTY_CONTROL: int = 11617

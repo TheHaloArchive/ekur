@@ -11,31 +11,35 @@ if __name__ == "addon":
 else:
     from pathlib import Path
     from typing import cast, final
+
     import bpy
     from bpy.types import AddonPreferences, Context
-    from bpy.utils import register_class, unregister_class  # pyright: ignore[reportUnknownVariableType]
+    from bpy.utils import (
+        register_class,
+        unregister_class,
+    )
 
-    from .src.utils import get_package_name
+    from .src.constants import version, version_string
+    from .src.operators.bake_operator import AdvancedBakeOperator, AlignBakeOperator, BakingOperator
+    from .src.operators.download_files_operator import DownloadFilesOperator
+    from .src.operators.dump_files_operator import DumpFilesOperator
+    from .src.operators.forge_map_operator import ForgeMapOperator
+    from .src.operators.forge_operator import ForgeOperator
+    from .src.operators.level_operator import ImportLevelOperator
     from .src.operators.material_operator import ImportMaterialOperator
+    from .src.operators.model_operator import ImportModelOperator
+    from .src.operators.randomize_coating import RandomizeCoatingOperator
+    from .src.operators.spartan_online_operator import ImportSpartanVanityOperator
+    from .src.operators.spartan_operator import ImportSpartanOperator
+    from .src.ui.bake_options import BakeOptions
+    from .src.ui.forge_map_options import ForgeMapOptions
+    from .src.ui.forge_object_options import ForgeObjectOptions
     from .src.ui.import_panel import EkurImportPanel
+    from .src.ui.level_options import LevelOptions
     from .src.ui.material_options import MaterialOptions
     from .src.ui.model_options import ModelOptions
     from .src.ui.spartan_options import SpartanOptions
-    from .src.ui.forge_object_options import ForgeObjectOptions
-    from .src.ui.forge_map_options import ForgeMapOptions
-    from .src.ui.bake_options import BakeOptions
-    from .src.ui.level_options import LevelOptions
-    from .src.operators.dump_files_operator import DumpFilesOperator
-    from .src.operators.model_operator import ImportModelOperator
-    from .src.operators.spartan_operator import ImportSpartanOperator
-    from .src.operators.level_operator import ImportLevelOperator
-    from .src.operators.forge_operator import ForgeOperator
-    from .src.operators.spartan_online_operator import ImportSpartanVanityOperator
-    from .src.operators.download_files_operator import DownloadFilesOperator
-    from .src.operators.forge_map_operator import ForgeMapOperator
-    from .src.operators.bake_operator import BakingOperator, AdvancedBakeOperator, AlignBakeOperator
-    from .src.operators.randomize_coating import RandomizeCoatingOperator
-    from .src.constants import version, version_string
+    from .src.utils import get_package_name
 
     bl_info = {
         "name": "Ekur",
@@ -81,6 +85,12 @@ else:
             default=False,
         )
 
+        debug: bpy.props.BoolProperty(
+            name="Debug Print",
+            description="Enable this if you're trying to troubleshoot issues with Ekur.",
+            default=False,
+        )
+
         def draw(self, _context: Context | None):
             layout = self.layout
             if not dump_exists():
@@ -100,6 +110,7 @@ else:
             box.prop(self, "deploy_folder")
             box.prop(self, "dump_textures")
             box.prop(self, "is_campaign")
+            box.prop(self, "debug")
             box2 = layout.box()
             _ = box2.operator("ekur.downloadfiles")
             _ = box2.operator("ekur.dumpfiles")

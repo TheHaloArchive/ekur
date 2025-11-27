@@ -2,10 +2,10 @@
 # Copyright © 2025 Surasia
 import json
 import logging
-import bpy
-
 from pathlib import Path
 from typing import cast
+
+import bpy
 from bpy.types import (
     NodeTree,
     ShaderNodeGroup,
@@ -15,8 +15,6 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..ui.forge_object_options import get_forge_object_options
-from ..ui.material_options import get_material_options
 from ..constants import ANY_REGION, MP_VISOR, TRANSPARENT_INTENTIONS
 from ..json_definitions import (
     CoatingGlobalEntries,
@@ -29,6 +27,8 @@ from ..json_definitions import (
 )
 from ..nodes.hims import HIMS
 from ..nodes.layer import Layer
+from ..ui.forge_object_options import get_forge_object_options
+from ..ui.material_options import get_material_options
 from ..utils import (
     assign_value,
     create_node,
@@ -74,7 +74,7 @@ class LayeredShader:
             tex = self.create_image(self.node_tree, textures["Asg"], 120)
             if (
                 tex.image
-                and cast(bool, tex.image.get("use_alpha"))  # pyright: ignore[reportUnknownMemberType]
+                and cast(bool, tex.image.get("use_alpha"))
                 and self.material["style_info"]
                 and self.material["style_info"]["base_intention"] in TRANSPARENT_INTENTIONS
             ):

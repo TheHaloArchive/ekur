@@ -4,10 +4,10 @@ import logging
 import re
 import urllib.error
 import urllib.request
-import bpy
-
 from pathlib import Path
 from typing import final
+
+import bpy
 from bpy.types import (
     Collection,
     Context,
@@ -17,15 +17,14 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
-from .material_operator import import_materials
+from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
+from ..json_definitions import ForgeMaterial, ForgeObjectDefinition, ForgeObjectRepresentation
+from ..madeleine.forge_level_reader import ForgeFolder, ForgeLevel, get_forge_map
+from ..model.importer.model_importer import ModelImporter
 from ..ui.forge_map_options import get_forge_map_options
 from ..ui.material_options import get_material_options
-from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
-from ..model.importer.model_importer import ModelImporter
-from ..json_definitions import ForgeMaterial, ForgeObjectDefinition, ForgeObjectRepresentation
-
-from ..madeleine.forge_level_reader import ForgeFolder, ForgeLevel, get_forge_map
 from ..utils import get_data_folder, read_json_file
+from .material_operator import import_materials
 
 
 def apply_rtgo_transform(
@@ -41,7 +40,7 @@ def apply_rtgo_transform(
             offset[2] * scale[2],
         )
     )
-    scaled_offset.rotate(rotation)  # pyright: ignore[reportUnknownMemberType]
+    scaled_offset.rotate(rotation)
     new_axis: list[float] = [
         pos[0] + scaled_offset[0],
         pos[1] + scaled_offset[1],
@@ -75,20 +74,20 @@ class ForgeMapOperator(Operator):
         master_collection = bpy.data.collections.get("Master Geometries")
         if not master_collection:
             master_collection = bpy.data.collections.new("Master Geometries")
-            bpy.context.scene.collection.children.link(master_collection)  # pyright: ignore[reportUnknownMemberType]
+            bpy.context.scene.collection.children.link(master_collection)
 
         source_objects = imported_objects
         for source_object in source_objects:
             if source_object.name in bpy.context.scene.collection.objects:
-                bpy.context.scene.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
-            master_collection.objects.link(source_object)  # pyright: ignore[reportUnknownMemberType]
-            source_object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+                bpy.context.scene.collection.objects.unlink(source_object)
+            master_collection.objects.link(source_object)
+            source_object.select_set(True)
             if bpy.context.view_layer:
                 bpy.context.view_layer.objects.active = source_object
             props.use_default_coating = False
             props.coating_id = str(style)
             import_materials()
-            source_object.select_set(False)  # pyright: ignore[reportUnknownMemberType]
+            source_object.select_set(False)
 
         self._geometry_cache[global_id] = source_objects
         return source_objects
@@ -97,7 +96,7 @@ class ForgeMapOperator(Operator):
         self, category: ForgeFolder, parent: Collection, is_subcat: bool = False
     ) -> tuple[Collection, list[tuple[ForgeFolder, Collection]]]:
         category_collection = bpy.data.collections.new(category.name)
-        parent.children.link(category_collection)  # pyright: ignore[reportUnknownMemberType]
+        parent.children.link(category_collection)
         if is_subcat:
             return category_collection, []
         subcats: list[tuple[ForgeFolder, Collection]] = []
@@ -254,11 +253,11 @@ class ForgeMapOperator(Operator):
                 instance_obj.rotation_quaternion = quat
                 instance_obj.scale = object.scale
                 if main_collection:
-                    main_collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                    main_collection.objects.link(instance_obj)
                 elif root_folder:
-                    root_folder[1][0].objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                    root_folder[1][0].objects.link(instance_obj)
                 elif bpy.context.scene:
-                    bpy.context.scene.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                    bpy.context.scene.collection.objects.link(instance_obj)
 
                 if type(instance_obj.data) is Mesh and "UV1" in instance_obj.data.uv_layers:
                     instance_obj.data.uv_layers["UV1"].active_render = True

@@ -90,10 +90,10 @@ impl CommonLayer {
             .elements
             .iter()
             .find(|x| x.name.0 == palette_swatch.color.0);
-        if color_thing.is_none() {
-            disabled = true;
+        if let Some(color_thing) = color_thing {
+            color = color_thing
         } else {
-            color = color_thing.unwrap()
+            disabled = true;
         }
         if (swatch.normal_detail_map.global_id == 10070)
             && (swatch.color_gradient_map.global_id == 15173)

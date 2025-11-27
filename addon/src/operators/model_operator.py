@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-import bpy
-
 from typing import cast, final
+
+import bpy
 from bpy.types import Collection, Context, Operator
 
-from ..ui.model_options import get_model_options
 from ..model.importer.model_importer import ModelImporter
+from ..ui.model_options import get_model_options
 
 __all__ = ["ImportModelOperator"]
 
@@ -29,7 +29,7 @@ class ImportModelOperator(Operator):
         objects = ModelImporter().start_import(model_path)
         collections: dict[int, Collection] = {}
         model_collection = bpy.data.collections.new(model_name)
-        context.scene.collection.children.link(model_collection)  # pyright: ignore[reportUnknownMemberType]
+        context.scene.collection.children.link(model_collection)
 
         if options.import_collections:
             for object in objects:
@@ -39,19 +39,19 @@ class ImportModelOperator(Operator):
                 region_collection_name = f"{region_name}_{permutation_name}"
                 if permutation_name not in collections:
                     permutation_collection = bpy.data.collections.new(str(permutation_name))
-                    model_collection.children.link(permutation_collection)  # pyright: ignore[reportUnknownMemberType]
+                    model_collection.children.link(permutation_collection)
                     collections[permutation_name] = permutation_collection
                 else:
                     permutation_collection = collections[permutation_name]
 
                 if permutation_collection.children.get(region_collection_name) is None:
                     region_collection = bpy.data.collections.new(region_collection_name)
-                    permutation_collection.children.link(region_collection)  # pyright: ignore[reportUnknownMemberType]
+                    permutation_collection.children.link(region_collection)
                 else:
                     region_collection = permutation_collection.children.get(region_collection_name)
                 if region_collection is not None:
-                    region_collection.objects.link(object)  # pyright: ignore[reportUnknownMemberType]
+                    region_collection.objects.link(object)
         else:
             for object in objects:
-                model_collection.objects.link(object)  # pyright: ignore[reportUnknownMemberType]
+                model_collection.objects.link(object)
         return {"FINISHED"}

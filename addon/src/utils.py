@@ -3,22 +3,21 @@
 import json
 import logging
 import re
-import urllib.request
 import urllib.error
-import bpy
-
-
+import urllib.request
 from pathlib import Path
 from typing import TypeVar, cast
+
+import bpy
 from bpy.types import (
     Image,
     Node,
+    Nodes,
     NodeSocket,
     NodeSocketBool,
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketVector,
-    Nodes,
     NodeTreeInterface,
     NodeTreeInterfacePanel,
     ShaderNodeTexImage,
@@ -35,6 +34,7 @@ __all__ = [
     "create_node",
     "assign_value",
     "get_data_folder",
+    "is_debug",
     "get_addon_preferences",
     "AddonPreferencesType",
     "create_image",
@@ -97,7 +97,7 @@ def remove_nodes(node_tree: ShaderNodeTree) -> None:
         node_tree: Node tree to remove all nodes from.
     """
     for node in node_tree.nodes:
-        node_tree.nodes.remove(node)  # pyright: ignore[reportUnknownMemberType]
+        node_tree.nodes.remove(node)
 
 
 NodeSocketT = TypeVar("NodeSocketT", bound=NodeSocket)
@@ -156,6 +156,11 @@ class AddonPreferencesType:
     deploy_folder: str = ""
     dump_textures: bool = True
     is_campaign: bool = False
+    debug: bool = False
+
+
+def is_debug() -> bool:
+    return get_addon_preferences().debug
 
 
 def get_data_folder() -> str:

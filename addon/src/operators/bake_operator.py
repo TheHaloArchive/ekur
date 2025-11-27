@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-import bpy
-
 from typing import cast, final
+
+import bpy
 from bpy.types import (
     Collection,
     Context,
@@ -133,13 +133,13 @@ class BakingOperator(Operator):
         if not object.data or not bpy.context.collection:
             return
         duplicate.data = object.data.copy()
-        col.objects.link(duplicate)  # pyright: ignore[reportUnknownMemberType]
-        object.select_set(False)  # pyright: ignore[reportUnknownMemberType]
-        duplicate.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+        col.objects.link(duplicate)
+        object.select_set(False)
+        duplicate.select_set(True)
         if bpy.context.view_layer:
             bpy.context.view_layer.objects.active = duplicate
-        bpy.ops.mesh.customdata_custom_splitnormals_clear()  # pyright: ignore[reportUnknownMemberType]
-        bpy.ops.object.shade_flat()  # pyright: ignore[reportUnknownMemberType]
+        bpy.ops.mesh.customdata_custom_splitnormals_clear()
+        bpy.ops.object.shade_flat()
         for mat in duplicate.material_slots:
             if mat.material:
                 mat.material = mat.material.copy()
@@ -180,15 +180,15 @@ class BakingOperator(Operator):
             img.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue, reportOptionalMemberAccess]
             material.node_tree.nodes.active = tex_node
             tex_node.image = img
-            duplicate.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-            bpy.ops.object.bake(  # pyright: ignore[reportUnknownMemberType]
+            duplicate.select_set(True)
+            bpy.ops.object.bake(
                 type="NORMAL",
                 save_mode="EXTERNAL",
                 pass_filter={"NONE"},
                 margin=options.pixel_padding,
             )
-            img.save_render(f"{options.output_path}/{mat_name}.png")  # pyright: ignore[reportUnknownMemberType]
-            duplicate.select_set(False)  # pyright: ignore[reportUnknownMemberType]
+            img.save_render(f"{options.output_path}/{mat_name}.png")
+            duplicate.select_set(False)
 
     def bake_material(
         self,
@@ -232,21 +232,21 @@ class BakingOperator(Operator):
             if img is None:
                 img = bpy.data.images.new(mat_name, height, width)
             tex_node.image = img
-            object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
-            bpy.ops.object.bake(  # pyright: ignore[reportUnknownMemberType]
+            object.select_set(True)
+            bpy.ops.object.bake(
                 type="EMIT",
                 save_mode="EXTERNAL",
                 use_clear=False,
                 pass_filter={"EMIT"},
                 margin=options.pixel_padding,
             )
-            img.save_render(f"{options.output_path}/{mat_name}.png")  # pyright: ignore[reportUnknownMemberType]
+            img.save_render(f"{options.output_path}/{mat_name}.png")
 
         _ = material.node_tree.links.new(shader.outputs[0], mat_output.inputs[0])
         if shader.inputs[0].links:
             texture_node = shader.inputs[0].links[0].from_node
             if texture_node and type(texture_node) is ShaderNodeTexImage and texture_node.image:
-                texture_node.image.reload()  # pyright: ignore[reportUnknownMemberType]
+                texture_node.image.reload()
 
         if len(shader.inputs) > 3 and shader.inputs[3].links:
             texture_node = shader.inputs[3].links[0].from_node
@@ -256,9 +256,7 @@ class BakingOperator(Operator):
                 and texture_node.image
                 and options.save_normals
             ):
-                texture_node.image.save(  # pyright: ignore[reportUnknownMemberType]
-                    filepath=f"{options.output_path}/{mat_name}_BaseNormal.png"
-                )
+                texture_node.image.save(filepath=f"{options.output_path}/{mat_name}_BaseNormal.png")
         if options.merge_textures and options.merge_objects:
             return material.name
 
@@ -275,7 +273,7 @@ class BakingOperator(Operator):
 
         if options.bake_detail_normals and context.collection:
             duplicate_collection = bpy.data.collections.new("Duplicate")
-            context.collection.children.link(duplicate_collection)  # pyright: ignore[reportUnknownMemberType]
+            context.collection.children.link(duplicate_collection)
 
         override_mat: str = ""
 
@@ -305,13 +303,13 @@ class BakingOperator(Operator):
                         )
                         if options.merge_objects and m:
                             override_mat = m
-                        material.node_tree.nodes.remove(tex_nodes[i])  # pyright: ignore[reportUnknownMemberType]
+                        material.node_tree.nodes.remove(tex_nodes[i])
                         i += 1
 
                     else:
                         _ = self.bake_material(material, object, options, None)
 
         if options.bake_detail_normals:
-            bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable]
-        bpy.ops.outliner.orphans_purge()  # pyright: ignore[reportUnknownMemberType]
+            bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportPossiblyUnboundVariable]
+        bpy.ops.outliner.orphans_purge()
         return {"FINISHED"}

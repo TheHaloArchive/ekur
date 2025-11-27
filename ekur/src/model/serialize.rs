@@ -161,10 +161,10 @@ fn write_section(
     if let Some(ref normal) = model.normal {
         writer.write_all(normal.as_slice())?;
     }
-    if let Some(ref color) = model.color {
-        if uses_vertex_color {
-            writer.write_all(color.as_slice())?;
-        }
+    if let Some(ref color) = model.color
+        && uses_vertex_color
+    {
+        writer.write_all(color.as_slice())?;
     }
     if let Some(ref blend0) = model.blend_indices {
         if let Some(node_maps) = node_maps {

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 # pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
-import bpy
-
 from typing import cast
+
+import bpy
 from bpy.props import BoolProperty, StringProperty
 from bpy.types import PropertyGroup, UILayout
 
@@ -46,9 +46,9 @@ def draw_forge_map_options(layout: UILayout, props: ForgeMapOptionsType) -> None
         forge_opts.prop(props, "import_folders")
         forge_opts.prop(props, "remove_blockers")
         op = forge_opts.operator("wm.url_open", text="Browse Maps (Cylix)", icon="URL")
-        op.url = "https://cylix.guide/discovery/"  # pyright: ignore[reportAttributeAccessIssue]
+        op.url = "https://cylix.guide/discovery/"
         op = forge_opts.operator("wm.url_open", text="Browse Maps (Waypoint)", icon="URL")
-        op.url = "https://www.halowaypoint.com/halo-infinite/ugc/browse"  # pyright: ignore[reportAttributeAccessIssue]
+        op.url = "https://www.halowaypoint.com/halo-infinite/ugc/browse"
         forge_opts.prop(props, "use_file")
         if props.use_file:
             forge_opts.prop(props, "mvar_file")

@@ -2,20 +2,14 @@
 # Copyright © 2025 Surasia
 import json
 import logging
-import urllib.request
 import urllib.error
-import bpy
-
+import urllib.request
 from pathlib import Path
 from typing import cast, final
+
+import bpy
 from bpy.types import ArmatureModifier, Collection, Context, Mesh, Object, Operator
 
-
-from .material_operator import import_materials
-from ..ui.model_options import get_model_options
-from ..ui.material_options import get_material_options
-from ..ui.spartan_options import get_spartan_options
-from ..model.importer.model_importer import ModelImporter
 from ..json_definitions import (
     Asset,
     Attachment,
@@ -26,7 +20,12 @@ from ..json_definitions import (
     CylixVanityResponse,
     RegionData,
 )
+from ..model.importer.model_importer import ModelImporter
+from ..ui.material_options import get_material_options
+from ..ui.model_options import get_model_options
+from ..ui.spartan_options import get_spartan_options
 from ..utils import get_data_folder, get_package_name, read_json_file
+from .material_operator import import_materials
 
 
 def import_custom_rig() -> Object | None:
@@ -36,7 +35,7 @@ def import_custom_rig() -> Object | None:
     extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
     custom_rig_path = Path(extension_path) / "purp.blend"
     if custom_rig_path.exists():
-        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportUnknownMemberType]
+        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportGeneralTypeIssues]
             data_from,  # pyright: ignore[reportUnknownVariableType]
             data_to,  # pyright: ignore[reportUnknownVariableType]
         ):
@@ -73,7 +72,7 @@ def import_attachments(
         modifier.object = rig
         vg = attachment.vertex_groups.new(name=marker.parent_bone)
         if type(attachment.data) is Mesh:
-            vg.add([v.index for v in attachment.data.vertices], 1.0, "REPLACE")  # pyright: ignore[reportUnknownMemberType]
+            vg.add([v.index for v in attachment.data.vertices], 1.0, "REPLACE")
 
 
 @final
@@ -134,9 +133,9 @@ class ImportSpartanVanityOperator(Operator):
         for attachment in attachments:
             self.import_attachment(attachment, index_json, vanity, customization_globals, importer)
 
-        context.scene.collection.children.link(vanity)  # pyright: ignore[reportUnknownMemberType]
+        context.scene.collection.children.link(vanity)
         if rig and rig.name not in context.scene.collection.objects:
-            context.scene.collection.objects.link(rig)  # pyright: ignore[reportUnknownMemberType]
+            context.scene.collection.objects.link(rig)
         base_region = theme_json["CoreRegionData"]["BaseRegionData"]
         body_type_large = theme_json["CoreRegionData"]["BodyTypeLargeOverrides"]
         body_type_small = theme_json["CoreRegionData"]["BodyTypeSmallOverrides"]
@@ -192,7 +191,7 @@ class ImportSpartanVanityOperator(Operator):
         coating_json: Coating = json.loads(coating)
 
         for object in vanity.objects:
-            object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+            object.select_set(True)
             props = get_material_options()
             props.use_default_coating = False
             props.coating_id = str(coating_json["StyleId"]["m_identifier"])
@@ -216,13 +215,13 @@ class ImportSpartanVanityOperator(Operator):
                         object["region_name"] == reg["RegionId"]["m_identifier"]
                         and object.name in vanity.objects
                     ):
-                        object.hide_set(True)  # pyright: ignore[reportUnknownMemberType]
+                        object.hide_set(True)
                 if (
                     reg["PermutationId"]["m_identifier"] == permutation_name
                     and reg["RegionId"]["m_identifier"] == region_name
                 ):
-                    vanity.objects.link(object)  # pyright: ignore[reportUnknownMemberType]
-                    object.hide_set(False)  # pyright: ignore[reportUnknownMemberType]
+                    vanity.objects.link(object)
+                    object.hide_set(False)
 
     def request(self, id: str = "", res: str = "", url: str = "") -> str:
         request = urllib.request.Request(f"https://hi.cylix.guide/item/{id}/{res}.json")
@@ -315,4 +314,4 @@ class ImportSpartanVanityOperator(Operator):
                         if len(markers) > 0:
                             import_attachments("", alt_name, markers[-1], attach, importer.rig)
                             if attach.name not in col.objects:
-                                col.objects.link(attach)  # pyright: ignore[reportUnknownMemberType]
+                                col.objects.link(attach)

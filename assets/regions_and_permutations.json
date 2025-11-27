@@ -43,8 +43,20 @@
         "name": "Achilles' Breastplate",
         "permutations": {}
     },
+    "690276714": {
+        "name": "Adamant Chrysalis",
+        "permutations": {}
+    },
+    "1829268807": {
+        "name": "Advanced Plackart",
+        "permutations": {}
+    },
     "-891321294": {
         "name": "Agitator Heartplate",
+        "permutations": {}
+    },
+    "577917669": {
+        "name": "Artificer Heartwheel",
         "permutations": {}
     },
     "-1382541322": {
@@ -115,6 +127,14 @@
         "name": "Conservation Protocol",
         "permutations": {}
     },
+    "319835740": {
+        "name": "Copperhead Harness",
+        "permutations": {}
+    },
+    "-545927652": {
+        "name": "Corrective Protocol",
+        "permutations": {}
+    },
     "-334039876": {
         "name": "Crux Protocol",
         "permutations": {}
@@ -135,6 +155,10 @@
         "name": "Defiled Hope",
         "permutations": {}
     },
+    "1549823687": {
+        "name": "Deimos Aegis",
+        "permutations": {}
+    },
     "1648345874": {
         "name": "Deviant Protocol",
         "permutations": {}
@@ -145,6 +169,10 @@
     },
     "102290327": {
         "name": "Dominar Heartplate",
+        "permutations": {}
+    },
+    "-1961344089": {
+        "name": "Dominarch Rig",
         "permutations": {}
     },
     "-419986613": {
@@ -179,8 +207,16 @@
         "name": "FIBERWEAVE PLATE",
         "permutations": {}
     },
+    "-1409459988": {
+        "name": "Fire Serpent's Favor",
+        "permutations": {}
+    },
     "50338004": {
         "name": "FIRST RESPONDER",
+        "permutations": {}
+    },
+    "941075514": {
+        "name": "First Vanguard Mandate",
         "permutations": {}
     },
     "1238530437": {
@@ -193,6 +229,18 @@
     },
     "65600434": {
         "name": "Hellcat Plating",
+        "permutations": {}
+    },
+    "-1590853712": {
+        "name": "Helljumper Harness",
+        "permutations": {}
+    },
+    "175049067": {
+        "name": "Hunter Harness",
+        "permutations": {}
+    },
+    "594389209": {
+        "name": "Hunter's Bounty",
         "permutations": {}
     },
     "-1780595965": {
@@ -367,8 +415,20 @@
         "name": "SECOND CHANCE",
         "permutations": {}
     },
+    "530868350": {
+        "name": "Seedwarden Matrix",
+        "permutations": {}
+    },
     "240268340": {
         "name": "Sensor Sash",
+        "permutations": {}
+    },
+    "1518148290": {
+        "name": "Serpin Breastplate",
+        "permutations": {}
+    },
+    "-552894076": {
+        "name": "Signet of Arrival",
         "permutations": {}
     },
     "-1107673277": {
@@ -511,6 +571,10 @@
         "name": "Tactical Presentation",
         "permutations": {}
     },
+    "-1100870505": {
+        "name": "Tangent Caress",
+        "permutations": {}
+    },
     "1538195588": {
         "name": "TECHLOCK SAFESOURCE",
         "permutations": {}
@@ -533,6 +597,10 @@
     },
     "-764749536": {
         "name": "TRENCH KNIFE",
+        "permutations": {}
+    },
+    "-307544049": {
+        "name": "Tribune Breastplate",
         "permutations": {}
     },
     "1808245364": {
@@ -587,6 +655,10 @@
         "name": "UA/EOD",
         "permutations": {}
     },
+    "-1458679982": {
+        "name": "UA/ETS-APS Model 60",
+        "permutations": {}
+    },
     "987064396": {
         "name": "UA/FASA",
         "permutations": {}
@@ -601,6 +673,10 @@
     },
     "1385302243": {
         "name": "UA/Kwibil",
+        "permutations": {}
+    },
+    "1840995997": {
+        "name": "UA/M Series Plate",
         "permutations": {}
     },
     "78363103": {
@@ -637,6 +713,10 @@
     },
     "527276666": {
         "name": "UA/NERA-SOFAS",
+        "permutations": {}
+    },
+    "519307992": {
+        "name": "UA/NS Plate",
         "permutations": {}
     },
     "590424029": {
@@ -683,8 +763,16 @@
         "name": "UA/SECOPS Plate",
         "permutations": {}
     },
+    "877272870": {
+        "name": "UA/Sigtuna",
+        "permutations": {}
+    },
     "772384468": {
         "name": "UA/SIMA",
+        "permutations": {}
+    },
+    "1234807037": {
+        "name": "UA/SR Plating",
         "permutations": {}
     },
     "-686947176": {
@@ -735,6 +823,10 @@
         "name": "UTIL/COOLPACK",
         "permutations": {}
     },
+    "-286180683": {
+        "name": "UTIL/D-HUBDOCK",
+        "permutations": {}
+    },
     "-373492673": {
         "name": "UTIL/Desert Patrol",
         "permutations": {}
@@ -755,12 +847,20 @@
         "name": "UTIL/HRTH Module",
         "permutations": {}
     },
+    "-244244089": {
+        "name": "UTIL/HUXLEY Datacore",
+        "permutations": {}
+    },
     "29217178": {
         "name": "UTIL/KALVIS Diagnostic Harness",
         "permutations": {}
     },
     "-2011313275": {
         "name": "UTIL/KHILPK Cooling Unit",
+        "permutations": {}
+    },
+    "-914764465": {
+        "name": "UTIL/KOBOLD Test Training Unit",
         "permutations": {}
     },
     "1118740359": {
@@ -783,8 +883,16 @@
         "name": "UTIL/SuperHub Custom",
         "permutations": {}
     },
+    "1154603019": {
+        "name": "UTIL/TALONCLASP",
+        "permutations": {}
+    },
     "1186516196": {
         "name": "UTIL/Tvastar Diagnostic Rig",
+        "permutations": {}
+    },
+    "289993207": {
+        "name": "Vanguard Protocol",
         "permutations": {}
     },
     "-1140083273": {
@@ -807,12 +915,20 @@
         "name": "Warded Scales",
         "permutations": {}
     },
+    "1663405739": {
+        "name": "Warden Plate",
+        "permutations": {}
+    },
     "1972642487": {
         "name": "Warmonger Heartplate",
         "permutations": {}
     },
     "-1952768547": {
         "name": "Whitesteel Heartplate",
+        "permutations": {}
+    },
+    "1550397875": {
+        "name": "WILLOWKEY II",
         "permutations": {}
     },
     "1934316137": {
@@ -1129,6 +1245,9 @@
             "1555928542": {
                 "name": "Achilles"
             },
+            "-1164511459": {
+                "name": "Adamant"
+            },
             "1868412737": {
                 "name": "Agitator"
             },
@@ -1153,11 +1272,17 @@
             "137132471": {
                 "name": "Argus"
             },
+            "1906422055": {
+                "name": "Aristos"
+            },
             "128509780": {
                 "name": "ARMET"
             },
             "-2131935260": {
                 "name": "ARTAIUS"
+            },
+            "-833608632": {
+                "name": "Artificer"
             },
             "-1255706357": {
                 "name": "ASHMAW"
@@ -1204,6 +1329,9 @@
             "376557734": {
                 "name": "CAMBION"
             },
+            "72591262": {
+                "name": "Cavalier"
+            },
             "497615889": {
                 "name": "CAVALLINO"
             },
@@ -1231,6 +1359,9 @@
             "-983885877": {
                 "name": "Contaminator"
             },
+            "25613613": {
+                "name": "Copperhead"
+            },
             "-1427066442": {
                 "name": "COURIER"
             },
@@ -1249,14 +1380,26 @@
             "-648620747": {
                 "name": "Defiler"
             },
+            "1528919579": {
+                "name": "Deimos"
+            },
             "-992217530": {
                 "name": "Deltajock"
+            },
+            "191298248": {
+                "name": "Direwolf"
+            },
+            "112251132": {
+                "name": "Dirgesinger"
             },
             "885731473": {
                 "name": "Dokkaebi"
             },
             "1907627229": {
                 "name": "Dominar"
+            },
+            "-201023802": {
+                "name": "Dominarch"
             },
             "1226784639": {
                 "name": "EAGLESTRIKE"
@@ -1303,8 +1446,17 @@
             "-599504031": {
                 "name": "FARKAS"
             },
+            "-2061634795": {
+                "name": "Firbolg"
+            },
+            "332596593": {
+                "name": "Fire Serpent"
+            },
             "-1392291542": {
                 "name": "FIREFALL"
+            },
+            "-2001299292": {
+                "name": "First Vanguard"
             },
             "-859778612": {
                 "name": "FLANKER"
@@ -1317,6 +1469,9 @@
             },
             "-698141591": {
                 "name": "FOTUS"
+            },
+            "372775614": {
+                "name": "Gourdian Knight"
             },
             "1035005871": {
                 "name": "GRENADIER"
@@ -1342,14 +1497,26 @@
             "-692545655": {
                 "name": "Hawker"
             },
+            "-1356273575": {
+                "name": "Hayabusa"
+            },
             "1106762332": {
                 "name": "HAZOP"
+            },
+            "1296282169": {
+                "name": "Hearthguard"
             },
             "-639661020": {
                 "name": "Helioskrill"
             },
             "1890405830": {
                 "name": "Hellcat"
+            },
+            "-1797256720": {
+                "name": "Helljumper"
+            },
+            "-1472916630": {
+                "name": "Helsinger"
             },
             "-1758140320": {
                 "name": "Hermes"
@@ -1359,6 +1526,9 @@
             },
             "1161602825": {
                 "name": "HIKESHI"
+            },
+            "-820797134": {
+                "name": "Hunter"
             },
             "-1132217635": {
                 "name": "Ikari"
@@ -1396,8 +1566,14 @@
             "2058761499": {
                 "name": "KERBEROS"
             },
+            "1401269065": {
+                "name": "Kobold"
+            },
             "-1294254504": {
                 "name": "Lancejack"
+            },
+            "-1049376271": {
+                "name": "Lancer"
             },
             "265839545": {
                 "name": "LEADBELCHER"
@@ -1516,6 +1692,9 @@
             "-1260847376": {
                 "name": "PEACEWEAVER"
             },
+            "529586954": {
+                "name": "Phoenix"
+            },
             "1083446560": {
                 "name": "Pilot"
             },
@@ -1540,6 +1719,9 @@
             "-759664546": {
                 "name": "RECON"
             },
+            "-933449647": {
+                "name": "Rectifier"
+            },
             "-2004448740": {
                 "name": "Renegade"
             },
@@ -1557,6 +1739,9 @@
             },
             "1455046189": {
                 "name": "Savage"
+            },
+            "-267390927": {
+                "name": "Scanner"
             },
             "861597986": {
                 "name": "Scarred Comet"
@@ -1576,14 +1761,35 @@
             "1901299086": {
                 "name": "Security"
             },
+            "887820917": {
+                "name": "Security GEN1"
+            },
+            "-800027515": {
+                "name": "Security GEN1"
+            },
             "719237643": {
                 "name": "SECURITY GEN3"
+            },
+            "660587255": {
+                "name": "Seedwarden"
+            },
+            "1487715211": {
+                "name": "Seeker"
             },
             "610800445": {
                 "name": "SERKET"
             },
+            "-181696809": {
+                "name": "Serpin"
+            },
             "-456245495": {
                 "name": "SHIKARI"
+            },
+            "650501489": {
+                "name": "Shinobi"
+            },
+            "-1873504109": {
+                "name": "Sibyl"
             },
             "-923628868": {
                 "name": "SKARBNIK"
@@ -1654,6 +1860,9 @@
             "-245642646": {
                 "name": "TRENDLOCK"
             },
+            "1842844280": {
+                "name": "Tribune"
+            },
             "-2112953912": {
                 "name": "Trooper"
             },
@@ -1698,6 +1907,9 @@
             },
             "573266145": {
                 "name": "Wetwork"
+            },
+            "-1687358225": {
+                "name": "Whisper"
             },
             "-1443851831": {
                 "name": "Wilhelm"
@@ -1753,6 +1965,14 @@
         "name": "Abyssal Messenger",
         "permutations": {}
     },
+    "1832179653": {
+        "name": "Adamant Mask",
+        "permutations": {}
+    },
+    "-241966108": {
+        "name": "Advanced Bevor",
+        "permutations": {}
+    },
     "-1580747856": {
         "name": "Ambition's Crown",
         "permutations": {}
@@ -1793,6 +2013,10 @@
         "name": "Calling Card",
         "permutations": {}
     },
+    "319236405": {
+        "name": "Candlejack",
+        "permutations": {}
+    },
     "213867568": {
         "name": "CBRN/FIM-A",
         "permutations": {}
@@ -1815,6 +2039,14 @@
     },
     "-1390465549": {
         "name": "CNM/X/EXPAC",
+        "permutations": {}
+    },
+    "-1872283483": {
+        "name": "Concordance Adaptation",
+        "permutations": {}
+    },
+    "296825152": {
+        "name": "Conservator's Gaze",
         "permutations": {}
     },
     "344166158": {
@@ -1841,12 +2073,24 @@
         "name": "Defiled FARNDALE",
         "permutations": {}
     },
+    "1429780753": {
+        "name": "Depthless Messenger",
+        "permutations": {}
+    },
     "-61230960": {
         "name": "Dominar Mask",
         "permutations": {}
     },
+    "2093720615": {
+        "name": "Eagle Aspect",
+        "permutations": {}
+    },
     "-2051939568": {
         "name": "EARWIG",
+        "permutations": {}
+    },
+    "2030476663": {
+        "name": "Effigy of the Guardian",
         "permutations": {}
     },
     "-530347016": {
@@ -1881,6 +2125,10 @@
         "name": "FC-I/FASCIA",
         "permutations": {}
     },
+    "158948948": {
+        "name": "FC-I/HARKWHISPER",
+        "permutations": {}
+    },
     "167177321": {
         "name": "FC-X/MOONANT",
         "permutations": {}
@@ -1909,12 +2157,24 @@
         "name": "FCI-X/CIBO",
         "permutations": {}
     },
+    "-1406814418": {
+        "name": "FCI-X/Iko",
+        "permutations": {}
+    },
     "1969126948": {
         "name": "FCI-X/SHADDOCK",
         "permutations": {}
     },
     "-740699555": {
         "name": "Final Resolve",
+        "permutations": {}
+    },
+    "-50512176": {
+        "name": "First Vanguard Crest",
+        "permutations": {}
+    },
+    "125233974": {
+        "name": "Flawless Sentinel",
         "permutations": {}
     },
     "1067473438": {
@@ -1981,6 +2241,10 @@
         "name": "HUL-I/UPTIK",
         "permutations": {}
     },
+    "-860662747": {
+        "name": "HUL-I/Viperflare",
+        "permutations": {}
+    },
     "-1421740987": {
         "name": "HUL-I/XFTREC/FLAMINGO",
         "permutations": {}
@@ -1997,12 +2261,20 @@
         "name": "HUL[3]/BNR/COURIER PEARL",
         "permutations": {}
     },
+    "2074619806": {
+        "name": "HUL[4X]/BNR/STONEDOG",
+        "permutations": {}
+    },
     "-120324321": {
         "name": "HUL[4X]/ENIT/WITCHBRANCH",
         "permutations": {}
     },
     "1122867974": {
         "name": "HUL[5X]/BNR/ECHELON",
+        "permutations": {}
+    },
+    "1604115690": {
+        "name": "HUL[6X-E]/BNR/Cinderploom",
         "permutations": {}
     },
     "-615801175": {
@@ -2021,6 +2293,10 @@
         "name": "Imperial Crest",
         "permutations": {}
     },
+    "1783546449": {
+        "name": "Inquisitorial Eye",
+        "permutations": {}
+    },
     "1207581867": {
         "name": "IVS-M10",
         "permutations": {}
@@ -2031,6 +2307,10 @@
     },
     "69303349": {
         "name": "Larcener Adaptation",
+        "permutations": {}
+    },
+    "-81254529": {
+        "name": "Legacy of Escharum",
         "permutations": {}
     },
     "1166050987": {
@@ -2059,6 +2339,14 @@
     },
     "-1174016646": {
         "name": "MK17 MOD1 CBRN/KUZNETS",
+        "permutations": {}
+    },
+    "-892150021": {
+        "name": "MK17 MOD11 CBRN",
+        "permutations": {}
+    },
+    "441240300": {
+        "name": "MK17 MOD11 CBRN",
         "permutations": {}
     },
     "1363213923": {
@@ -2169,6 +2457,10 @@
         "name": "QUILLHAWK",
         "permutations": {}
     },
+    "1423173120": {
+        "name": "Radiant Crest",
+        "permutations": {}
+    },
     "721781149": {
         "name": "RECRUITER'S BAND",
         "permutations": {}
@@ -2183,6 +2475,10 @@
     },
     "845437932": {
         "name": "Rein Supreme",
+        "permutations": {}
+    },
+    "513477355": {
+        "name": "RS[2]/CREST",
         "permutations": {}
     },
     "-1244679865": {
@@ -2209,6 +2505,10 @@
         "name": "RS/DOGTOOTH",
         "permutations": {}
     },
+    "638375304": {
+        "name": "RS/LCX-20V3",
+        "permutations": {}
+    },
     "-840714863": {
         "name": "RS/Lifeline",
         "permutations": {}
@@ -2225,6 +2525,10 @@
         "name": "S9 Diving Mask",
         "permutations": {}
     },
+    "-974879821": {
+        "name": "Sanguine Wolf",
+        "permutations": {}
+    },
     "1772618876": {
         "name": "ShM-52 Filter",
         "permutations": {}
@@ -2237,12 +2541,20 @@
         "name": "Sightless Eyes",
         "permutations": {}
     },
+    "1004125424": {
+        "name": "Sigma Dragon",
+        "permutations": {}
+    },
     "258292554": {
         "name": "SIGNALTECH DEEPEYE",
         "permutations": {}
     },
     "-1111929478": {
         "name": "Silent Nightcap",
+        "permutations": {}
+    },
+    "-128465073": {
+        "name": "Sovereign Adaptation",
         "permutations": {}
     },
     "570996468": {
@@ -2273,6 +2585,10 @@
         "name": "Stardust Adaptation",
         "permutations": {}
     },
+    "820984998": {
+        "name": "Steadfast Crest",
+        "permutations": {}
+    },
     "95846435": {
         "name": "Stormclaw Mask",
         "permutations": {}
@@ -2281,8 +2597,16 @@
         "name": "Strength and Wisdom",
         "permutations": {}
     },
+    "821682338": {
+        "name": "TAC/BILKSKIRNIR",
+        "permutations": {}
+    },
     "-1197663479": {
         "name": "TAC/MARK 22C Fire Director",
+        "permutations": {}
+    },
+    "-641189751": {
+        "name": "TAC/RCOG 3",
         "permutations": {}
     },
     "1617673745": {
@@ -2321,6 +2645,10 @@
         "name": "TAC/WATCHEN",
         "permutations": {}
     },
+    "-714425261": {
+        "name": "TACAIR XMU",
+        "permutations": {}
+    },
     "-140175035": {
         "name": "TAS[2]/PATTERNWOLF",
         "permutations": {}
@@ -2331,6 +2659,14 @@
     },
     "-1766301357": {
         "name": "TAS/BOCUK",
+        "permutations": {}
+    },
+    "-2026211660": {
+        "name": "TAS/CORSON",
+        "permutations": {}
+    },
+    "-2095809651": {
+        "name": "TAS/DIREWEASEL",
         "permutations": {}
     },
     "-671688087": {
@@ -2513,6 +2849,10 @@
         "name": "Windblown Mask",
         "permutations": {}
     },
+    "185654513": {
+        "name": "Winnowed Crest",
+        "permutations": {}
+    },
     "305208975": {
         "name": "X60 Protective Suite",
         "permutations": {}
@@ -2557,12 +2897,20 @@
         "name": "Achilles' Plate",
         "permutations": {}
     },
+    "153329372": {
+        "name": "Adamant Plate",
+        "permutations": {}
+    },
     "-1482214956": {
         "name": "Agitator Belt",
         "permutations": {}
     },
     "-1631636699": {
         "name": "Angus Box",
+        "permutations": {}
+    },
+    "1503903446": {
+        "name": "Artificer Foundation",
         "permutations": {}
     },
     "1367537153": {
@@ -2585,6 +2933,10 @@
         "name": "Bladed Guard",
         "permutations": {}
     },
+    "-77799277": {
+        "name": "Blighted Vitality",
+        "permutations": {}
+    },
     "1534565375": {
         "name": "Blistered Plate",
         "permutations": {}
@@ -2605,6 +2957,22 @@
         "name": "C-Belt",
         "permutations": {}
     },
+    "1356396765": {
+        "name": "Castigator Grenades",
+        "permutations": {}
+    },
+    "-1318703891": {
+        "name": "Cavalier's Belt",
+        "permutations": {}
+    },
+    "187382454": {
+        "name": "Connection Lock",
+        "permutations": {}
+    },
+    "894053466": {
+        "name": "Continuity Imprint",
+        "permutations": {}
+    },
     "2052042532": {
         "name": "CROWBAR",
         "permutations": {}
@@ -2623,6 +2991,14 @@
     },
     "-2009167669": {
         "name": "Cut to the Quick",
+        "permutations": {}
+    },
+    "-1913602890": {
+        "name": "Deimos Hellplate",
+        "permutations": {}
+    },
+    "18026327": {
+        "name": "Dominarch Thighplate",
         "permutations": {}
     },
     "851076536": {
@@ -2649,8 +3025,16 @@
         "name": "Fidget Keepawake",
         "permutations": {}
     },
+    "479897732": {
+        "name": "Fire Serpent's Girdle",
+        "permutations": {}
+    },
     "939778017": {
         "name": "First Principle Blades",
+        "permutations": {}
+    },
+    "-607736336": {
+        "name": "First Vanguard Plating",
         "permutations": {}
     },
     "802405817": {
@@ -2703,6 +3087,10 @@
     },
     "-2083337928": {
         "name": "K-Tech Perflubron",
+        "permutations": {}
+    },
+    "1101639783": {
+        "name": "Lancer's Belt",
         "permutations": {}
     },
     "774661814": {
@@ -2793,8 +3181,16 @@
         "name": "PROJECT GABRIEL",
         "permutations": {}
     },
+    "-1568355433": {
+        "name": "Project TASKMANTIS",
+        "permutations": {}
+    },
     "-1680147762": {
         "name": "QUICKFLUSH",
+        "permutations": {}
+    },
+    "1231279285": {
+        "name": "Radiant Cuisse",
         "permutations": {}
     },
     "1060024134": {
@@ -2807,6 +3203,18 @@
     },
     "-594616501": {
         "name": "Scav Patch",
+        "permutations": {}
+    },
+    "273436052": {
+        "name": "Seedwarden Surveyor",
+        "permutations": {}
+    },
+    "-671313265": {
+        "name": "Shunt Band",
+        "permutations": {}
+    },
+    "-2146375249": {
+        "name": "Sibyl Girdle",
         "permutations": {}
     },
     "1107137470": {
@@ -2833,6 +3241,10 @@
         "name": "Swordsman's Belt",
         "permutations": {}
     },
+    "542934007": {
+        "name": "SX/RKL Test Pad",
+        "permutations": {}
+    },
     "-567501295": {
         "name": "T21-HEX4",
         "permutations": {}
@@ -2845,12 +3257,24 @@
         "name": "TAC/Boom Loom",
         "permutations": {}
     },
+    "1760282166": {
+        "name": "TAC/Emberquill",
+        "permutations": {}
+    },
     "-756218411": {
         "name": "TAC/ESIS Duty Case",
         "permutations": {}
     },
     "-2082800519": {
         "name": "TAC/Gravspinner",
+        "permutations": {}
+    },
+    "-339595912": {
+        "name": "TAC/IS5 Core",
+        "permutations": {}
+    },
+    "-33068691": {
+        "name": "TAC/IS5 Core",
         "permutations": {}
     },
     "2028495059": {
@@ -2877,6 +3301,14 @@
         "name": "TAC/SEP Pack",
         "permutations": {}
     },
+    "2004528453": {
+        "name": "TAC/Skegg\u00f8x",
+        "permutations": {}
+    },
+    "916218360": {
+        "name": "TCLP Tactical Bag",
+        "permutations": {}
+    },
     "369176641": {
         "name": "Thousand Coin Price",
         "permutations": {}
@@ -2895,6 +3327,10 @@
     },
     "704246134": {
         "name": "Trencher Belt",
+        "permutations": {}
+    },
+    "403101426": {
+        "name": "Tribune Belt",
         "permutations": {}
     },
     "1230527894": {
@@ -2937,12 +3373,20 @@
         "name": "UA/Minot",
         "permutations": {}
     },
+    "1615091233": {
+        "name": "UA/NS Storage Pack",
+        "permutations": {}
+    },
     "-1983759796": {
         "name": "UA/Pelvic Plate",
         "permutations": {}
     },
     "-1853889763": {
         "name": "UA/Plate II",
+        "permutations": {}
+    },
+    "1566679865": {
+        "name": "UA/RAPT",
         "permutations": {}
     },
     "-1436591280": {
@@ -2977,6 +3421,10 @@
         "name": "UA/XG-15 Plate",
         "permutations": {}
     },
+    "921528010": {
+        "name": "UTIL/Artisan Pouch",
+        "permutations": {}
+    },
     "2097513883": {
         "name": "UTIL/DAS-M Block 20",
         "permutations": {}
@@ -2997,12 +3445,24 @@
         "name": "UTIL/IC-SICL",
         "permutations": {}
     },
+    "-1802796016": {
+        "name": "UTIL/IWNH-2559",
+        "permutations": {}
+    },
+    "1041568779": {
+        "name": "UTIL/Magpie",
+        "permutations": {}
+    },
     "287467042": {
         "name": "UTIL/MEDKIT",
         "permutations": {}
     },
     "-2053716418": {
         "name": "UTIL/MG-SBS",
+        "permutations": {}
+    },
+    "-1639153018": {
+        "name": "UTIL/MPR Shroud",
         "permutations": {}
     },
     "-81051419": {
@@ -3062,6 +3522,12 @@
             "-2138186235": {
                 "name": "006-001-spi-b744c059"
             },
+            "-1164511459": {
+                "name": "Adamant Points"
+            },
+            "-833608632": {
+                "name": "Artificer Defiance"
+            },
             "-882825724": {
                 "name": "Assailer Kneepad"
             },
@@ -3092,14 +3558,23 @@
             "-983885877": {
                 "name": "Defiled Drive"
             },
+            "1528919579": {
+                "name": "Deimos Crushers"
+            },
             "1907627229": {
                 "name": "Dominar Kneeguard"
+            },
+            "-201023802": {
+                "name": "Dominarch Kneepads"
             },
             "1214231671": {
                 "name": "Dragonbark"
             },
             "-1465876799": {
                 "name": "Emissary Kneeguard"
+            },
+            "112251132": {
+                "name": "Erupting Growth"
             },
             "2129531761": {
                 "name": "EXO-X/O-Module Charlie FPM"
@@ -3109,6 +3584,15 @@
             },
             "-956485138": {
                 "name": "Experiment 90"
+            },
+            "1906422055": {
+                "name": "Featured Element"
+            },
+            "332596593": {
+                "name": "Fire Serpent's Kneepads"
+            },
+            "-2001299292": {
+                "name": "First Vanguard Kneepad"
             },
             "-2112953912": {
                 "name": "GTAS Knee Guards"
@@ -3161,6 +3645,9 @@
             "2028213418": {
                 "name": "OB/KGUARD"
             },
+            "72591262": {
+                "name": "Obeyance"
+            },
             "1161602825": {
                 "name": "Petal-Polished"
             },
@@ -3173,11 +3660,20 @@
             "270486441": {
                 "name": "Production 60 Rev Y"
             },
+            "-181696809": {
+                "name": "Radiant Impactors"
+            },
             "-2004448740": {
                 "name": "Renegade Kneeguard"
             },
             "265839545": {
                 "name": "RIGGED"
+            },
+            "660587255": {
+                "name": "Seedwarden Monitors"
+            },
+            "-933449647": {
+                "name": "Series 110.2"
             },
             "-428425046": {
                 "name": "Series 99.4"
@@ -3185,11 +3681,17 @@
             "1406855517": {
                 "name": "Shadow Raven"
             },
+            "-1472916630": {
+                "name": "Sharpened Brace"
+            },
             "-528138000": {
                 "name": "Sharpened Crescent"
             },
             "1455046189": {
                 "name": "Sharpened Incisor"
+            },
+            "-1873504109": {
+                "name": "Sibyl Kneepads"
             },
             "769923986": {
                 "name": "Sovereign Guard"
@@ -3202,6 +3704,9 @@
             },
             "-33230096": {
                 "name": "Sundered Sample"
+            },
+            "1401269065": {
+                "name": "SX/RKF Balance Attachment"
             },
             "2001265053": {
                 "name": "TAC/SCM-P"
@@ -3217,6 +3722,9 @@
             },
             "-14766197": {
                 "name": "Tormenter's Kneepads"
+            },
+            "1842844280": {
+                "name": "Tribune Pads"
             },
             "1928693321": {
                 "name": "TYPE KIRST"
@@ -3235,6 +3743,9 @@
             },
             "1812076405": {
                 "name": "UA/Esso"
+            },
+            "1296282169": {
+                "name": "UA/Lofoten"
             },
             "1688227195": {
                 "name": "UA/Prefect Kneeguards"
@@ -3257,11 +3768,20 @@
             "1425312801": {
                 "name": "UA/Type 6X"
             },
+            "-820797134": {
+                "name": "UA/Type AA"
+            },
             "-1640762660": {
                 "name": "UA/TYPE ACPP"
             },
             "-2087954528": {
                 "name": "UA/Type AS"
+            },
+            "-1797256720": {
+                "name": "UA/Type BA"
+            },
+            "25613613": {
+                "name": "UA/Type BB"
             },
             "-1202673792": {
                 "name": "UA/Type BF"
@@ -3329,6 +3849,18 @@
             "849160035": {
                 "name": "UA/Type KT"
             },
+            "-1049376271": {
+                "name": "UA/Type LCR"
+            },
+            "887820917": {
+                "name": "UA/Type M"
+            },
+            "-800027515": {
+                "name": "UA/Type M"
+            },
+            "529586954": {
+                "name": "UA/Type MAA"
+            },
             "-2131935260": {
                 "name": "UA/Type MEP[B]"
             },
@@ -3349,6 +3881,9 @@
             },
             "320838201": {
                 "name": "UA/Type NRG"
+            },
+            "650501489": {
+                "name": "UA/Type NS"
             },
             "-1452015763": {
                 "name": "UA/TYPE OPX"
@@ -3383,6 +3918,9 @@
             "1527089236": {
                 "name": "UA/Type SI-2"
             },
+            "1487715211": {
+                "name": "UA/Type SKR"
+            },
             "1883647199": {
                 "name": "UA/TYPE SLO"
             },
@@ -3394,6 +3932,9 @@
             },
             "-1206356951": {
                 "name": "UA/Type SP"
+            },
+            "-267390927": {
+                "name": "UA/Type SR"
             },
             "861597986": {
                 "name": "UA/Type SSO"
@@ -3409,6 +3950,12 @@
             },
             "126732244": {
                 "name": "UA/TYPE VTP"
+            },
+            "-1687358225": {
+                "name": "UA/Type WHSP"
+            },
+            "191298248": {
+                "name": "UA/Type WLV"
             },
             "573266145": {
                 "name": "UA/Type WW"
@@ -3427,6 +3974,9 @@
             },
             "-795381122": {
                 "name": "XCUDO KNEX"
+            },
+            "-2061634795": {
+                "name": "XCUDO NXT"
             }
         }
     },
@@ -3439,6 +3989,12 @@
             "-2138186235": {
                 "name": "006-001-spi-b744c059"
             },
+            "-1164511459": {
+                "name": "Adamant Points"
+            },
+            "-833608632": {
+                "name": "Artificer Defiance"
+            },
             "-882825724": {
                 "name": "Assailer Kneepad"
             },
@@ -3469,14 +4025,23 @@
             "-983885877": {
                 "name": "Defiled Drive"
             },
+            "1528919579": {
+                "name": "Deimos Crushers"
+            },
             "1907627229": {
                 "name": "Dominar Kneeguard"
+            },
+            "-201023802": {
+                "name": "Dominarch Kneepads"
             },
             "1214231671": {
                 "name": "Dragonbark"
             },
             "-1465876799": {
                 "name": "Emissary Kneeguard"
+            },
+            "112251132": {
+                "name": "Erupting Growth"
             },
             "2129531761": {
                 "name": "EXO-X/O-Module Charlie FPM"
@@ -3486,6 +4051,15 @@
             },
             "-956485138": {
                 "name": "Experiment 90"
+            },
+            "1906422055": {
+                "name": "Featured Element"
+            },
+            "332596593": {
+                "name": "Fire Serpent's Kneepads"
+            },
+            "-2001299292": {
+                "name": "First Vanguard Kneepad"
             },
             "-2112953912": {
                 "name": "GTAS Knee Guards"
@@ -3538,6 +4112,9 @@
             "2028213418": {
                 "name": "OB/KGUARD"
             },
+            "72591262": {
+                "name": "Obeyance"
+            },
             "1161602825": {
                 "name": "Petal-Polished"
             },
@@ -3550,11 +4127,20 @@
             "270486441": {
                 "name": "Production 60 Rev Y"
             },
+            "-181696809": {
+                "name": "Radiant Impactors"
+            },
             "-2004448740": {
                 "name": "Renegade Kneeguard"
             },
             "265839545": {
                 "name": "RIGGED"
+            },
+            "660587255": {
+                "name": "Seedwarden Monitors"
+            },
+            "-933449647": {
+                "name": "Series 110.2"
             },
             "-428425046": {
                 "name": "Series 99.4"
@@ -3562,11 +4148,17 @@
             "1406855517": {
                 "name": "Shadow Raven"
             },
+            "-1472916630": {
+                "name": "Sharpened Brace"
+            },
             "-528138000": {
                 "name": "Sharpened Crescent"
             },
             "1455046189": {
                 "name": "Sharpened Incisor"
+            },
+            "-1873504109": {
+                "name": "Sibyl Kneepads"
             },
             "769923986": {
                 "name": "Sovereign Guard"
@@ -3579,6 +4171,9 @@
             },
             "-33230096": {
                 "name": "Sundered Sample"
+            },
+            "1401269065": {
+                "name": "SX/RKF Balance Attachment"
             },
             "2001265053": {
                 "name": "TAC/SCM-P"
@@ -3594,6 +4189,9 @@
             },
             "-14766197": {
                 "name": "Tormenter's Kneepads"
+            },
+            "1842844280": {
+                "name": "Tribune Pads"
             },
             "1928693321": {
                 "name": "TYPE KIRST"
@@ -3612,6 +4210,9 @@
             },
             "1812076405": {
                 "name": "UA/Esso"
+            },
+            "1296282169": {
+                "name": "UA/Lofoten"
             },
             "1688227195": {
                 "name": "UA/Prefect Kneeguards"
@@ -3634,11 +4235,20 @@
             "1425312801": {
                 "name": "UA/Type 6X"
             },
+            "-820797134": {
+                "name": "UA/Type AA"
+            },
             "-1640762660": {
                 "name": "UA/TYPE ACPP"
             },
             "-2087954528": {
                 "name": "UA/Type AS"
+            },
+            "-1797256720": {
+                "name": "UA/Type BA"
+            },
+            "25613613": {
+                "name": "UA/Type BB"
             },
             "-1202673792": {
                 "name": "UA/Type BF"
@@ -3706,6 +4316,18 @@
             "849160035": {
                 "name": "UA/Type KT"
             },
+            "-1049376271": {
+                "name": "UA/Type LCR"
+            },
+            "887820917": {
+                "name": "UA/Type M"
+            },
+            "-800027515": {
+                "name": "UA/Type M"
+            },
+            "529586954": {
+                "name": "UA/Type MAA"
+            },
             "-2131935260": {
                 "name": "UA/Type MEP[B]"
             },
@@ -3726,6 +4348,9 @@
             },
             "320838201": {
                 "name": "UA/Type NRG"
+            },
+            "650501489": {
+                "name": "UA/Type NS"
             },
             "-1452015763": {
                 "name": "UA/TYPE OPX"
@@ -3760,6 +4385,9 @@
             "1527089236": {
                 "name": "UA/Type SI-2"
             },
+            "1487715211": {
+                "name": "UA/Type SKR"
+            },
             "1883647199": {
                 "name": "UA/TYPE SLO"
             },
@@ -3771,6 +4399,9 @@
             },
             "-1206356951": {
                 "name": "UA/Type SP"
+            },
+            "-267390927": {
+                "name": "UA/Type SR"
             },
             "861597986": {
                 "name": "UA/Type SSO"
@@ -3786,6 +4417,12 @@
             },
             "126732244": {
                 "name": "UA/TYPE VTP"
+            },
+            "-1687358225": {
+                "name": "UA/Type WHSP"
+            },
+            "191298248": {
+                "name": "UA/Type WLV"
             },
             "573266145": {
                 "name": "UA/Type WW"
@@ -3804,6 +4441,9 @@
             },
             "-795381122": {
                 "name": "XCUDO KNEX"
+            },
+            "-2061634795": {
+                "name": "XCUDO NXT"
             }
         }
     },
@@ -4247,12 +4887,24 @@
         "name": "Achilles' Pauldron",
         "permutations": {}
     },
+    "-188861121": {
+        "name": "Adamant Mantle",
+        "permutations": {}
+    },
+    "1089755528": {
+        "name": "Advanced Gardbrace",
+        "permutations": {}
+    },
     "-103362575": {
         "name": "Alpha Augmentor",
         "permutations": {}
     },
     "1767980679": {
         "name": "Armored Glowbox",
+        "permutations": {}
+    },
+    "1607127913": {
+        "name": "Artificer Pauldrons",
         "permutations": {}
     },
     "409112072": {
@@ -4295,6 +4947,10 @@
         "name": "Champion's Pauldron",
         "permutations": {}
     },
+    "268137005": {
+        "name": "Cleansing  Alchemy",
+        "permutations": {}
+    },
     "352288315": {
         "name": "CRABSHELL",
         "permutations": {}
@@ -4323,8 +4979,16 @@
         "name": "Defiled Plate",
         "permutations": {}
     },
+    "-188737481": {
+        "name": "Deimos Pauldrons",
+        "permutations": {}
+    },
     "-773308362": {
         "name": "Dominar Mantle",
+        "permutations": {}
+    },
+    "-242922007": {
+        "name": "Dominarch Spaulders",
         "permutations": {}
     },
     "-1938121161": {
@@ -4371,8 +5035,16 @@
         "name": "Fateful Finds",
         "permutations": {}
     },
+    "2143108628": {
+        "name": "Fire Serpent's Mantle",
+        "permutations": {}
+    },
     "-598625109": {
         "name": "First Movement",
+        "permutations": {}
+    },
+    "1810302503": {
+        "name": "First Vanguard Spaulders",
         "permutations": {}
     },
     "-858027745": {
@@ -4435,6 +5107,10 @@
         "name": "IMA/Garita",
         "permutations": {}
     },
+    "-417741502": {
+        "name": "IMA/Lodbrok",
+        "permutations": {}
+    },
     "662445646": {
         "name": "IMA/SGN",
         "permutations": {}
@@ -4457,6 +5133,10 @@
     },
     "-2119601672": {
         "name": "IRONGRIP RAILS",
+        "permutations": {}
+    },
+    "545121390": {
+        "name": "Kappa Series Augmentor",
         "permutations": {}
     },
     "-1777450437": {
@@ -4495,6 +5175,10 @@
         "name": "Mountain Cave",
         "permutations": {}
     },
+    "925262218": {
+        "name": "Observation Augmentor",
+        "permutations": {}
+    },
     "1924247268": {
         "name": "Oracle Augmentor",
         "permutations": {}
@@ -4509,6 +5193,10 @@
     },
     "-1441651174": {
         "name": "Plasm Augmentor",
+        "permutations": {}
+    },
+    "-817491876": {
+        "name": "Radiant Spaulders",
         "permutations": {}
     },
     "1699436161": {
@@ -4549,6 +5237,10 @@
     },
     "-879923950": {
         "name": "SAP/Boola",
+        "permutations": {}
+    },
+    "1864018603": {
+        "name": "SAP/Bronia Plate",
         "permutations": {}
     },
     "10043815": {
@@ -4611,6 +5303,14 @@
         "name": "SAP/LWAS-Rev3",
         "permutations": {}
     },
+    "1582627732": {
+        "name": "SAP/M",
+        "permutations": {}
+    },
+    "-986006734": {
+        "name": "SAP/M",
+        "permutations": {}
+    },
     "2075157207": {
         "name": "SAP/MKV",
         "permutations": {}
@@ -4663,6 +5363,10 @@
         "name": "SAP/SHO",
         "permutations": {}
     },
+    "1947083662": {
+        "name": "SAP/SKR",
+        "permutations": {}
+    },
     "-1978414905": {
         "name": "SAP/SNP",
         "permutations": {}
@@ -4671,12 +5375,20 @@
         "name": "SAP/STE-MODEL 2",
         "permutations": {}
     },
+    "1930607471": {
+        "name": "SAP/T-49 Plating",
+        "permutations": {}
+    },
     "1663911047": {
         "name": "SAP/UrsaPad",
         "permutations": {}
     },
     "-1114259515": {
         "name": "Scented Clasp",
+        "permutations": {}
+    },
+    "-226118868": {
+        "name": "Seedwarden Assayers",
         "permutations": {}
     },
     "397553661": {
@@ -4693,6 +5405,10 @@
     },
     "-123509242": {
         "name": "Shroudshot Augmentor",
+        "permutations": {}
+    },
+    "-1453022971": {
+        "name": "Sibyl Pauldrons",
         "permutations": {}
     },
     "389588971": {
@@ -4721,6 +5437,10 @@
     },
     "1558061817": {
         "name": "Sundered Augmentor",
+        "permutations": {}
+    },
+    "-1138424767": {
+        "name": "SX/RKG Balance Augmentors",
         "permutations": {}
     },
     "-24318081": {
@@ -4771,6 +5491,10 @@
         "name": "Tactor Augmentor",
         "permutations": {}
     },
+    "1607640215": {
+        "name": "Tertiary Mobility Core",
+        "permutations": {}
+    },
     "-564220536": {
         "name": "Thieving Pauldron",
         "permutations": {}
@@ -4791,8 +5515,16 @@
         "name": "Tormenter's Mantle",
         "permutations": {}
     },
+    "-183744268": {
+        "name": "Tribune Pauldron",
+        "permutations": {}
+    },
     "1723276112": {
         "name": "Tricky Treats",
+        "permutations": {}
+    },
+    "-2111456730": {
+        "name": "True Mantle",
         "permutations": {}
     },
     "-90034091": {
@@ -4835,6 +5567,10 @@
         "name": "UA/Arethor",
         "permutations": {}
     },
+    "-1470084480": {
+        "name": "UA/Ashen",
+        "permutations": {}
+    },
     "637316425": {
         "name": "UA/BGO-R",
         "permutations": {}
@@ -4875,8 +5611,16 @@
         "name": "UA/Deming",
         "permutations": {}
     },
+    "567221587": {
+        "name": "UA/Edla",
+        "permutations": {}
+    },
     "-1444532255": {
         "name": "UA/Efrem",
+        "permutations": {}
+    },
+    "-1516861298": {
+        "name": "UA/Eger",
         "permutations": {}
     },
     "1872263037": {
@@ -4919,12 +5663,20 @@
         "name": "UA/HYBL",
         "permutations": {}
     },
+    "-289161515": {
+        "name": "UA/Koper",
+        "permutations": {}
+    },
     "-640647135": {
         "name": "UA/Mark VI [GEN1]",
         "permutations": {}
     },
     "438855892": {
         "name": "UA/Mark VI MOD",
+        "permutations": {}
+    },
+    "1783106575": {
+        "name": "UA/Matsue",
         "permutations": {}
     },
     "1910879977": {
@@ -4957,6 +5709,10 @@
     },
     "-632163412": {
         "name": "UA/Philes",
+        "permutations": {}
+    },
+    "-680896815": {
+        "name": "UA/Piran",
         "permutations": {}
     },
     "318298668": {
@@ -5053,6 +5809,10 @@
     },
     "1756454379": {
         "name": "UTIL/EmerSound Mark I",
+        "permutations": {}
+    },
+    "1229638153": {
+        "name": "UTIL/Paradigm Terminal",
         "permutations": {}
     },
     "1195189160": {
@@ -5535,12 +6295,24 @@
         "name": "Achilles' Pauldron",
         "permutations": {}
     },
+    "-455518693": {
+        "name": "Adamant Mantle",
+        "permutations": {}
+    },
+    "-941666327": {
+        "name": "Advanced Gardbrace",
+        "permutations": {}
+    },
     "-1762653079": {
         "name": "Alpha Augmentor",
         "permutations": {}
     },
     "367977402": {
         "name": "Armored Glowbox",
+        "permutations": {}
+    },
+    "186665546": {
+        "name": "Artificer Pauldrons",
         "permutations": {}
     },
     "799678830": {
@@ -5583,6 +6355,10 @@
         "name": "Champion's Pauldron",
         "permutations": {}
     },
+    "-1485590080": {
+        "name": "Cleansing  Alchemy",
+        "permutations": {}
+    },
     "1073164286": {
         "name": "CRABSHELL",
         "permutations": {}
@@ -5611,8 +6387,16 @@
         "name": "Defiled Plate",
         "permutations": {}
     },
+    "1608523885": {
+        "name": "Deimos Pauldrons",
+        "permutations": {}
+    },
     "-1079935907": {
         "name": "Dominar Mantle",
+        "permutations": {}
+    },
+    "2099897213": {
+        "name": "Dominarch Spaulders",
         "permutations": {}
     },
     "-282954716": {
@@ -5659,8 +6443,16 @@
         "name": "Fateful Finds",
         "permutations": {}
     },
+    "923197987": {
+        "name": "Fire Serpent's Mantle",
+        "permutations": {}
+    },
     "1196783302": {
         "name": "First Movement",
+        "permutations": {}
+    },
+    "-912049222": {
+        "name": "First Vanguard Spaulders",
         "permutations": {}
     },
     "1978610264": {
@@ -5727,6 +6519,10 @@
         "name": "IMA/Garita Omega Sykes",
         "permutations": {}
     },
+    "1927562229": {
+        "name": "IMA/Lodbrok",
+        "permutations": {}
+    },
     "204978629": {
         "name": "Inciter Pauldron",
         "permutations": {}
@@ -5745,6 +6541,10 @@
     },
     "-1687740349": {
         "name": "IRONGRIP RAILS",
+        "permutations": {}
+    },
+    "645658345": {
+        "name": "Kappa Series Augmentor",
         "permutations": {}
     },
     "-463446003": {
@@ -5783,6 +6583,10 @@
         "name": "Mountain Cave",
         "permutations": {}
     },
+    "1344245402": {
+        "name": "Observation Augmentor",
+        "permutations": {}
+    },
     "161169364": {
         "name": "Oracle Augmentor",
         "permutations": {}
@@ -5797,6 +6601,10 @@
     },
     "-243819479": {
         "name": "Plasm Augmentor",
+        "permutations": {}
+    },
+    "-947995441": {
+        "name": "Radiant Spaulders",
         "permutations": {}
     },
     "-2128706770": {
@@ -5837,6 +6645,10 @@
     },
     "-2053923984": {
         "name": "SAP/Boola",
+        "permutations": {}
+    },
+    "-1703342237": {
+        "name": "SAP/Bronia Plate",
         "permutations": {}
     },
     "-1904190780": {
@@ -5899,6 +6711,14 @@
         "name": "SAP/LWAS-Rev3",
         "permutations": {}
     },
+    "-569728433": {
+        "name": "SAP/M",
+        "permutations": {}
+    },
+    "279512186": {
+        "name": "SAP/M",
+        "permutations": {}
+    },
     "-1229057972": {
         "name": "SAP/MKV",
         "permutations": {}
@@ -5951,6 +6771,10 @@
         "name": "SAP/SHO",
         "permutations": {}
     },
+    "-2134653254": {
+        "name": "SAP/SKR",
+        "permutations": {}
+    },
     "-1096374311": {
         "name": "SAP/SNP",
         "permutations": {}
@@ -5959,12 +6783,20 @@
         "name": "SAP/STE-MODEL 2",
         "permutations": {}
     },
+    "345973961": {
+        "name": "SAP/T-49 Plating",
+        "permutations": {}
+    },
     "-1563025387": {
         "name": "SAP/UrsaPad",
         "permutations": {}
     },
     "-976282796": {
         "name": "Scented Clasp",
+        "permutations": {}
+    },
+    "1245892432": {
+        "name": "Seedwarden Assayers",
         "permutations": {}
     },
     "777065068": {
@@ -5981,6 +6813,10 @@
     },
     "115698423": {
         "name": "Shroudshot Augmentor",
+        "permutations": {}
+    },
+    "1422738631": {
+        "name": "Sibyl Pauldrons",
         "permutations": {}
     },
     "-1838589773": {
@@ -6009,6 +6845,10 @@
     },
     "-60149879": {
         "name": "Sundered Augmentor",
+        "permutations": {}
+    },
+    "248402632": {
+        "name": "SX/RKG Balance Augmentors",
         "permutations": {}
     },
     "1000073362": {
@@ -6059,6 +6899,10 @@
         "name": "Tactor Augmentor",
         "permutations": {}
     },
+    "-815034265": {
+        "name": "Tertiary Mobility Core",
+        "permutations": {}
+    },
     "1998070010": {
         "name": "Thieving Pauldron",
         "permutations": {}
@@ -6079,8 +6923,16 @@
         "name": "Tormenter's Mantle",
         "permutations": {}
     },
+    "-2054067643": {
+        "name": "Tribune Pauldron",
+        "permutations": {}
+    },
     "2095794289": {
         "name": "Tricky Treats",
+        "permutations": {}
+    },
+    "-1902947945": {
+        "name": "True Mantle",
         "permutations": {}
     },
     "-1602432317": {
@@ -6123,6 +6975,10 @@
         "name": "UA/Arethor",
         "permutations": {}
     },
+    "22565833": {
+        "name": "UA/Ashen",
+        "permutations": {}
+    },
     "981318226": {
         "name": "UA/BGO-R",
         "permutations": {}
@@ -6163,8 +7019,16 @@
         "name": "UA/Deming",
         "permutations": {}
     },
+    "510895405": {
+        "name": "UA/Edla",
+        "permutations": {}
+    },
     "1291618392": {
         "name": "UA/Efrem",
+        "permutations": {}
+    },
+    "-868010671": {
+        "name": "UA/Eger",
         "permutations": {}
     },
     "1199089095": {
@@ -6207,12 +7071,20 @@
         "name": "UA/HYBL",
         "permutations": {}
     },
+    "-1428846124": {
+        "name": "UA/Koper",
+        "permutations": {}
+    },
     "-1734033454": {
         "name": "UA/Mark VI [GEN1]",
         "permutations": {}
     },
     "1610733912": {
         "name": "UA/Mark VI MOD",
+        "permutations": {}
+    },
+    "2024305509": {
+        "name": "UA/Matsue",
         "permutations": {}
     },
     "-1035538033": {
@@ -6245,6 +7117,10 @@
     },
     "-806524077": {
         "name": "UA/Philes",
+        "permutations": {}
+    },
+    "-1935962778": {
+        "name": "UA/Piran",
         "permutations": {}
     },
     "-512911914": {
@@ -6343,6 +7219,10 @@
         "name": "UTIL/EmerSound Mark I",
         "permutations": {}
     },
+    "882537145": {
+        "name": "UTIL/Paradigm Terminal",
+        "permutations": {}
+    },
     "1917138040": {
         "name": "UTIL/PEM-2P",
         "permutations": {}
@@ -6395,12 +7275,24 @@
         "name": "Achilles' Protection",
         "permutations": {}
     },
+    "1230634956": {
+        "name": "Adamant Crest",
+        "permutations": {}
+    },
+    "1327334978": {
+        "name": "Advanced Vambrace",
+        "permutations": {}
+    },
     "-510335418": {
         "name": "Alien Evidence",
         "permutations": {}
     },
     "-67351967": {
         "name": "AN/PED-560",
+        "permutations": {}
+    },
+    "-1975245852": {
+        "name": "Artificer Vambrace",
         "permutations": {}
     },
     "-1667508026": {
@@ -6413,6 +7305,10 @@
     },
     "705927564": {
         "name": "BRINK Plugin",
+        "permutations": {}
+    },
+    "-1136011909": {
+        "name": "Cavalier's Grasp",
         "permutations": {}
     },
     "1291834408": {
@@ -6439,6 +7335,10 @@
         "name": "Defiled Touch",
         "permutations": {}
     },
+    "-1100018108": {
+        "name": "Deimos Gruards",
+        "permutations": {}
+    },
     "1852501826": {
         "name": "DIVE RC Model 2560-M",
         "permutations": {}
@@ -6447,8 +7347,20 @@
         "name": "DOISAC KISS",
         "permutations": {}
     },
+    "1413818325": {
+        "name": "Dominarch's Bracers",
+        "permutations": {}
+    },
+    "-810716329": {
+        "name": "Engram Plugin",
+        "permutations": {}
+    },
     "2007978860": {
         "name": "EXO-X/O-Module Echo FPM",
+        "permutations": {}
+    },
+    "303748142": {
+        "name": "First Vanguard Bracers",
         "permutations": {}
     },
     "1503412449": {
@@ -6461,6 +7373,10 @@
     },
     "828313503": {
         "name": "Graveside Marker",
+        "permutations": {}
+    },
+    "-1117972069": {
+        "name": "Gravestone Growth",
         "permutations": {}
     },
     "586550853": {
@@ -6519,12 +7435,20 @@
         "name": "R-107 Scanman",
         "permutations": {}
     },
+    "216796297": {
+        "name": "Radiant Bracers",
+        "permutations": {}
+    },
     "-1116782244": {
         "name": "Rain and Thunder",
         "permutations": {}
     },
     "-119521547": {
         "name": "Redsteel Vambrace",
+        "permutations": {}
+    },
+    "1025646369": {
+        "name": "Redwall Plugin",
         "permutations": {}
     },
     "1667448450": {
@@ -6535,8 +7459,16 @@
         "name": "Relayframe Plugin",
         "permutations": {}
     },
+    "-796541592": {
+        "name": "RS/Starfall Designator",
+        "permutations": {}
+    },
     "16777000": {
         "name": "Second Movement",
+        "permutations": {}
+    },
+    "-181445349": {
+        "name": "Seedwarden Sonde",
         "permutations": {}
     },
     "-293191521": {
@@ -6551,6 +7483,10 @@
         "name": "SHOCKBRACE",
         "permutations": {}
     },
+    "2100164323": {
+        "name": "Sibyl Vambrace",
+        "permutations": {}
+    },
     "1207363376": {
         "name": "Spinewatch",
         "permutations": {}
@@ -6561,6 +7497,14 @@
     },
     "823622534": {
         "name": "Sundered Plugin",
+        "permutations": {}
+    },
+    "2049026179": {
+        "name": "SX/KFU-MG Type 908",
+        "permutations": {}
+    },
+    "-361392097": {
+        "name": "TAC/ADMS",
         "permutations": {}
     },
     "-1038971427": {
@@ -6575,6 +7519,10 @@
         "name": "TAC/Dewclaw",
         "permutations": {}
     },
+    "2042621041": {
+        "name": "TAC/Emberquill Bracer",
+        "permutations": {}
+    },
     "-496921910": {
         "name": "TAC/FIRMBLUR",
         "permutations": {}
@@ -6587,12 +7535,24 @@
         "name": "TAC/Holodyne Milspec",
         "permutations": {}
     },
+    "1412910346": {
+        "name": "TAC/IS5 Pad",
+        "permutations": {}
+    },
+    "735547076": {
+        "name": "TAC/IS5 Pad",
+        "permutations": {}
+    },
     "-177125118": {
         "name": "TAC/LI-100 Firebee",
         "permutations": {}
     },
     "194291884": {
         "name": "TAC/MC5 TACPAD",
+        "permutations": {}
+    },
+    "879074439": {
+        "name": "TAC/PODA",
         "permutations": {}
     },
     "518719067": {
@@ -6643,6 +7603,10 @@
         "name": "TOOLMASTER",
         "permutations": {}
     },
+    "-1288673210": {
+        "name": "Tribune Bracers",
+        "permutations": {}
+    },
     "-940311700": {
         "name": "UA/CRA Bracer",
         "permutations": {}
@@ -6653,6 +7617,10 @@
     },
     "1395375064": {
         "name": "UA/EVP",
+        "permutations": {}
+    },
+    "-1290869752": {
+        "name": "UA/GRF Vambrace",
         "permutations": {}
     },
     "-1257127463": {
@@ -6691,8 +7659,16 @@
         "name": "UA/RDR",
         "permutations": {}
     },
+    "1830713282": {
+        "name": "UA/S-ONI",
+        "permutations": {}
+    },
     "1424826402": {
         "name": "UA/SAM",
+        "permutations": {}
+    },
+    "-1116856168": {
+        "name": "UA/Sention",
         "permutations": {}
     },
     "-411976500": {
@@ -6703,12 +7679,24 @@
         "name": "UA/T2A2 Bracer",
         "permutations": {}
     },
+    "-136679418": {
+        "name": "UA/TSAA",
+        "permutations": {}
+    },
+    "-1431309834": {
+        "name": "UA/Type 22 Wristguard",
+        "permutations": {}
+    },
     "390167793": {
         "name": "UA/Type 83",
         "permutations": {}
     },
     "170094857": {
         "name": "UA/Type II-A1 Buckler",
+        "permutations": {}
+    },
+    "263702736": {
+        "name": "UA/Type MGSA",
         "permutations": {}
     },
     "-106521695": {
@@ -6735,6 +7723,10 @@
         "name": "UTIL/ECell Carrier",
         "permutations": {}
     },
+    "-1616949569": {
+        "name": "UTIL/MILLINK-12E TACPAD",
+        "permutations": {}
+    },
     "89611035": {
         "name": "UTIL/Project ORANGEWALK",
         "permutations": {}
@@ -6749,6 +7741,14 @@
     },
     "-758230290": {
         "name": "Vindicator Vambrace",
+        "permutations": {}
+    },
+    "818839568": {
+        "name": "Warrior's Seal",
+        "permutations": {}
+    },
+    "334786303": {
+        "name": "Whisperdart Launcher",
         "permutations": {}
     },
     "-31000654": {

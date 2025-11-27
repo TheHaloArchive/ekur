@@ -1,22 +1,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import logging
-import bpy
-
 from pathlib import Path
 from typing import cast
+
+import bpy
 from bpy.types import ArmatureModifier, Material, Mesh, Object
 from mathutils import Vector
 
-from .bone import import_bones
-from .markers import import_markers
-from ..rtgo_offset import RtgoOffset
-from ..metadata import Model
-from ..section import Section
-from ..vectors import NormalizedVector2
 from ...constants import FEET_TO_METER
 from ...ui.model_options import get_model_options
-
+from ..metadata import Model
+from ..rtgo_offset import RtgoOffset
+from ..section import Section
+from ..vectors import NormalizedVector2
+from .bone import import_bones
+from .markers import import_markers
 
 __all__ = ["ModelImporter"]
 
@@ -116,7 +115,7 @@ class ModelImporter:
                 m = bpy.data.materials.new(mat_name)
             m.use_nodes = True
             if m.name not in mesh.materials:
-                mesh.materials.append(m)  # pyright: ignore[reportUnknownMemberType]
+                mesh.materials.append(m)
             if len(mesh.materials) > 0:
                 mat = mesh.materials[-1]
                 if mat:
@@ -152,7 +151,7 @@ class ModelImporter:
         if section.node_index != 255 and section.node_index < len(self.model.bones):
             bone = self.model.bones[section.node_index]
             group = obj.vertex_groups.new(name=str(bone.name))
-            group.add(range(vertex_count), 1.0, "REPLACE")  # pyright: ignore[reportUnknownMemberType]
+            group.add(range(vertex_count), 1.0, "REPLACE")
         else:
             for bone in self.model.bones:
                 _ = obj.vertex_groups.new(name=str(bone.name))
@@ -163,7 +162,7 @@ class ModelImporter:
             ) in section.vertex_buffer.enumerate_blendpairs(section.vertex_type):
                 for bi, bw in zip(blend_indicies, blend_weights):
                     if bi <= len(obj.vertex_groups):
-                        obj.vertex_groups[bi].add([vi], bw, "REPLACE")  # pyright: ignore[reportUnknownMemberType]
+                        obj.vertex_groups[bi].add([vi], bw, "REPLACE")
 
         # Removes that weird shading that happens when you twist a bone
         for p in mesh.polygons:
@@ -191,10 +190,10 @@ class ModelImporter:
         - mesh: The mesh to assign the normals to.
         """
         normals = [x.vector.to_tuple() for x in section.vertex_buffer.normal_buffer.normals]
-        mesh.shade_smooth()  # pyright: ignore[reportUnknownMemberType]
-        mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportUnknownMemberType, reportArgumentType]
+        mesh.shade_smooth()
+        mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportArgumentType]
         _ = mesh.validate()
-        mesh.update()  # pyright: ignore[reportUnknownMemberType]
+        mesh.update()
 
     def _create_section(self, section: Section, offset: RtgoOffset | None = None) -> Object | None:
         """
@@ -234,7 +233,7 @@ class ModelImporter:
         obj.scale = Vector((FEET_TO_METER, FEET_TO_METER, FEET_TO_METER)) * Vector(
             (options.scale_factor,) * 3
         )
-        mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportUnknownMemberType]
+        mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportArgumentType]
         if section.vertex_flags.has_uv0:
             self._create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
         if section.vertex_flags.has_uv1:

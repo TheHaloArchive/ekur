@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-import bpy
-
 from pathlib import Path
 from typing import final
-from bpy.types import Context, Operator, Object
+
+import bpy
+from bpy.types import Context, Object, Operator
 from mathutils import Matrix
 
-from ..ui.level_options import get_level_options
 from ..json_definitions import Level
 from ..model.importer.model_importer import ModelImporter
+from ..ui.level_options import get_level_options
 from ..utils import get_data_folder, read_json_file
 
 __all__ = ["ImportLevelOperator"]
@@ -41,7 +41,7 @@ class ImportLevelOperator(Operator):
         master_collection = bpy.data.collections.get("Master Geometries")
         if not master_collection:
             master_collection = bpy.data.collections.new("Master Geometries")
-            bpy.context.scene.collection.children.link(master_collection)  # pyright: ignore[reportUnknownMemberType]
+            bpy.context.scene.collection.children.link(master_collection)
 
         master_collection.hide_viewport = True
         master_collection.hide_render = True
@@ -49,8 +49,8 @@ class ImportLevelOperator(Operator):
         source_objects = imported_objects
         for source_object in source_objects:
             if source_object.name in bpy.context.scene.collection.objects:
-                bpy.context.scene.collection.objects.unlink(source_object)  # pyright: ignore[reportUnknownMemberType]
-            master_collection.objects.link(source_object)  # pyright: ignore[reportUnknownMemberType]
+                bpy.context.scene.collection.objects.unlink(source_object)
+            master_collection.objects.link(source_object)
 
         self._geometry_cache[global_id] = source_objects
         return source_objects
@@ -87,7 +87,7 @@ class ImportLevelOperator(Operator):
                     instance["position"], rotmat.to_quaternion(), instance["scale"]
                 )
 
-                context.collection.objects.link(instance_obj)  # pyright: ignore[reportUnknownMemberType]
+                context.collection.objects.link(instance_obj)
 
         self._geometry_cache = {}
         return {"FINISHED"}

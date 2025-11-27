@@ -1,20 +1,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
 
 from typing import final
 
 from bpy.types import Context, Panel
 
-from .level_options import draw_level_options, get_level_options
+from ..utils import get_addon_preferences
 from .bake_options import draw_bake_menu_options, get_bake_options
 from .forge_map_options import draw_forge_map_options, get_forge_map_options
 from .forge_object_options import draw_forge_object_options, get_forge_object_options
-from .spartan_options import draw_spartan_options, get_spartan_options
-from .model_options import draw_model_options, get_model_options
+from .level_options import draw_level_options, get_level_options
 from .material_options import draw_material_options, get_material_options
-from ..utils import get_addon_preferences
+from .model_options import draw_model_options, get_model_options
+from .spartan_options import draw_spartan_options, get_spartan_options
 
 __all__ = ["EkurImportPanel"]
 

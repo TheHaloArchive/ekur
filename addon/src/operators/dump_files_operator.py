@@ -3,14 +3,14 @@
 import logging
 import platform
 import subprocess
-import bpy
-
 from pathlib import Path
 from typing import final
+
+import bpy
 from bpy.types import Context, Operator
 
-from ..utils import get_addon_preferences, get_data_folder, get_package_name
 from ..constants import version_string
+from ..utils import get_addon_preferences, get_data_folder, get_package_name, is_debug
 
 
 @final
@@ -48,6 +48,8 @@ class DumpFilesOperator(Operator):
         if not ekur_save_path.exists():
             logging.error(f"Ekur was not found at {ekur_save_path}!")
             return {"CANCELLED"}
+        if is_debug():
+            print(proc)
         _ = subprocess.run(proc)
         with open(f"{extension_path}/{version_string}", "w") as f:
             _ = f.write(version_string)

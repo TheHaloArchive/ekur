@@ -87,14 +87,14 @@ pub fn process_material_coatings(
                     .elements
                     .iter()
                     .find(|x| x.name.0 == coating.grime_type.0);
-                if grime_intention.is_none() {
-                    common_coating.grime_swatch.disabled = true;
-                } else {
+                if let Some(grime_intention) = grime_intention {
                     let swatch = material_swatches
-                        .get(&grime_intention.unwrap().swatch.global_id)
+                        .get(&grime_intention.swatch.global_id)
                         .expect("swatch not found");
                     common_coating.grime_swatch =
-                        CommonLayer::from_material(swatch, grime_intention.unwrap(), 0);
+                        CommonLayer::from_material(swatch, grime_intention, 0);
+                } else {
+                    common_coating.grime_swatch.disabled = true;
                 }
                 let mut path = PathBuf::from(format!("{save_path}/styles/{id}_{}", coating.name.0));
                 path.set_extension("json");

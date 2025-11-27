@@ -1,16 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
 import bpy
-
 from bpy.types import Object
 from mathutils import Matrix, Quaternion, Vector
 
-from .bone import get_bone_transforms
+from ...constants import FEET_TO_METER
+from ...ui.model_options import get_model_options
 from ..marker import Marker, MarkerInstance
 from ..metadata import Model
-from ...ui.model_options import get_model_options
-from ...constants import FEET_TO_METER
-
+from .bone import get_bone_transforms
 
 __all__ = ["import_markers"]
 
@@ -78,6 +76,6 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
             marker_obj.hide_render = True
             marker_obj.matrix_world = world_transform
             if bpy.context.scene:
-                bpy.context.scene.collection.objects.link(marker_obj)  # pyright: ignore[reportUnknownMemberType]
+                bpy.context.scene.collection.objects.link(marker_obj)
             markers.append(marker_obj)
     return markers

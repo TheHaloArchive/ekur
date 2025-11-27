@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-import bpy
-
 from pathlib import Path
 from typing import cast, final
+
+import bpy
 from bpy.types import (
     Context,
     Material,
@@ -15,18 +15,18 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..json_definitions import CommonMaterial, ForgeMaterial, ForgeObjectDefinition
+from ..model.importer.model_importer import ModelImporter
+from ..nodes.layer import Layer
 from ..ui.forge_object_options import get_forge_object_options
 from ..ui.material_options import get_material_options
-from ..nodes.layer import Layer
-from .material_operator import import_materials
-from ..json_definitions import CommonMaterial, ForgeMaterial, ForgeObjectDefinition
 from ..utils import (
     assign_value,
     create_node,
     get_data_folder,
     read_json_file,
 )
-from ..model.importer.model_importer import ModelImporter
+from .material_operator import import_materials
 
 __all__ = ["ForgeOperator"]
 
@@ -160,7 +160,7 @@ class ForgeOperator(Operator):
                                 bl_obj["permutation_name"]  # pyright: ignore[reportAny]
                             ):
                                 count += 1
-                                collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
+                                collection.objects.link(bl_obj)
                         if count == 0:
                             for bl_obj in objects:
                                 if (
@@ -168,13 +168,13 @@ class ForgeOperator(Operator):
                                     or bl_obj["region_name"] == 528041935
                                 ):
                                     count += 1
-                                    collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
+                                    collection.objects.link(bl_obj)
                         if count == 0:
                             for bl_obj in objects:
-                                collection.objects.link(bl_obj)  # pyright: ignore[reportUnknownMemberType]
-                        context.scene.collection.children.link(collection)  # pyright: ignore[reportUnknownMemberType]
+                                collection.objects.link(bl_obj)
+                        context.scene.collection.children.link(collection)
                         for object in collection.objects:
-                            object.select_set(True)  # pyright: ignore[reportUnknownMemberType]
+                            object.select_set(True)
                             if context.view_layer:
                                 context.view_layer.objects.active = object
                             matprops.use_default_coating = False

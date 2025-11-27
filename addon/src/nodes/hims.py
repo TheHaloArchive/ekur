@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2025 Surasia
-import bpy
-
 from typing import cast
+
+import bpy
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -18,7 +18,6 @@ from bpy.types import (
     ShaderNodeBump,
     ShaderNodeClamp,
     ShaderNodeCombineColor,
-    ShaderNodeCombineRGB,
     ShaderNodeCombineXYZ,
     ShaderNodeGamma,
     ShaderNodeGroup,
@@ -28,26 +27,24 @@ from bpy.types import (
     ShaderNodeMix,
     ShaderNodeNormalMap,
     ShaderNodeSeparateColor,
-    ShaderNodeSeparateRGB,
     ShaderNodeTexCoord,
     ShaderNodeTexNoise,
     ShaderNodeTree,
     ShaderNodeValToRGB,
 )
 
-
-from .detail_normals import DetailNormals
-from .infinite_color import InfiniteColor
-from .mask_toggles import MaskToggles
-from .infinite_masking_sorter_nogrime_col import InfiniteMaskingSorterNoGrimeCol
-from .infinite_matts import InfiniteMatts
-from .emission import Emission
-from .color_mixer import ColorMixer
-from .scratch_global_toggle import ScratchGlobalToggle
-from .infinite_masking_sorter import InfiniteMaskingSorter
-from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
 from ..ui.model_options import get_model_options
 from ..utils import assign_value, create_node, create_socket
+from .color_mixer import ColorMixer
+from .detail_normals import DetailNormals
+from .emission import Emission
+from .infinite_color import InfiniteColor
+from .infinite_masking_sorter import InfiniteMaskingSorter
+from .infinite_masking_sorter_nogrime import InfiniteMaskingSorterNoGrime
+from .infinite_masking_sorter_nogrime_col import InfiniteMaskingSorterNoGrimeCol
+from .infinite_matts import InfiniteMatts
+from .mask_toggles import MaskToggles
+from .scratch_global_toggle import ScratchGlobalToggle
 
 __all__ = ["HIMS"]
 
@@ -333,7 +330,7 @@ class HIMS:
             colorramp_001.color_ramp.hue_interpolation = "NEAR"
             colorramp_001.color_ramp.interpolation = "LINEAR"
 
-            colorramp_001.color_ramp.elements.remove(colorramp_001.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
+            colorramp_001.color_ramp.elements.remove(colorramp_001.color_ramp.elements[0])
             colorramp_001_cre_0 = colorramp_001.color_ramp.elements[0]
             colorramp_001_cre_0.position = 0.5
             colorramp_001_cre_0.color = (0.0, 0.0, 0.0, 1.0)
@@ -354,7 +351,7 @@ class HIMS:
             colorramp.color_ramp.hue_interpolation = "NEAR"
             colorramp.color_ramp.interpolation = "LINEAR"
 
-            colorramp.color_ramp.elements.remove(colorramp.color_ramp.elements[0])  # pyright: ignore[reportUnknownMemberType]
+            colorramp.color_ramp.elements.remove(colorramp.color_ramp.elements[0])
             colorramp_cre_0 = colorramp.color_ramp.elements[0]
             colorramp_cre_0.position = 0.1393
             colorramp_cre_0.color = (0.0, 0.0, 0.0, 1.0)
@@ -499,8 +496,8 @@ class HIMS:
         mult_xscale.operation = "MULTIPLY"
 
         combinemult = create_node(nodes, 0, 0, ShaderNodeCombineXYZ)
-        combine_orm = create_node(nodes, 0, 0, ShaderNodeCombineRGB)
-        separate_asg_cubic = create_node(nodes, 0, 0, ShaderNodeSeparateRGB)
+        combine_orm = create_node(nodes, 0, 0, ShaderNodeCombineColor)
+        separate_asg_cubic = create_node(nodes, 0, 0, ShaderNodeSeparateColor)
 
         _: NodeLink
         _ = self.node_tree.links.new(addtovoronoi.outputs[0], multvoronoi2.inputs[0])
