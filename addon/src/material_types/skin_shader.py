@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
-
 from typing import cast
+
 from bpy.types import (
     ShaderNodeGroup,
     ShaderNodeMapping,
@@ -11,9 +11,9 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
+from ..json_definitions import CommonMaterial
 from ..nodes.skin import Skin
 from ..utils import assign_value, create_image, create_node
-from ..json_definitions import CommonMaterial
 
 __all__ = ["SkinShader"]
 
@@ -42,7 +42,7 @@ class SkinShader:
         if self.material["textures"].get("Color"):
             img = create_image(self.tree.nodes, -100, str(self.material["textures"]["Color"]))
             if img.image and img.image.colorspace_settings:
-                img.image.colorspace_settings.name = "sRGB"  # pyright: ignore[reportAttributeAccessIssue]
+                img.image.colorspace_settings.name = "sRGB"  # ty: ignore[invalid-assignment]
             _ = self.tree.links.new(img.outputs[0], shader.inputs[0])
 
         if self.material["textures"].get("Normal"):

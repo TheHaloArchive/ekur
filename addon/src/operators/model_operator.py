@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from typing import cast, final
 
 import bpy
@@ -17,7 +17,7 @@ class ImportModelOperator(Operator):
     bl_label = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None or context.scene is None:
             return {"CANCELLED"}
         options = get_model_options()

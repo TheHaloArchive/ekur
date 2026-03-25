@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-# pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
+# Copyright © 2026 The Halo Archive
 
 from pathlib import Path
 from typing import cast
+
 import bpy
 from bpy.props import BoolProperty, EnumProperty, StringProperty
 from bpy.types import Context, PropertyGroup, UILayout
@@ -104,7 +104,7 @@ class SpartanOptionsType:
 def get_spartan_options() -> SpartanOptionsType:
     if bpy.context.scene is None:
         return SpartanOptionsType()
-    props: SpartanOptions = bpy.context.scene.spartan_properties  # pyright: ignore[reportAttributeAccessIssue]
+    props: SpartanOptions = bpy.context.scene.spartan_properties  # ty: ignore[unresolved-attribute]
     if props:
         return cast(SpartanOptionsType, props)
     return SpartanOptionsType()

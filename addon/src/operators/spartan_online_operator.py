@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import json
 import logging
 import urllib.error
@@ -35,14 +35,12 @@ def import_custom_rig() -> Object | None:
     extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
     custom_rig_path = Path(extension_path) / "purp.blend"
     if custom_rig_path.exists():
-        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # pyright: ignore[reportGeneralTypeIssues]
-            data_from,  # pyright: ignore[reportUnknownVariableType]
-            data_to,  # pyright: ignore[reportUnknownVariableType]
+        with bpy.data.libraries.load(str(custom_rig_path), link=False) as (  # ty: ignore[invalid-context-manager]
+            data_from,
+            data_to,
         ):
             data_to.objects = [
-                name
-                for name in data_from.objects  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                if name == "Spartan_Control_Rig_V2"
+                name for name in data_from.objects if name == "Spartan_Control_Rig_V2"
             ]
     else:
         logging.warning(f"Custom rig path does not exist!: {custom_rig_path}")
@@ -81,7 +79,7 @@ class ImportSpartanVanityOperator(Operator):
     bl_label = "Import Spartan from Gamertag"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None or context.scene is None:
             return {"CANCELLED"}
         options = get_spartan_options()
@@ -233,11 +231,11 @@ class ImportSpartanVanityOperator(Operator):
             "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
         )
         try:
-            request = urllib.request.urlopen(request)  # pyright: ignore[reportAny]
+            request = urllib.request.urlopen(request)
         except urllib.error.HTTPError as e:
             logging.error(f"Failed to download vanity!: {e}")
             return ""
-        return cast(str, request.read().decode("utf-8"))  # pyright: ignore[reportAny]
+        return cast(str, request.read().decode("utf-8"))
 
     def get_parts(self, index_json: CylixIndex, armor: CylixVanityResponse) -> list[Asset]:
         parts: list[Asset] = []

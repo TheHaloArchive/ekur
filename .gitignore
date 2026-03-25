@@ -4,6 +4,9 @@ __pycache__/
 dist/
 wheels/
 *.egg-info
+.pytest_cache
+.ruff_cache
+
 
 # Virtual environments
 .venv
@@ -12,5 +15,5 @@ wheels/
 addon/*.zip
 
 # Cargo
-ekur/target
 build/ekur*
+*target

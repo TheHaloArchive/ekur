@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-# pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
-import bpy
-
+# Copyright © 2026 The Halo Archive
 from typing import cast
+
+import bpy
 from bpy.props import BoolProperty, FloatProperty, StringProperty
 from bpy.types import PropertyGroup, UILayout
 
@@ -64,7 +63,7 @@ class ModelOptionsType:
 def get_model_options() -> ModelOptionsType:
     if bpy.context.scene is None:
         return ModelOptionsType()
-    props: ModelOptions = bpy.context.scene.model_properties  # pyright: ignore[reportAttributeAccessIssue]
+    props: ModelOptions = bpy.context.scene.model_properties  # ty: ignore[unresolved-attribute]
     if props:
         return cast(ModelOptionsType, props)
     return ModelOptionsType()

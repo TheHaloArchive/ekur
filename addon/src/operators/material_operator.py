@@ -1,21 +1,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
-import bpy
-
 from pathlib import Path
 from typing import final
+
+import bpy
 from bpy.types import Context, MaterialSlot, Operator, ShaderNodeTree
 
-from ..ui.material_options import get_material_options
 from ..json_definitions import CommonMaterial, CommonStyleList
-from ..material_types.hair_shader import HairShader
-from ..material_types.skin_shader import SkinShader
+from ..material_types.color_decal import ColorDecalShader
 from ..material_types.decal_shader import DecalShader
 from ..material_types.diffuse_shader import DiffuseShaderType
-from ..material_types.layered_shader import LayeredShader
+from ..material_types.hair_shader import HairShader
 from ..material_types.illum_shader import IllumShader
-from ..material_types.color_decal import ColorDecalShader
+from ..material_types.layered_shader import LayeredShader
+from ..material_types.skin_shader import SkinShader
+from ..ui.material_options import get_material_options
 from ..utils import get_data_folder, read_json_file, remove_nodes
 
 __all__ = ["ImportMaterialOperator"]
@@ -98,7 +98,7 @@ class ImportMaterialOperator(Operator):
     bl_label = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None:
             return {"CANCELLED"}
         import_materials()

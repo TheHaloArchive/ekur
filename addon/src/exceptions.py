@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 __all__ = ["IncorrectStrideValue", "NodeInterfaceDoesNotExist"]
 
 

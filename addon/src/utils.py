@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import json
 import logging
 import re
@@ -66,7 +66,7 @@ def read_texture(texturepath: str) -> Image | None:
         image["use_alpha"] = False
     image.filepath = str(tex_path)
     if image.colorspace_settings:
-        image.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
+        image.colorspace_settings.name = "Non-Color"  # ty: ignore[invalid-assignment]
     return image
 
 
@@ -86,8 +86,8 @@ def read_json_file(file_path: Path, T: type[JsonT]) -> JsonT | None:
         logging.warning(f"File path does not exist!: {file_path}")
         return
     with open(file_path, "r") as file:
-        data: T = cast(T, json.load(file))  # pyright: ignore[reportUnknownVariableType]
-        return data  # pyright: ignore[reportUnknownVariableType]
+        data: T = cast(T, json.load(file))
+        return data
 
 
 def remove_nodes(node_tree: ShaderNodeTree) -> None:
@@ -124,11 +124,11 @@ def create_socket(
     in_out = "INPUT" if is_input else "OUTPUT"
     if interface is None:
         raise NodeInterfaceDoesNotExist("Interface cannot be None!")
-    out = cast(  # pyright: ignore[reportUnknownVariableType]
+    out = cast(
         _type,
         interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),
     )
-    return out  # pyright: ignore[reportUnknownVariableType]
+    return out
 
 
 NodeT = TypeVar("NodeT", bound=Node)
@@ -146,9 +146,9 @@ def create_node(nodes: Nodes, x: int, y: int, _type: type[NodeT]) -> NodeT:
     Returns:
         Returns the created node of the same type provided.
     """
-    node = cast(_type, nodes.new(type=_type.__name__))  # pyright: ignore[reportUnknownVariableType]
+    node = cast(_type, nodes.new(type=_type.__name__))
     node.location = (x, y)
-    return node  # pyright: ignore[reportUnknownVariableType]
+    return node
 
 
 class AddonPreferencesType:
@@ -161,6 +161,11 @@ class AddonPreferencesType:
 
 def is_debug() -> bool:
     return get_addon_preferences().debug
+
+
+def debug_print(*values: object):
+    if is_debug():
+        print(values)
 
 
 def get_data_folder() -> str:
@@ -189,7 +194,7 @@ def get_addon_preferences() -> AddonPreferencesType:
     preferences = bpy.context.preferences.addons[get_package_name()].preferences
     if not preferences:
         return AddonPreferencesType()
-    return cast(AddonPreferencesType, preferences)  # pyright: ignore[reportInvalidCast]
+    return cast(AddonPreferencesType, preferences)
 
 
 def assign_value(
@@ -220,10 +225,10 @@ def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:
 def download_file(url: str, file_path: str) -> None:
     try:
         with (
-            urllib.request.urlopen(url) as response,  # pyright: ignore[reportAny]
+            urllib.request.urlopen(url) as response,
             open(file_path, "wb") as out_file,
         ):
-            _ = out_file.write(response.read())  # pyright: ignore[reportAny]
+            _ = out_file.write(response.read())
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download: {url}: {e.status}")
 

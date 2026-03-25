@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
 import os
 import platform
-from typing import cast, final
+from typing import final
 
 import bpy
 from bpy.types import Context, Operator
 
 from ..constants import version_string
-from ..utils import download_file, get_package_name
+from ..utils import debug_print, download_file, get_package_name
 
 STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
 EKUR = "https://github.com/TheHaloArchive/ekur/raw/refs/heads/master/assets"
@@ -23,8 +23,8 @@ class DownloadFilesOperator(Operator):
     bl_idname = "ekur.downloadfiles"
     bl_label = "Download Required Files"
 
-    def execute(self, context: Context | None) -> set[str]:
-        if context is None or not cast(bool, bpy.app.online_access):
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
+        if context is None or not bpy.app.online_access:
             logging.error("Online access is disabled")
             return {"CANCELLED"}
         extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
@@ -34,10 +34,18 @@ class DownloadFilesOperator(Operator):
         regions_path = f"{extension_path}/regions_and_permutations.json"
         customs_path = f"{extension_path}/purp.blend"
 
+        debug_print(f"[download_files_operator.py] save_path: {save_path}")
+        debug_print(f"[download_files_operator.py] visors_path: {visors_path}")
+        debug_print(f"[download_files_operator.py] regions_path: {regions_path}")
+        debug_print(f"[download_files_operator.py] customs_path: {customs_path}")
+
         ekur_url = f"https://github.com/TheHaloArchive/ekur/releases/download/{version_string}/ekur-{version_string}"
         if platform.system() == "Windows":
             ekur_save_path = f"{ekur_save_path}.exe"
             ekur_url = f"{ekur_url}.exe"
+
+        debug_print(f"[download_files_operator.py] ekur_url: {ekur_url}")
+        debug_print(f"[download_files_operator.py] ekur_save_path: {ekur_save_path}")
 
         download_file(ekur_url, ekur_save_path)
         if platform.system() == "Linux":

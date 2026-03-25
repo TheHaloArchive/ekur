@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import bpy
-
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -14,9 +13,9 @@ from bpy.types import (
     ShaderNodeSeparateColor,
 )
 
+from ..utils import assign_value, create_node, create_socket
 from .norm_normalize import NormNormalize
 from .normal_map_combine_orientation import NormalMapCombineOrientation
-from ..utils import assign_value, create_node, create_socket
 
 __all__ = ["DetailNormals"]
 
@@ -96,13 +95,13 @@ class DetailNormals:
         scratchmath.label = "Scratch"
 
         normalize = create_node(self.node_tree.nodes, 600, 480, ShaderNodeGroup)
-        normalize.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        normalize.node_tree = NormNormalize().node_tree  # ty: ignore[invalid-assignment]
 
         normalize2 = create_node(self.node_tree.nodes, 600, 330, ShaderNodeGroup)
-        normalize2.node_tree = NormNormalize().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        normalize2.node_tree = NormNormalize().node_tree  # ty: ignore[invalid-assignment]
 
         normcombine = create_node(self.node_tree.nodes, 890, 480, ShaderNodeGroup)
-        normcombine.node_tree = NormalMapCombineOrientation().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        normcombine.node_tree = NormalMapCombineOrientation().node_tree  # ty: ignore[invalid-assignment]
 
         links = self.node_tree.links
         _ = links.new(input.outputs[1], srgb2.inputs[0])

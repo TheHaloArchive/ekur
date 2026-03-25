@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from random import choice
 from typing import final
+
 from bpy.types import Context, Operator
 
 from ..ui.material_options import get_material_options, get_styles
@@ -14,7 +15,7 @@ class RandomizeCoatingOperator(Operator):
     bl_idname = "ekur.randomize"
     bl_label = "Surprise Me"
 
-    def execute(self, context: Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:  # ty:ignore[invalid-method-override]
         """Select a random style from the available styles.
 
         Args:

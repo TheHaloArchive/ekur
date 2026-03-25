@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-# pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
-import bpy
-
+# Copyright © 2026 The Halo Archive
 from typing import cast
+
+import bpy
 from bpy.props import BoolProperty, EnumProperty, IntProperty, StringProperty
 from bpy.types import PropertyGroup, UILayout
 
@@ -105,7 +104,7 @@ class BakeOptionsType:
 def get_bake_options() -> BakeOptionsType:
     if bpy.context.scene is None:
         return BakeOptionsType()
-    props: BakeOptionsType = bpy.context.scene.bake_properties  # pyright: ignore[reportAttributeAccessIssue]
+    props: BakeOptionsType = bpy.context.scene.bake_properties  # ty: ignore[unresolved-attribute]
     if props:
         return cast(BakeOptionsType, props)
     return BakeOptionsType()

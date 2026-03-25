@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-import bpy
-
+# Copyright © 2026 The Halo Archive
 from typing import cast
+
+import bpy
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -23,8 +23,8 @@ from bpy.types import (
     ShaderNodeValToRGB,
 )
 
-from .norm_normalize import NormNormalize
 from ..utils import assign_value, create_node, create_socket
+from .norm_normalize import NormNormalize
 
 __all__ = ["Decal"]
 

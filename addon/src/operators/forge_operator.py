@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from pathlib import Path
 from typing import cast, final
 
@@ -37,7 +37,7 @@ class ForgeOperator(Operator):
     bl_label = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
-    def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.index: int = 0
 
@@ -119,7 +119,7 @@ class ForgeOperator(Operator):
                 )
                 self.index += 14
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None:
             return {"CANCELLED"}
         options = get_forge_object_options()
@@ -156,9 +156,7 @@ class ForgeOperator(Operator):
                             if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
                                 bl_obj.data.uv_layers["UV1"].active_render = True
                                 bl_obj.data.uv_layers["UV1"].active = True
-                            if str(representation["name_int"]) == str(
-                                bl_obj["permutation_name"]  # pyright: ignore[reportAny]
-                            ):
+                            if str(representation["name_int"]) == str(bl_obj["permutation_name"]):
                                 count += 1
                                 collection.objects.link(bl_obj)
                         if count == 0:

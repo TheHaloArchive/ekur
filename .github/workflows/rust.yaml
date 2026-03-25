@@ -22,10 +22,10 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         profile: ["release"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
-      
+
       - name: Update Rust
         run: rustup update
 
@@ -34,7 +34,7 @@ jobs:
 
       - name: Check clippy
         run: cargo clippy --manifest-path "./ekur/Cargo.toml"
-      
+
       - name: Upload artifact (Windows)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
@@ -48,4 +48,3 @@ jobs:
         with:
           name: ekur-${{ matrix.profile }}-${{ matrix.os }}
           path: ekur/target/${{ matrix.profile }}/ekur
-

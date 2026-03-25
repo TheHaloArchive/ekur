@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-# pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
+# Copyright © 2026 The Halo Archive
 import logging
 from pathlib import Path
 from typing import cast
+
 import bpy
 from bpy.props import BoolProperty, EnumProperty, StringProperty
 from bpy.types import Context, PropertyGroup, UILayout
 
-from ..utils import get_data_folder, get_package_name, natural_sort_key, read_json_file
 from ..json_definitions import CommonLayer, CommonMaterial, CommonStyleList
+from ..utils import get_data_folder, get_package_name, natural_sort_key, read_json_file
 
 visor_cache: list[tuple[str, str, str]] | None = None
 styles_cache: dict[str, CommonStyleList] | None = None
@@ -67,7 +67,7 @@ class MaterialSelectionLogic:
                 for style, entry in styles[1]["styles"].items():
                     all_styles.append((style, entry["name"], ""))
                 if import_properties.sort_by_name:
-                    all_styles.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+                    all_styles.sort(key=natural_sort_key)  # ty: ignore[no-matching-overload]
                 style_cache = {styles[0]: all_styles}
         return all_styles
 
@@ -88,7 +88,7 @@ class MaterialSelectionLogic:
         for name, _ in visors.items():
             all_visors.append((name, name, ""))
         if properties.sort_by_name:
-            all_visors.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+            all_visors.sort(key=natural_sort_key)  # ty: ignore[no-matching-overload]
         visor_cache = all_visors
         return all_visors
 
@@ -146,7 +146,7 @@ class MaterialOptionsType:
 def get_material_options() -> MaterialOptionsType:
     if bpy.context.scene is None:
         return MaterialOptionsType()
-    props: MaterialOptions = bpy.context.scene.material_properties  # pyright: ignore[reportAttributeAccessIssue]
+    props: MaterialOptions = bpy.context.scene.material_properties  # ty: ignore[unresolved-attribute]
     if props:
         return cast(MaterialOptionsType, props)
     return MaterialOptionsType()

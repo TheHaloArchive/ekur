@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-# pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
+# Copyright © 2026 The Halo Archive
 from typing import cast
 
 import bpy
@@ -31,7 +30,7 @@ class ForgeMapOptionsType:
 def get_forge_map_options() -> ForgeMapOptionsType:
     if bpy.context.scene is None:
         return ForgeMapOptionsType()
-    props: ForgeMapOptionsType = bpy.context.scene.forge_map_properties  # pyright: ignore[reportAttributeAccessIssue]
+    props: ForgeMapOptionsType = bpy.context.scene.forge_map_properties  # ty: ignore[unresolved-attribute]
     if props:
         return cast(ForgeMapOptionsType, props)
     return ForgeMapOptionsType()

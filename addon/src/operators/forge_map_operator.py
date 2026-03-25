@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
 import re
 import urllib.error
@@ -18,8 +18,8 @@ from bpy.types import (
 from mathutils import Matrix, Quaternion, Vector
 
 from ..constants import BLOCKER_MATERIAL, INCORRECT_RTGOS
+from ..forge_level_reader import ForgeFolder, ForgeLevel, get_forge_map
 from ..json_definitions import ForgeMaterial, ForgeObjectDefinition, ForgeObjectRepresentation
-from ..madeleine.forge_level_reader import ForgeFolder, ForgeLevel, get_forge_map
 from ..model.importer.model_importer import ModelImporter
 from ..ui.forge_map_options import get_forge_map_options
 from ..ui.material_options import get_material_options
@@ -55,7 +55,7 @@ class ForgeMapOperator(Operator):
     bl_label = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
-    def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._geometry_cache = {}
 
@@ -111,9 +111,9 @@ class ForgeMapOperator(Operator):
         options = get_forge_map_options()
         try:
             with (
-                urllib.request.urlopen(options.url) as response,  # pyright: ignore[reportAny]
+                urllib.request.urlopen(options.url) as response,
             ):
-                html: str = response.read().decode("utf-8")  # pyright: ignore[reportAny]
+                html: str = response.read().decode("utf-8")
                 match = re.search(
                     r"""VersionId"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})""",
                     html,
@@ -156,7 +156,7 @@ class ForgeMapOperator(Operator):
             root_folder = [col for col in cats.items()][0]
         return cats, root_folder
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         self._geometry_cache: dict[str, list[Object]] = {}
         options = get_forge_map_options()
         data = get_data_folder()

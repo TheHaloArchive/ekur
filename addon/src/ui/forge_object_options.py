@@ -1,16 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-# pyright: reportUninitializedInstanceVariable=false, reportUnknownVariableType=false, reportUnknownMemberType=false
-import bpy
-
+# Copyright © 2026 The Halo Archive
 from pathlib import Path
 from typing import cast
+
+import bpy
 from bpy.props import BoolProperty, EnumProperty, FloatProperty
 from bpy.types import Context, PropertyGroup, UILayout
 
 from ..json_definitions import ForgeMaterial, ForgeObjectCategory, ForgeObjectDefinition
 from ..utils import get_data_folder, natural_sort_key, read_json_file
-
 
 root_category_cache: list[tuple[str, str, str]] | None = None
 sub_category_cache: dict[str, list[tuple[str, str, str]]] | None = None
@@ -36,7 +34,7 @@ class ForgeObjectLogic:
         for entry in globals["layers"].items():
             all_materials.append((str(entry[0]), str(entry[0]), ""))
         material_cache = all_materials
-        material_cache.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+        material_cache.sort(key=natural_sort_key)  # ty: ignore[no-matching-overload]
         return all_materials
 
     def get_object_definition(self, _context: Context) -> ForgeObjectDefinition | None:
@@ -81,7 +79,7 @@ class ForgeObjectLogic:
         for entry in objects["root_categories"]:
             categories.append((entry["name"], entry["name"], ""))
         if properties.sort_objects:
-            categories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+            categories.sort(key=natural_sort_key)  # ty: ignore[no-matching-overload]
         root_category_cache = categories
         return categories
 
@@ -100,7 +98,7 @@ class ForgeObjectLogic:
             for subcat in category["sub_categories"]:
                 subcategories.append((subcat["name"], subcat["name"], ""))
         if properties.sort_objects:
-            subcategories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+            subcategories.sort(key=natural_sort_key)  # ty: ignore[no-matching-overload]
         sub_category_cache = {root_category: subcategories}
         return subcategories
 
@@ -122,7 +120,7 @@ class ForgeObjectLogic:
                     for obj in subcat["objects"]:
                         subcategories.append((obj["name"], obj["name"], ""))
         if properties.sort_objects:
-            subcategories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+            subcategories.sort(key=natural_sort_key)  # ty: ignore[no-matching-overload]
 
         object_cache = {subcategory: subcategories}
         return subcategories
@@ -146,7 +144,7 @@ class ForgeObjectLogic:
                     for obj in object["representations"]:
                         subcategories.append((obj["name"], obj["name"], ""))
         if properties.sort_objects:
-            subcategories.sort(key=natural_sort_key)  # pyright: ignore[reportArgumentType, reportCallIssue]
+            subcategories.sort(key=natural_sort_key)  # ty: ignore[no-matching-overload]
 
         object_repr_cache = {object_name: subcategories}
         return subcategories
@@ -189,7 +187,7 @@ class ForgeObjectOptionsType:
 def get_forge_object_options() -> ForgeObjectOptionsType:
     if bpy.context.scene is None:
         return ForgeObjectOptionsType()
-    props: ForgeObjectOptionsType = bpy.context.scene.forge_object_properties  # pyright: ignore[reportAttributeAccessIssue]
+    props: ForgeObjectOptionsType = bpy.context.scene.forge_object_properties  # ty: ignore[unresolved-attribute]
     if props:
         return cast(ForgeObjectOptionsType, props)
     return ForgeObjectOptionsType()
