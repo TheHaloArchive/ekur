@@ -1,0 +1,3 @@
+[submodule "addon/src/madeleine"]
+	path = addon/src/madeleine
+	url = https://github.com/TheHaloArchive/madeleine

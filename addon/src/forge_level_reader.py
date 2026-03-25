@@ -1,15 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
-import urllib.request
 import urllib.error
-
-from typing import Self
+import urllib.request
+from enum import IntEnum
 from io import BufferedReader, BytesIO
 
-from .bond_types import ForgeObjectMode
-from .madeleine import BondValue
-from .bond_reader import get_base_struct
+from .madeleine.madeleine import BondValue, get_base_struct
+from .utils import debug_print
 
 __all__ = [
     "ForgeLayer",
@@ -20,6 +18,17 @@ __all__ = [
     "ForgeLevel",
     "get_forge_map",
 ]
+
+
+class ForgeObjectMode(IntEnum):
+    """
+    Different types of modes that a Forge Object can have.
+    """
+
+    Dynamic = 1
+    Static = 2
+    Telescoping = 3
+    Kit = 4
 
 
 class ForgeLayer:
@@ -71,7 +80,7 @@ class ForgeFolder:
     id: int = 0
     parent: int = 0
     objects: list[ForgeFolderEntry] = []
-    subcategories: list[Self] = []
+    subcategories: list["ForgeFolder"] = []
 
 
 class ForgeLevel:
@@ -309,13 +318,14 @@ def read_forge_map(reader: BufferedReader) -> ForgeLevel:
 def get_forge_map(asset_id: str, version_id: str, file: str) -> ForgeLevel:
     level = ForgeLevel()
     url = f"https://blobs-infiniteugc.svc.halowaypoint.com/ugcstorage/map/{asset_id}/{version_id}/map.mvar"
+    debug_print(f"[Madeleine] Downloading forge map from {url}")
     if file != "":
         with open(file, "rb") as f:
             return read_forge_map(f)
     try:
-        with urllib.request.urlopen(url) as response:  # pyright: ignore[reportAny]
-            response = response.read()  # pyright: ignore[reportAny]
-            level = read_forge_map(BytesIO(response))  # pyright: ignore[reportAny, reportArgumentType]
+        with urllib.request.urlopen(url) as response:
+            response = response.read()
+            level = read_forge_map(BytesIO(response))  # ty: ignore[invalid-argument-type]
 
     except urllib.error.HTTPError as e:
         logging.error(f"Failed to download forge map: {e.status}")
