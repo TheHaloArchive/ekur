@@ -59,10 +59,10 @@ class ForgeMat:
 class ForgeObject:
     index: int = 0
     global_id: int = 0
-    position: list[float] = [0.0, 0.0, 0.0]
-    rotation_up: list[float] = [0.0, 0.0, 0.0]
-    rotation_forward: list[float] = [0.0, 0.0, 0.0]
-    scale: list[float] = [1.0, 1.0, 1.0]
+    position: list[float] = []
+    rotation_up: list[float] = []
+    rotation_forward: list[float] = []
+    scale: list[float] = []
     variant: int = 0
     mode: ForgeObjectMode = ForgeObjectMode(2)
     variant_index: int = 0
@@ -101,6 +101,10 @@ def get_forge_item(item: BondValue) -> ForgeObject | None:
     if type(global_id.value) is int:
         forge_object.global_id = global_id.value
     position_selector = item.get_by_id(3)
+    forge_object.position = [0.0, 0.0, 0.0]
+    forge_object.rotation_up = [0.0, 0.0, 0.0]
+    forge_object.rotation_forward = [0.0, 0.0, 0.0]
+    forge_object.scale = [1.0, 1.0, 1.0]
     if not position_selector:
         return
     for element in position_selector.get_elements():
