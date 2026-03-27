@@ -7,7 +7,7 @@
       "id": "ekur",
       "name": "Ekur",
       "tagline": "A multi-purpose importer for Halo Infinite",
-      "version": "1.1.8",
+      "version": "1.1.9",
       "type": "add-on",
       "maintainer": "Surasia <https://github.com/Surasia>",
       "license": [
@@ -22,9 +22,9 @@
         "Import-Export",
         "Pipeline"
       ],
-      "archive_url": "./ekur-1.1.8.zip",
-      "archive_size": 109544,
-      "archive_hash": "sha256:d2b98827ff3fe546511f6fb73505a39ca3e2d29f47edcbe424ed9049625b767a"
+      "archive_url": "./ekur-1.1.9.zip",
+      "archive_size": 118500,
+      "archive_hash": "sha256:4413f9bafdb2eb302a88536263c52656210db2e5f1d6993b9b6f2ebf153b0dab"
     }
   ]
 }

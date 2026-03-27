@@ -20,7 +20,7 @@ function build_addon() {
 
 function build_ekur() {
   cd ..
-  cd ekur
+  cd crates/ekur
   cargo build --release
   mv -f target/release/ekur "../build/ekur-$target_version"
 }
