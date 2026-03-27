@@ -36,4 +36,3 @@ class ModelHeader:
         self.blendshape_bounding_box_count = int.from_bytes(reader.read(4), "little")
         if self.is_rtgo:
             self.offset_count = int.from_bytes(reader.read(4), "little")
-        print(self.__dict__)

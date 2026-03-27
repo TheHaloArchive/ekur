@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright © 2026 The Halo Archive
-
 from typing import final
 
 from bpy.types import Context, Panel
@@ -13,6 +12,7 @@ from .level_options import draw_level_options, get_level_options
 from .material_options import draw_material_options, get_material_options
 from .model_options import draw_model_options, get_model_options
 from .spartan_options import draw_spartan_options, get_spartan_options
+from .vanity_options import draw_vanity_options, get_vanity_options
 
 __all__ = ["EkurImportPanel"]
 
@@ -35,6 +35,7 @@ class EkurImportPanel(Panel):
         draw_level_options(layout, get_level_options())
         if not prefs.is_campaign:
             draw_spartan_options(layout, get_spartan_options())
+            draw_vanity_options(layout, get_vanity_options())
         if not prefs.is_campaign:
             draw_forge_object_options(layout, get_forge_object_options())
         draw_forge_map_options(layout, get_forge_map_options())

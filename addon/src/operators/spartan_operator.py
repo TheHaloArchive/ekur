@@ -14,7 +14,7 @@ from ..json_definitions import (
     NameRegion,
 )
 from ..model.importer.model_importer import ModelImporter
-from ..operators.spartan_online_operator import import_attachments, import_custom_rig
+from ..operators.vanity_operator import import_attachments, import_custom_rig
 from ..ui.spartan_options import get_spartan_options
 from ..utils import (
     get_data_folder,

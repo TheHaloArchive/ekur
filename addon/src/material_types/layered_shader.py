@@ -251,7 +251,8 @@ class LayeredShader:
                     return m[0]
             return globals["entries"][intention]["layer"]
         else:
-            logging.warning(f"Intention not found at all, skipping!: {intention}")
+            if intention != 0:
+                logging.warning(f"Intention not found at all, skipping!: {intention}")
 
     def find_intention(
         self,

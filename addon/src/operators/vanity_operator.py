@@ -23,13 +23,13 @@ from ..json_definitions import (
 from ..model.importer.model_importer import ModelImporter
 from ..ui.material_options import get_material_options
 from ..ui.model_options import get_model_options
-from ..ui.spartan_options import get_spartan_options
+from ..ui.vanity_options import get_vanity_options
 from ..utils import get_data_folder, get_package_name, read_json_file
 from .material_operator import import_materials
 
 
 def import_custom_rig() -> Object | None:
-    prefs = get_spartan_options()
+    prefs = get_vanity_options()
     if not prefs.use_purp_rig:
         return None
     extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
@@ -74,7 +74,7 @@ def import_attachments(
 
 
 @final
-class ImportSpartanVanityOperator(Operator):
+class ImportVanityOperator(Operator):
     bl_idname = "ekur.importvanity"
     bl_label = "Import Spartan from Gamertag"
     bl_options = {"REGISTER", "UNDO"}
@@ -82,7 +82,7 @@ class ImportSpartanVanityOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None or context.scene is None:
             return {"CANCELLED"}
-        options = get_spartan_options()
+        options = get_vanity_options()
         data = get_data_folder()
         vanity = self.request(
             url=f"https://cylix.guide/api/vanity/profile/{options.gamertag.replace(' ', '-')}"
