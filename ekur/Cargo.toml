@@ -9,7 +9,7 @@ anyhow = "1.0.100"
 bitflags = "2.10.0"
 clap = { version = "4.5.53", features = ["derive"] }
 ddsfile = "0.5.2"
-image = { version = "0.25.9", features = ["png"], default-features = false }
+image = { version = "0.25.10", features = ["png"], default-features = false }
 image_dds = { version = "0.7.2", default-features = false, features = [
   "image",
   "ddsfile",
