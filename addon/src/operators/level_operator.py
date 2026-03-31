@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from pathlib import Path
 from typing import final
 
@@ -21,7 +21,7 @@ class ImportLevelOperator(Operator):
     bl_label = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
-    def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._geometry_cache = {}
 
@@ -55,7 +55,7 @@ class ImportLevelOperator(Operator):
         self._geometry_cache[global_id] = source_objects
         return source_objects
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         self._geometry_cache: dict[str, list[Object]] = {}
         if context is None or context.collection is None:
             return {"CANCELLED"}

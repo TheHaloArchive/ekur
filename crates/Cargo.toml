@@ -1,0 +1,15 @@
+[workspace]
+members = ["ekur", "ekur_coating", "ekur_customization", "ekur_definitions", "ekur_forge", "ekur_materials", "ekur_scenario", "ekur_model", "ekur_texture"]
+resolver = "3"
+
+[workspace.package]
+authors = ["Surasia", "TheHaloArchive"]
+repository = "https://github.com/TheHaloArchive/ekur"
+categories = ["encoding", "games"]
+keywords = ["halo", "halo-infinite", "game-hacking", "reverse-engineering"]
+license = "GPL-3.0-or-later"
+edition = "2024"
+
+[profile.release]
+lto = "fat"
+incremental = true

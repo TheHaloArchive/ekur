@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from collections.abc import Iterable, Iterator
 from io import BufferedReader
 
 from .blendshape_index_buffer import BlendShapeIndexBuffer
 from .blendshape_position_buffer import BlendShapePositionBuffer
-from .vertex_type import VertexType
-from .weight_extra_buffer import WeightExtraBuffer
-from .weight_buffer import WeightBuffer
-from .weight_index_buffer import WeightIndexBuffer
+from .buffer_flags import BufferFlags
 from .color_buffer import ColorBuffer
 from .normal_buffer import NormalBuffer
-from .buffer_flags import BufferFlags
-from .uv_buffer import UVBuffer
 from .position_buffer import PositionBuffer
+from .uv_buffer import UVBuffer
+from .vertex_type import VertexType
+from .weight_buffer import WeightBuffer
+from .weight_extra_buffer import WeightExtraBuffer
+from .weight_index_buffer import WeightIndexBuffer
 
 __all__ = ["VertexBuffers"]
 

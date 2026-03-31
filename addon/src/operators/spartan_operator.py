@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
 from pathlib import Path
 from typing import final
@@ -14,7 +14,7 @@ from ..json_definitions import (
     NameRegion,
 )
 from ..model.importer.model_importer import ModelImporter
-from ..operators.spartan_online_operator import import_attachments, import_custom_rig
+from ..operators.vanity_operator import import_attachments, import_custom_rig
 from ..ui.spartan_options import get_spartan_options
 from ..utils import (
     get_data_folder,
@@ -31,11 +31,11 @@ class ImportSpartanOperator(Operator):
     bl_label = "Import Spartan"
     bl_options = {"REGISTER", "UNDO"}
 
-    def __init__(self, *args, **kwargs) -> None:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.region_cache: dict[str, Collection] = {}
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None:
             return {"CANCELLED"}
 
@@ -158,10 +158,10 @@ class ImportSpartanOperator(Operator):
                 ]
                 for mode in model:
                     if options.import_names:
-                        region_name = names.get(str(mode["region_name"]))  # pyright: ignore[reportAny]
+                        region_name = names.get(str(mode["region_name"]))
                         if region_name:
                             perm_name = region_name["permutations"].get(
-                                str(mode["permutation_name"])  # pyright: ignore[reportAny]
+                                str(mode["permutation_name"])
                             )
                             if perm_name:
                                 mode.name = f"{region['name']}_{perm_name['name']}"

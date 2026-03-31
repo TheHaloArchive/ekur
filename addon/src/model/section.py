@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from io import BufferedReader
 
 from .buffer_flags import BufferFlags
-from .vertex_buffer import VertexBuffers
-from .vertex_type import VertexType
 from .index_buffer import IndexBuffer
 from .submesh import Submesh
+from .vertex_buffer import VertexBuffers
+from .vertex_type import VertexType
 
 __all__ = ["Section"]
 

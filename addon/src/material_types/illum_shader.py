@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
-
 from typing import cast
+
 from bpy.types import (
     ShaderNodeGroup,
     ShaderNodeOutputMaterial,
@@ -13,7 +13,6 @@ from ..constants import EMPTY_TEXTURES
 from ..json_definitions import CommonMaterial
 from ..nodes.illum import SelfIllum
 from ..utils import assign_value, create_image, create_node
-
 
 __all__ = ["IllumShader"]
 
@@ -26,15 +25,16 @@ class IllumShader:
 
     def _get_textures(self, nodes: ShaderNodeGroup) -> None:
         col = self.material["textures"].get("Color")
+        color_image = None
         if col:
-            col = create_image(self.tree.nodes, -100, str(col))
-            _ = self.tree.links.new(col.outputs[0], nodes.inputs[0])
+            color_image = create_image(self.tree.nodes, -100, str(col))
+            _ = self.tree.links.new(color_image.outputs[0], nodes.inputs[0])
 
         alpha_map = self.material["textures"].get("AlphaMap")
         if alpha_map:
             img = create_image(self.tree.nodes, -200, str(alpha_map))
-            if alpha_map in EMPTY_TEXTURES and col:
-                _ = self.tree.links.new(col.outputs[0], nodes.inputs[1])
+            if alpha_map in EMPTY_TEXTURES and color_image:
+                _ = self.tree.links.new(color_image.outputs[0], nodes.inputs[1])
             else:
                 _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
 

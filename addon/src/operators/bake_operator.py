@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from typing import cast, final
 
 import bpy
@@ -77,7 +77,7 @@ class AlignBakeOperator(Operator):
     bl_idname = "ekur.alignbake"
     bl_label = "Align"
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         selected_objects = bpy.context.selected_objects
         options = get_bake_options()
         if len(selected_objects) >= 1 and len(selected_objects[0].material_slots) >= 1:
@@ -99,7 +99,7 @@ class AdvancedBakeOperator(Operator):
     bl_idname = "ekur.toggleadvancedbake"
     bl_label = "Toggle"
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         options = get_bake_options()
         datasource = bpy.context.selected_objects
         if options.selected_objects == "All" and bpy.context.scene:
@@ -177,7 +177,7 @@ class BakingOperator(Operator):
             if img is None:
                 img = bpy.data.images.new(mat_name, height, width)
 
-            img.colorspace_settings.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue, reportOptionalMemberAccess]
+            img.colorspace_settings.name = "Non-Color"  # ty: ignore[invalid-assignment]
             material.node_tree.nodes.active = tex_node
             tex_node.image = img
             duplicate.select_set(True)
@@ -260,7 +260,7 @@ class BakingOperator(Operator):
         if options.merge_textures and options.merge_objects:
             return material.name
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None or context.scene is None:
             return {"CANCELLED"}
         selected_objects = bpy.context.selected_objects
@@ -281,7 +281,7 @@ class BakingOperator(Operator):
             if type(object.data) is Mesh:
                 object.data.uv_layers.active_index = int(options.uv_to_bake_to.split("UV")[-1])
                 if options.bake_detail_normals:
-                    self.bake_detail(object, duplicate_collection)  # pyright: ignore[reportPossiblyUnboundVariable]
+                    self.bake_detail(object, duplicate_collection)
 
             materials = [
                 material.material for material in object.material_slots if material.material
@@ -310,6 +310,6 @@ class BakingOperator(Operator):
                         _ = self.bake_material(material, object, options, None)
 
         if options.bake_detail_normals:
-            bpy.data.collections.remove(duplicate_collection)  # pyright: ignore[reportPossiblyUnboundVariable]
+            bpy.data.collections.remove(duplicate_collection)
         bpy.ops.outliner.orphans_purge()
         return {"FINISHED"}

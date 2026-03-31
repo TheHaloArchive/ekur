@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
 import platform
 import subprocess
@@ -10,7 +10,7 @@ import bpy
 from bpy.types import Context, Operator
 
 from ..constants import version_string
-from ..utils import get_addon_preferences, get_data_folder, get_package_name, is_debug
+from ..utils import debug_print, get_addon_preferences, get_data_folder, get_package_name
 
 
 @final
@@ -18,7 +18,7 @@ class DumpFilesOperator(Operator):
     bl_idname = "ekur.dumpfiles"
     bl_label = "Dump Required Files"
 
-    def execute(self, context: Context | None) -> set[str]:
+    def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None:
             return {"CANCELLED"}
         data = get_data_folder()
@@ -48,8 +48,8 @@ class DumpFilesOperator(Operator):
         if not ekur_save_path.exists():
             logging.error(f"Ekur was not found at {ekur_save_path}!")
             return {"CANCELLED"}
-        if is_debug():
-            print(proc)
+
+        debug_print(f"[dump_files_operator.py] proc: {proc}")
         _ = subprocess.run(proc)
         with open(f"{extension_path}/{version_string}", "w") as f:
             _ = f.write(version_string)

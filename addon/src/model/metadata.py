@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from io import BufferedReader
 
-from .rtgo_offset import RtgoOffset
 from .blendshape_bounding_box_buffer import BlendShapeBoundingBox
-from .section import Section
-from .bounding_box import BoundingBox
-from .marker import Marker
 from .bone import Bone
-from .region import Region
+from .bounding_box import BoundingBox
 from .header import ModelHeader
+from .marker import Marker
+from .region import Region
+from .rtgo_offset import RtgoOffset
+from .section import Section
 
 __all__ = ["Model"]
 

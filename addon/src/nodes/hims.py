@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from typing import cast
 
 import bpy
@@ -114,7 +114,7 @@ class HIMS:
 
         zone1 = interface.new_panel("Zone 1")
         _ = create_socket(interface, "", NodeSocketBool, panel=zone1)
-        interface.items_tree[30].hide_value = True  # pyright: ignore[reportAttributeAccessIssue]
+        interface.items_tree[30].hide_value = True  # ty: ignore[unresolved-attribute]
         _ = create_socket(interface, "Zone 1 Gradient Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Rough Out", NodeSocketFloat, panel=zone1)
         _ = create_socket(interface, "Zone 1 Norm Out", NodeSocketColor, panel=zone1)

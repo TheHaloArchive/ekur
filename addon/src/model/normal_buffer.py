@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from io import BufferedReader
 
-from .vectors import NormalizedVector1010102PackedAsUnorm
 from ..exceptions import IncorrectStrideValue
+from .vectors import NormalizedVector1010102PackedAsUnorm
 
 __all__ = ["NormalBuffer"]
 

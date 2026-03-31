@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import json
 import logging
 from pathlib import Path
@@ -251,7 +251,8 @@ class LayeredShader:
                     return m[0]
             return globals["entries"][intention]["layer"]
         else:
-            logging.warning(f"Intention not found at all, skipping!: {intention}")
+            if intention != 0:
+                logging.warning(f"Intention not found at all, skipping!: {intention}")
 
     def find_intention(
         self,

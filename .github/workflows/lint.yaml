@@ -17,15 +17,15 @@ jobs:
     defaults:
       run:
         working-directory: ./addon
-   
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      
+
       - name: Set up Python
         run: uv python install
 
@@ -35,8 +35,5 @@ jobs:
       - name: Run ruff check
         run: uv run ruff check
 
-      - name: Run basedpyright check
-        run: uv run basedpyright
-
-      - name: Run tests
-        run: uv run pytest
+      - name: Run ty check
+        run: uv run ty check

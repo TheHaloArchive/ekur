@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
-# pyright: reportUnknownMemberType=false, reportUninitializedInstanceVariable=false, reportUnknownVariableType=false
+# Copyright © 2026 The Halo Archive
 from typing import cast
+
 import bpy
 from bpy.props import StringProperty
 from bpy.types import PropertyGroup, UILayout
@@ -23,7 +23,7 @@ class LevelOptionsType:
 def get_level_options() -> LevelOptionsType:
     if bpy.context.scene is None:
         return LevelOptionsType()
-    props: LevelOptionsType = bpy.context.scene.level_properties  # pyright: ignore[reportAttributeAccessIssue]
+    props: LevelOptionsType = bpy.context.scene.level_properties  # ty: ignore[unresolved-attribute]
     if props:
         return cast(LevelOptionsType, props)
     return LevelOptionsType()

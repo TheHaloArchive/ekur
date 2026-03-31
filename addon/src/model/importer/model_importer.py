@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
 from pathlib import Path
 from typing import cast
@@ -32,6 +32,7 @@ class ModelImporter:
         bones: bool = True,
         materials: list[int] | None = None,
         custom_rig: Object | None = None,
+        excluded_materials: list[int] | None = None,
     ) -> list[Object]:
         """
         Imports the model from the given path.
@@ -41,6 +42,7 @@ class ModelImporter:
         - bones: Whether to import bones.
         - materials: Optional list of materials to use (useful for RTGOs)
         - custom_rig: Optional custom rig to use.
+        - excluded_materials: Optional list of materials that an object cannot contain
 
         Returns:
         - The list of imported objects.
@@ -66,6 +68,12 @@ class ModelImporter:
             objects = self._import_model()
         else:
             objects = self._import_model()
+        if excluded_materials:
+            for i, object in enumerate(objects):
+                material_names = [x.material.name for x in object.material_slots if x.material]
+                for mat in excluded_materials:
+                    if str(mat) in material_names:
+                        _ = objects.pop(i)
         return objects
 
     def _create_uv(
@@ -88,10 +96,16 @@ class ModelImporter:
         uv0 = [x.vector for x in uv]
         uv_layer = mesh.uv_layers.new(name=f"UV{index}")
         for loop in range(len(mesh.loops)):
-            uv_layer.data[mesh.loops[loop].index].uv = (
-                uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
-                1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
-            )
+            if bpy.app.version < (5, 2, 0):
+                uv_layer.data[mesh.loops[loop].index].uv = (
+                    uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
+                    1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
+                )
+            else:
+                uv_layer.data[mesh.loops[loop].index].vector = (  # ty: ignore[unresolved-attribute]
+                    uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
+                    1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
+                )
 
     def _create_material_indices(self, section: Section, mesh: Mesh) -> None:
         """
@@ -179,7 +193,7 @@ class ModelImporter:
         for i, color in enumerate(section.vertex_buffer.color_buffer.color):
             ca = mesh.color_attributes.new(name=f"Color{i}", type="BYTE_COLOR", domain="FACE")
             for loop in range(len(mesh.loops) // 3):
-                ca.data[loop].color = color  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+                ca.data[loop].color = color  # ty: ignore[unresolved-attribute]
 
     def _create_normals(self, section: Section, mesh: Mesh) -> None:
         """
@@ -191,7 +205,7 @@ class ModelImporter:
         """
         normals = [x.vector.to_tuple() for x in section.vertex_buffer.normal_buffer.normals]
         mesh.shade_smooth()
-        mesh.normals_split_custom_set_from_vertices(normals)  # pyright: ignore[reportArgumentType]
+        mesh.normals_split_custom_set_from_vertices(normals)
         _ = mesh.validate()
         mesh.update()
 
@@ -233,7 +247,7 @@ class ModelImporter:
         obj.scale = Vector((FEET_TO_METER, FEET_TO_METER, FEET_TO_METER)) * Vector(
             (options.scale_factor,) * 3
         )
-        mesh.from_pydata(verts, [], faces)  # pyright: ignore[reportArgumentType]
+        mesh.from_pydata(verts, [], faces)
         if section.vertex_flags.has_uv0:
             self._create_uv(mesh, section.vertex_buffer.uv0_buffer.uv, uv_scale, 0)
         if section.vertex_flags.has_uv1:

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import logging
 from typing import cast
 
@@ -37,7 +37,7 @@ class ColorDecalShader:
         if self.material["textures"].get("Color"):
             img = create_image(self.tree.nodes, -100, str(self.material["textures"]["Color"]))
             if img.image and img.image.colorspace_settings:
-                img.image.colorspace_settings.name = "sRGB"  # pyright: ignore[reportAttributeAccessIssue]
+                img.image.colorspace_settings.name = "sRGB"  # ty: ignore[invalid-assignment]
             else:
                 logging.warning("Image node does not have image colorspace or image texture!")
                 return

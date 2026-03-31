@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 from collections import OrderedDict
-from typing import Self, TypedDict
+from typing import TypedDict
 
 __all__ = [
     "StyleInfo",
@@ -257,7 +257,7 @@ class ForgeObject(TypedDict):
 
 class ForgeObjectCategory(TypedDict):
     name: str
-    sub_categories: list[Self] | None
+    sub_categories: list["ForgeObjectCategory"] | None
     objects: list[ForgeObject] | None
 
 

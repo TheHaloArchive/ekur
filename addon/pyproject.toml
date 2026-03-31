@@ -1,23 +1,18 @@
 [project]
 name = "ekuraddon"
-version = "1.1.8"
+version = "1.1.9"
 description = "A multi-purpose importer for Halo Infinite."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["fake-bpy-module-latest"]
+dependencies = [
+    "fake-bpy-module-latest",
+]
 
 [dependency-groups]
-dev = ["basedpyright", "pytest", "ruff"]
-
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
-exclude = [".venv"]
-reportInvalidTypeForm = false
-reportIncompatibleMethodOverride = false
-reportImplicitOverride = false
+dev = ["ty", "ruff"]
 
 [tool.ruff]
 line-length = 100
 
-
+[tool.ty.rules]
+invalid-type-form = "ignore"

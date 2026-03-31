@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright © 2025 Surasia
+# Copyright © 2026 The Halo Archive
 import bpy
-
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
@@ -14,10 +13,10 @@ from bpy.types import (
     ShaderNodeTexImage,
 )
 
-from .better_uv_scaling import BetterUVScaling
-from .roughness_math import RoughnessMath
 from ..json_definitions import CommonLayer
 from ..utils import create_node, create_socket, read_texture
+from .better_uv_scaling import BetterUVScaling
+from .roughness_math import RoughnessMath
 
 __all__ = ["Layer"]
 
@@ -126,7 +125,7 @@ class Layer:
         normal.image = read_texture(str(self.intention["normal_bitmap"]))
 
         uvscaling = create_node(nodes, -375, -9, ShaderNodeGroup)
-        uvscaling.node_tree = BetterUVScaling().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        uvscaling.node_tree = BetterUVScaling().node_tree  # ty: ignore[invalid-assignment]
 
         gradient = create_node(nodes, 114, 427, ShaderNodeTexImage)
         gradient.label = "Gradient Map"
@@ -147,10 +146,10 @@ class Layer:
         input2.outputs[18].hide = True
 
         roughnode = create_node(nodes, 772, -242, ShaderNodeGroup)
-        roughnode.node_tree = RoughnessMath().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        roughnode.node_tree = RoughnessMath().node_tree  # ty: ignore[invalid-assignment]
 
         uvscaling2 = create_node(nodes, -372, 219, ShaderNodeGroup)
-        uvscaling2.node_tree = BetterUVScaling().node_tree  # pyright: ignore[reportAttributeAccessIssue]
+        uvscaling2.node_tree = BetterUVScaling().node_tree  # ty: ignore[invalid-assignment]
 
         links = self.node_tree.links
         _ = links.new(normal.outputs[0], output.inputs[2])
