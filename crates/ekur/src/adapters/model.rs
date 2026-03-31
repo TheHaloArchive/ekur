@@ -4,7 +4,7 @@ use crate::utils::get_tags_w_index;
 use ekur_definitions::{
     particle_model::ParticleModel, render_model::RenderModel, runtime_geo::RuntimeGeo,
 };
-use ekur_model::serialize::serialize::{process_model, process_particle, process_rtgo};
+use ekur_model::serialize::write::{process_model, process_particle, process_rtgo};
 
 use anyhow::Result;
 use infinite_rs::ModuleFile;
@@ -40,9 +40,9 @@ pub(crate) fn extract_models(
     let mut runtime_geo = HashMap::new();
 
     for (idx, module) in modules.iter_mut().enumerate() {
-        models.extend(get_tags_w_index::<RenderModel>(&MODE_GROUP, module, idx)?);
-        part_models.extend(get_tags_w_index::<ParticleModel>(&PMDF_GROUP, module, idx)?);
-        runtime_geo.extend(get_tags_w_index::<RuntimeGeo>(&RTGO_GROUP, module, idx)?);
+        models.extend(get_tags_w_index::<RenderModel>(MODE_GROUP, module, idx)?);
+        part_models.extend(get_tags_w_index::<ParticleModel>(PMDF_GROUP, module, idx)?);
+        runtime_geo.extend(get_tags_w_index::<RuntimeGeo>(RTGO_GROUP, module, idx)?);
     }
     save_path.push("models/");
     for model in models {

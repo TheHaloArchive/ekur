@@ -14,10 +14,12 @@ use image_dds::{
 };
 use infinite_rs::ModuleFile;
 
+type ProcessImage = Vec<(ImageBuffer<Rgba<u8>, Vec<u8>>, String)>;
+
 pub fn process_image(
     modules: &mut [ModuleFile],
     texture_def: (&i32, &TextureType),
-) -> Result<Vec<(ImageBuffer<Rgba<u8>, Vec<u8>>, String)>> {
+) -> Result<ProcessImage> {
     let mut texs = Vec::new();
     let modu = modules
         .iter_mut()
@@ -57,5 +59,5 @@ pub fn process_image(
         }
         texs.push((image, name));
     }
-    return Ok(texs);
+    Ok(texs)
 }

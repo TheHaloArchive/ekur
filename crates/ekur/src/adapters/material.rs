@@ -31,12 +31,12 @@ pub(crate) fn extract_materials(
     let mut textures = HashMap::new();
 
     if is_campaign {
-        let material_tags = get_tags::<MaterialTagCampaign>(&MATERIAL_GROUP, modules)?;
+        let material_tags = get_tags::<MaterialTagCampaign>(MATERIAL_GROUP, modules)?;
         for mat in material_tags {
             materials.insert(mat.0, process_material_campaign(&mat.1)?);
         }
     } else {
-        let material_tags = get_tags::<MaterialTag>(&MATERIAL_GROUP, modules)?;
+        let material_tags = get_tags::<MaterialTag>(MATERIAL_GROUP, modules)?;
         for mat in material_tags {
             materials.insert(mat.0, process_material(&mat.1)?);
         }

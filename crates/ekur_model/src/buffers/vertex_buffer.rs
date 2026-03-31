@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2026 The Halo Archive */
-use crate::{serialize::serialize::VertexBuffers, utils::get_resource_data};
+use crate::{serialize::write::VertexBuffers, utils::get_resource_data};
 use ekur_definitions::render_model::{
     MeshResourceGroupBlock, RasterizerVertexBuffer, SectionLods, VertexBufferUsage,
 };

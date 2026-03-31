@@ -58,7 +58,7 @@ pub fn construct_dds_header(bitmap: &BitmapData, data: &[u8]) -> Result<Dds> {
         mipmap_levels: Some(u32::from(bitmap.mipmap_count.0)),
         array_layers: Some(u32::try_from(bitmap.depth.0)?),
         alpha_mode: AlphaMode::Straight,
-        caps2: (bitmap.bitmap_type.0 == BitmapType::CubeMap).then(|| Caps2::CUBEMAP),
+        caps2: (bitmap.bitmap_type.0 == BitmapType::CubeMap).then_some(Caps2::CUBEMAP),
         is_cubemap: bitmap.bitmap_type.0 == BitmapType::CubeMap,
         resource_dimension,
     };

@@ -40,12 +40,12 @@ pub(crate) fn extract_forge(
     let manifest = get_tag::<ForgeObjectManifest>(OBJECT_MANIFEST, modules)?;
     let globals = get_tag::<ForgeGlobals>(FORGE_GLOBALS, modules)?;
 
-    let objects = get_tags::<ForgeObjectData>(&FORGE_OBJECT, modules)?;
-    let crates = get_tags::<CrateDefinition>(&CRATE, modules)?;
-    let weapons = get_tags::<Weapon>(&WEAPON, modules)?;
-    let vehicles = get_tags::<Vehicle>(&VEHICLE, modules)?;
-    let equipments = get_tags::<Equipment>(&EQUIPMENT, modules)?;
-    let scenery = get_tags::<Scenery>(&SCENERY, modules)?;
+    let objects = get_tags::<ForgeObjectData>(FORGE_OBJECT, modules)?;
+    let crates = get_tags::<CrateDefinition>(CRATE, modules)?;
+    let weapons = get_tags::<Weapon>(WEAPON, modules)?;
+    let vehicles = get_tags::<Vehicle>(VEHICLE, modules)?;
+    let equipments = get_tags::<Equipment>(EQUIPMENT, modules)?;
+    let scenery = get_tags::<Scenery>(SCENERY, modules)?;
 
     let mut stringlists = HashMap::new();
 

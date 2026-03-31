@@ -57,13 +57,13 @@ fn main() -> Result<()> {
     let mut modules = load_modules(&args.module_path)?;
 
     // Used in: customization, forge, models
-    let mode_tags = get_tags::<ModelDefinition>(&MODEL_GROUP, &mut modules)?;
+    let mode_tags = get_tags::<ModelDefinition>(MODEL_GROUP, &mut modules)?;
     // Used in: forge, material coating
-    let mwpl_tags = get_tags::<MaterialPaletteTag>(&PALETTE_GROUP, &mut modules)?;
+    let mwpl_tags = get_tags::<MaterialPaletteTag>(PALETTE_GROUP, &mut modules)?;
     // Used in: forge, material coating, visor
-    let mwsw_tags = get_tags::<MaterialSwatchTag>(&MATERIAL_SWATCH_GROUP, &mut modules)?;
+    let mwsw_tags = get_tags::<MaterialSwatchTag>(MATERIAL_SWATCH_GROUP, &mut modules)?;
     // Used in: coating globals, runtime
-    let cmsw_tags = get_tags::<CoatingSwatchPODTag>(&COATING_SWATCH_GROUP, &mut modules)?;
+    let cmsw_tags = get_tags::<CoatingSwatchPODTag>(COATING_SWATCH_GROUP, &mut modules)?;
 
     let textures = extract_materials(&mut modules, save_path, args.is_campaign)?;
     if !args.is_campaign {

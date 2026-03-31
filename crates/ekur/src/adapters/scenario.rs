@@ -19,7 +19,7 @@ pub(crate) fn extract_scenario(modules: &mut [ModuleFile], save_path: &str) -> R
     save_path.push("levels/");
     create_dir_all(&save_path)?;
 
-    let scenarios = get_tags::<ScenarioStructureBsp>(&SCENARIO_BSP_GROUP, modules)?;
+    let scenarios = get_tags::<ScenarioStructureBsp>(SCENARIO_BSP_GROUP, modules)?;
     let levels = process_scenarios(&scenarios)?;
     for level in levels {
         save_path.push(level.0.to_string());

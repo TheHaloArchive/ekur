@@ -194,6 +194,7 @@ fn process_category_recursively(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn process_forge_objects(
     manifest: &ForgeObjectManifest,
     models: &HashMap<i32, ModelDefinition>,
@@ -221,14 +222,14 @@ pub fn process_forge_objects(
                 category.title.0,
                 category.category_id.0 as u32,
                 manifest,
-                &crates,
+                crates,
                 models,
-                &weapons,
-                &objects,
-                &vehicles,
-                &equipments,
+                weapons,
+                objects,
+                vehicles,
+                equipments,
                 strings,
-                &scenery,
+                scenery,
             )
         })
         .collect();
@@ -236,7 +237,7 @@ pub fn process_forge_objects(
         let mut definition = ForgeObject {
             id: *thing.0,
             name: strings
-                .get(&thing.0)
+                .get(thing.0)
                 .unwrap_or(&thing.0.to_string())
                 .to_string(),
             default_variant: thing.1.default_representation.0,

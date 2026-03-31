@@ -54,7 +54,7 @@ pub(crate) fn extract_styles(
     let mut save_path = PathBuf::from(save_path);
     save_path.push("stylelists/");
     create_dir_all(&save_path)?;
-    let style_tags = get_tags::<RuntimeCoatingStyles>(&RUNTIME_STYLES_GROUP, modules)?;
+    let style_tags = get_tags::<RuntimeCoatingStyles>(RUNTIME_STYLES_GROUP, modules)?;
     let style_lists = process_styles(&style_tags, strings)?;
     for (id, list) in style_lists {
         save_path.push(id.to_string());
@@ -75,7 +75,7 @@ pub(crate) fn extract_runtime_coatings(
     let mut save_path = PathBuf::from(save_path);
     save_path.push("styles/");
     create_dir_all(&save_path)?;
-    let style_tags = get_tags::<RuntimeCoatingStyle>(&RUNTIME_STYLE_GROUP, modules)?;
+    let style_tags = get_tags::<RuntimeCoatingStyle>(RUNTIME_STYLE_GROUP, modules)?;
     let styles = process_runtime_coatings(&style_tags, swatches)?;
     for (id, style) in styles {
         save_path.push(id.to_string());
@@ -97,7 +97,7 @@ pub(crate) fn extract_material_coatings(
 ) -> Result<()> {
     let mut save_path = PathBuf::from(save_path);
     save_path.push("stylelists/");
-    let style_tags = get_tags::<MaterialStylesTag>(&MATERIAL_STYLE_GROUP, modules)?;
+    let style_tags = get_tags::<MaterialStylesTag>(MATERIAL_STYLE_GROUP, modules)?;
     let styles = process_material_coatings(&style_tags, palettes, swatches, strings)?;
     for (id, style) in styles.0 {
         save_path.push(id.to_string());
@@ -110,7 +110,7 @@ pub(crate) fn extract_material_coatings(
     save_path.pop();
     save_path.push("styles/");
     for (id, style) in styles.1 {
-        save_path.push(id.to_string());
+        save_path.push(&id);
         save_path.add_extension("json");
         let file = File::create(&save_path)?;
         let writer = BufWriter::new(file);
