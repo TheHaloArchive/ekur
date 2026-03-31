@@ -8,9 +8,9 @@ from bpy.props import BoolProperty, EnumProperty, StringProperty
 from bpy.types import PropertyGroup, UILayout
 
 BODY_TYPES = [
+    ("Body Type 0", "Body Type 0", ""),
     ("Body Type 1", "Body Type 1", ""),
     ("Body Type 2", "Body Type 2", ""),
-    ("Body Type 3", "Body Type 3", ""),
 ]
 
 ARM = [

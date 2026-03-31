@@ -146,10 +146,10 @@ class ImportVanityOperator(Operator):
         for part in parts:
             self.add_region(part["RegionData"], vanity, objects)
         match options.body_type:
+            case "Body Type 1":
+                self.add_region(body_type_small, vanity, objects, True)
             case "Body Type 2":
                 self.add_region(body_type_large, vanity, objects, True)
-            case "Body Type 3":
-                self.add_region(body_type_small, vanity, objects, True)
             case _:
                 ...
         match options.left_arm:
