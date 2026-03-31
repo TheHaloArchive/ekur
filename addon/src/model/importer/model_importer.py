@@ -102,7 +102,7 @@ class ModelImporter:
                     1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
                 )
             else:
-                uv_layer.data[mesh.loops[loop].index].vector = (
+                uv_layer.data[mesh.loops[loop].index].vector = (  # ty: ignore[unresolved-attribute]
                     uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
                     1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
                 )
