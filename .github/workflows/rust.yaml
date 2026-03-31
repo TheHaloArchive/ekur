@@ -30,21 +30,21 @@ jobs:
         run: rustup update
 
       - name: Build
-        run: cargo build --manifest-path "./ekur/Cargo.toml" --profile ${{ matrix.profile }}
+        run: cargo build --manifest-path "./crates/ekur/Cargo.toml" --profile ${{ matrix.profile }}
 
       - name: Check clippy
-        run: cargo clippy --manifest-path "./ekur/Cargo.toml"
+        run: cargo clippy --manifest-path "./crates/ekur/Cargo.toml"
 
       - name: Upload artifact (Windows)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ekur-${{ matrix.profile }}-${{ matrix.os }}
-          path: ekur/target/${{ matrix.profile }}/ekur.exe
+          path: crates/ekur/target/${{ matrix.profile }}/ekur.exe
 
       - name: Upload artifact (Linux)
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ekur-${{ matrix.profile }}-${{ matrix.os }}
-          path: ekur/target/${{ matrix.profile }}/ekur
+          path: crates/ekur/target/${{ matrix.profile }}/ekur
