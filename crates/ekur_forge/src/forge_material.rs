@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-/* Copyright © 2025 Surasia */
+/* Copyright © 2026 The Halo Archive */
 use crate::{ForgeLayer, ForgeMaterials};
 use ekur_coating::CommonLayer;
 use ekur_definitions::{
