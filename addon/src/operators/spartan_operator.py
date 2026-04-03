@@ -74,6 +74,10 @@ class ImportSpartanOperator(Operator):
             context.scene.collection.children.link(global_collection)
             if rig and rig.name not in context.scene.collection.objects:
                 context.scene.collection.objects.link(rig)
+            for object in context.scene.objects:
+                if object.get("is_marker"):
+                    object.hide_set(True)
+
         return {"FINISHED"}
 
     def import_theme(

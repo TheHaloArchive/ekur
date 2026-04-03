@@ -195,6 +195,10 @@ class ImportVanityOperator(Operator):
             props.coating_id = str(coating_json["StyleId"]["m_identifier"])
             import_materials()
 
+        for object in context.scene.objects:
+            if object.get("is_marker"):
+                object.hide_set(True)
+
         return {"FINISHED"}
 
     def add_region(

@@ -75,6 +75,7 @@ def import_markers(model: Model, armature: Object) -> list[Object]:
 
             marker_obj.hide_render = True
             marker_obj.matrix_world = world_transform
+            marker_obj["is_marker"] = True
             if bpy.context.scene:
                 bpy.context.scene.collection.objects.link(marker_obj)
             markers.append(marker_obj)
