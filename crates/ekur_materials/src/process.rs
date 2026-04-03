@@ -53,7 +53,7 @@ pub fn process_material(material_tag: &MaterialTag) -> Result<Material> {
         -51713036 | 690034699 | 2003821059 | -2003821059 | 1996403871 | -697609548 => {
             handle_const_decal(post_process, &mut material)?
         }
-        -131335022 => handle_mp_decal(
+        -131335022 | 195584229 => handle_mp_decal(
             post_process,
             &mut material,
             &material_tag.material_parameters.elements,
