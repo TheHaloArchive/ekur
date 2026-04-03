@@ -96,16 +96,10 @@ class ModelImporter:
         uv0 = [x.vector for x in uv]
         uv_layer = mesh.uv_layers.new(name=f"UV{index}")
         for loop in range(len(mesh.loops)):
-            if bpy.app.version < (5, 2, 0):
-                uv_layer.data[mesh.loops[loop].index].uv = (
-                    uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
-                    1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
-                )
-            else:
-                uv_layer.data[mesh.loops[loop].index].vector = (  # ty: ignore[unresolved-attribute]
-                    uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
-                    1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
-                )
+            uv_layer.data[mesh.loops[loop].index].uv = (
+                uv0[mesh.loops[loop].vertex_index][0] * uv_scale[0][2] + uv_scale[0][0],
+                1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
+            )
 
     def _create_material_indices(self, section: Section, mesh: Mesh) -> None:
         """
