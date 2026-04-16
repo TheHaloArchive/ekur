@@ -17,6 +17,7 @@ from bpy.types import (
     NodeSocketBool,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeSocketInt,
     NodeSocketVector,
     NodeTreeInterface,
     NodeTreeInterfacePanel,
@@ -134,13 +135,13 @@ def create_socket(
 NodeT = TypeVar("NodeT", bound=Node)
 
 
-def create_node(nodes: Nodes, x: int, y: int, _type: type[NodeT]) -> NodeT:
+def create_node(nodes: Nodes, x: float, y: float, _type: type[NodeT]) -> NodeT:
     """Creates a new node of the given type on the node tree.
 
     Args:
         nodes: Collection of nodes from node tree.
         x: X coordinate of the node.
-        y: Y coordinate of the node
+        y: Y coordinate of the node.
         _type: Type of the node to create.
 
     Returns:
@@ -200,7 +201,7 @@ def get_addon_preferences() -> AddonPreferencesType:
 def assign_value(
     node: Node,
     index: int,
-    value: float | tuple[float, float, float] | tuple[float, float, float, float] | bool,
+    value: float | tuple[float, float, float] | tuple[float, float, float, float] | bool | int,
 ) -> None:
     if len(node.inputs) <= index:
         logging.warning(f"Node {node.name} does not have an input at index {index}")
@@ -213,6 +214,8 @@ def assign_value(
         cast(NodeSocketFloat, node.inputs[index]).default_value = value
     if type(value) is tuple and len(value) == 4:
         cast(NodeSocketColor, node.inputs[index]).default_value = value
+    if type(value) is int:
+        cast(NodeSocketInt, node.inputs[index]).default_value = value
 
 
 def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:
