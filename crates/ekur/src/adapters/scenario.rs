@@ -23,7 +23,7 @@ pub(crate) fn extract_scenario(modules: &mut [ModuleFile], save_path: &str) -> R
     let levels = process_scenarios(&scenarios)?;
     for level in levels {
         save_path.push(level.0.to_string());
-        save_path.add_extension(".json");
+        save_path.add_extension("json");
         let file = File::create(&save_path)?;
         let writer = BufWriter::new(file);
         serde_json::to_writer(writer, &level.1)?;
