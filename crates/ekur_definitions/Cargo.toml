@@ -10,5 +10,5 @@ edition.workspace = true
 
 [dependencies]
 bitflags = "2.11.0"
-infinite-rs = { version = "0.13.1", features = ["derive"] }
+infinite-rs = { version = "0.13.2", features = ["derive"] }
 num_enum = "0.7.6"

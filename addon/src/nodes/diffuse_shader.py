@@ -24,6 +24,8 @@ from .norm_normalize import NormNormalize
 
 __all__ = ["DiffuseShader"]
 
+# TODO: FIX ROUGHNESS MATH
+
 
 class DiffuseShader:
     def __init__(self) -> None:

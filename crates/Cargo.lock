@@ -483,9 +483,9 @@ dependencies = [
 
 [[package]]
 name = "infinite-rs"
-version = "0.13.1"
+version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e87c93c813bebb46ddd792eaad1bd705a42cc8bf8e32fa0ab0206ff2295378e"
+checksum = "987600c08a1773c220c7a58b904bd408455741d1a455e016ba2a75433dbf2cd5"
 dependencies = [
  "bitflags",
  "byteorder",

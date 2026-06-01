@@ -10,6 +10,6 @@ edition.workspace = true
 
 [dependencies]
 anyhow = "1.0.102"
-infinite-rs = { version = "0.13.1", features = ["derive"] }
+infinite-rs = { version = "0.13.2", features = ["derive"] }
 byteorder = "1.5.0"
 ekur_definitions = { version = "0.1.0", path = "../ekur_definitions" }

@@ -8,6 +8,8 @@ mod utils;
 use serde::Serialize;
 use std::collections::HashMap;
 
+use crate::utils::{bool_from_const, f32_from_const, i32_from_const};
+
 #[derive(Default, Debug, Serialize)]
 pub enum ShaderType {
     #[default]
@@ -16,16 +18,12 @@ pub enum ShaderType {
     Diffuse,
     Decal,
     SelfIllum,
-    ConesteppedLevel,
     ColorDecal,
-    ConesteppedDecal,
     Meter,
     SkinShader,
     EyeShader,
     Hair,
-    ForerunnerLayered,
-    ForestGold,
-    WetnessLayered,
+    LayeredLevel,
 }
 
 #[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
@@ -43,6 +41,7 @@ pub enum TextureType {
     MacroConemap,
     MacroNormal,
     NoiseTexture,
+    MacroControl,
     SharedControl,
     BurntGradient,
     Emissive,
@@ -60,20 +59,31 @@ pub enum TextureType {
     Cubemap,
     Layer1Color,
     Layer1DetailNormal,
+    Layer1Normal,
+    Layer1Control,
+    Layer3Packed,
     Layer1Rohm,
     Layer2DetailNormal,
     Layer2Control,
+    Layer2Packed,
+    Layer2Normal,
+    Layer2Color,
     Layer3Color,
     Layer3Rohm,
     Layer3DetailNormal,
+    Layer3Normal,
     Layer3Control,
     Layer4Control,
+    Layer4Packed,
     Layer4Color,
     Layer4DetailNormal,
     Layer4Rohm,
+    Layer4Normal,
     Wetness,
     WetnessPuddleNormal,
     MacroColor,
+    FourLayeredMacroMask,
+    AmbientOcclusion,
 }
 
 #[derive(Default, Debug, Serialize, Clone)]
@@ -123,87 +133,10 @@ pub struct SelfIllum {
 }
 
 #[derive(Default, Debug, Serialize)]
-pub struct ConemappedLevel {
-    pub macro_mask_transform: [f32; 2],
-    pub macro_normal_transform: [f32; 2],
-    pub macro_normal_intensity: f32,
-    pub macro_cohmap_transform: [f32; 2],
-    pub macro_height_scale: f32,
-    pub macro_conemap_transform: [f32; 2],
-    pub macro_cone_depth: f32,
-    pub macro_cone_offset: f32,
-    pub macro_cone_quality: f32,
-    pub macro_noise_transform: [f32; 2],
-    pub macro_noise_color: [f32; 3],
-    pub macro_noise_roughness: f32,
-    pub macro_noise_remap_white: f32,
-    pub macro_noise_remap_black: f32,
-    pub macro_noise_detail_remap_white: f32,
-    pub macro_noise_detail_remap_black: f32,
-    pub macro_noise_opacity: f32,
-    pub base_normal_intensity: f32,
-    pub base_normal_transform: [f32; 2],
-    pub base_control_transform: [f32; 2],
-    pub base_height_scale: f32,
-    pub base_top_color: [f32; 3],
-    pub base_mid_color: [f32; 3],
-    pub base_bottom_color: [f32; 3],
-    pub base_roughness_white: f32,
-    pub base_roughness_black: f32,
-    pub base_metallic: f32,
-    pub base_curvature_height_influence: f32,
-    pub base_edge_wear_offset: f32,
-    pub base_edge_wear_contrast: f32,
-    pub base_edge_wear_opacity: f32,
-    pub base_edge_wear_color: [f32; 3],
-    pub base_edge_wear_roughness: f32,
-    pub shared_control_transform: [f32; 2],
-    pub burnt_gradient_transform: [f32; 2],
-    pub layer2_height_scale: f32,
-    pub char_height_scale: f32,
-    pub char_height_offset: f32,
-    pub char_opacity: f32,
-    pub char_top_color: [f32; 3],
-    pub char_mid_color: [f32; 3],
-    pub char_bot_color: [f32; 3],
-    pub char_roughness_white: f32,
-    pub char_roughness_black: f32,
-    pub rust_height_scale: f32,
-    pub rust_height_offset: f32,
-    pub rust_staining_offset: f32,
-    pub rust_falloff_color: [f32; 3],
-    pub rust_heavy_rust_offset: f32,
-    pub rust_heavy_rust_falloff_paint_opacity: f32,
-    pub rust_secondary_top_color: [f32; 3],
-    pub rust_secondary_mid_color: [f32; 3],
-    pub rust_secondary_bottom_color: [f32; 3],
-    pub rust_secondary_color_start: f32,
-    pub rust_secondary_color_end: f32,
-    pub rust_top_color: [f32; 3],
-    pub rust_mid_color: [f32; 3],
-    pub rust_bottom_color: [f32; 3],
-    pub rust_normal_intensity_new: f32,
-    pub rust_heavy_rust_edge_start: f32,
-    pub rust_heavy_rust_edge_end: f32,
-    pub rust_roughness_white: f32,
-    pub rust_roughness_black: f32,
-    pub rust_metallic: f32,
-    pub burnt_height_offset: f32,
-    pub burnt_opacity: f32,
-}
-
-#[derive(Default, Debug, Serialize)]
 pub struct ColorDecal {
     pub opacity: f32,
     pub metallic: f32,
     pub roughness: f32,
-}
-
-#[derive(Default, Debug, Serialize)]
-pub struct ConesteppedDecal {
-    pub parallax_depth: f32,
-    pub parallax_height_offset: f32,
-    pub normal_intensity: f32,
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -253,481 +186,404 @@ pub struct Hair {
     pub ior: f32,
 }
 
-#[derive(Default, Debug, Serialize)]
-pub struct LevelLayer {
-    pub height_scale: f32,
-    pub roughness_white: f32,
-    pub roughness_black: f32,
-    pub opacity: f32,
-    pub ior: f32,
-    pub uses_single_metallic: bool,
-    pub uses_color_gradient: bool,
-    pub uses_packed: bool,
-    pub metallic: f32,
-    pub metallic_white: f32,
-    pub metallic_black: f32,
-    pub normal_intensity: f32,
-    pub top_color: (f32, f32, f32),
-    pub mid_color: (f32, f32, f32),
-    pub bot_color: (f32, f32, f32),
-    pub color_tint: (f32, f32, f32),
+#[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
+pub enum LayerType {
+    #[default]
+    RohgLayer,
+    RohmLayer,
+    NnhgLayer,
 }
 
+#[derive(Default, Debug, Serialize, PartialEq, Eq, Hash)]
+pub enum LevelType {
+    #[default]
+    Rohg3Rohm1MM,
+    Rohm2Pack2MM,
+    Rohm3Rohg1MMCone,
+    Rohm2Rohg2MM,
+    Rohm3MM,
+    Rohg2Rohm1Nnhg1MM,
+    Rohg1Rohm2Nnhg1MM,
+    Rohm2Rohg1Nnhg1,
+    Rohm2Rohg2NoControl,
+    Rohm3Nnhg1,
+    Rohm1Rohg1Nnhg1,
+    Rohg3Rohm1NoControl,
+    Rohm1Rohg2Nnhg1NoControl,
+    Rohg4MM,
+}
+
+// TODO: Macro Mask Info may not have all the info but still exist (e.g control is missing)
 #[derive(Default, Debug, Serialize)]
-pub struct RegularLevelShader {
+pub struct MacroMaskInfo {
+    pub macro_normal_map_transform: [f32; 4],
     pub macro_normal_intensity: f32,
-    pub macro_color_intensity: f32,
+    pub macro_control_map_transform: [f32; 4],
     pub macro_roughness_intensity: f32,
     pub macro_occlusion_intensity: f32,
     pub macro_metallic_intensity: f32,
     pub macro_cavity_intensity: f32,
     pub macro_cavity_exponent: f32,
-    pub layers: Vec<LevelLayer>,
+}
+
+impl MacroMaskInfo {
+    pub fn read(material: &mut Material, offset: usize) -> anyhow::Result<Self> {
+        Ok(Self {
+            macro_normal_map_transform: [
+                f32_from_const(material, offset)?,
+                f32_from_const(material, offset + 4)?,
+                f32_from_const(material, offset + 8)?,
+                f32_from_const(material, offset + 12)?,
+            ],
+            macro_normal_intensity: f32_from_const(material, offset + 16)?,
+            macro_control_map_transform: [
+                f32_from_const(material, offset + 32)?,
+                f32_from_const(material, offset + 36)?,
+                f32_from_const(material, offset + 40)?,
+                f32_from_const(material, offset + 44)?,
+            ],
+            macro_roughness_intensity: f32_from_const(material, offset + 48)?,
+            macro_occlusion_intensity: f32_from_const(material, offset + 52)?,
+            macro_metallic_intensity: f32_from_const(material, offset + 56)?,
+            macro_cavity_intensity: f32_from_const(material, offset + 60)?,
+            macro_cavity_exponent: f32_from_const(material, offset + 64)?,
+        })
+    }
 }
 
 #[derive(Default, Debug, Serialize)]
-pub struct ForerunnerLayered {
-    pub layer1_normal_texture_transform: [f32; 4],
-    pub macro_mask_map_texture_transform: [f32; 4],
-
-    pub layer1_enable_normal_mirror_bitmap_transform: bool,
-    pub layer1_enable_normal_mirror_y_bitmap_transform: bool,
-    pub layer1_bitmap_transform_scale: [f32; 2],
-    pub layer1_normal_intensity: f32,
-
-    pub layer1_cone_texture_texture_transform: [f32; 4],
-    pub cone_offset: f32,
-    pub layer1_cone_depth: f32,
-    pub layer1_cone_quality: f32,
-    pub layer1_conestep_fade_start: f32,
-    pub layer1_conestep_fade_end: f32,
-
-    pub layer1_coh_texture_texture_transform: [f32; 4],
-    pub layer1_base_rohg_texture_texture_transform: [f32; 4],
-
-    pub layer1_color: [f32; 3],
-    pub layer1_color_b: [f32; 3],
-    pub layer1_metallic: f32,
-    pub layer1_ior: f32,
-    pub layer1_height_scale: f32,
-    pub layer1_base_roughness: f32,
-    pub layer1_curvature_roughness_add: f32,
-
-    pub layer1_macro_graphic_texture_transform: [f32; 4],
-    pub layer1_macro_graphic_uv: i32,
-    pub layer1_macro_graphic_offset: f32,
-    pub layer1_macro_graphic_blend_contrast: f32,
-    pub layer1_macro_graphic_pattern_masking: f32,
-    pub layer1_macro_pattern_opacity: f32,
-    pub layer1_macro_graphic_color: [f32; 3],
-    pub layer1_macro_roughness: f32,
-
-    pub layer1_submask_texture_transform: [f32; 4],
-
-    pub layer1_primary_graphic_offset: f32,
-    pub layer1_primary_graphic_blend_contrast: f32,
-    pub layer1_primary_graphic_opacity: f32,
-    pub layer1_primary_graphic_color: [f32; 3],
-    pub layer1_primary_graphic_color_b: [f32; 3],
-    pub layer1_primary_graphic_roughness: f32,
-
-    pub layer1_secondary_graphic_offset: f32,
-    pub layer1_secondary_graphic_blend_contrast: f32,
-    pub layer1_secondary_pattern_opacity: f32,
-
-    pub layer1_emissive_color: [f32; 3],
-    pub emissive_enable_single_float_colors: bool,
-
-    pub layer1_secondary_graphic_color: [f32; 3],
-    pub color_r: f32,
-    pub color_g: f32,
-    pub color_b: f32,
-
-    pub layer1_secondary_graphic_color_b: [f32; 3],
-    pub layer1_secondary_graphic_roughness: f32,
-    pub layer1_tertiary_pattern_opacity: f32,
-
-    pub layer1_greeble_color: f32,
-    pub layer1_greeble_roughness: f32,
-    pub layer1_greeble_graphic_pattern_masking: f32,
-    pub layer1_greeble_invert_graphic_pattern_masking: bool,
-    pub layer1_greeble_opacity: f32,
-
-    pub layer1_wear_offset: f32,
-    pub layer1_wear_blend_contrast: f32,
-    pub layer1_wear_height_scale: f32,
-    pub layer1_wear_curvature_influence: f32,
-    pub layer1_wear_opacity: f32,
-    pub layer1_wear_color: f32,
-    pub layer1_wear_roughness: f32,
-
-    pub layer1_staining_rohg_texture_transform: [f32; 4],
-    pub layer1_emissive_pattern_remap_white: f32,
-    pub layer1_emissive_pattern_remap_black: f32,
-
-    pub layer1_staining_color: [f32; 3],
-    pub layer1_staining_roughness: f32,
-    pub layer1_emissive_amount: f32,
-    pub layer1_staining_opacity: f32,
-
-    pub layer1_emissive_lens_opacity: f32,
-    pub layer1_emissive_lens_color: [f32; 3],
-
-    pub layer1_staining_macro_uv_scale: [f32; 2],
-    pub layer1_staining_macro_min: f32,
-    pub layer1_staining_macro_max: f32,
-
-    pub layer1_staining_med_uv_scale: [f32; 2],
-    pub layer1_staining_med_distance_start: f32,
-    pub layer1_staining_med_distance_end: f32,
-    pub layer1_staining_med_min: f32,
-    pub layer1_staining_med_max: f32,
-
-    pub layer1_emissive_lens_roughness: f32,
-    pub layer1_emissive_intensity: f32,
-    pub layer1_emissive_lens_metallic: f32,
-
-    pub layer2_enable_roughness: bool,
-    pub layer2_enable_metallic: bool,
-    pub layer2_enable_ior: bool,
-    pub layer2_tile: [f32; 2],
-    pub layer2_invert_height_blend: bool,
-    pub layer2_height_offset: f32,
-    pub layer2_height_blend_range: f32,
-    pub layer2_height_scale: f32,
-    pub layer2_curvature_height_influence: f32,
-    pub layer2_occlusion_height_influence: f32,
-    pub layer2_height_accumulation: f32,
-    pub layer2_opacity: f32,
-
-    pub layer2_normal_map_texture_transform: [f32; 4],
-    pub layer2_control_map_texture_transform: [f32; 4],
-    pub layer2_normal_intensity: f32,
-    pub layer2_enable_additive_normal: bool,
-
-    pub layer2_top_color: [f32; 3],
-    pub layer2_mid_color: [f32; 3],
-    pub layer2_bottom_color: [f32; 3],
-    pub layer2_roughness_white: f32,
-    pub layer2_roughness_black: f32,
-    pub layer2_ior: f32,
-    pub layer2_metallic: f32,
-
-    pub layer3_enable_roughness: bool,
-    pub layer3_enable_metallic: bool,
-    pub layer3_enable_ior: bool,
-    pub layer3_tile: [f32; 2],
-    pub layer3_invert_height_blend: bool,
-    pub layer3_height_offset: f32,
-    pub layer3_height_scale: f32,
-    pub layer3_curvature_height_influence: f32,
-    pub layer3_occlusion_height_influence: f32,
-    pub layer3_height_blend_range: f32,
-    pub layer3_height_accumulation: f32,
-    pub layer3_opacity: f32,
-
-    pub layer3_normal_map_texture_transform: [f32; 4],
-    pub layer3_control_map_texture_transform: [f32; 4],
-    pub layer3_normal_intensity: f32,
-    pub layer3_enable_additive_normal: bool,
-
-    pub layer3_top_color: [f32; 3],
-    pub layer3_mid_color: [f32; 3],
-    pub layer3_bottom_color: [f32; 3],
-
-    pub layer3_secondary_color_start: f32,
-    pub layer3_secondary_color_end: f32,
-    pub layer3_secondary_top_color: [f32; 3],
-    pub layer3_secondary_mid_color: [f32; 3],
-    pub layer3_secondary_bottom_color: [f32; 3],
-
-    pub layer3_roughness_white: f32,
-    pub layer3_roughness_black: f32,
-    pub layer3_metallic: f32,
-    pub layer3_ior: f32,
-
-    pub layer4_tile: [f32; 2],
-    pub layer4_invert_height_blend: bool,
-    pub layer4_height_offset: f32,
-    pub layer4_height_blend_range: f32,
-    pub layer4_height_scale: f32,
-    pub layer4_curvature_height_influence: f32,
-    pub layer4_occlusion_height_influence: f32,
-    pub layer4_opacity: f32,
-
-    pub layer4_control_map_texture_transform: [f32; 4],
+pub struct ExtraLayerData {
+    opacity: f32,
+    height_blend_range: f32,
+    height_accumulation: f32,
 }
 
 #[derive(Default, Debug, Serialize)]
-pub struct ForestGold {
-    // ─────────────────────────────────────────────
-    // Layer 2 (top layer)
-    // ─────────────────────────────────────────────
-    pub layer2_enable_color_overlay: bool,
-    pub layer2_enable_specular: bool,
-    pub layer2_uvmode_uv3: bool,
+pub struct NnhgLayer {
+    color_blend_mode: i32,
+    normal_blend_mode: i32,
+    invert_height_blend: bool,
+    texture_bomb_enabled: bool,
+    texture_bomb_height_blend_enabled: bool,
+    texture_bomb_offset_strength: f32,
+    texture_bomb_mask_contrast: f32,
+    texture_bomb_height_mask_range: f32,
+    micro_tessellation_scale: f32,
+    height_scale: f32,
+    roughness_white: f32,
+    roughness_black: f32,
+    ior: f32,
+    normal_intensity: f32,
+    metallic: f32,
+    top_color: [f32; 3],
+    mid_color: [f32; 3],
+    bottom_color: [f32; 3],
+    packed_map_texture_transform: [f32; 4],
+    extra_data: Option<ExtraLayerData>,
+}
 
-    pub layer2_normal_map_texture_transform: [f32; 4],
-    pub layer2_control_map_texture_transform: [f32; 4],
+impl NnhgLayer {
+    pub fn read(material: &mut Material, offset: usize, is_layer1: bool) -> anyhow::Result<Self> {
+        let shift = if is_layer1 { 8 } else { 0 };
 
-    pub layer2_height_offset: f32,
-    pub layer2_height_scale: f32,
-    pub layer2_previous_height_influence: f32,
-    pub layer2_curvature_height_influence: f32,
-    pub layer2_occlusion_height_influence: f32,
-    pub layer2_height_blend_range: f32,
-    pub layer2_opacity: f32,
+        let mut data = Self {
+            color_blend_mode: i32_from_const(material, offset)?,
+            normal_blend_mode: i32_from_const(material, offset + 4)?,
+            invert_height_blend: bool_from_const(material, offset + 8)?,
+            texture_bomb_enabled: bool_from_const(material, offset + 12)?,
+            texture_bomb_height_blend_enabled: bool_from_const(material, offset + 16)?,
+            texture_bomb_offset_strength: f32_from_const(material, offset + 20)?,
+            texture_bomb_mask_contrast: f32_from_const(material, offset + 24)?,
+            texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
+            micro_tessellation_scale: f32_from_const(material, offset + 32)?,
+            height_scale: f32_from_const(material, offset + 36)?,
 
-    pub layer2_top_color: [f32; 3],
-    pub layer2_mid_color: [f32; 3],
-    pub layer2_bottom_color: [f32; 3],
+            roughness_white: f32_from_const(material, offset + 64 - shift)?,
+            roughness_black: f32_from_const(material, offset + 68 - shift)?,
+            ior: f32_from_const(material, offset + 72 - shift)?,
+            normal_intensity: f32_from_const(material, offset + 76 - shift)?,
+            metallic: f32_from_const(material, offset + 80 - shift)?,
 
-    pub layer2_enable_secondary_color: bool,
-    pub layer2_secondary_color_start: f32,
-    pub layer2_secondary_color_end: f32,
-    pub layer2_secondary_top_color: [f32; 3],
-    pub layer2_secondary_mid_color: [f32; 3],
-    pub layer2_secondary_bottom_color: [f32; 3],
+            top_color: [
+                f32_from_const(material, offset + 84 - shift)?,
+                f32_from_const(material, offset + 88 - shift)?,
+                f32_from_const(material, offset + 92 - shift)?,
+            ],
+            mid_color: [
+                f32_from_const(material, offset + 96 - shift)?,
+                f32_from_const(material, offset + 100 - shift)?,
+                f32_from_const(material, offset + 104 - shift)?,
+            ],
+            bottom_color: [
+                f32_from_const(material, offset + 112 - shift)?,
+                f32_from_const(material, offset + 116 - shift)?,
+                f32_from_const(material, offset + 120 - shift)?,
+            ],
 
-    pub layer2_enable_fresnel: bool,
-    pub layer2_fresnel_color_tint: [f32; 3],
-    pub layer2_fresnel_intensity: f32,
-    pub layer2_fresnel_exponent: f32,
-    pub layer2_fresnel_opacity: f32,
+            packed_map_texture_transform: [
+                f32_from_const(material, offset + 144 - shift)?,
+                f32_from_const(material, offset + 148 - shift)?,
+                f32_from_const(material, offset + 152 - shift)?,
+                f32_from_const(material, offset + 156 - shift)?,
+            ],
+            extra_data: None,
+        };
 
-    pub layer2_roughness_white: f32,
-    pub layer2_roughness_black: f32,
-    pub layer2_ior: f32,
-    pub layer2_metallic: f32,
+        if !is_layer1 {
+            data.extra_data = Some(ExtraLayerData {
+                opacity: f32_from_const(material, offset + 40)?,
+                height_blend_range: f32_from_const(material, offset + 44)?,
+                height_accumulation: f32_from_const(material, offset + 48)?,
+            });
+        }
 
-    // ─────────────────────────────────────────────
-    // Macro
-    // ─────────────────────────────────────────────
-    pub layer1_uvmode_uv3: bool,
-    pub macro_uvmode_uv3: bool,
-
-    pub macro_mask_map_texture_transform: [f32; 4],
-    pub macro_normal_texture_transform: [f32; 4],
-    pub macro_coh_texture_transform: [f32; 4],
-
-    pub macro_normal_intensity: f32,
-    pub macro_height_scale: f32,
-
-    // ─────────────────────────────────────────────
-    // Layer 1 (base)
-    // ─────────────────────────────────────────────
-    pub layer1_color_map_texture_transform: [f32; 4],
-    pub layer1_normal_map_texture_transform: [f32; 4],
-    pub layer1_rohm_map_texture_transform: [f32; 4],
-    pub layer1_emissive_map_texture_transform: [f32; 4],
-
-    pub layer1_height_scale: f32,
-    pub layer1_height_accumulation: f32,
-    pub layer1_normal_intensity: f32,
-    pub layer1_color_saturation: f32,
-    pub layer1_color_tint: [f32; 3],
-
-    pub layer1_enable_fresnel: bool,
-    pub layer1_fresnel_color_tint: [f32; 3],
-    pub layer1_fresnel_intensity: f32,
-    pub layer1_fresnel_exponent: f32,
-    pub layer1_fresnel_opacity: f32,
-
-    pub layer1_roughness_white: f32,
-    pub layer1_roughness_black: f32,
-    pub layer1_ior: f32,
-    pub layer1_metallic_remap_white: f32,
-    pub layer1_metallic_remap_black: f32,
-
-    pub layer1_emissive_color: [f32; 3],
-    pub layer1_emissive_amount: f32,
-    pub layer1_emissive_intensity: f32,
-
-    // ─────────────────────────────────────────────
-    // Macro emissive / misc
-    // ─────────────────────────────────────────────
-    pub use_cohe_alpha: bool,
-
-    pub macro_emissive_color: [f32; 3],
-    pub macro_emissive_amount: f32,
-    pub macro_emissive_intensity: f32,
-
-    pub macro_cavity_exponent: f32,
-    pub macro_cavity_intensity: f32,
-
-    pub layer2_normal_intensity: f32,
+        Ok(data)
+    }
 }
 
 #[derive(Default, Debug, Serialize)]
-pub struct WetnessLayered {
-    // ─────────────────────────────────────────────
-    // Wetness
-    // ─────────────────────────────────────────────
-    pub wetness_map_texture_transform: [f32; 4],
-    pub wetness_height_offset: f32,
-    pub wetness_previous_height_influence: f32,
-    pub wetness_height_blend_contrast: f32,
-    pub wetness_color_tint: [f32; 3],
-    pub wetness_puddle_offset: f32,
-    pub wetness_puddle_height_blend_contrast: f32,
+pub struct RohgLayer {
+    color_blend_mode: i32,
+    normal_blend_mode: i32,
+    invert_height_blend: bool,
+    texture_bomb_enabled: bool,
+    texture_bomb_height_blend_enabled: bool,
+    texture_bomb_offset_strength: f32,
+    texture_bomb_mask_contrast: f32,
+    texture_bomb_height_mask_range: f32,
+    micro_tessellation_scale: f32,
+    height_scale: f32,
+    roughness_white: f32,
+    roughness_black: f32,
+    ior: f32,
+    normal_intensity: f32,
+    metallic: f32,
+    top_color: [f32; 3],
+    mid_color: [f32; 3],
+    bottom_color: [f32; 3],
+    normal_map_texture_transform: [f32; 4],
+    control_map_texture_transform: [f32; 4],
+    extra_data: Option<ExtraLayerData>,
+}
 
-    pub wetness_puddle_normal_map_texture_transform: [f32; 4],
-    pub wetness_puddle_normal_map_uv_scale: f32,
-    pub wetness_puddle_panning_speed: [f32; 2],
-    pub wetness_puddle_normal_intensity: f32,
+impl RohgLayer {
+    pub fn read(
+        material: &mut Material,
+        offset: usize,
+        is_layer1: bool,
+        is_alt: bool,
+    ) -> anyhow::Result<Self> {
+        let shift = if is_layer1 {
+            8
+        } else if is_alt {
+            12
+        } else {
+            0
+        };
+        let secondary_shift = if is_layer1 { 12 } else { 0 };
+        let tertiary_shift = if is_layer1 { 4 } else { 0 };
 
-    pub wetness_sediment_offset: f32,
-    pub wetness_sediment_depth: f32,
-    pub wetness_sediment_color: [f32; 3],
-    pub wetness_sediment_opacity: f32,
+        let mut data = Self {
+            color_blend_mode: i32_from_const(material, offset)?,
+            normal_blend_mode: i32_from_const(material, offset + 4)?,
+            invert_height_blend: bool_from_const(material, offset + 8)?,
+            texture_bomb_enabled: bool_from_const(material, offset + 12)?,
+            texture_bomb_height_blend_enabled: bool_from_const(material, offset + 16)?,
+            texture_bomb_offset_strength: f32_from_const(material, offset + 20)?,
+            texture_bomb_mask_contrast: f32_from_const(material, offset + 24)?,
+            texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
+            micro_tessellation_scale: f32_from_const(material, offset + 32)?,
+            height_scale: f32_from_const(material, offset + 36)?,
 
-    pub debug_wetness_layers: bool,
+            roughness_white: f32_from_const(material, offset + 64 - shift)?,
+            roughness_black: f32_from_const(material, offset + 68 - shift)?,
+            ior: f32_from_const(material, offset + 72 - shift)?,
+            normal_intensity: f32_from_const(material, offset + 76 - shift)?,
+            metallic: f32_from_const(material, offset + 80 - shift)?,
 
-    // ─────────────────────────────────────────────
-    // Macro
-    // ─────────────────────────────────────────────
-    pub macro_mask_map_texture_transform: [f32; 4],
-    pub macro_normal_texture_transform: [f32; 4],
-    pub macro_normal_intensity: f32,
+            top_color: [
+                f32_from_const(material, offset + 84 - shift)?,
+                f32_from_const(material, offset + 88 - shift)?,
+                f32_from_const(material, offset + 92 - shift)?,
+            ],
+            mid_color: [
+                f32_from_const(material, offset + 96 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 100 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 104 - shift - secondary_shift)?,
+            ],
+            bottom_color: [
+                f32_from_const(material, offset + 112 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 116 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 120 - shift - secondary_shift)?,
+            ],
 
-    pub macro_color_map_uvmode_worldtopdown: bool,
-    pub macro_color_map_texture_transform: [f32; 4],
-    pub macro_coh_texture_transform: [f32; 4],
+            normal_map_texture_transform: [
+                f32_from_const(material, offset + 144 - shift + tertiary_shift)?,
+                f32_from_const(material, offset + 148 - shift + tertiary_shift)?,
+                f32_from_const(material, offset + 152 - shift + tertiary_shift)?,
+                f32_from_const(material, offset + 156 - shift + tertiary_shift)?,
+            ],
+            control_map_texture_transform: [
+                f32_from_const(material, offset + 176 - shift + tertiary_shift)?,
+                f32_from_const(material, offset + 180 - shift + tertiary_shift)?,
+                f32_from_const(material, offset + 184 - shift + tertiary_shift)?,
+                f32_from_const(material, offset + 188 - shift + tertiary_shift)?,
+            ],
 
-    pub macro_height_scale: f32,
+            extra_data: None,
+        };
 
-    // ─────────────────────────────────────────────
-    // Layer 1
-    // ─────────────────────────────────────────────
-    pub layer1_tile: [f32; 2],
-    pub layer1_height_scale: f32,
-    pub layer1_height_accumulation: f32,
+        if shift == 0 {
+            data.extra_data = Some(ExtraLayerData {
+                opacity: f32_from_const(material, offset + 40)?,
+                height_blend_range: f32_from_const(material, offset + 44)?,
+                height_accumulation: f32_from_const(material, offset + 48)?,
+            });
+        }
 
-    pub layer1_color_map_texture_transform: [f32; 4],
-    pub layer1_normal_map_texture_transform: [f32; 4],
-    pub layer1_rohm_map_texture_transform: [f32; 4],
+        Ok(data)
+    }
+}
 
-    pub layer1_normal_intensity: f32,
-    pub layer1_color_tint: [f32; 3],
-    pub layer1_macro_color_intensity: f32,
+#[derive(Default, Debug, Serialize)]
+pub struct RohmLayer {
+    color_blend_mode: i32,
+    normal_blend_mode: i32,
+    invert_height_blend: bool,
+    texture_bomb_enabled: bool,
+    texture_bomb_height_blend_enabled: bool,
+    texture_bomb_offset_strength: f32,
+    texture_bomb_mask_contrast: f32,
+    texture_bomb_height_mask_range: f32,
+    micro_tessellation_scale: f32,
+    height_scale: f32,
+    roughness_white: f32,
+    roughness_black: f32,
+    ior: f32,
+    normal_intensity: f32,
+    metallic_white: f32,
+    metallic_black: f32,
+    color_tint: [f32; 3],
+    color_map_texture_transform: [f32; 4],
+    normal_map_texture_transform: [f32; 4],
+    control_map_texture_transform: [f32; 4],
+    extra_data: Option<ExtraLayerData>,
+}
 
-    pub layer1_roughness_white: f32,
-    pub layer1_roughness_black: f32,
-    pub layer1_ior: f32,
-    pub layer1_porosity: f32,
-    pub layer1_metallic_remap_white: f32,
-    pub layer1_metallic_remap_black: f32,
+impl RohmLayer {
+    pub fn read(
+        material: &mut Material,
+        offset: usize,
+        is_layer1: bool,
+        is_other: bool,
+    ) -> anyhow::Result<Self> {
+        let mut shift = if is_layer1 { 8 } else { 0 };
+        let secondary_shift = if is_layer1 { 12 } else { 0 };
+        let tertiary_shift = if is_layer1 { 8 } else { 0 };
+        shift = if is_other { 12 } else { shift };
+        shift = if is_layer1 && is_other { 4 } else { shift };
+        let mut data = Self {
+            color_blend_mode: i32_from_const(material, offset)?,
+            normal_blend_mode: i32_from_const(material, offset + 4)?,
+            invert_height_blend: bool_from_const(material, offset + 8)?,
+            texture_bomb_enabled: bool_from_const(material, offset + 12)?,
+            texture_bomb_height_blend_enabled: bool_from_const(material, offset + 16)?,
+            texture_bomb_offset_strength: f32_from_const(material, offset + 20)?,
+            texture_bomb_mask_contrast: f32_from_const(material, offset + 24)?,
+            texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
+            micro_tessellation_scale: f32_from_const(material, offset + 32)?,
+            height_scale: f32_from_const(material, offset + 36)?,
+            roughness_white: f32_from_const(material, offset + 64 - shift)?,
+            roughness_black: f32_from_const(material, offset + 68 - shift)?,
+            ior: f32_from_const(material, offset + 72 - shift)?,
+            normal_intensity: f32_from_const(material, offset + 76 - shift)?,
+            metallic_white: f32_from_const(material, offset + 80 - shift)?,
+            metallic_black: f32_from_const(material, offset + 84 - shift)?,
 
-    // ─────────────────────────────────────────────
-    // Layer 2
-    // ─────────────────────────────────────────────
-    pub layer2_enable_roughness: bool,
-    pub layer2_enable_metallic: bool,
-    pub layer2_enable_ior: bool,
-    pub layer2_enable_porosity: bool,
+            color_tint: [
+                f32_from_const(material, offset + 96 - shift - tertiary_shift)?,
+                f32_from_const(material, offset + 100 - shift - tertiary_shift)?,
+                f32_from_const(material, offset + 104 - shift - tertiary_shift)?,
+            ],
 
-    pub layer2_tile: [f32; 2],
-    pub layer2_height_offset: f32,
-    pub layer2_height_scale: f32,
-    pub layer2_invert_current_height: bool,
-    pub layer2_previous_height_influence: f32,
-    pub layer2_curvature_height_influence: f32,
-    pub layer2_occlusion_height_influence: f32,
-    pub layer2_height_blend_range: f32,
-    pub layer2_height_accumulation: f32,
-    pub layer2_opacity: f32,
-    pub layer2_occlude_macro: bool,
+            color_map_texture_transform: [
+                f32_from_const(material, offset + 128 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 132 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 136 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 140 - shift - secondary_shift)?,
+            ],
 
-    pub layer2_normal_map_texture_transform: [f32; 4],
-    pub layer2_control_map_texture_transform: [f32; 4],
-    pub layer2_rohm_map_texture_transform: [f32; 4],
-    pub layer2_normal_intensity: f32,
+            normal_map_texture_transform: [
+                f32_from_const(material, offset + 160 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 164 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 168 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 172 - shift - secondary_shift)?,
+            ],
 
-    pub layer2_top_color: [f32; 3],
-    pub layer2_mid_color: [f32; 3],
-    pub layer2_bottom_color: [f32; 3],
+            control_map_texture_transform: [
+                f32_from_const(material, offset + 192 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 196 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 200 - shift - secondary_shift)?,
+                f32_from_const(material, offset + 204 - shift - secondary_shift)?,
+            ],
 
-    pub layer2_macro_color_intensity: f32,
-    pub layer2_roughness_white: f32,
-    pub layer2_roughness_black: f32,
-    pub layer2_ior: f32,
-    pub layer2_porosity: f32,
-    pub layer2_metallic: f32,
+            extra_data: None,
+        };
 
-    // ─────────────────────────────────────────────
-    // Layer 3
-    // ─────────────────────────────────────────────
-    pub layer3_enable_roughness: bool,
-    pub layer3_enable_metallic: bool,
-    pub layer3_enable_ior: bool,
-    pub layer3_enable_porosity: bool,
+        if shift == 0 {
+            data.extra_data = Some(ExtraLayerData {
+                opacity: f32_from_const(material, offset + 40)?,
+                height_blend_range: f32_from_const(material, offset + 44)?,
+                height_accumulation: f32_from_const(material, offset + 48)?,
+            });
+        }
 
-    pub layer3_tile: [f32; 2],
-    pub layer3_height_offset: f32,
-    pub layer3_height_scale: f32,
-    pub layer3_invert_current_height: bool,
-    pub layer3_previous_height_influence: f32,
-    pub layer3_curvature_height_influence: f32,
-    pub layer3_occlusion_height_influence: f32,
-    pub layer3_height_blend_range: f32,
-    pub layer3_opacity: f32,
-    pub layer3_occlude_macro: bool,
+        Ok(data)
+    }
+}
 
-    pub layer3_color_map_texture_transform: [f32; 4],
-    pub layer3_rohm_map_texture_transform: [f32; 4],
-    pub layer3_color_tint: [f32; 3],
-    pub layer3_roughness_white: f32,
-    pub layer3_roughness_black: f32,
-    pub layer3_metallic_remap_white: f32,
-    pub layer3_metallic_remap_black: f32,
-    pub layer3_macro_color_intensity: f32,
-    pub layer3_ior: f32,
-    pub layer3_porosity: f32,
+#[derive(Default, Debug, Serialize)]
+pub struct LevelLayer {
+    pub layer_type: LayerType,
+    pub rohg: Option<RohgLayer>,
+    pub rohm: Option<RohmLayer>,
+    pub nnhg: Option<NnhgLayer>,
+}
 
-    // ─────────────────────────────────────────────
-    // Layer 4
-    // ─────────────────────────────────────────────
-    pub layer4_enable_roughness: bool,
-    pub layer4_enable_metallic: bool,
-    pub layer4_enable_ior: bool,
-    pub layer4_enable_porosity: bool,
+#[derive(Default, Debug, Serialize)]
+pub struct ConeMapInfo {
+    pub parallax_depth: f32,
+    pub parallax_height_offset: f32,
+    pub quality: f32,
+    pub cone_step_fade_near: f32,
+    pub cone_step_fade_far: f32,
+    pub conemap_texture_transform: [f32; 4],
+}
 
-    pub layer4_tile: [f32; 2],
-    pub layer4_height_offset: f32,
-    pub layer4_height_scale: f32,
-    pub layer4_invert_current_height: bool,
-    pub layer4_previous_height_influence: f32,
-    pub layer4_curvature_height_influence: f32,
-    pub layer4_occlusion_height_influence: f32,
-    pub layer4_height_blend_range: f32,
-    pub layer4_height_accumulation: f32,
-    pub layer4_opacity: f32,
-    pub layer4_occlude_macro: bool,
+impl ConeMapInfo {
+    pub fn read(material: &mut Material, offset: usize) -> anyhow::Result<Self> {
+        Ok(Self {
+            parallax_depth: f32_from_const(material, offset)?,
+            parallax_height_offset: f32_from_const(material, offset + 4)?,
+            quality: f32_from_const(material, offset + 8)?,
+            cone_step_fade_near: f32_from_const(material, offset + 12)?,
+            cone_step_fade_far: f32_from_const(material, offset + 16)?,
+            conemap_texture_transform: [
+                f32_from_const(material, offset + 32)?,
+                f32_from_const(material, offset + 36)?,
+                f32_from_const(material, offset + 40)?,
+                f32_from_const(material, offset + 44)?,
+            ],
+        })
+    }
+}
 
-    pub layer4_color_map_texture_transform: [f32; 4],
-    pub layer4_normal_map_texture_transform: [f32; 4],
-    pub layer4_rohm_map_texture_transform: [f32; 4],
-    pub layer4_normal_intensity: f32,
-
-    pub layer4_color_tint: [f32; 3],
-    pub layer4_fresnel_color_tint: [f32; 3],
-    pub layer4_fresnel_intensity: f32,
-    pub layer4_fresnel_exponent: f32,
-
-    pub layer4_roughness_white: f32,
-    pub layer4_roughness_black: f32,
-    pub layer4_metallic_remap_white: f32,
-    pub layer4_metallic_remap_black: f32,
-    pub layer4_macro_color_intensity: f32,
-    pub layer4_ior: f32,
-    pub layer4_porosity: f32,
-
-    // ─────────────────────────────────────────────
-    // Macro misc
-    // ─────────────────────────────────────────────
-    pub macro_color_intensity: f32,
-    pub macro_cavity_exponent: f32,
-    pub macro_cavity_intensity: f32,
+#[derive(Default, Debug, Serialize)]
+pub struct LayeredLevel {
+    pub level_type: LevelType,
+    pub conemap_info: Option<ConeMapInfo>,
+    pub macro_mask_info: Option<MacroMaskInfo>,
+    pub layers: Option<Vec<LevelLayer>>,
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -740,17 +596,12 @@ pub struct Material {
     pub diffuse_info: Option<DiffuseInfo>,
     pub illum_info: Option<SelfIllum>,
     pub decal_slots: Option<DecalSlot>,
-    pub conemapped_level: Option<ConemappedLevel>,
     pub color_decal: Option<ColorDecal>,
-    pub conestepped_decal: Option<ConesteppedDecal>,
     pub meter: Option<Meter>,
     pub skin: Option<SkinShader>,
     pub eye: Option<EyeShader>,
     pub hair: Option<Hair>,
-    pub level: Option<RegularLevelShader>,
-    pub forerunner_layered: Option<ForerunnerLayered>,
-    pub forest_gold: Option<ForestGold>,
-    pub wetness_layered: Option<WetnessLayered>,
+    pub layered_level: Option<LayeredLevel>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }

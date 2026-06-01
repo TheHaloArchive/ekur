@@ -123,6 +123,117 @@ class HairInfo(TypedDict):
     ior: float
 
 
+class ConemapInfo(TypedDict):
+    parallax_depth: float
+    parallax_height_offset: float
+    quality: float
+    cone_step_fade_near: float
+    cone_step_fade_far: float
+    conemap_texture_transform: tuple[float, float, float, float]
+
+
+class MacroMaskInfo(TypedDict):
+    macro_normal_map_transform: tuple[float, float, float, float]
+    macro_normal_intensity: float
+    macro_control_map_transform: tuple[float, float, float, float]
+    macro_roughness_intensity: float
+    macro_occlusion_intensity: float
+    macro_metallic_intensity: float
+    macro_cavity_intensity: float
+    macro_cavity_exponent: float
+
+
+class ExtraLayerData(TypedDict):
+    opacity: float
+    height_blend_range: float
+    height_accumulation: float
+
+
+class RohgLayer(TypedDict):
+    color_blend_mode: int
+    normal_blend_mode: int
+    invert_height_blend: bool
+    texture_bomb_enabled: bool
+    texture_bomb_height_blend_enabled: bool
+    texture_bomb_offset_strength: float
+    texture_bomb_mask_contrast: float
+    texture_bomb_height_mask_range: float
+    micro_tessellation_scale: float
+    height_scale: float
+    roughness_white: float
+    roughness_black: float
+    ior: float
+    normal_intensity: float
+    metallic: float
+    top_color: tuple[float, float, float]
+    mid_color: tuple[float, float, float]
+    bottom_color: tuple[float, float, float]
+    normal_map_texture_transform: tuple[float, float, float, float]
+    control_map_texture_transform: tuple[float, float, float, float]
+    extra_data: ExtraLayerData | None
+
+
+class RohmLayer(TypedDict):
+    color_blend_mode: int
+    normal_blend_mode: int
+    invert_height_blend: bool
+    texture_bomb_enabled: bool
+    texture_bomb_height_blend_enabled: bool
+    texture_bomb_offset_strength: float
+    texture_bomb_mask_contrast: float
+    texture_bomb_height_mask_range: float
+    micro_tessellation_scale: float
+    height_scale: float
+    roughness_white: float
+    roughness_black: float
+    ior: float
+    normal_intensity: float
+    metallic_white: float
+    metallic_black: float
+    color_tint: tuple[float, float, float]
+    color_map_texture_transform: tuple[float, float, float, float]
+    normal_map_texture_transform: tuple[float, float, float, float]
+    control_map_texture_transform: tuple[float, float, float, float]
+    extra_data: ExtraLayerData | None
+
+
+class NnhgLayer(TypedDict):
+    color_blend_mode: int
+    normal_blend_mode: int
+    invert_height_blend: bool
+    texture_bomb_enabled: bool
+    texture_bomb_height_blend_enabled: bool
+    texture_bomb_offset_strength: float
+    texture_bomb_mask_contrast: float
+    texture_bomb_height_mask_range: float
+    micro_tessellation_scale: float
+    height_scale: float
+    roughness_white: float
+    roughness_black: float
+    ior: float
+    normal_intensity: float
+    metallic: float
+    top_color: tuple[float, float, float]
+    mid_color: tuple[float, float, float]
+    bottom_color: tuple[float, float, float]
+    packed_map_texture_transform: tuple[float, float, float, float]
+    extra_data: ExtraLayerData | None
+
+
+class LevelLayer(TypedDict):
+    layer_type: str
+    rohg: RohgLayer | None
+    rohm: RohmLayer | None
+    nnhg: NnhgLayer | None
+
+
+class LayeredLevel(TypedDict):
+    level_type: str
+    conemap_info: ConemapInfo | None
+    macro_mask_info: MacroMaskInfo | None
+    layers: list[LevelLayer] | None
+
+
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
     shader_type: str
@@ -134,6 +245,7 @@ class CommonMaterial(TypedDict):
     color_decal: ColorDecal | None
     skin: SkinInfo | None
     hair: HairInfo | None
+    layered_level: LayeredLevel | None
 
 
 class CommonLayer(TypedDict):

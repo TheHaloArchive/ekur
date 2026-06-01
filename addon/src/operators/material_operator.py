@@ -13,6 +13,7 @@ from ..material_types.decal_shader import DecalShader
 from ..material_types.diffuse_shader import DiffuseShaderType
 from ..material_types.hair_shader import HairShader
 from ..material_types.illum_shader import IllumShader
+from ..material_types.layered_level import LayeredLevel
 from ..material_types.layered_shader import LayeredShader
 from ..material_types.skin_shader import SkinShader
 from ..ui.material_options import get_material_options
@@ -86,6 +87,8 @@ def run_material(material: CommonMaterial, node_tree: ShaderNodeTree) -> None:
             _ = SkinShader(material, node_tree)
         case "Hair":
             _ = HairShader(material, node_tree)
+        case "LayeredLevel":
+            _ = LayeredLevel(material, node_tree)
         case "Unknown":
             pass
         case _:

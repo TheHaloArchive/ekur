@@ -7,6 +7,6 @@ edition = "2024"
 anyhow = "1.0.102"
 ddsfile = "0.5.2"
 image_dds = "0.7.2"
-infinite-rs = { version = "0.13.1", features = ["derive"] }
+infinite-rs = { version = "0.13.2", features = ["derive"] }
 ekur_definitions = { version = "0.1.0", path = "../ekur_definitions" }
 ekur_materials = { version = "0.1.0", path = "../ekur_materials" }
