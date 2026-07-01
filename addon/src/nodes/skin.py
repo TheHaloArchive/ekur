@@ -120,6 +120,8 @@ class Skin:
 
         normal_map = create_node(nodes, 0, 0, ShaderNodeNormalMap)
         _ = links.new(norm_normalize.outputs[0], normal_map.inputs[1])
-        _ = links.new(normal_map.outputs[0], bsdf.inputs[5])
-
+        if bpy.app.version >= (5, 2, 0):
+            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[6])
+        else:
+            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
         _ = links.new(bsdf.outputs[0], output.inputs[0])

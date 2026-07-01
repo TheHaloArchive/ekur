@@ -102,7 +102,10 @@ class Decal:
         _ = self.node_tree.links.new(rough_mix.outputs[0], bsdf.inputs[2])
         _ = self.node_tree.links.new(input.outputs[1], normalize.inputs[0])
         _ = self.node_tree.links.new(normalize.outputs[0], normal_map.inputs[1])
-        _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
+        if bpy.app.version >= (5, 2, 0):
+            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[6])
+        else:
+            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
         _ = self.node_tree.links.new(geometry.outputs[6], mix_shader.inputs[0])
         _ = self.node_tree.links.new(bsdf.outputs[0], mix_shader.inputs[1])
         _ = self.node_tree.links.new(transparent.outputs[0], mix_shader.inputs[2])

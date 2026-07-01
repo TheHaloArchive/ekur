@@ -506,7 +506,10 @@ class HIMS:
         else:
             _ = self.node_tree.links.new(bump.outputs[0], bump_001.inputs[3])
         _ = self.node_tree.links.new(bump_001.outputs[0], group_output_17.inputs[8])
-        _ = self.node_tree.links.new(bump_001.outputs[0], principled_bsdf.inputs[5])
+        if bpy.app.version >= (5, 2, 0):
+            _ = self.node_tree.links.new(bump_001.outputs[0], principled_bsdf.inputs[6])
+        else:
+            _ = self.node_tree.links.new(bump_001.outputs[0], principled_bsdf.inputs[5])
         _ = self.node_tree.links.new(clamp_001.outputs[0], group_022.inputs[4])
         _ = self.node_tree.links.new(clamp_002.outputs[0], group_022.inputs[5])
         _ = self.node_tree.links.new(clamp_003.outputs[0], group_022.inputs[6])

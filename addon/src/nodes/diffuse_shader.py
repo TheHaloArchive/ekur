@@ -113,6 +113,9 @@ class DiffuseShader:
         _ = links.new(metal_mix.outputs[0], bsdf.inputs[1])
         _ = links.new(input.outputs[2], normalize.inputs[0])
         _ = links.new(normalize.outputs[0], normal_map.inputs[1])
-        _ = links.new(normal_map.outputs[0], bsdf.inputs[5])
+        if bpy.app.version >= (5, 2, 0):
+            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[6])
+        else:
+            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
         _ = links.new(input.outputs[11], bsdf.inputs[4])
         _ = links.new(bsdf.outputs[0], output.inputs[0])
