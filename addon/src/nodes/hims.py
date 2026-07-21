@@ -553,7 +553,10 @@ class HIMS:
         _ = self.node_tree.links.new(group_011.outputs[0], infinite_color.inputs[7])
         _ = self.node_tree.links.new(group_012.outputs[0], infinite_color.inputs[8])
         _ = self.node_tree.links.new(group_013.outputs[0], group_output_17.inputs[4])
-        _ = self.node_tree.links.new(group_013.outputs[0], principled_bsdf.inputs[28])
+        if bpy.app.version >= (5, 2, 0):
+            _ = self.node_tree.links.new(infinite_color.outputs[0], principled_bsdf.inputs[28])
+        else:
+            _ = self.node_tree.links.new(infinite_color.outputs[0], principled_bsdf.inputs[27])
         _ = self.node_tree.links.new(group_016.outputs[0], infinite_color.inputs[9])
         _ = self.node_tree.links.new(group_017.outputs[0], group_001_4.inputs[11])
         _ = self.node_tree.links.new(group_018.outputs[0], group_009.inputs[11])
@@ -722,7 +725,10 @@ class HIMS:
         _ = self.node_tree.links.new(infinite_color.outputs[0], mix_005_6.inputs[6])
         _ = self.node_tree.links.new(infinite_color.outputs[0], mix_006_7.inputs[6])
         _ = self.node_tree.links.new(infinite_color.outputs[0], mix_11.inputs[6])
-        _ = self.node_tree.links.new(infinite_color.outputs[0], principled_bsdf.inputs[27])
+        if bpy.app.version >= (5, 2, 0):
+            _ = self.node_tree.links.new(group_013.outputs[0], principled_bsdf.inputs[29])
+        else:
+            _ = self.node_tree.links.new(group_013.outputs[0], principled_bsdf.inputs[28])
         _ = self.node_tree.links.new(invert.outputs[0], mix_004_7.inputs[0])
         _ = self.node_tree.links.new(magenta.outputs[2], group_output_17.inputs[11])
         _ = self.node_tree.links.new(mapping_1.outputs[0], musgrave_texture.inputs[0])
