@@ -149,6 +149,7 @@ class ModelImporter:
         - section: The section to create the skinning for.
         - mesh: The mesh to assign the vertex groups to.
         """
+        options = get_model_options()
         vertex_count = len(section.vertex_buffer.position_buffer.positions)
         modifier = cast(ArmatureModifier, obj.modifiers.new(f"{name}::armature", "ARMATURE"))
         if section.use_dual_quat:
@@ -169,12 +170,24 @@ class ModelImporter:
                 blend_weights,
             ) in section.vertex_buffer.enumerate_blendpairs(section.vertex_type):
                 for bi, bw in zip(blend_indicies, blend_weights):
-                    if bi <= len(obj.vertex_groups):
+                    if bi < len(obj.vertex_groups):
                         obj.vertex_groups[bi].add([vi], bw, "REPLACE")
 
         # Removes that weird shading that happens when you twist a bone
         for p in mesh.polygons:
             p.use_smooth = True
+
+        if options.remove_unused_groups:
+            used_groups = set()
+
+            for vertex in mesh.vertices:
+                for g in vertex.groups:
+                    if g.weight > 0.0:
+                        used_groups.add(g.group)
+
+            for group in reversed(obj.vertex_groups):
+                if group.index not in used_groups:
+                    obj.vertex_groups.remove(group)
 
     def _create_color(self, section: Section, mesh: Mesh) -> None:
         """
