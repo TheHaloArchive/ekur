@@ -10,7 +10,7 @@ pub mod visor;
 pub struct Attachment {
     pub tag_id: i32,
     pub marker_name: i32,
-    pub model: i32,
+    pub model: String,
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -46,7 +46,7 @@ pub struct Theme {
 
 #[derive(Debug, Default, Serialize)]
 pub struct SpartanGlobals {
-    pub model: i32,
+    pub model: String,
     pub themes: Vec<Theme>,
 }
 

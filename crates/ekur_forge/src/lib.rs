@@ -13,7 +13,7 @@ pub mod stringlist;
 pub struct ForgeObjectRepresentation {
     pub name: String,
     pub name_int: i32,
-    pub model: i32,
+    pub model: String,
     pub variant: i32,
     pub style: i32,
     pub is_rtgo: bool,

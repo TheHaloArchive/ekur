@@ -28,6 +28,7 @@ fn get_object_info(
     equipment: &HashMap<i32, Equipment>,
     strings: &HashMap<i32, String>,
     scenery: &HashMap<i32, Scenery>,
+    model_ids: &HashMap<i32, String>,
 ) -> Option<Vec<ForgeObject>> {
     if objects.is_empty() {
         return None;
@@ -56,7 +57,7 @@ fn get_object_info(
                     .unwrap_or(&representation.representation_name.0.to_string())
                     .to_string(),
                 name_int: representation.representation_name.0,
-                model: 0,
+                model: "0".into(),
                 variant: representation.crate_variant.0,
                 is_rtgo: false,
                 ..Default::default()
@@ -97,7 +98,10 @@ fn get_object_info(
                 if let Some(style) = style {
                     represent.style = style.style.0;
                 }
-                represent.model = model.render_model.global_id;
+                represent.model = model_ids
+                    .get(&model.render_model.global_id)
+                    .unwrap_or(&model.render_model.global_id.to_string())
+                    .clone();
                 forge_object.representations.push(represent);
             };
         }
@@ -108,7 +112,10 @@ fn get_object_info(
                     .unwrap_or(&variant.variant_name.0.to_string())
                     .to_string(),
                 name_int: variant.variant_name.0,
-                model: variant.underlying_geo.global_id,
+                model: model_ids
+                    .get(&variant.underlying_geo.global_id)
+                    .unwrap_or(&variant.underlying_geo.global_id.to_string())
+                    .clone(),
                 variant: 0,
                 is_rtgo: true,
                 ..Default::default()
@@ -134,6 +141,7 @@ fn process_category_recursively(
     equipment: &HashMap<i32, Equipment>,
     strings: &HashMap<i32, String>,
     scenery: &HashMap<i32, Scenery>,
+    model_ids: &HashMap<i32, String>,
 ) -> ForgeObjectCategory {
     let child_categories: Vec<_> = manifest
         .categories
@@ -157,6 +165,7 @@ fn process_category_recursively(
                 equipment,
                 strings,
                 scenery,
+                model_ids,
             )
         })
         .collect();
@@ -177,6 +186,7 @@ fn process_category_recursively(
         equipment,
         strings,
         scenery,
+        model_ids,
     );
 
     let name = strings
@@ -205,6 +215,7 @@ pub fn process_forge_objects(
     equipments: &HashMap<i32, Equipment>,
     scenery: &HashMap<i32, Scenery>,
     strings: &HashMap<i32, String>,
+    model_ids: &HashMap<i32, String>,
 ) -> Result<ForgeObjectDefinition> {
     let mut forge_object_definition = ForgeObjectDefinition::default();
     let root_categories = manifest
@@ -230,6 +241,7 @@ pub fn process_forge_objects(
                 equipments,
                 strings,
                 scenery,
+                model_ids,
             )
         })
         .collect();
@@ -286,7 +298,10 @@ pub fn process_forge_objects(
                     .unwrap_or(&representation.representation_name.0.to_string())
                     .to_string(),
                 name_int: representation.representation_name.0,
-                model: model.render_model.global_id,
+                model: model_ids
+                    .get(&model.render_model.global_id)
+                    .unwrap_or(&model.render_model.global_id.to_string())
+                    .clone(),
                 variant: representation.crate_variant.0,
                 is_rtgo: false,
                 ..Default::default()
@@ -303,7 +318,10 @@ pub fn process_forge_objects(
                     .unwrap_or(&variant.variant_name.0.to_string())
                     .to_string(),
                 name_int: variant.variant_name.0,
-                model: variant.underlying_geo.global_id,
+                model: model_ids
+                    .get(&variant.underlying_geo.global_id)
+                    .unwrap_or(&variant.underlying_geo.global_id.to_string())
+                    .clone(),
                 variant: 0,
                 is_rtgo: true,
                 ..Default::default()

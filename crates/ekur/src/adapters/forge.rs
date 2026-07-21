@@ -34,6 +34,7 @@ pub(crate) fn extract_forge(
     models: &HashMap<i32, ModelDefinition>,
     palettes: &HashMap<i32, MaterialPaletteTag>,
     swatches: &HashMap<i32, MaterialSwatchTag>,
+    model_ids: &HashMap<i32, String>,
     save_path: &str,
 ) -> Result<()> {
     let mut save_path = PathBuf::from(save_path);
@@ -66,6 +67,7 @@ pub(crate) fn extract_forge(
             &equipments,
             &scenery,
             &strings,
+            model_ids,
         )?;
         save_path.push("forge_objects.json");
         let file = File::create(&save_path)?;

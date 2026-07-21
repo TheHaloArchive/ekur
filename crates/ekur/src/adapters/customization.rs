@@ -22,6 +22,7 @@ pub(crate) fn extract_customization(
     modules: &mut [ModuleFile],
     models: &HashMap<i32, ModelDefinition>,
     strings: &HashMap<i32, String>,
+    model_ids: &HashMap<i32, String>,
     save_path: &str,
 ) -> Result<()> {
     let mut save_path = PathBuf::from(save_path);
@@ -30,7 +31,8 @@ pub(crate) fn extract_customization(
     let global = get_tag::<CustomizationGlobals>(OCGD_ID, modules)?;
 
     if let Some(global) = global {
-        let spartan_globals = process_object_globals(&global, &themes, &attchs, models, strings)?;
+        let spartan_globals =
+            process_object_globals(&global, &themes, &attchs, &model_ids, models, strings)?;
         save_path.push("customization_globals.json");
         let file = File::create(&save_path)?;
         let writer = BufWriter::new(file);

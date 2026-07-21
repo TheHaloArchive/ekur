@@ -11,7 +11,11 @@ from bpy.types import Context, Operator
 from ..constants import version_string
 from ..utils import debug_print, download_file, get_package_name
 
-STRINGS_URL = "https://github.com/Surasia/ReclaimerFiles/raw/refs/heads/master/strings.txt"
+STRINGS_URL = "https://github.com/TheHaloArchive/ReclaimerFiles/raw/refs/heads/master/strings.txt"
+MAP_IDS_URL = "https://github.com/TheHaloArchive/ReclaimerFiles/raw/refs/heads/master/map_ids.txt"
+MODEL_IDS_URL = (
+    "https://github.com/TheHaloArchive/ReclaimerFiles/raw/refs/heads/master/model_ids.txt"
+)
 EKUR = "https://github.com/TheHaloArchive/ekur/raw/refs/heads/master/assets"
 REGIONS_URL = f"{EKUR}/regions_and_permutations.json"
 CUSTOM_RIG_URL = f"{EKUR}/purp.blend"
@@ -30,6 +34,8 @@ class DownloadFilesOperator(Operator):
         extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         ekur_save_path = f"{extension_path}/ekur-{version_string}"
         save_path = f"{extension_path}/strings.txt"
+        map_ids_path = f"{extension_path}/map_ids.txt"
+        model_ids_path = f"{extension_path}/model_ids.txt"
         visors_path = f"{extension_path}/all_visors.json"
         regions_path = f"{extension_path}/regions_and_permutations.json"
         customs_path = f"{extension_path}/purp.blend"
@@ -38,6 +44,8 @@ class DownloadFilesOperator(Operator):
         debug_print(f"[download_files_operator.py] visors_path: {visors_path}")
         debug_print(f"[download_files_operator.py] regions_path: {regions_path}")
         debug_print(f"[download_files_operator.py] customs_path: {customs_path}")
+        debug_print(f"[download_files_operator.py] map_ids_path: {map_ids_path}")
+        debug_print(f"[download_files_operator.py] model_ids_path: {model_ids_path}")
 
         ekur_url = f"https://github.com/TheHaloArchive/ekur/releases/download/{version_string}/ekur-{version_string}"
         if platform.system() == "Windows":
@@ -54,5 +62,7 @@ class DownloadFilesOperator(Operator):
         download_file(CUSTOM_RIG_URL, customs_path)
         download_file(VISORS_URL, visors_path)
         download_file(REGIONS_URL, regions_path)
+        download_file(MAP_IDS_URL, map_ids_path)
+        download_file(MODEL_IDS_URL, model_ids_path)
 
         return {"FINISHED"}
