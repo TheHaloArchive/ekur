@@ -759,6 +759,10 @@ class HIMS:
         _ = self.node_tree.links.new(math_001_4.outputs[0], gamma_001.inputs[0])
         _ = self.node_tree.links.new(math_001_4.outputs[0], gamma_002.inputs[0])
         _ = self.node_tree.links.new(math_001_4.outputs[0], math_5.inputs[1])
+        if bpy.app.version >= (5, 2, 0):
+            _ = self.node_tree.links.new(math_5.outputs[0], principled_bsdf.inputs[14])
+        else:
+            _ = self.node_tree.links.new(math_5.outputs[0], principled_bsdf.inputs[13])
         _ = self.node_tree.links.new(math_001_4.outputs[0], mix_11.inputs[7])
         _ = self.node_tree.links.new(math_003_2.outputs[0], mult2.inputs[0])
         _ = self.node_tree.links.new(math_006_1.outputs[0], group_output_17.inputs[10])
