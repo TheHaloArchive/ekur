@@ -36,6 +36,7 @@ __all__ = [
     "remove_nodes",
     "create_socket",
     "create_node",
+    "create_link",
     "assign_value",
     "get_data_folder",
     "is_debug",

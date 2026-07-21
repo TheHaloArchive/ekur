@@ -102,6 +102,7 @@ def run_material(material: CommonMaterial, node_tree: ShaderNodeTree) -> None:
 class ImportMaterialOperator(Operator):
     bl_idname = "ekur.importmaterial"
     bl_label = "Import"
+    bl_description = "Import Material"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]

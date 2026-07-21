@@ -77,6 +77,7 @@ def import_attachments(
 class ImportVanityOperator(Operator):
     bl_idname = "ekur.importvanity"
     bl_label = "Import Spartan from Gamertag"
+    bl_description = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]

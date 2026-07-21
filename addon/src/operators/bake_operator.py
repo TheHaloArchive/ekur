@@ -75,6 +75,7 @@ def get_width_height(material: Material) -> tuple[int, int]:
 @final
 class AlignBakeOperator(Operator):
     bl_idname = "ekur.alignbake"
+    bl_description = "Align"
     bl_label = "Align"
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
@@ -101,6 +102,7 @@ class AlignBakeOperator(Operator):
 @final
 class AdvancedBakeOperator(Operator):
     bl_idname = "ekur.toggleadvancedbake"
+    bl_description = "Toggle Advanced Bake"
     bl_label = "Toggle"
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
@@ -131,6 +133,7 @@ class AdvancedBakeOperator(Operator):
 @final
 class BakingOperator(Operator):
     bl_idname = "ekur.baketextures"
+    bl_description = "Bake"
     bl_label = "Bake"
 
     def bake_detail(self, object: Object, col: Collection) -> None:

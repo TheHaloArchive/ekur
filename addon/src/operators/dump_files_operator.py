@@ -17,6 +17,7 @@ from ..utils import debug_print, get_addon_preferences, get_data_folder, get_pac
 class DumpFilesOperator(Operator):
     bl_idname = "ekur.dumpfiles"
     bl_label = "Dump Required Files"
+    bl_description = "Dump"
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None:

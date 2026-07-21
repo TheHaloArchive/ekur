@@ -25,6 +25,7 @@ VISORS_URL = f"{EKUR}/all_visors.json"
 @final
 class DownloadFilesOperator(Operator):
     bl_idname = "ekur.downloadfiles"
+    bl_description = "Download"
     bl_label = "Download Required Files"
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
