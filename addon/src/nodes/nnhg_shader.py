@@ -19,7 +19,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 from .color_mixer import ColorMixer
 
 __all__ = ["NnhgShader"]
@@ -101,26 +101,26 @@ class NnhgShader:
         combine_color.mode = "RGB"
         assign_value(combine_color, 2, 1.0)
 
-        _ = links.new(group_input.outputs[1], separate_color.inputs[0])
-        _ = links.new(group_input.outputs[2], color_mixer.inputs[0])
-        _ = links.new(group_input.outputs[6], color_mixer.inputs[1])
-        _ = links.new(group_input.outputs[7], color_mixer.inputs[2])
-        _ = links.new(group_input.outputs[8], color_mixer.inputs[3])
-        _ = links.new(group_input.outputs[5], group_output.inputs[2])
-        _ = links.new(group_input.outputs[11], mix_001.inputs[0])
-        _ = links.new(group_input.outputs[9], combine_xyz.inputs[1])
-        _ = links.new(combine_xyz.outputs[0], group_output.inputs[5])
-        _ = links.new(group_input.outputs[12], combine_xyz_001.inputs[0])
-        _ = links.new(group_input.outputs[13], combine_xyz_001.inputs[1])
-        _ = links.new(group_input.outputs[14], combine_xyz_001.inputs[2])
-        _ = links.new(combine_xyz_001.outputs[0], group_output.inputs[6])
-        _ = links.new(group_input.outputs[2], combine_xyz.inputs[0])
-        _ = links.new(color_mixer.outputs[0], group_output.inputs[0])
-        _ = links.new(mix_001.outputs[2], group_output.inputs[4])
-        _ = links.new(group_input.outputs[3], math.inputs[2])
-        _ = links.new(group_input.outputs[4], math.inputs[1])
-        _ = links.new(math.outputs[0], group_output.inputs[1])
-        _ = links.new(separate_color.outputs[0], combine_color.inputs[0])
-        _ = links.new(separate_color.outputs[1], combine_color.inputs[1])
-        _ = links.new(combine_color.outputs[0], mix_001.inputs[7])
-        _ = links.new(separate_color.outputs[2], combine_xyz.inputs[2])
+        create_link(links, group_input, separate_color, 1, 0)
+        create_link(links, group_input, color_mixer, 2, 0)
+        create_link(links, group_input, color_mixer, 6, 1)
+        create_link(links, group_input, color_mixer, 7, 2)
+        create_link(links, group_input, color_mixer, 8, 3)
+        create_link(links, group_input, group_output, 5, 2)
+        create_link(links, group_input, mix_001, 11, 0)
+        create_link(links, group_input, combine_xyz, 9, 1)
+        create_link(links, combine_xyz, group_output, 0, 5)
+        create_link(links, group_input, combine_xyz_001, 12, 0)
+        create_link(links, group_input, combine_xyz_001, 13, 1)
+        create_link(links, group_input, combine_xyz_001, 14, 2)
+        create_link(links, combine_xyz_001, group_output, 0, 6)
+        create_link(links, group_input, combine_xyz, 2, 0)
+        create_link(links, color_mixer, group_output, 0, 0)
+        create_link(links, mix_001, group_output, 2, 4)
+        create_link(links, group_input, math, 3, 2)
+        create_link(links, group_input, math, 4, 1)
+        create_link(links, math, group_output, 0, 1)
+        create_link(links, separate_color, combine_color, 0, 0)
+        create_link(links, separate_color, combine_color, 1, 1)
+        create_link(links, combine_color, mix_001, 0, 7)
+        create_link(links, separate_color, combine_xyz, 2, 2)

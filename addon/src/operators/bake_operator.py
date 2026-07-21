@@ -80,7 +80,11 @@ class AlignBakeOperator(Operator):
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         selected_objects = bpy.context.selected_objects
         options = get_bake_options()
-        if len(selected_objects) >= 1 and len(selected_objects[0].material_slots) >= 1:
+        if (
+            selected_objects
+            and len(selected_objects) >= 1
+            and len(selected_objects[0].material_slots) >= 1
+        ):
             if selected_objects[0].active_material_index is None:
                 return {"CANCELLED"}
             material_slot = selected_objects[0].material_slots[
@@ -104,6 +108,8 @@ class AdvancedBakeOperator(Operator):
         datasource = bpy.context.selected_objects
         if options.selected_objects == "All" and bpy.context.scene:
             datasource = bpy.data.objects
+        if not datasource:
+            return {""}
         for object in datasource:
             if object.type != "MESH" or not object.material_slots:
                 continue
@@ -161,8 +167,9 @@ class BakingOperator(Operator):
             if shader and shader.inputs[3].links:
                 rgb_value = create_node(material.node_tree.nodes, 0, 0, ShaderNodeRGB)
                 val = (0.5, 0.5, 1.0, 1.0)
-                cast(NodeSocketColor, rgb_value.outputs[0]).default_value = val
-                _ = material.node_tree.links.new(rgb_value.outputs[0], shader.inputs[3])
+                if rgb_value.outputs:
+                    rgb_value.outputs[0].default_value = val
+                    _ = material.node_tree.links.new(rgb_value.outputs[0], shader.inputs[3])
             mat_name = f"{material.name}_DetailNormal"
             if options.merge_textures:
                 mat_name = f"{object.name}_DetailNormal"
@@ -276,7 +283,8 @@ class BakingOperator(Operator):
             context.collection.children.link(duplicate_collection)
 
         override_mat: str = ""
-
+        if not selected_objects:
+            return {""}
         for object in selected_objects:
             if type(object.data) is Mesh:
                 object.data.uv_layers.active_index = int(options.uv_to_bake_to.split("UV")[-1])

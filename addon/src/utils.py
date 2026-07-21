@@ -23,6 +23,9 @@ from bpy.types import (
     NodeTreeInterfacePanel,
     ShaderNodeTexImage,
     ShaderNodeTree,
+    NodeLinks,
+    ShaderNode,
+    NodeLink,
 )
 
 from .exceptions import NodeInterfaceDoesNotExist
@@ -127,7 +130,7 @@ def create_socket(
         raise NodeInterfaceDoesNotExist("Interface cannot be None!")
     out = cast(
         _type,
-        interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),
+        interface.new_socket(name=name, in_out=in_out, socket_type=_type.__name__, parent=panel),  # ty: ignore[invalid-argument-type]
     )
     return out
 
@@ -216,6 +219,14 @@ def assign_value(
         cast(NodeSocketColor, node.inputs[index]).default_value = value
     if type(value) is int:
         cast(NodeSocketInt, node.inputs[index]).default_value = value
+
+
+def create_link(
+    links: NodeLinks, node_one: Node, node_two: Node, node_one_index: int, node_two_index: int
+) -> NodeLink | None:
+    if node_one.outputs and node_two.inputs:
+        return links.new(node_one.outputs[node_one_index], node_two.inputs[node_two_index])
+    return
 
 
 def create_image(nodes: Nodes, y: int, name: str) -> ShaderNodeTexImage:

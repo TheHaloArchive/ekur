@@ -11,7 +11,7 @@ from bpy.types import (
 
 from ..json_definitions import CommonMaterial
 from ..nodes.color_decal import ColorDecal
-from ..utils import assign_value, create_image, create_node
+from ..utils import assign_value, create_image, create_node, create_link
 
 __all__ = ["ColorDecalShader"]
 
@@ -41,12 +41,12 @@ class ColorDecalShader:
             else:
                 logging.warning("Image node does not have image colorspace or image texture!")
                 return
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[0])
-            _ = self.tree.links.new(img.outputs[1], shader.inputs[1])
+            create_link(self.tree.links, img, shader, 0, 0)
+            create_link(self.tree.links, img, shader, 1, 1)
 
         if self.material["textures"].get("AlphaMap"):
             img = create_image(self.tree.nodes, -200, str(self.material["textures"]["AlphaMap"]))
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[1])
+            create_link(self.tree.links, img, shader, 0, 1)
 
         material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
-        _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
+        create_link(self.tree.links, shader, material_output, 0, 0)

@@ -17,7 +17,7 @@ from bpy.types import (
     ShaderNodeNewGeometry,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["SelfIllum"]
 
@@ -68,16 +68,16 @@ class SelfIllum:
         invert = create_node(nodes, 0, 0, ShaderNodeInvert)
 
         links = self.node_tree.links
-        _ = links.new(input.outputs[0], mult_2.inputs[6])
-        _ = links.new(input.outputs[2], mult_2.inputs[7])
-        _ = links.new(mult_2.outputs[2], bsdf.inputs[0])
-        _ = links.new(mult_2.outputs[2], bsdf.inputs[27])
-        _ = links.new(input.outputs[1], mult.inputs[0])
-        _ = links.new(input.outputs[3], mult.inputs[1])
-        _ = links.new(input.outputs[4], bsdf.inputs[28])
-        _ = links.new(mult.outputs[0], bsdf.inputs[4])
-        _ = links.new(geometry.outputs[6], invert.inputs[1])
-        _ = links.new(invert.outputs[0], mix_shader.inputs[0])
-        _ = links.new(transparent.outputs[0], mix_shader.inputs[1])
-        _ = links.new(bsdf.outputs[0], mix_shader.inputs[2])
-        _ = links.new(mix_shader.outputs[0], output.inputs[0])
+        create_link(links, input, mult_2, 0, 6)
+        create_link(links, input, mult_2, 2, 7)
+        create_link(links, mult_2, bsdf, 2, 0)
+        create_link(links, mult_2, bsdf, 2, 27)
+        create_link(links, input, mult, 1, 0)
+        create_link(links, input, mult, 3, 1)
+        create_link(links, input, bsdf, 4, 28)
+        create_link(links, mult, bsdf, 0, 4)
+        create_link(links, geometry, invert, 6, 1)
+        create_link(links, invert, mix_shader, 0, 0)
+        create_link(links, transparent, mix_shader, 0, 1)
+        create_link(links, bsdf, mix_shader, 0, 2)
+        create_link(links, mix_shader, output, 0, 0)

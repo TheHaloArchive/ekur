@@ -11,7 +11,7 @@ from bpy.types import (
     ShaderNodeSeparateColor,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["FloatBlend"]
 
@@ -94,21 +94,21 @@ class FloatBlend:
         mix_006.clamp_result = False
         mix_006.data_type = "RGBA"
 
-        _ = links.new(group_input.outputs[0], separate_color.inputs[0])
-        _ = links.new(group_input.outputs[4], mix.inputs[3])
-        _ = links.new(mix.outputs[0], mix_002.inputs[2])
-        _ = links.new(group_input.outputs[5], mix_002.inputs[3])
-        _ = links.new(mix_002.outputs[0], mix_003.inputs[2])
-        _ = links.new(group_input.outputs[6], mix_003.inputs[3])
-        _ = links.new(mix_003.outputs[0], mix_004.inputs[2])
-        _ = links.new(group_input.outputs[7], mix_004.inputs[3])
-        _ = links.new(separate_color.outputs[0], mix.inputs[0])
-        _ = links.new(separate_color.outputs[1], mix_002.inputs[0])
-        _ = links.new(separate_color.outputs[2], mix_003.inputs[0])
-        _ = links.new(group_input.outputs[1], mix_004.inputs[0])
-        _ = links.new(group_input.outputs[2], mix_005.inputs[6])
-        _ = links.new(mix_004.outputs[0], mix_005.inputs[7])
-        _ = links.new(group_input.outputs[3], mix_006.inputs[0])
-        _ = links.new(mix_004.outputs[0], mix_006.inputs[6])
-        _ = links.new(mix_005.outputs[2], mix_006.inputs[7])
-        _ = links.new(mix_006.outputs[2], group_output.inputs[0])
+        create_link(links, group_input, separate_color, 0, 0)
+        create_link(links, group_input, mix, 4, 3)
+        create_link(links, mix, mix_002, 0, 2)
+        create_link(links, group_input, mix_002, 5, 3)
+        create_link(links, mix_002, mix_003, 0, 2)
+        create_link(links, group_input, mix_003, 6, 3)
+        create_link(links, mix_003, mix_004, 0, 2)
+        create_link(links, group_input, mix_004, 7, 3)
+        create_link(links, separate_color, mix, 0, 0)
+        create_link(links, separate_color, mix_002, 1, 0)
+        create_link(links, separate_color, mix_003, 2, 0)
+        create_link(links, group_input, mix_004, 1, 0)
+        create_link(links, group_input, mix_005, 2, 6)
+        create_link(links, mix_004, mix_005, 0, 7)
+        create_link(links, group_input, mix_006, 3, 0)
+        create_link(links, mix_004, mix_006, 0, 6)
+        create_link(links, mix_005, mix_006, 2, 7)
+        create_link(links, mix_006, group_output, 2, 0)

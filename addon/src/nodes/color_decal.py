@@ -15,7 +15,7 @@ from bpy.types import (
     ShaderNodeNewGeometry,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import create_node, create_socket, create_link
 
 __all__ = ["ColorDecal"]
 
@@ -59,13 +59,14 @@ class ColorDecal:
         mix_shader = create_node(nodes, 0, 0, ShaderNodeMixShader)
         transparent = create_node(nodes, 0, 0, ShaderNodeBsdfTransparent)
 
-        _ = self.node_tree.links.new(input.outputs[1], math.inputs[0])
-        _ = self.node_tree.links.new(input.outputs[3], math.inputs[1])
-        _ = self.node_tree.links.new(input.outputs[0], bsdf.inputs[0])
-        _ = self.node_tree.links.new(math.outputs[0], bsdf.inputs[4])
-        _ = self.node_tree.links.new(input.outputs[2], bsdf.inputs[2])
-        _ = self.node_tree.links.new(input.outputs[4], bsdf.inputs[1])
-        _ = self.node_tree.links.new(geometry.outputs[6], mix_shader.inputs[0])
-        _ = self.node_tree.links.new(bsdf.outputs[0], mix_shader.inputs[1])
-        _ = self.node_tree.links.new(transparent.outputs[0], mix_shader.inputs[2])
-        _ = self.node_tree.links.new(mix_shader.outputs[0], output.inputs[0])
+        links = self.node_tree.links
+        create_link(links, input, math, 1, 0)
+        create_link(links, input, math, 3, 1)
+        create_link(links, input, bsdf, 0, 0)
+        create_link(links, math, bsdf, 0, 4)
+        create_link(links, input, bsdf, 2, 2)
+        create_link(links, input, bsdf, 4, 1)
+        create_link(links, geometry, mix_shader, 6, 0)
+        create_link(links, bsdf, mix_shader, 0, 1)
+        create_link(links, transparent, mix_shader, 0, 2)
+        create_link(links, mix_shader, output, 0, 0)

@@ -17,7 +17,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 from .norm_normalize import NormNormalize
 
 __all__ = ["Hair"]
@@ -59,29 +59,29 @@ class Hair:
         color_mix.data_type = "RGBA"
         color_mix.blend_type = "MULTIPLY"
         assign_value(color_mix, 0, 1.0)
-        _ = links.new(group_input.outputs[0], color_mix.inputs[6])
-        _ = links.new(group_input.outputs[4], color_mix.inputs[7])
+        create_link(links, group_input, color_mix, 0, 6)
+        create_link(links, group_input, color_mix, 4, 7)
 
         ao_mix = create_node(nodes, 0, 0, ShaderNodeMix)
         ao_mix.data_type = "RGBA"
         ao_mix.blend_type = "MULTIPLY"
         assign_value(ao_mix, 0, 1.0)
-        _ = links.new(color_mix.outputs[2], ao_mix.inputs[6])
-        _ = links.new(group_input.outputs[6], ao_mix.inputs[7])
-        _ = links.new(ao_mix.outputs[2], bsdf.inputs[0])
+        create_link(links, color_mix, ao_mix, 2, 6)
+        create_link(links, group_input, ao_mix, 6, 7)
+        create_link(links, ao_mix, bsdf, 2, 0)
 
         norm_normalize = create_node(nodes, 0, 0, ShaderNodeGroup)
         norm_normalize.node_tree = cast(ShaderNodeTree, NormNormalize().node_tree)
         assign_value(norm_normalize, 1, 1.0)
-        _ = links.new(group_input.outputs[3], norm_normalize.inputs[0])
+        create_link(links, group_input, norm_normalize, 3, 0)
 
         normal_map = create_node(nodes, 0, 0, ShaderNodeNormalMap)
-        _ = links.new(norm_normalize.outputs[0], normal_map.inputs[1])
+        create_link(links, norm_normalize, normal_map, 0, 1)
         if bpy.app.version >= (5, 2, 0):
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[6])
+            create_link(links, normal_map, bsdf, 0, 6)
         else:
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
+            create_link(links, normal_map, bsdf, 0, 5)
 
-        _ = links.new(group_input.outputs[1], bsdf.inputs[4])
-        _ = links.new(group_input.outputs[2], bsdf.inputs[2])
-        _ = links.new(bsdf.outputs[0], group_output.inputs[0])
+        create_link(links, group_input, bsdf, 1, 4)
+        create_link(links, group_input, bsdf, 2, 2)
+        create_link(links, bsdf, group_output, 0, 0)

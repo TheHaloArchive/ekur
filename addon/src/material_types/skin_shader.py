@@ -13,7 +13,7 @@ from bpy.types import (
 
 from ..json_definitions import CommonMaterial
 from ..nodes.skin import Skin
-from ..utils import assign_value, create_image, create_node
+from ..utils import assign_value, create_image, create_node, create_link
 
 __all__ = ["SkinShader"]
 
@@ -43,38 +43,38 @@ class SkinShader:
             img = create_image(self.tree.nodes, -100, str(self.material["textures"]["Color"]))
             if img.image and img.image.colorspace_settings:
                 img.image.colorspace_settings.name = "sRGB"  # ty: ignore[invalid-assignment]
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[0])
+            create_link(self.tree.links, img, shader, 0, 0)
 
         if self.material["textures"].get("Normal"):
             img = create_image(self.tree.nodes, -400, str(self.material["textures"]["Normal"]))
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[3])
+            create_link(self.tree.links, img, shader, 0, 3)
 
         if self.material["textures"].get("AORoughnessTransmission"):
             img = create_image(
                 self.tree.nodes, -200, str(self.material["textures"]["AORoughnessTransmission"])
             )
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[1])
+            create_link(self.tree.links, img, shader, 0, 1)
 
         if self.material["textures"].get("SpecScatterPore"):
             img = create_image(
                 self.tree.nodes, -300, str(self.material["textures"]["SpecScatterPore"])
             )
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[2])
+            create_link(self.tree.links, img, shader, 0, 2)
 
         if self.material["textures"].get("PoreNormal"):
             img = create_image(self.tree.nodes, -500, str(self.material["textures"]["PoreNormal"]))
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[4])
+            create_link(self.tree.links, img, shader, 0, 4)
 
         if self.material["textures"].get("DetailNormal"):
             mapping = create_node(self.tree.nodes, 0, 0, ShaderNodeMapping)
             texture_coordinate = create_node(self.tree.nodes, 0, 0, ShaderNodeTexCoord)
-            _ = self.tree.links.new(texture_coordinate.outputs[2], mapping.inputs[0])
+            create_link(self.tree.links, texture_coordinate, mapping, 2, 0)
             assign_value(mapping, 3, (*info["micro_normal_scale"], info["micro_normal_scale"][0]))
             img = create_image(
                 self.tree.nodes, -600, str(self.material["textures"]["DetailNormal"])
             )
-            _ = self.tree.links.new(mapping.outputs[0], img.inputs[0])
-            _ = self.tree.links.new(img.outputs[0], shader.inputs[5])
+            create_link(self.tree.links, mapping, img, 0, 0)
+            create_link(self.tree.links, img, shader, 0, 5)
 
         material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
-        _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
+        create_link(self.tree.links, shader, material_output, 0, 0)

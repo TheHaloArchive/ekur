@@ -15,7 +15,7 @@ from ..nodes.layered_level_hinf import LayeredLevelHINF
 from ..nodes.nnhg_shader import NnhgShader
 from ..nodes.rohg_shader import RohgShader
 from ..nodes.rohm_shader import RohmShader
-from ..utils import assign_value, create_image, create_node
+from ..utils import assign_value, create_image, create_node, create_link
 
 __all__ = ["LayeredLevel"]
 
@@ -47,38 +47,38 @@ class LayeredLevel:
                     color_image = create_image(self.tree.nodes, offset + 100, str(col))
                     if color_image.image:
                         color_image.image.colorspace_settings.name = "sRGB"  # ty:ignore[invalid-assignment]
-                    _ = self.tree.links.new(color_image.outputs[0], layer_shader.inputs[0])
-                    _ = self.tree.links.new(uv_map.outputs[0], color_image.inputs[0])
+                    create_link(self.tree.links, color_image, layer_shader, 0, 0)
+                    create_link(self.tree.links, uv_map, color_image, 0, 0)
                 contr = self.material["textures"].get(f"{layer_name}Control")
                 if contr:
                     control_image = create_image(self.tree.nodes, offset, str(contr))
-                    _ = self.tree.links.new(control_image.outputs[0], layer_shader.inputs[2])
-                    _ = self.tree.links.new(control_image.outputs[1], layer_shader.inputs[3])
-                    _ = self.tree.links.new(uv_map.outputs[0], control_image.inputs[0])
+                    create_link(self.tree.links, control_image, layer_shader, 0, 2)
+                    create_link(self.tree.links, control_image, layer_shader, 1, 3)
+                    create_link(self.tree.links, uv_map, control_image, 0, 0)
                 norm = self.material["textures"].get(f"{layer_name}Normal")
                 if norm:
                     normal_image = create_image(self.tree.nodes, offset - 100, str(norm))
-                    _ = self.tree.links.new(normal_image.outputs[0], layer_shader.inputs[9])
-                    _ = self.tree.links.new(uv_map.outputs[0], normal_image.inputs[0])
+                    create_link(self.tree.links, normal_image, layer_shader, 0, 9)
+                    create_link(self.tree.links, uv_map, normal_image, 0, 0)
             case "RohgLayer":
                 contr = self.material["textures"].get(f"{layer_name}Control")
                 if contr:
                     control_image = create_image(self.tree.nodes, offset, str(contr))
-                    _ = self.tree.links.new(control_image.outputs[0], layer_shader.inputs[1])
-                    _ = self.tree.links.new(control_image.outputs[1], layer_shader.inputs[2])
-                    _ = self.tree.links.new(uv_map.outputs[0], control_image.inputs[0])
+                    create_link(self.tree.links, control_image, layer_shader, 0, 1)
+                    create_link(self.tree.links, control_image, layer_shader, 1, 2)
+                    create_link(self.tree.links, uv_map, control_image, 0, 0)
                 norm = self.material["textures"].get(f"{layer_name}Normal")
                 if norm:
                     normal_image = create_image(self.tree.nodes, offset - 100, str(norm))
-                    _ = self.tree.links.new(normal_image.outputs[0], layer_shader.inputs[10])
-                    _ = self.tree.links.new(uv_map.outputs[0], normal_image.inputs[0])
+                    create_link(self.tree.links, normal_image, layer_shader, 0, 10)
+                    create_link(self.tree.links, uv_map, normal_image, 0, 0)
             case "NnhgLayer":
                 packed = self.material["textures"].get(f"{layer_name}Packed")
                 if packed:
                     control_image = create_image(self.tree.nodes, offset, str(packed))
-                    _ = self.tree.links.new(control_image.outputs[0], layer_shader.inputs[1])
-                    _ = self.tree.links.new(control_image.outputs[1], layer_shader.inputs[2])
-                    _ = self.tree.links.new(uv_map.outputs[0], control_image.inputs[0])
+                    create_link(self.tree.links, control_image, layer_shader, 0, 1)
+                    create_link(self.tree.links, control_image, layer_shader, 1, 2)
+                    create_link(self.tree.links, uv_map, control_image, 0, 0)
             case _:
                 return
 
@@ -86,22 +86,22 @@ class LayeredLevel:
         mmm = self.material["textures"].get("MacroMaskMap")
         if mmm:
             color_image = create_image(self.tree.nodes, 200, str(mmm))
-            _ = self.tree.links.new(color_image.outputs[0], nodes.inputs[2])
-            _ = self.tree.links.new(color_image.outputs[1], nodes.inputs[3])
+            create_link(self.tree.links, color_image, nodes, 0, 2)
+            create_link(self.tree.links, color_image, nodes, 1, 3)
             uv_map = create_node(self.tree.nodes, -700, 200, ShaderNodeUVMap)
             uv_map.uv_map = "UV1"  # TODO: Check if exists..
-            _ = self.tree.links.new(uv_map.outputs[0], color_image.inputs[0])
+            create_link(self.tree.links, uv_map, color_image, 0, 0)
         mmn = self.material["textures"].get("MacroNormal")
         if mmn:
             color_image = create_image(self.tree.nodes, 300, str(mmn))
-            _ = self.tree.links.new(color_image.outputs[0], nodes.inputs[4])
+            create_link(self.tree.links, color_image, nodes, 0, 4)
         else:
             assign_value(nodes, 4, (0.5, 0.5, 1.0, 1.0))
         mmc = self.material["textures"].get("MacroControl")
         if mmc:
             color_image = create_image(self.tree.nodes, 400, str(mmc))
-            _ = self.tree.links.new(color_image.outputs[0], nodes.inputs[0])
-            _ = self.tree.links.new(color_image.outputs[1], nodes.inputs[1])
+            create_link(self.tree.links, color_image, nodes, 0, 0)
+            create_link(self.tree.links, color_image, nodes, 1, 1)
 
     def _setup_layer_shader(
         self,
@@ -173,7 +173,7 @@ class LayeredLevel:
             assign_value(shader, 7, 0)
             assign_value(shader, 8, 0)
         material_output = create_node(self.tree.nodes, 800, 0, ShaderNodeOutputMaterial)
-        _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
+        create_link(self.tree.links, shader, material_output, 0, 0)
 
         self._get_textures(shader)
 
@@ -183,7 +183,7 @@ class LayeredLevel:
                 continue
 
             data_key, shader_class = _LAYER_TYPE_MAP[layer_type]
-            data = layer[data_key]
+            data = layer.get(data_key)
             if not data:
                 continue
 

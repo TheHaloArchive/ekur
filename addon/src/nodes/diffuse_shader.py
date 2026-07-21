@@ -19,7 +19,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 from .norm_normalize import NormNormalize
 
 __all__ = ["DiffuseShader"]
@@ -92,30 +92,34 @@ class DiffuseShader:
         assign_value(em_tint, 0, 0.999)
 
         links = self.node_tree.links
-        _ = links.new(input.outputs[0], color_tint.inputs[6])
-        _ = links.new(input.outputs[10], color_tint.inputs[7])
-        _ = links.new(color_tint.outputs[2], ao_multiply.inputs[1])
-        _ = links.new(input.outputs[0], em_tint.inputs[6])
-        _ = links.new(input.outputs[7], em_tint.inputs[7])
-        _ = links.new(em_tint.outputs[2], bsdf.inputs[27])
-        _ = links.new(input.outputs[8], bsdf.inputs[28])
-        _ = links.new(color_tint.outputs[2], ao_multiply.inputs[1])
-        _ = links.new(input.outputs[1], srgb.inputs[0])
-        _ = links.new(srgb.outputs[1], ao_multiply.inputs[2])
-        _ = links.new(ao_multiply.outputs[0], bsdf.inputs[0])
-        _ = links.new(srgb.outputs[0], rough_mix.inputs[0])
-        _ = links.new(input.outputs[3], rough_mix.inputs[2])
-        _ = links.new(input.outputs[4], rough_mix.inputs[3])
-        _ = links.new(rough_mix.outputs[0], bsdf.inputs[2])
-        _ = links.new(srgb.outputs[2], metal_mix.inputs[0])
-        _ = links.new(input.outputs[6], metal_mix.inputs[2])
-        _ = links.new(input.outputs[5], metal_mix.inputs[3])
-        _ = links.new(metal_mix.outputs[0], bsdf.inputs[1])
-        _ = links.new(input.outputs[2], normalize.inputs[0])
-        _ = links.new(normalize.outputs[0], normal_map.inputs[1])
+        create_link(links, input, color_tint, 0, 6)
+        create_link(links, input, color_tint, 10, 7)
+        create_link(links, color_tint, ao_multiply, 2, 1)
+        create_link(links, input, em_tint, 0, 6)
+        create_link(links, input, em_tint, 7, 7)
         if bpy.app.version >= (5, 2, 0):
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[6])
+            create_link(links, em_tint, bsdf, 2, 28)
+            create_link(links, input, bsdf, 8, 29)
         else:
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
-        _ = links.new(input.outputs[11], bsdf.inputs[4])
-        _ = links.new(bsdf.outputs[0], output.inputs[0])
+            create_link(links, em_tint, bsdf, 2, 27)
+            create_link(links, input, bsdf, 8, 28)
+        create_link(links, color_tint, ao_multiply, 2, 1)
+        create_link(links, input, srgb, 1, 0)
+        create_link(links, srgb, ao_multiply, 1, 2)
+        create_link(links, ao_multiply, bsdf, 0, 0)
+        create_link(links, srgb, rough_mix, 0, 0)
+        create_link(links, input, rough_mix, 3, 2)
+        create_link(links, input, rough_mix, 4, 3)
+        create_link(links, rough_mix, bsdf, 0, 2)
+        create_link(links, srgb, metal_mix, 2, 0)
+        create_link(links, input, metal_mix, 6, 2)
+        create_link(links, input, metal_mix, 5, 3)
+        create_link(links, metal_mix, bsdf, 0, 1)
+        create_link(links, input, normalize, 2, 0)
+        create_link(links, normalize, normal_map, 0, 1)
+        if bpy.app.version >= (5, 2, 0):
+            create_link(links, normal_map, bsdf, 0, 6)
+        else:
+            create_link(links, normal_map, bsdf, 0, 5)
+        create_link(links, input, bsdf, 11, 4)
+        create_link(links, bsdf, output, 0, 0)

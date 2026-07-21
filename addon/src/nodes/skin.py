@@ -19,7 +19,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 from .norm_normalize import NormNormalize
 
 
@@ -62,66 +62,72 @@ class Skin:
         bsdf = create_node(nodes, 0, 0, ShaderNodeBsdfPrincipled)
 
         aorotr_srgb = create_node(nodes, 0, 0, ShaderNodeSeparateColor)
-        _ = links.new(input.outputs[1], aorotr_srgb.inputs[0])
+        create_link(links, input, aorotr_srgb, 1, 0)
 
         ao_mult = create_node(nodes, 0, 0, ShaderNodeMix)
         ao_mult.data_type = "RGBA"
         ao_mult.blend_type = "MULTIPLY"
         assign_value(ao_mult, 0, 1.0)
-        _ = links.new(input.outputs[0], ao_mult.inputs[6])
-        _ = links.new(aorotr_srgb.outputs[0], ao_mult.inputs[7])
-        _ = links.new(ao_mult.outputs[2], bsdf.inputs[0])
-        _ = links.new(aorotr_srgb.outputs[1], bsdf.inputs[2])
-        _ = links.new(aorotr_srgb.outputs[2], bsdf.inputs[18])
+        create_link(links, input, ao_mult, 0, 6)
+        create_link(links, aorotr_srgb, ao_mult, 0, 7)
+        create_link(links, ao_mult, bsdf, 2, 0)
+        create_link(links, aorotr_srgb, bsdf, 1, 2)
+        create_link(links, aorotr_srgb, bsdf, 2, 18)
 
         specsubpore_srgb = create_node(nodes, 0, 0, ShaderNodeSeparateColor)
         lerp = create_node(nodes, 0, 0, ShaderNodeMix)
-        _ = links.new(input.outputs[2], specsubpore_srgb.inputs[0])
-        _ = links.new(specsubpore_srgb.outputs[0], lerp.inputs[0])
-        _ = links.new(input.outputs[8], lerp.inputs[2])
-        _ = links.new(input.outputs[9], lerp.inputs[3])
+        create_link(links, input, specsubpore_srgb, 2, 0)
+        create_link(links, specsubpore_srgb, lerp, 0, 0)
+        create_link(links, input, lerp, 8, 2)
+        create_link(links, input, lerp, 9, 3)
 
         spec_intensity = create_node(nodes, 0, 0, ShaderNodeMath)
         spec_intensity.operation = "MULTIPLY"
-        _ = links.new(lerp.outputs[0], spec_intensity.inputs[0])
-        _ = links.new(input.outputs[7], spec_intensity.inputs[1])
-        _ = links.new(spec_intensity.outputs[0], bsdf.inputs[13])
+        create_link(links, lerp, spec_intensity, 0, 0)
+        create_link(links, input, spec_intensity, 7, 1)
+        if bpy.app.version >= (5, 2, 0):
+            create_link(links, spec_intensity, bsdf, 0, 14)
+        else:
+            create_link(links, spec_intensity, bsdf, 0, 13)
 
         subsurf_intensity = create_node(nodes, 0, 0, ShaderNodeMath)
         subsurf_intensity.operation = "MULTIPLY"
-        _ = links.new(specsubpore_srgb.outputs[1], subsurf_intensity.inputs[0])
-        _ = links.new(input.outputs[6], subsurf_intensity.inputs[1])
+        create_link(links, specsubpore_srgb, subsurf_intensity, 1, 0)
+        create_link(links, input, subsurf_intensity, 6, 1)
         bsdf.subsurface_method = "RANDOM_WALK_SKIN"
-        _ = links.new(subsurf_intensity.outputs[0], bsdf.inputs[8])
+        if bpy.app.version >= (5, 2, 0):
+            create_link(links, subsurf_intensity, bsdf, 0, 9)
+        else:
+            create_link(links, subsurf_intensity, bsdf, 0, 8)
 
         pore_intensity = create_node(nodes, 0, 0, ShaderNodeMath)
         pore_intensity.operation = "MULTIPLY"
-        _ = links.new(specsubpore_srgb.outputs[2], pore_intensity.inputs[0])
-        _ = links.new(input.outputs[10], pore_intensity.inputs[1])
+        create_link(links, specsubpore_srgb, pore_intensity, 2, 0)
+        create_link(links, input, pore_intensity, 10, 1)
 
         pore_overlay = create_node(nodes, 0, 0, ShaderNodeMix)
         pore_overlay.data_type = "RGBA"
         pore_overlay.blend_type = "OVERLAY"
-        _ = links.new(pore_intensity.outputs[0], pore_overlay.inputs[0])
-        _ = links.new(input.outputs[3], pore_overlay.inputs[6])
-        _ = links.new(input.outputs[4], pore_overlay.inputs[7])
+        create_link(links, pore_intensity, pore_overlay, 0, 0)
+        create_link(links, input, pore_overlay, 3, 6)
+        create_link(links, input, pore_overlay, 4, 7)
 
         detail_overlay = create_node(nodes, 0, 0, ShaderNodeMix)
         detail_overlay.data_type = "RGBA"
         detail_overlay.blend_type = "OVERLAY"
-        _ = links.new(input.outputs[11], detail_overlay.inputs[0])
-        _ = links.new(pore_overlay.outputs[2], detail_overlay.inputs[6])
-        _ = links.new(input.outputs[5], detail_overlay.inputs[7])
+        create_link(links, input, detail_overlay, 11, 0)
+        create_link(links, pore_overlay, detail_overlay, 2, 6)
+        create_link(links, input, detail_overlay, 5, 7)
 
         norm_normalize = create_node(nodes, 0, 0, ShaderNodeGroup)
         norm_normalize.node_tree = cast(ShaderNodeTree, NormNormalize().node_tree)
         assign_value(norm_normalize, 1, 1.0)
-        _ = links.new(detail_overlay.outputs[2], norm_normalize.inputs[0])
+        create_link(links, detail_overlay, norm_normalize, 2, 0)
 
         normal_map = create_node(nodes, 0, 0, ShaderNodeNormalMap)
-        _ = links.new(norm_normalize.outputs[0], normal_map.inputs[1])
+        create_link(links, norm_normalize, normal_map, 0, 1)
         if bpy.app.version >= (5, 2, 0):
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[6])
+            create_link(links, normal_map, bsdf, 0, 6)
         else:
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
-        _ = links.new(bsdf.outputs[0], output.inputs[0])
+            create_link(links, normal_map, bsdf, 0, 5)
+        create_link(links, bsdf, output, 0, 0)

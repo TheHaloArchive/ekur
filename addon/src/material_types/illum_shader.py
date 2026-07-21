@@ -12,7 +12,7 @@ from bpy.types import (
 from ..constants import EMPTY_TEXTURES
 from ..json_definitions import CommonMaterial
 from ..nodes.illum import SelfIllum
-from ..utils import assign_value, create_image, create_node
+from ..utils import assign_value, create_image, create_node, create_link
 
 __all__ = ["IllumShader"]
 
@@ -28,15 +28,15 @@ class IllumShader:
         color_image = None
         if col:
             color_image = create_image(self.tree.nodes, -100, str(col))
-            _ = self.tree.links.new(color_image.outputs[0], nodes.inputs[0])
+            create_link(self.tree.links, color_image, nodes, 0, 0)
 
         alpha_map = self.material["textures"].get("AlphaMap")
         if alpha_map:
             img = create_image(self.tree.nodes, -200, str(alpha_map))
             if alpha_map in EMPTY_TEXTURES and color_image:
-                _ = self.tree.links.new(color_image.outputs[0], nodes.inputs[1])
+                create_link(self.tree.links, color_image, nodes, 0, 1)
             else:
-                _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
+                create_link(self.tree.links, img, nodes, 0, 1)
 
     def _create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)
@@ -52,4 +52,4 @@ class IllumShader:
 
         self._get_textures(shader)
         material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
-        _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
+        create_link(self.tree.links, shader, material_output, 0, 0)

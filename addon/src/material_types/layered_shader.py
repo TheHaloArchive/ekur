@@ -36,6 +36,7 @@ from ..utils import (
     get_package_name,
     read_json_file,
     read_texture,
+    create_link,
 )
 
 __all__ = ["LayeredShader"]
@@ -59,7 +60,7 @@ class LayeredShader:
         self.shader.node_tree = cast(ShaderNodeTree, HIMS().node_tree)
         self.shader.width = 400
         material_output = create_node(self.node_tree.nodes, 2000, 150, ShaderNodeOutputMaterial)
-        _ = self.node_tree.links.new(self.shader.outputs[0], material_output.inputs[0])
+        create_link(self.node_tree.links, self.shader, material_output, 0, 0)
 
     def create_image(self, shader: NodeTree, name: int, y: int) -> ShaderNodeTexImage:
         texture = create_node(shader.nodes, 0, y, ShaderNodeTexImage)
@@ -81,25 +82,25 @@ class LayeredShader:
                 invert = create_node(self.node_tree.nodes, 0, 120, ShaderNodeInvert)
                 if props.flip_alpha:
                     assign_value(invert, 0, 0.0)
-                _ = self.node_tree.links.new(tex.outputs[1], invert.inputs[1])
+                create_link(self.node_tree.links, tex, invert, 1, 1)
                 transparencies = [21, 35, 49, 63, 77, 91, 105]
                 for i in transparencies:
-                    _ = self.node_tree.links.new(invert.outputs[0], self.shader.inputs[i])
-            _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[0])
+                    _ = create_link(self.node_tree.links, invert, self.shader, 0, i)
+            create_link(self.node_tree.links, tex, self.shader, 0, 0)
             tex2 = self.create_image(self.node_tree, textures["Asg"], -2705)
             tex2.interpolation = "Cubic"
-            _ = self.node_tree.links.new(tex2.outputs[0], self.shader.inputs[124])
+            create_link(self.node_tree.links, tex2, self.shader, 0, 124)
         if textures.get("Mask0"):
             self.has_mask0 = True
             tex = self.create_image(self.node_tree, textures["Mask0"], 80)
-            _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[1])
+            create_link(self.node_tree.links, tex, self.shader, 0, 1)
         if textures.get("Mask1"):
             self.has_mask1 = True
             tex = self.create_image(self.node_tree, textures["Mask1"], 40)
-            _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[2])
+            create_link(self.node_tree.links, tex, self.shader, 0, 2)
         if textures.get("Normal") and textures["Normal"] != -1:
             tex = self.create_image(self.node_tree, textures["Normal"], 0)
-            _ = self.node_tree.links.new(tex.outputs[0], self.shader.inputs[3])
+            create_link(self.node_tree.links, tex, self.shader, 0, 3)
 
     def process_styles(self, custom_id: int = 0) -> None:
         style = self.styles["default_style"]["reference"]

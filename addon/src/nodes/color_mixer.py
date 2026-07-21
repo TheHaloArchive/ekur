@@ -11,7 +11,7 @@ from bpy.types import (
     ShaderNodeMix,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["ColorMixer"]
 
@@ -64,12 +64,12 @@ class ColorMixer:
         mix1.data_type = "RGBA"
 
         links = self.node_tree.links
-        _ = links.new(input.outputs[2], mix1.inputs[6])
-        _ = links.new(mix1.outputs[2], mix.inputs[6])
-        _ = links.new(input.outputs[3], mix.inputs[7])
-        _ = links.new(mix.outputs[2], output.inputs[0])
-        _ = links.new(input.outputs[1], mix1.inputs[7])
-        _ = links.new(input.outputs[0], madd.inputs[0])
-        _ = links.new(input.outputs[0], madd2.inputs[0])
-        _ = links.new(madd.outputs[0], mix1.inputs[0])
-        _ = links.new(madd2.outputs[0], mix.inputs[0])
+        create_link(links, input, mix1, 2, 6)
+        create_link(links, mix1, mix, 2, 6)
+        create_link(links, input, mix, 3, 7)
+        create_link(links, mix, output, 2, 0)
+        create_link(links, input, mix1, 1, 7)
+        create_link(links, input, madd, 0, 0)
+        create_link(links, input, madd2, 0, 0)
+        create_link(links, madd, mix1, 0, 0)
+        create_link(links, madd2, mix, 0, 0)
