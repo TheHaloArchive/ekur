@@ -24,7 +24,6 @@ from bpy.types import (
     ShaderNodeTexImage,
     ShaderNodeTree,
     NodeLinks,
-    ShaderNode,
     NodeLink,
 )
 

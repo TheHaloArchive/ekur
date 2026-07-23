@@ -8,7 +8,6 @@ from bpy.types import (
     Context,
     Material,
     Mesh,
-    NodeSocketColor,
     Object,
     Operator,
     ShaderNodeRGB,
