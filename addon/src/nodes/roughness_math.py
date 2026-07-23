@@ -11,7 +11,7 @@ from bpy.types import (
     ShaderNodeMix,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["RoughnessMath"]
 
@@ -57,12 +57,12 @@ class RoughnessMath:
         mix.data_type = "RGBA"
 
         links = self.node_tree.links
-        _ = links.new(input.outputs[1], divide.inputs[0])
-        _ = links.new(divide.outputs[0], multiply.inputs[1])
-        _ = links.new(input.outputs[2], multiply.inputs[0])
-        _ = links.new(multiply.outputs[0], mix.inputs[6])
-        _ = links.new(input.outputs[0], mix.inputs[0])
-        _ = links.new(multiply2.outputs[0], mix.inputs[7])
-        _ = links.new(input.outputs[3], multiply2.inputs[0])
-        _ = links.new(divide.outputs[0], multiply2.inputs[1])
-        _ = links.new(mix.outputs[2], output.inputs[0])
+        create_link(links, input, divide, 1, 0)
+        create_link(links, divide, multiply, 0, 1)
+        create_link(links, input, multiply, 2, 0)
+        create_link(links, multiply, mix, 0, 6)
+        create_link(links, input, mix, 0, 0)
+        create_link(links, multiply2, mix, 0, 7)
+        create_link(links, input, multiply2, 3, 0)
+        create_link(links, divide, multiply2, 0, 1)
+        create_link(links, mix, output, 2, 0)

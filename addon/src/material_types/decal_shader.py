@@ -11,7 +11,7 @@ from bpy.types import (
 
 from ..json_definitions import CommonMaterial
 from ..nodes.decal import Decal
-from ..utils import assign_value, create_image, create_node
+from ..utils import assign_value, create_image, create_node, create_link
 
 __all__ = ["DecalShader"]
 
@@ -25,11 +25,11 @@ class DecalShader:
     def _get_textures(self, nodes: ShaderNodeGroup) -> None:
         if self.material["textures"].get("Control"):
             img = create_image(self.tree.nodes, -100, str(self.material["textures"]["Control"]))
-            _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
+            create_link(self.tree.links, img, nodes, 0, 0)
 
         if self.material["textures"].get("Normal"):
             img = create_image(self.tree.nodes, -200, str(self.material["textures"]["Normal"]))
-            _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
+            create_link(self.tree.links, img, nodes, 0, 1)
 
     def _create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)
@@ -48,4 +48,4 @@ class DecalShader:
 
         self._get_textures(shader)
         material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
-        _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
+        create_link(self.tree.links, shader, material_output, 0, 0)

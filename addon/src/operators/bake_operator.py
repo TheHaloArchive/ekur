@@ -8,7 +8,6 @@ from bpy.types import (
     Context,
     Material,
     Mesh,
-    NodeSocketColor,
     Object,
     Operator,
     ShaderNodeRGB,
@@ -75,12 +74,17 @@ def get_width_height(material: Material) -> tuple[int, int]:
 @final
 class AlignBakeOperator(Operator):
     bl_idname = "ekur.alignbake"
+    bl_description = "Align"
     bl_label = "Align"
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         selected_objects = bpy.context.selected_objects
         options = get_bake_options()
-        if len(selected_objects) >= 1 and len(selected_objects[0].material_slots) >= 1:
+        if (
+            selected_objects
+            and len(selected_objects) >= 1
+            and len(selected_objects[0].material_slots) >= 1
+        ):
             if selected_objects[0].active_material_index is None:
                 return {"CANCELLED"}
             material_slot = selected_objects[0].material_slots[
@@ -97,6 +101,7 @@ class AlignBakeOperator(Operator):
 @final
 class AdvancedBakeOperator(Operator):
     bl_idname = "ekur.toggleadvancedbake"
+    bl_description = "Toggle Advanced Bake"
     bl_label = "Toggle"
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
@@ -104,6 +109,8 @@ class AdvancedBakeOperator(Operator):
         datasource = bpy.context.selected_objects
         if options.selected_objects == "All" and bpy.context.scene:
             datasource = bpy.data.objects
+        if not datasource:
+            return {""}
         for object in datasource:
             if object.type != "MESH" or not object.material_slots:
                 continue
@@ -125,6 +132,7 @@ class AdvancedBakeOperator(Operator):
 @final
 class BakingOperator(Operator):
     bl_idname = "ekur.baketextures"
+    bl_description = "Bake"
     bl_label = "Bake"
 
     def bake_detail(self, object: Object, col: Collection) -> None:
@@ -136,8 +144,19 @@ class BakingOperator(Operator):
         col.objects.link(duplicate)
         object.select_set(False)
         duplicate.select_set(True)
+        scene = bpy.context.scene
         if bpy.context.view_layer:
             bpy.context.view_layer.objects.active = duplicate
+        if not scene or not scene.display_settings or not scene.view_settings:
+            return
+        previous_display = scene.display_settings.display_device
+        previous_view_transform = scene.view_settings.view_transform
+        previous_view_look = scene.view_settings.look
+
+        scene.display_settings.display_device = 'sRGB' # ty: ignore[invalid-assignment]
+        scene.view_settings.view_transform = 'Standard' # ty: ignore[invalid-assignment]
+        scene.view_settings.look = 'None' # ty: ignore[invalid-assignment]
+
         bpy.ops.mesh.customdata_custom_splitnormals_clear()
         bpy.ops.object.shade_flat()
         for mat in duplicate.material_slots:
@@ -161,8 +180,9 @@ class BakingOperator(Operator):
             if shader and shader.inputs[3].links:
                 rgb_value = create_node(material.node_tree.nodes, 0, 0, ShaderNodeRGB)
                 val = (0.5, 0.5, 1.0, 1.0)
-                cast(NodeSocketColor, rgb_value.outputs[0]).default_value = val
-                _ = material.node_tree.links.new(rgb_value.outputs[0], shader.inputs[3])
+                if rgb_value.outputs:
+                    rgb_value.outputs[0].default_value = val
+                    _ = material.node_tree.links.new(rgb_value.outputs[0], shader.inputs[3])
             mat_name = f"{material.name}_DetailNormal"
             if options.merge_textures:
                 mat_name = f"{object.name}_DetailNormal"
@@ -189,9 +209,13 @@ class BakingOperator(Operator):
             )
             img.save_render(f"{options.output_path}/{mat_name}.png")
             duplicate.select_set(False)
+        scene.display_settings.display_device = previous_display
+        scene.view_settings.view_transform = previous_view_transform
+        scene.view_settings.look = previous_view_look
 
     def bake_material(
         self,
+        context: Context,
         material: Material,
         object: Object,
         options: BakeOptionsType,
@@ -203,9 +227,18 @@ class BakingOperator(Operator):
             return
         shader = material.node_tree.nodes.get("Group")
         mat_output = material.node_tree.nodes.get("Material Output")
-        if not shader or not mat_output:
+        scene = context.scene
+        if not shader or not mat_output or not scene or not scene.display_settings or not scene.view_settings:
             return
         preset = PRESETS[options.output_workflow]
+
+        previous_display = scene.display_settings.display_device
+        previous_view_transform = scene.view_settings.view_transform
+        previous_view_look = scene.view_settings.look
+
+        scene.display_settings.display_device = 'sRGB' # ty: ignore[invalid-assignment]
+        scene.view_settings.view_transform = 'Standard' # ty: ignore[invalid-assignment]
+        scene.view_settings.look = 'None' # ty: ignore[invalid-assignment]
 
         if options.bake_ao:
             preset["AO"] = 7
@@ -259,6 +292,9 @@ class BakingOperator(Operator):
                 texture_node.image.save(filepath=f"{options.output_path}/{mat_name}_BaseNormal.png")
         if options.merge_textures and options.merge_objects:
             return material.name
+        scene.display_settings.display_device = previous_display
+        scene.view_settings.view_transform = previous_view_transform
+        scene.view_settings.look = previous_view_look
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None or context.scene is None:
@@ -276,7 +312,8 @@ class BakingOperator(Operator):
             context.collection.children.link(duplicate_collection)
 
         override_mat: str = ""
-
+        if not selected_objects:
+            return {""}
         for object in selected_objects:
             if type(object.data) is Mesh:
                 object.data.uv_layers.active_index = int(options.uv_to_bake_to.split("UV")[-1])
@@ -299,7 +336,7 @@ class BakingOperator(Operator):
                 if material.node_tree:
                     if options.merge_textures or options.merge_objects:
                         m = self.bake_material(
-                            material, object, options, tex_nodes[i], override_mat
+                            context, material, object, options, tex_nodes[i], override_mat
                         )
                         if options.merge_objects and m:
                             override_mat = m
@@ -307,7 +344,7 @@ class BakingOperator(Operator):
                         i += 1
 
                     else:
-                        _ = self.bake_material(material, object, options, None)
+                        _ = self.bake_material(context, material, object, options, None)
 
         if options.bake_detail_normals:
             bpy.data.collections.remove(duplicate_collection)

@@ -10,7 +10,7 @@ from bpy.types import (
     ShaderNodeMath,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["HeightAccumL1"]
 
@@ -64,13 +64,13 @@ class HeightAccumL1:
         group_output = create_node(nodes, 523, 0, NodeGroupOutput)
         group_input = create_node(nodes, -695, -5, NodeGroupInput)
 
-        _ = links.new(math.outputs[0], math_001.inputs[0])
-        _ = links.new(math_001.outputs[0], math_002.inputs[0])
-        _ = links.new(math_003.outputs[0], math_002.inputs[1])
-        _ = links.new(math_002.outputs[0], clamp.inputs[0])
-        _ = links.new(group_input.outputs[1], math.inputs[1])
-        _ = links.new(group_input.outputs[0], math.inputs[0])
-        _ = links.new(group_input.outputs[0], math_001.inputs[1])
-        _ = links.new(group_input.outputs[0], math_003.inputs[0])
-        _ = links.new(group_input.outputs[2], math_003.inputs[1])
-        _ = links.new(clamp.outputs[0], group_output.inputs[0])
+        create_link(links, math, math_001, 0, 0)
+        create_link(links, math_001, math_002, 0, 0)
+        create_link(links, math_003, math_002, 0, 1)
+        create_link(links, math_002, clamp, 0, 0)
+        create_link(links, group_input, math, 1, 1)
+        create_link(links, group_input, math, 0, 0)
+        create_link(links, group_input, math_001, 0, 1)
+        create_link(links, group_input, math_003, 0, 0)
+        create_link(links, group_input, math_003, 2, 1)
+        create_link(links, clamp, group_output, 0, 0)

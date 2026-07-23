@@ -11,7 +11,7 @@ from bpy.types import (
     ShaderNodeSeparateColor,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import create_node, create_socket, create_link
 
 __all__ = ["InfiniteMaskingSorterNoGrimeCol"]
 
@@ -67,24 +67,24 @@ class InfiniteMaskingSorterNoGrimeCol:
             node.clamp_factor = True
 
         links = self.node_tree.links
-        _ = links.new(input.outputs[2], srgb2.inputs[0])
-        _ = links.new(input.outputs[1], srgb1.inputs[0])
-        _ = links.new(slot1_2.outputs[2], slot3.inputs[6])
-        _ = links.new(srgb1.outputs[0], slot1_2.inputs[0])
-        _ = links.new(slot3.outputs[2], slot4.inputs[6])
-        _ = links.new(srgb1.outputs[1], slot3.inputs[0])
-        _ = links.new(slot4.outputs[2], slot5.inputs[6])
-        _ = links.new(srgb1.outputs[2], slot4.inputs[0])
-        _ = links.new(slot5.outputs[2], slot6.inputs[6])
-        _ = links.new(srgb2.outputs[0], slot5.inputs[0])
-        _ = links.new(srgb2.outputs[1], slot6.inputs[0])
-        _ = links.new(slot6.outputs[2], slot7.inputs[6])
-        _ = links.new(input.outputs[4], slot1_2.inputs[6])
-        _ = links.new(input.outputs[5], slot1_2.inputs[7])
-        _ = links.new(input.outputs[6], slot3.inputs[7])
-        _ = links.new(input.outputs[7], slot4.inputs[7])
-        _ = links.new(input.outputs[8], slot5.inputs[7])
-        _ = links.new(input.outputs[9], slot6.inputs[7])
-        _ = links.new(input.outputs[10], slot7.inputs[7])
-        _ = links.new(srgb2.outputs[2], slot7.inputs[0])
-        _ = links.new(slot7.outputs[2], output.inputs[0])
+        create_link(links, input, srgb2, 2, 0)
+        create_link(links, input, srgb1, 1, 0)
+        create_link(links, slot1_2, slot3, 2, 6)
+        create_link(links, srgb1, slot1_2, 0, 0)
+        create_link(links, slot3, slot4, 2, 6)
+        create_link(links, srgb1, slot3, 1, 0)
+        create_link(links, slot4, slot5, 2, 6)
+        create_link(links, srgb1, slot4, 2, 0)
+        create_link(links, slot5, slot6, 2, 6)
+        create_link(links, srgb2, slot5, 0, 0)
+        create_link(links, srgb2, slot6, 1, 0)
+        create_link(links, slot6, slot7, 2, 6)
+        create_link(links, input, slot1_2, 4, 6)
+        create_link(links, input, slot1_2, 5, 7)
+        create_link(links, input, slot3, 6, 7)
+        create_link(links, input, slot4, 7, 7)
+        create_link(links, input, slot5, 8, 7)
+        create_link(links, input, slot6, 9, 7)
+        create_link(links, input, slot7, 10, 7)
+        create_link(links, srgb2, slot7, 2, 0)
+        create_link(links, slot7, output, 2, 0)

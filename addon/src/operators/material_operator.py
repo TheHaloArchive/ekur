@@ -32,8 +32,11 @@ def get_materials() -> list[MaterialSlot]:
     properties = get_material_options()
     if properties.selected_only:
         data_source = bpy.context.selected_objects
-    meshes = [obj for obj in data_source if obj.type == "MESH"]
-    return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
+    if data_source:
+        meshes = [obj for obj in data_source if obj.type == "MESH"]
+        return [mat_slot for obj in meshes for mat_slot in obj.material_slots]
+    else:
+        return []
 
 
 def import_materials() -> None:
@@ -99,6 +102,7 @@ def run_material(material: CommonMaterial, node_tree: ShaderNodeTree) -> None:
 class ImportMaterialOperator(Operator):
     bl_idname = "ekur.importmaterial"
     bl_label = "Import"
+    bl_description = "Import Material"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]

@@ -31,7 +31,7 @@ def _create_transform(rot_matrix: Matrix, trans_matrix: Matrix) -> Matrix:
 
     m = transform.transposed()
     translation, rotation, _ = m.decompose()
-    return Matrix.Translation(translation * 1) @ rotation.to_matrix().to_4x4()
+    return Matrix.Translation(translation.to_tuple() * 1) @ rotation.to_matrix().to_4x4()
 
 
 def _get_bone_lineage(model: Model, bone: Bone) -> list[Bone]:

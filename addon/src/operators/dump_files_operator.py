@@ -17,6 +17,7 @@ from ..utils import debug_print, get_addon_preferences, get_data_folder, get_pac
 class DumpFilesOperator(Operator):
     bl_idname = "ekur.dumpfiles"
     bl_label = "Dump Required Files"
+    bl_description = "Dump"
 
     def execute(self, context: Context | None) -> set[str]:  # ty:ignore[invalid-method-override]
         if context is None:
@@ -27,11 +28,12 @@ class DumpFilesOperator(Operator):
         extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
 
         save_path = f"{extension_path}/strings.txt"
+        mapid_path = f"{extension_path}/map_ids.txt"
+        modelid_path = f"{extension_path}/model_ids.txt"
         ekur_save_path = Path(f"{extension_path}/ekur-{version_string}")
         if platform.system() == "Windows":
             ekur_save_path = Path(f"{ekur_save_path}.exe")
 
-        save_path = f"{extension_path}/strings.txt"
         proc = [
             str(ekur_save_path),
             "--save-path",
@@ -40,6 +42,10 @@ class DumpFilesOperator(Operator):
             prefs.deploy_folder,
             "--strings-path",
             save_path,
+            "--mapid-path",
+            mapid_path,
+            "--modelid-path",
+            modelid_path,
         ]
         if not prefs.dump_textures:
             proc.append("--skip-bitmaps")

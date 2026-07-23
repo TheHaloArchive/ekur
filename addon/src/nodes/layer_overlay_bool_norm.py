@@ -15,7 +15,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import create_node, create_socket, create_link
 from .normal_map_combine_orientation import NormalMapCombineOrientationNonNorm
 
 __all__ = ["LayerOverlayBoolNorm"]
@@ -71,13 +71,13 @@ class LayerOverlayBoolNorm:
             ShaderNodeTree, NormalMapCombineOrientationNonNorm().node_tree
         )
 
-        _ = links.new(group_input.outputs[0], mix_004.inputs[0])
-        _ = links.new(group_input.outputs[1], mix_007.inputs[0])
-        _ = links.new(group_input.outputs[1], normal_map_combine_orientation.inputs[0])
-        _ = links.new(group_input.outputs[2], mix_007.inputs[6])
-        _ = links.new(group_input.outputs[2], normal_map_combine_orientation.inputs[1])
-        _ = links.new(group_input.outputs[3], mix_007.inputs[7])
-        _ = links.new(group_input.outputs[3], normal_map_combine_orientation.inputs[2])
-        _ = links.new(mix_007.outputs[2], mix_004.inputs[6])
-        _ = links.new(normal_map_combine_orientation.outputs[0], mix_004.inputs[7])
-        _ = links.new(mix_004.outputs[2], group_output.inputs[0])
+        create_link(links, group_input, mix_004, 0, 0)
+        create_link(links, group_input, mix_007, 1, 0)
+        create_link(links, group_input, normal_map_combine_orientation, 1, 0)
+        create_link(links, group_input, mix_007, 2, 6)
+        create_link(links, group_input, normal_map_combine_orientation, 2, 1)
+        create_link(links, group_input, mix_007, 3, 7)
+        create_link(links, group_input, normal_map_combine_orientation, 3, 2)
+        create_link(links, mix_007, mix_004, 2, 6)
+        create_link(links, normal_map_combine_orientation, mix_004, 0, 7)
+        create_link(links, mix_004, group_output, 2, 0)

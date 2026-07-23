@@ -12,7 +12,7 @@ from bpy.types import (
     ShaderNodeSeparateColor,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["OcclusionBlend"]
 
@@ -97,23 +97,23 @@ class OcclusionBlend:
         math_003 = create_node(nodes, 806, 448, ShaderNodeMath)
         math_003.operation = "MULTIPLY"
 
-        _ = links.new(group_input.outputs[0], separate_color.inputs[0])
-        _ = links.new(separate_color.outputs[0], mix.inputs[0])
-        _ = links.new(separate_color.outputs[1], mix_002.inputs[0])
-        _ = links.new(separate_color.outputs[2], mix_003.inputs[0])
-        _ = links.new(group_input.outputs[1], mix_004.inputs[0])
-        _ = links.new(group_input.outputs[4], mix.inputs[3])
-        _ = links.new(mix.outputs[0], mix_002.inputs[2])
-        _ = links.new(group_input.outputs[5], mix_002.inputs[3])
-        _ = links.new(mix_002.outputs[0], mix_003.inputs[2])
-        _ = links.new(group_input.outputs[6], mix_003.inputs[3])
-        _ = links.new(mix_003.outputs[0], mix_004.inputs[2])
-        _ = links.new(group_input.outputs[7], mix_004.inputs[3])
-        _ = links.new(group_input.outputs[2], math.inputs[0])
-        _ = links.new(group_input.outputs[3], math_001.inputs[0])
-        _ = links.new(math.outputs[0], math_001.inputs[1])
-        _ = links.new(math_001.outputs[0], math_002.inputs[0])
-        _ = links.new(math_002.outputs[0], math_003.inputs[0])
-        _ = links.new(mix_004.outputs[0], math_003.inputs[1])
-        _ = links.new(math_003.outputs[0], group_output.inputs[0])
-        _ = links.new(mix_004.outputs[0], group_output.inputs[1])
+        create_link(links, group_input, separate_color, 0, 0)
+        create_link(links, separate_color, mix, 0, 0)
+        create_link(links, separate_color, mix_002, 1, 0)
+        create_link(links, separate_color, mix_003, 2, 0)
+        create_link(links, group_input, mix_004, 1, 0)
+        create_link(links, group_input, mix, 4, 3)
+        create_link(links, mix, mix_002, 0, 2)
+        create_link(links, group_input, mix_002, 5, 3)
+        create_link(links, mix_002, mix_003, 0, 2)
+        create_link(links, group_input, mix_003, 6, 3)
+        create_link(links, mix_003, mix_004, 0, 2)
+        create_link(links, group_input, mix_004, 7, 3)
+        create_link(links, group_input, math, 2, 0)
+        create_link(links, group_input, math_001, 3, 0)
+        create_link(links, math, math_001, 0, 1)
+        create_link(links, math_001, math_002, 0, 0)
+        create_link(links, math_002, math_003, 0, 0)
+        create_link(links, mix_004, math_003, 0, 1)
+        create_link(links, math_003, group_output, 0, 0)
+        create_link(links, mix_004, group_output, 0, 1)

@@ -35,6 +35,7 @@ __all__ = ["ForgeOperator"]
 class ForgeOperator(Operator):
     bl_idname = "ekur.importforge"
     bl_label = "Import"
+    bl_description = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
     def __init__(self, *args, **kwargs) -> None:

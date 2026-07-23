@@ -15,7 +15,7 @@ from bpy.types import (
     ShaderNodeVectorMath,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["NormNormalize"]
 
@@ -96,24 +96,24 @@ class NormNormalize:
         assign_value(one_minus_y, 0, 1.0)
 
         links = self.node_tree.links
-        _ = links.new(input.outputs[0], separate_xyz.inputs[0])
-        _ = links.new(divide.outputs[2], output.inputs[0])
-        _ = links.new(combine_normal.outputs[0], normalize.inputs[0])
-        _ = links.new(clamp_mult.outputs[0], one_minus.inputs[1])
-        _ = links.new(one_minus.outputs[0], sqrt.inputs[0])
-        _ = links.new(sqrt.outputs[0], combine_normal.inputs[2])
-        _ = links.new(add.outputs[2], divide.inputs[6])
-        _ = links.new(normalize.outputs[0], add.inputs[6])
-        _ = links.new(mult.outputs[0], clamp_mult.inputs[2])
-        _ = links.new(normal_remap.outputs[0], clamp_mult.inputs[0])
-        _ = links.new(normal_remap.outputs[0], clamp_mult.inputs[1])
-        _ = links.new(mult_add.outputs[0], mult.inputs[1])
-        _ = links.new(mult_add.outputs[0], mult.inputs[0])
-        _ = links.new(normal_remap.outputs[0], combine_normal.inputs[0])
-        _ = links.new(separate_xyz.outputs[0], normal_remap.inputs[0])
-        _ = links.new(input.outputs[1], mix_flip.inputs[0])
-        _ = links.new(separate_xyz.outputs[1], one_minus_y.inputs[1])
-        _ = links.new(one_minus_y.outputs[0], mix_flip.inputs[3])
-        _ = links.new(separate_xyz.outputs[1], mix_flip.inputs[2])
-        _ = links.new(mix_flip.outputs[0], mult_add.inputs[0])
-        _ = links.new(mult_add.outputs[0], combine_normal.inputs[1])
+        create_link(links, input, separate_xyz, 0, 0)
+        create_link(links, divide, output, 2, 0)
+        create_link(links, combine_normal, normalize, 0, 0)
+        create_link(links, clamp_mult, one_minus, 0, 1)
+        create_link(links, one_minus, sqrt, 0, 0)
+        create_link(links, sqrt, combine_normal, 0, 2)
+        create_link(links, add, divide, 2, 6)
+        create_link(links, normalize, add, 0, 6)
+        create_link(links, mult, clamp_mult, 0, 2)
+        create_link(links, normal_remap, clamp_mult, 0, 0)
+        create_link(links, normal_remap, clamp_mult, 0, 1)
+        create_link(links, mult_add, mult, 0, 1)
+        create_link(links, mult_add, mult, 0, 0)
+        create_link(links, normal_remap, combine_normal, 0, 0)
+        create_link(links, separate_xyz, normal_remap, 0, 0)
+        create_link(links, input, mix_flip, 1, 0)
+        create_link(links, separate_xyz, one_minus_y, 1, 1)
+        create_link(links, one_minus_y, mix_flip, 0, 3)
+        create_link(links, separate_xyz, mix_flip, 1, 2)
+        create_link(links, mix_flip, mult_add, 0, 0)
+        create_link(links, mult_add, combine_normal, 0, 1)

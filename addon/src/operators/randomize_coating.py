@@ -13,6 +13,7 @@ class RandomizeCoatingOperator(Operator):
     """Operator to randomize the coating style on the selected material."""
 
     bl_idname = "ekur.randomize"
+    bl_description = "Randomize"
     bl_label = "Surprise Me"
 
     def execute(self, context: Context) -> set[str]:  # ty:ignore[invalid-method-override]

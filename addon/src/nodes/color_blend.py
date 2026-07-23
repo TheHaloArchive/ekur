@@ -15,7 +15,7 @@ from bpy.types import (
     ShaderNodeTree,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 from .layer_overlay_bool_col import LayerOverlayBoolCol
 
 __all__ = ["ColorBlend"]
@@ -72,20 +72,20 @@ class ColorBlend:
         layer_overlay_bool_col_003.node_tree = cast(ShaderNodeTree, LayerOverlayBoolCol().node_tree)
         assign_value(layer_overlay_bool_col_003, 2, (0.0, 0.0, 0.0, 1.0))
 
-        _ = links.new(group_input.outputs[0], separate_color.inputs[0])
-        _ = links.new(layer_overlay_bool_col_003.outputs[0], layer_overlay_bool_col.inputs[2])
-        _ = links.new(group_input.outputs[4], layer_overlay_bool_col.inputs[3])
-        _ = links.new(separate_color.outputs[1], layer_overlay_bool_col.inputs[1])
-        _ = links.new(layer_overlay_bool_col.outputs[0], layer_overlay_bool_col_001.inputs[2])
-        _ = links.new(separate_color.outputs[2], layer_overlay_bool_col_001.inputs[1])
-        _ = links.new(group_input.outputs[6], layer_overlay_bool_col_001.inputs[3])
-        _ = links.new(group_input.outputs[5], layer_overlay_bool_col.inputs[0])
-        _ = links.new(group_input.outputs[7], layer_overlay_bool_col_001.inputs[0])
-        _ = links.new(layer_overlay_bool_col_001.outputs[0], layer_overlay_bool_col_002.inputs[2])
-        _ = links.new(group_input.outputs[2], layer_overlay_bool_col_003.inputs[3])
-        _ = links.new(separate_color.outputs[0], layer_overlay_bool_col_003.inputs[1])
-        _ = links.new(group_input.outputs[3], layer_overlay_bool_col_003.inputs[0])
-        _ = links.new(group_input.outputs[9], layer_overlay_bool_col_002.inputs[0])
-        _ = links.new(group_input.outputs[1], layer_overlay_bool_col_002.inputs[1])
-        _ = links.new(group_input.outputs[8], layer_overlay_bool_col_002.inputs[3])
-        _ = links.new(layer_overlay_bool_col_002.outputs[0], group_output.inputs[0])
+        create_link(links, group_input, separate_color, 0, 0)
+        create_link(links, layer_overlay_bool_col_003, layer_overlay_bool_col, 0, 2)
+        create_link(links, group_input, layer_overlay_bool_col, 4, 3)
+        create_link(links, separate_color, layer_overlay_bool_col, 1, 1)
+        create_link(links, layer_overlay_bool_col, layer_overlay_bool_col_001, 0, 2)
+        create_link(links, separate_color, layer_overlay_bool_col_001, 2, 1)
+        create_link(links, group_input, layer_overlay_bool_col_001, 6, 3)
+        create_link(links, group_input, layer_overlay_bool_col, 5, 0)
+        create_link(links, group_input, layer_overlay_bool_col_001, 7, 0)
+        create_link(links, layer_overlay_bool_col_001, layer_overlay_bool_col_002, 0, 2)
+        create_link(links, group_input, layer_overlay_bool_col_003, 2, 3)
+        create_link(links, separate_color, layer_overlay_bool_col_003, 0, 1)
+        create_link(links, group_input, layer_overlay_bool_col_003, 3, 0)
+        create_link(links, group_input, layer_overlay_bool_col_002, 9, 0)
+        create_link(links, group_input, layer_overlay_bool_col_002, 1, 1)
+        create_link(links, group_input, layer_overlay_bool_col_002, 8, 3)
+        create_link(links, layer_overlay_bool_col_002, group_output, 0, 0)

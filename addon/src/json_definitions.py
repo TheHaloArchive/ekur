@@ -301,7 +301,7 @@ class CommonStyleList(TypedDict):
 class CustomizationAttachment(TypedDict):
     tag_id: int
     marker_name: int
-    model: int
+    model: str
 
 
 class CustomizationPermutation(TypedDict):
@@ -332,7 +332,7 @@ class CustomizationTheme(TypedDict):
 
 
 class CustomizationGlobals(TypedDict):
-    model: int
+    model: str
     themes: list[CustomizationTheme]
 
 
@@ -354,7 +354,7 @@ class Level(TypedDict):
 class ForgeObjectRepresentation(TypedDict):
     name: str
     name_int: int
-    model: int
+    model: str
     variant: int
     style: int
     is_rtgo: bool

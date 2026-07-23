@@ -3,7 +3,7 @@
 import bpy
 from bpy.types import NodeGroupInput, NodeGroupOutput, NodeSocketFloat, NodeTree, ShaderNodeMix
 
-from ..utils import create_node, create_socket
+from ..utils import create_node, create_socket, create_link
 
 __all__ = ["ScratchGlobalToggle"]
 
@@ -54,27 +54,27 @@ class ScratchGlobalToggle:
         input = create_node(nodes, -341, 15, NodeGroupInput)
 
         links = self.node_tree.links
-        _ = links.new(zone2.outputs[0], output.inputs[0])
-        _ = links.new(zone3.outputs[0], output.inputs[1])
-        _ = links.new(mix.outputs[0], output.inputs[2])
-        _ = links.new(zone5.outputs[0], output.inputs[3])
-        _ = links.new(zone6.outputs[0], output.inputs[4])
-        _ = links.new(dust.outputs[0], output.inputs[5])
-        _ = links.new(input.outputs[7], zone2.inputs[0])
-        _ = links.new(input.outputs[7], zone3.inputs[0])
-        _ = links.new(input.outputs[7], mix.inputs[0])
-        _ = links.new(input.outputs[7], zone5.inputs[0])
-        _ = links.new(input.outputs[7], zone6.inputs[0])
-        _ = links.new(input.outputs[7], dust.inputs[0])
-        _ = links.new(input.outputs[0], zone2.inputs[3])
-        _ = links.new(input.outputs[0], zone3.inputs[3])
-        _ = links.new(input.outputs[0], mix.inputs[3])
-        _ = links.new(input.outputs[0], zone5.inputs[3])
-        _ = links.new(input.outputs[0], zone6.inputs[3])
-        _ = links.new(input.outputs[0], dust.inputs[3])
-        _ = links.new(input.outputs[1], zone2.inputs[2])
-        _ = links.new(input.outputs[2], zone3.inputs[2])
-        _ = links.new(input.outputs[3], mix.inputs[2])
-        _ = links.new(input.outputs[4], zone5.inputs[2])
-        _ = links.new(input.outputs[5], zone6.inputs[2])
-        _ = links.new(input.outputs[6], dust.inputs[2])
+        create_link(links, zone2, output, 0, 0)
+        create_link(links, zone3, output, 0, 1)
+        create_link(links, mix, output, 0, 2)
+        create_link(links, zone5, output, 0, 3)
+        create_link(links, zone6, output, 0, 4)
+        create_link(links, dust, output, 0, 5)
+        create_link(links, input, zone2, 7, 0)
+        create_link(links, input, zone3, 7, 0)
+        create_link(links, input, mix, 7, 0)
+        create_link(links, input, zone5, 7, 0)
+        create_link(links, input, zone6, 7, 0)
+        create_link(links, input, dust, 7, 0)
+        create_link(links, input, zone2, 0, 3)
+        create_link(links, input, zone3, 0, 3)
+        create_link(links, input, mix, 0, 3)
+        create_link(links, input, zone5, 0, 3)
+        create_link(links, input, zone6, 0, 3)
+        create_link(links, input, dust, 0, 3)
+        create_link(links, input, zone2, 1, 2)
+        create_link(links, input, zone3, 2, 2)
+        create_link(links, input, mix, 3, 2)
+        create_link(links, input, zone5, 4, 2)
+        create_link(links, input, zone6, 5, 2)
+        create_link(links, input, dust, 6, 2)

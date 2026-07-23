@@ -14,7 +14,7 @@ from bpy.types import (
     ShaderNodeSeparateColor,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["RohmShader"]
 
@@ -102,28 +102,28 @@ class RohmShader:
         math_002.operation = "MULTIPLY_ADD"
         math_002.use_clamp = False
 
-        _ = links.new(group_input.outputs[2], separate_color.inputs[0])
-        _ = links.new(group_input.outputs[8], math.inputs[0])
-        _ = links.new(group_input.outputs[0], mix_002.inputs[6])
-        _ = links.new(group_input.outputs[1], mix_002.inputs[7])
-        _ = links.new(mix_001.outputs[2], group_output.inputs[4])
-        _ = links.new(group_input.outputs[10], mix_001.inputs[0])
-        _ = links.new(group_input.outputs[11], combine_xyz.inputs[0])
-        _ = links.new(group_input.outputs[13], combine_xyz.inputs[2])
-        _ = links.new(combine_xyz.outputs[0], group_output.inputs[6])
-        _ = links.new(separate_color.outputs[2], combine_xyz_001.inputs[2])
-        _ = links.new(group_input.outputs[8], combine_xyz_001.inputs[1])
-        _ = links.new(combine_xyz_001.outputs[0], group_output.inputs[5])
-        _ = links.new(group_input.outputs[12], combine_xyz.inputs[1])
-        _ = links.new(group_input.outputs[3], combine_xyz_001.inputs[0])
-        _ = links.new(mix_002.outputs[2], group_output.inputs[0])
-        _ = links.new(separate_color.outputs[1], group_output.inputs[3])
-        _ = links.new(group_input.outputs[9], mix_001.inputs[7])
-        _ = links.new(group_input.outputs[4], math_001.inputs[2])
-        _ = links.new(group_input.outputs[5], math_001.inputs[1])
-        _ = links.new(separate_color.outputs[0], math_001.inputs[0])
-        _ = links.new(math_001.outputs[0], group_output.inputs[1])
-        _ = links.new(math_002.outputs[0], group_output.inputs[2])
-        _ = links.new(group_input.outputs[3], math_002.inputs[0])
-        _ = links.new(group_input.outputs[6], math_002.inputs[2])
-        _ = links.new(group_input.outputs[7], math_002.inputs[1])
+        create_link(links, group_input, separate_color, 2, 0)
+        create_link(links, group_input, math, 8, 0)
+        create_link(links, group_input, mix_002, 0, 6)
+        create_link(links, group_input, mix_002, 1, 7)
+        create_link(links, mix_001, group_output, 2, 4)
+        create_link(links, group_input, mix_001, 10, 0)
+        create_link(links, group_input, combine_xyz, 11, 0)
+        create_link(links, group_input, combine_xyz, 13, 2)
+        create_link(links, combine_xyz, group_output, 0, 6)
+        create_link(links, separate_color, combine_xyz_001, 2, 2)
+        create_link(links, group_input, combine_xyz_001, 8, 1)
+        create_link(links, combine_xyz_001, group_output, 0, 5)
+        create_link(links, group_input, combine_xyz, 12, 1)
+        create_link(links, group_input, combine_xyz_001, 3, 0)
+        create_link(links, mix_002, group_output, 2, 0)
+        create_link(links, separate_color, group_output, 1, 3)
+        create_link(links, group_input, mix_001, 9, 7)
+        create_link(links, group_input, math_001, 4, 2)
+        create_link(links, group_input, math_001, 5, 1)
+        create_link(links, separate_color, math_001, 0, 0)
+        create_link(links, math_001, group_output, 0, 1)
+        create_link(links, math_002, group_output, 0, 2)
+        create_link(links, group_input, math_002, 3, 0)
+        create_link(links, group_input, math_002, 6, 2)
+        create_link(links, group_input, math_002, 7, 1)

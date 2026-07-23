@@ -11,7 +11,7 @@ from bpy.types import (
     ShaderNodeMix,
 )
 
-from ..utils import create_node, create_socket
+from ..utils import create_node, create_socket, create_link
 
 __all__ = ["LayerOverlayBoolCol"]
 
@@ -68,13 +68,13 @@ class LayerOverlayBoolCol:
         mix.data_type = "RGBA"
         mix.factor_mode = "UNIFORM"
 
-        _ = links.new(mix_007.outputs[2], mix_004.inputs[6])
-        _ = links.new(group_input.outputs[1], mix_007.inputs[0])
-        _ = links.new(group_input.outputs[3], mix_007.inputs[7])
-        _ = links.new(mix_004.outputs[2], group_output.inputs[0])
-        _ = links.new(group_input.outputs[0], mix_004.inputs[0])
-        _ = links.new(group_input.outputs[2], mix_007.inputs[6])
-        _ = links.new(group_input.outputs[2], mix.inputs[6])
-        _ = links.new(group_input.outputs[3], mix.inputs[7])
-        _ = links.new(group_input.outputs[1], mix.inputs[0])
-        _ = links.new(mix.outputs[2], mix_004.inputs[7])
+        create_link(links, mix_007, mix_004, 2, 6)
+        create_link(links, group_input, mix_007, 1, 0)
+        create_link(links, group_input, mix_007, 3, 7)
+        create_link(links, mix_004, group_output, 2, 0)
+        create_link(links, group_input, mix_004, 0, 0)
+        create_link(links, group_input, mix_007, 2, 6)
+        create_link(links, group_input, mix, 2, 6)
+        create_link(links, group_input, mix, 3, 7)
+        create_link(links, group_input, mix, 1, 0)
+        create_link(links, mix, mix_004, 2, 7)

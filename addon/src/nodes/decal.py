@@ -23,7 +23,7 @@ from bpy.types import (
     ShaderNodeValToRGB,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 from .norm_normalize import NormNormalize
 
 __all__ = ["Decal"]
@@ -84,29 +84,30 @@ class Decal:
         mix_shader = create_node(nodes, 0, 0, ShaderNodeMixShader)
         transparent = create_node(nodes, 0, 0, ShaderNodeBsdfTransparent)
 
-        _ = self.node_tree.links.new(input.outputs[0], srgb.inputs[0])
-        _ = self.node_tree.links.new(srgb.outputs[0], color_ramp.inputs[0])
-        _ = self.node_tree.links.new(srgb.outputs[0], color_ramp2.inputs[0])
-        _ = self.node_tree.links.new(color_ramp2.outputs[0], mix.inputs[0])
-        _ = self.node_tree.links.new(input.outputs[2], mix.inputs[1])
-        _ = self.node_tree.links.new(input.outputs[3], mix.inputs[2])
-        _ = self.node_tree.links.new(color_ramp.outputs[0], mix2.inputs[0])
-        _ = self.node_tree.links.new(mix.outputs[0], mix2.inputs[1])
-        _ = self.node_tree.links.new(input.outputs[4], mix2.inputs[2])
-        _ = self.node_tree.links.new(mix2.outputs[0], bsdf.inputs[0])
-        _ = self.node_tree.links.new(input.outputs[7], bsdf.inputs[1])
-        _ = self.node_tree.links.new(srgb.outputs[2], rough_mix.inputs[0])
-        _ = self.node_tree.links.new(input.outputs[5], rough_mix.inputs[2])
-        _ = self.node_tree.links.new(input.outputs[6], rough_mix.inputs[3])
-        _ = self.node_tree.links.new(srgb.outputs[1], bsdf.inputs[4])
-        _ = self.node_tree.links.new(rough_mix.outputs[0], bsdf.inputs[2])
-        _ = self.node_tree.links.new(input.outputs[1], normalize.inputs[0])
-        _ = self.node_tree.links.new(normalize.outputs[0], normal_map.inputs[1])
+        links = self.node_tree.links
+        create_link(links, input, srgb, 0, 0)
+        create_link(links, srgb, color_ramp, 0, 0)
+        create_link(links, srgb, color_ramp2, 0, 0)
+        create_link(links, color_ramp2, mix, 0, 0)
+        create_link(links, input, mix, 2, 1)
+        create_link(links, input, mix, 3, 2)
+        create_link(links, color_ramp, mix2, 0, 0)
+        create_link(links, mix, mix2, 0, 1)
+        create_link(links, input, mix2, 4, 2)
+        create_link(links, mix2, bsdf, 0, 0)
+        create_link(links, input, bsdf, 7, 1)
+        create_link(links, srgb, rough_mix, 2, 0)
+        create_link(links, input, rough_mix, 5, 2)
+        create_link(links, input, rough_mix, 6, 3)
+        create_link(links, srgb, bsdf, 1, 4)
+        create_link(links, rough_mix, bsdf, 0, 2)
+        create_link(links, input, normalize, 1, 0)
+        create_link(links, normalize, normal_map, 0, 1)
         if bpy.app.version >= (5, 2, 0):
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[6])
+            create_link(links, normal_map, bsdf, 0, 6)
         else:
-            _ = self.node_tree.links.new(normal_map.outputs[0], bsdf.inputs[5])
-        _ = self.node_tree.links.new(geometry.outputs[6], mix_shader.inputs[0])
-        _ = self.node_tree.links.new(bsdf.outputs[0], mix_shader.inputs[1])
-        _ = self.node_tree.links.new(transparent.outputs[0], mix_shader.inputs[2])
-        _ = self.node_tree.links.new(mix_shader.outputs[0], output.inputs[0])
+            create_link(links, normal_map, bsdf, 0, 5)
+        create_link(links, geometry, mix_shader, 6, 0)
+        create_link(links, bsdf, mix_shader, 0, 1)
+        create_link(links, transparent, mix_shader, 0, 2)
+        create_link(links, mix_shader, output, 0, 0)

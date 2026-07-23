@@ -12,7 +12,7 @@ from bpy.types import (
 from ..constants import EMPTY_CONTROL, EMPTY_TEXTURES
 from ..json_definitions import CommonMaterial
 from ..nodes.diffuse_shader import DiffuseShader
-from ..utils import assign_value, create_image, create_node
+from ..utils import assign_value, create_image, create_node, create_link
 
 __all__ = ["DiffuseShaderType"]
 
@@ -28,22 +28,22 @@ class DiffuseShaderType:
             img = create_image(self.tree.nodes, 0, str(self.material["textures"]["Color"]))
             if img.image and img.image.colorspace_settings:
                 img.image.colorspace_settings.name = "sRGB"  # ty: ignore[invalid-assignment]
-            _ = self.tree.links.new(img.outputs[0], nodes.inputs[0])
-            _ = self.tree.links.new(img.outputs[1], nodes.inputs[11])
+            create_link(self.tree.links, img, nodes, 0, 0)
+            create_link(self.tree.links, img, nodes, 1, 11)
 
         control = self.material["textures"].get("Control")
         if control and control != EMPTY_CONTROL:
             img = create_image(self.tree.nodes, -100, str(control))
-            _ = self.tree.links.new(img.outputs[0], nodes.inputs[1])
+            create_link(self.tree.links, img, nodes, 0, 1)
 
         if self.material["textures"].get("Normal"):
             img = create_image(self.tree.nodes, -200, str(self.material["textures"]["Normal"]))
-            _ = self.tree.links.new(img.outputs[0], nodes.inputs[2])
+            create_link(self.tree.links, img, nodes, 0, 2)
 
         alpha_map = self.material["textures"].get("AlphaMap")
         if alpha_map and alpha_map not in EMPTY_TEXTURES:
             img = create_image(self.tree.nodes, -300, str(alpha_map))
-            _ = self.tree.links.new(img.outputs[0], nodes.inputs[11])
+            create_link(self.tree.links, img, nodes, 0, 11)
 
     def _create_nodes(self) -> None:
         shader = create_node(self.tree.nodes, 0, 0, ShaderNodeGroup)
@@ -64,4 +64,4 @@ class DiffuseShaderType:
 
         self._get_textures(shader)
         material_output = create_node(self.tree.nodes, 200, 0, ShaderNodeOutputMaterial)
-        _ = self.tree.links.new(shader.outputs[0], material_output.inputs[0])
+        create_link(self.tree.links, shader, material_output, 0, 0)

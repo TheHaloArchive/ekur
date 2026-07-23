@@ -53,6 +53,7 @@ def apply_rtgo_transform(
 class ForgeMapOperator(Operator):
     bl_idname = "ekur.importforgemap"
     bl_label = "Import"
+    bl_description = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
     def __init__(self, *args, **kwargs) -> None:

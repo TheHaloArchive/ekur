@@ -10,7 +10,7 @@ from bpy.types import (
     ShaderNodeMath,
 )
 
-from ..utils import assign_value, create_node, create_socket
+from ..utils import assign_value, create_node, create_socket, create_link
 
 __all__ = ["HeightBlend"]
 
@@ -69,15 +69,15 @@ class HeightBlend:
         group_output = create_node(nodes, 521, 0, NodeGroupOutput)
         group_input = create_node(nodes, -623, 1, NodeGroupInput)
 
-        _ = links.new(math.outputs[0], math_002.inputs[0])
-        _ = links.new(math_002.outputs[0], math_003.inputs[0])
-        _ = links.new(math_004.outputs[0], math_005.inputs[0])
-        _ = links.new(math_005.outputs[0], math_003.inputs[1])
-        _ = links.new(math_003.outputs[0], clamp.inputs[0])
-        _ = links.new(group_input.outputs[0], math.inputs[0])
-        _ = links.new(group_input.outputs[0], math_002.inputs[1])
-        _ = links.new(group_input.outputs[0], math_004.inputs[0])
-        _ = links.new(group_input.outputs[1], math.inputs[1])
-        _ = links.new(clamp.outputs[0], group_output.inputs[0])
-        _ = links.new(group_input.outputs[2], math_005.inputs[1])
-        _ = links.new(group_input.outputs[3], math_004.inputs[1])
+        create_link(links, math, math_002, 0, 0)
+        create_link(links, math_002, math_003, 0, 0)
+        create_link(links, math_004, math_005, 0, 0)
+        create_link(links, math_005, math_003, 0, 1)
+        create_link(links, math_003, clamp, 0, 0)
+        create_link(links, group_input, math, 0, 0)
+        create_link(links, group_input, math_002, 0, 1)
+        create_link(links, group_input, math_004, 0, 0)
+        create_link(links, group_input, math, 1, 1)
+        create_link(links, clamp, group_output, 0, 0)
+        create_link(links, group_input, math_005, 2, 1)
+        create_link(links, group_input, math_004, 3, 1)

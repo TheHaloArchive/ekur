@@ -42,6 +42,12 @@ struct EkurArgs {
     #[clap(long)]
     /// The path to the strings.txt file from the ReclaimerFiles repository.
     strings_path: String,
+    #[clap(long)]
+    /// The path to the map_ids.txt file from the ReclaimerFiles repository.
+    mapid_path: String,
+    #[clap(long)]
+    /// The path to the map_ids.txt file from the ReclaimerFiles repository.
+    modelid_path: String,
     #[clap(short, long, default_value = "false")]
     /// Whether to ignore extracting bitmaps or not.
     skip_bitmaps: bool,
@@ -54,6 +60,8 @@ fn main() -> Result<()> {
     let args = EkurArgs::parse();
     let save_path = &args.save_path;
     let strings = get_strings(&args.strings_path)?;
+    let map_ids = get_strings(&args.mapid_path)?;
+    let model_ids = get_strings(&args.modelid_path)?;
     let mut modules = load_modules(&args.module_path)?;
 
     // Used in: customization, forge, models
@@ -67,12 +75,19 @@ fn main() -> Result<()> {
 
     let textures = extract_materials(&mut modules, save_path, args.is_campaign)?;
     if !args.is_campaign {
-        extract_customization(&mut modules, &mode_tags, &strings, save_path)?;
-        extract_forge(&mut modules, &mode_tags, &mwpl_tags, &mwsw_tags, save_path)?;
+        extract_customization(&mut modules, &mode_tags, &strings, &model_ids, save_path)?;
+        extract_forge(
+            &mut modules,
+            &mode_tags,
+            &mwpl_tags,
+            &mwsw_tags,
+            &model_ids,
+            save_path,
+        )?;
     }
 
-    extract_models(&mut modules, &strings, save_path)?;
-    extract_scenario(&mut modules, save_path)?;
+    extract_models(&mut modules, &strings, &model_ids, save_path)?;
+    extract_scenario(&mut modules, save_path, &map_ids)?;
     extract_visors(&mut modules, &mwsw_tags, save_path)?;
     extract_coating_globals(&mut modules, &cmsw_tags, save_path)?;
     extract_styles(&mut modules, &strings, save_path)?;

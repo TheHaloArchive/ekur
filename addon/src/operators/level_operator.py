@@ -19,6 +19,7 @@ __all__ = ["ImportLevelOperator"]
 class ImportLevelOperator(Operator):
     bl_idname = "ekur.importlevel"
     bl_label = "Import"
+    bl_description = "Import"
     bl_options = {"REGISTER", "UNDO"}
 
     def __init__(self, *args, **kwargs) -> None:

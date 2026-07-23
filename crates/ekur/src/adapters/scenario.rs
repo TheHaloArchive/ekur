@@ -7,6 +7,7 @@ use ekur_scenario::scenario_bsp::process_scenarios;
 use anyhow::Result;
 use infinite_rs::ModuleFile;
 use std::{
+    collections::HashMap,
     fs::{File, create_dir_all},
     io::BufWriter,
     path::PathBuf,
@@ -14,7 +15,11 @@ use std::{
 
 const SCENARIO_BSP_GROUP: &str = "sbsp";
 
-pub(crate) fn extract_scenario(modules: &mut [ModuleFile], save_path: &str) -> Result<()> {
+pub(crate) fn extract_scenario(
+    modules: &mut [ModuleFile],
+    save_path: &str,
+    map_ids: &HashMap<i32, String>,
+) -> Result<()> {
     let mut save_path = PathBuf::from(save_path);
     save_path.push("levels/");
     create_dir_all(&save_path)?;
@@ -22,7 +27,9 @@ pub(crate) fn extract_scenario(modules: &mut [ModuleFile], save_path: &str) -> R
     let scenarios = get_tags::<ScenarioStructureBsp>(SCENARIO_BSP_GROUP, modules)?;
     let levels = process_scenarios(&scenarios)?;
     for level in levels {
-        save_path.push(level.0.to_string());
+        let temp_level_id = level.0.to_string();
+        let map_name = map_ids.get(&level.0).unwrap_or(&temp_level_id);
+        save_path.push(map_name);
         save_path.add_extension("json");
         let file = File::create(&save_path)?;
         let writer = BufWriter::new(file);
