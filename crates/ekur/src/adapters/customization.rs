@@ -32,7 +32,7 @@ pub(crate) fn extract_customization(
 
     if let Some(global) = global {
         let spartan_globals =
-            process_object_globals(&global, &themes, &attchs, &model_ids, models, strings)?;
+            process_object_globals(&global, &themes, &attchs, model_ids, models, strings)?;
         save_path.push("customization_globals.json");
         let file = File::create(&save_path)?;
         let writer = BufWriter::new(file);
