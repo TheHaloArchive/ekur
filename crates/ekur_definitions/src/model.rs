@@ -10,6 +10,8 @@ use infinite_rs::{
 pub struct ModelDefinition {
     #[data(offset(0x10))]
     pub render_model: FieldReference,
+    #[data(offset(72))]
+    pub animation: FieldReference,
     #[data(offset(0xF4))]
     pub variants: FieldBlock<ModelVariant>,
 }

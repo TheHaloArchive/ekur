@@ -197,7 +197,7 @@ pub(crate) fn write_section<R: Write>(
 }
 
 pub fn process_model(
-    model: RenderModel,
+    model: &RenderModel,
     indices: (usize, usize),
     modules: &mut [ModuleFile],
     string_mappings: &HashMap<i32, String>,

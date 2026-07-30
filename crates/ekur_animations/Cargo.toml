@@ -1,0 +1,17 @@
+[package]
+name = "ekur_animations"
+version = "0.1.0"
+authors.workspace = true
+repository.workspace = true
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[dependencies]
+ekur_definitions = { version = "0.1.0", path = "../ekur_definitions" }
+anyhow = "1.0.102"
+infinite-rs = { version = "0.13.2", features = ["derive"] }
+byteorder = "1.5.0"
+bitvec = "1.1.1"
+num_enum = "0.7.6"
