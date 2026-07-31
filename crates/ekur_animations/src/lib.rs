@@ -1,3 +1,4 @@
+use crate::codecs::revised_curve::RevisedCurve;
 use crate::{
     codecs::{
         Codec,
@@ -103,7 +104,11 @@ fn process_codecs(
                     QuantizedRotationOnly::from_reader(&mut reader, resolved_frame_count, false)?
                         .into_codec()
                 }
+                CodecType::RevisedCurve => {
+                    RevisedCurve::from_reader(&mut reader, resolved_frame_count, true)?.into_codec()
+                }
                 _ => {
+                    println!("{:#?}", anim_codec);
                     animated_decoded = false;
                     Codec::default()
                 }

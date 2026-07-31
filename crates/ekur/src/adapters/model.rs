@@ -45,7 +45,7 @@ pub(crate) fn extract_models(
         part_models.extend(get_tags_w_index::<ParticleModel>(PMDF_GROUP, module, idx)?);
         runtime_geo.extend(get_tags_w_index::<RuntimeGeo>(RTGO_GROUP, module, idx)?);
     }
-
+    /*
     save_path.push("models/");
     for model in &models {
         let model_data = process_model(model.1, (model.0.0, model.0.1), modules, strings)?;
@@ -79,5 +79,6 @@ pub(crate) fn extract_models(
         writer.write_all(&model_data)?;
         save_path.pop();
     }
+    */
     Ok(models)
 }

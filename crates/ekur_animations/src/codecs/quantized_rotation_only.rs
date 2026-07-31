@@ -5,17 +5,13 @@ use anyhow::Result;
 use byteorder::{LE, ReadBytesExt};
 
 use crate::{
-    codecs::Codec,
+    codecs::{Codec, CodecHeader},
     datatypes::{quaternion::Quaternion, vector::Vector3},
 };
 
 #[derive(Default, Debug)]
 pub struct QuantizedRotationOnly {
-    pub rotated_node_count: u16,
-    pub translated_node_count: u16,
-    pub scaled_node_count: u16,
-    _error_value: f32,
-    _compression_rate: f32,
+    pub header: CodecHeader,
     pub frame_count: i16,
     _translation_data_offset: u32,
     _scale_data_offset: u32,
@@ -36,16 +32,7 @@ impl QuantizedRotationOnly {
     ) -> Result<Self> {
         reader.seek_relative(2)?;
         let mut qrot = Self {
-            rotated_node_count: reader.read_u16::<LE>()?,
-            translated_node_count: reader.read_u16::<LE>()?,
-            scaled_node_count: reader.read_u16::<LE>()?,
-            _error_value: reader.read_f32::<LE>()?,
-            _compression_rate: reader.read_f32::<LE>()?,
-            _translation_data_offset: reader.read_u32::<LE>()?,
-            _scale_data_offset: reader.read_u32::<LE>()?,
-            _scaled_node_size: reader.read_u32::<LE>()?,
-            _translated_node_size: reader.read_u32::<LE>()?,
-            _rotated_node_size: reader.read_u32::<LE>()?,
+            header: CodecHeader::read(&mut reader)?,
             frame_count,
             quat_8byte,
             ..Default::default()
@@ -57,7 +44,7 @@ impl QuantizedRotationOnly {
     }
 
     fn process(&mut self, reader: &mut (impl Read + Seek)) -> Result<()> {
-        for _ in 0..self.rotated_node_count {
+        for _ in 0..self.header.rotated_node_count {
             let mut quat_list = Vec::new();
             for _ in 0..self.frame_count {
                 let q = if self.quat_8byte {
@@ -69,14 +56,14 @@ impl QuantizedRotationOnly {
             }
             self.rotations.push(quat_list);
         }
-        for _ in 0..self.translated_node_count {
+        for _ in 0..self.header.translated_node_count {
             let mut trans_list = Vec::new();
             for _ in 0..self.frame_count {
                 trans_list.push(Vector3::from_reader(reader)?);
             }
             self.translations.push(trans_list);
         }
-        for _ in 0..self.scaled_node_count {
+        for _ in 0..self.header.scaled_node_count {
             let mut scale_list = Vec::new();
             for _ in 0..self.frame_count {
                 scale_list.push(reader.read_f32::<LE>()?);
