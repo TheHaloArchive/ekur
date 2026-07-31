@@ -12,6 +12,10 @@ use crate::{
 #[derive(Default, Debug)]
 pub struct RevisedCurve {
     pub header: CodecHeader,
+    pub translation_data_offset: u32,
+    pub scale_data_offset: u32,
+    pub payload_data_offset: u32,
+    pub frame_count: i16,
     pub rotations: Vec<Vec<Quaternion>>,
     pub translations: Vec<Vec<Vector3>>,
     pub scales: Vec<Vec<f32>>,
@@ -26,65 +30,6 @@ fn read_curve_keyframe_deltas(mut reader: impl Seek + Read, key_count: u16) -> R
         keyframes.push(total);
     }
     Ok(keyframes)
-}
-
-fn decompress_revised_quat(v3: i16, v4: i16, v5: i16) -> Quaternion {
-    const SQRT_HALF: f32 = 0.707_106_77;
-    // Strip the low metadata bit from each value, preserving sign.
-    let i = ((v3 & !1i16) as f32 / i16::MAX as f32) * SQRT_HALF;
-    let j = ((v4 & !1i16) as f32 / i16::MAX as f32) * SQRT_HALF;
-    let k = ((v5 & !1i16) as f32 / i16::MAX as f32) * SQRT_HALF;
-    let mut missing = (1.0 - i * i - j * j - k * k).max(0.0).sqrt();
-    if v3 & 1 != 0 {
-        missing = -missing;
-    }
-    let component_index = ((v5 & 1) as usize) | ((2 * (v4 & 1)) as usize);
-    // Cache layout: place i/j/k at offsets +1 / -2 / -1 from the
-    // missing-component slot, mod 4. Indices are bounded to 0..=3.
-    let mut output = [0.0f32; 4];
-    output[(component_index + 1) & 3] = i;
-    output[(component_index + 2) & 3] = j; // (-2 mod 4) == +2
-    output[(component_index + 3) & 3] = k; // (-1 mod 4) == +3
-    output[component_index] = missing;
-    Quaternion {
-        x: output[0],
-        y: output[1],
-        z: output[2],
-        w: output[3],
-    }
-    .normalized()
-}
-
-fn decompress_curve_quat(i: f32, j: f32, w: f32) -> Quaternion {
-    let mut k = (1.0 - i * i - j * j).max(0.0).sqrt();
-    if w < 0.0 {
-        k = -k;
-    }
-    let w_unfolded = w.abs() * 2.0 - 1.0;
-    let scale = (1.0 - w_unfolded * w_unfolded).max(0.0).sqrt();
-    Quaternion {
-        x: i * scale,
-        y: j * scale,
-        z: k * scale,
-        w: w_unfolded,
-    }
-    .normalized()
-}
-
-fn read_quat(mut reader: impl Seek + Read, revised: bool) -> Result<Quaternion> {
-    let v3 = reader.read_i16::<LE>()?;
-    let v4 = reader.read_i16::<LE>()?;
-    let v5 = reader.read_i16::<LE>()?;
-
-    Ok(if revised {
-        decompress_revised_quat(v3, v4, v5)
-    } else {
-        decompress_curve_quat(
-            v3 as f32 / i16::MAX as f32,
-            v4 as f32 / i16::MAX as f32,
-            v5 as f32 / i16::MAX as f32,
-        )
-    })
 }
 
 fn curve_tangent_scalar(tangent_signed: i32, p1: f32, p2: f32) -> f32 {
@@ -288,11 +233,7 @@ fn read_curve_scale_node(mut c: impl Seek + Read, frames: i16) -> Result<Vec<f32
     Ok(out)
 }
 
-fn read_curve_rotation_node(
-    mut c: impl Seek + Read,
-    frames: i16,
-    revised: bool,
-) -> Result<Vec<Quaternion>> {
+fn read_curve_rotation_node(mut c: impl Seek + Read, frames: i16) -> Result<Vec<Quaternion>> {
     c.read_u16::<LE>()?; // unused
     let key_count = c.read_u16::<LE>()?;
     let flags = c.read_u8()?;
@@ -313,22 +254,22 @@ fn read_curve_rotation_node(
     let mut keyframe_index = 0usize;
     for frame_index in 0..frames as u32 {
         let q = if flags & 1 != 0 {
-            read_quat(&mut c, revised)?
+            Quaternion::decompress_revised_quat(&mut c)?
         } else {
             if keyframe_index < keyframes.len()
                 && keyframes[keyframe_index] == frame_index
                 && frame_index < frames as u32 - 1
             {
-                p1 = read_quat(&mut c, revised)?;
+                p1 = Quaternion::decompress_revised_quat(&mut c)?;
                 tangent_bytes = [c.read_u8()?, c.read_u8()?, c.read_u8()?, c.read_u8()?];
-                p2 = read_quat(&mut c, revised)?;
+                p2 = Quaternion::decompress_revised_quat(&mut c)?;
                 current_kf = keyframes[keyframe_index];
                 next_kf = keyframes
                     .get(keyframe_index + 1)
                     .copied()
                     .unwrap_or(current_kf + 1);
                 keyframe_index += 1;
-                c.seek_relative(-6); // p2 becomes next segment's p1
+                c.seek_relative(-6)?; // p2 becomes next segment's p1
             }
             let span = (next_kf.saturating_sub(current_kf) as f32).max(1.0);
             let t = (frame_index.saturating_sub(current_kf) as f32) / span;
@@ -356,80 +297,77 @@ fn read_curve_rotation_node(
 }
 
 impl RevisedCurve {
-    pub fn from_reader(
-        mut reader: impl Seek + Read,
-        frame_count: i16,
-        revised: bool,
-    ) -> Result<Self> {
+    pub fn from_reader(mut reader: impl Seek + Read, frame_count: i16) -> Result<Self> {
         reader.seek_relative(2)?;
         let header = CodecHeader::read(&mut reader)?;
         let mut curve = Self {
             header,
+            frame_count: frame_count,
+            translation_data_offset: reader.read_u32::<LE>()?,
+            scale_data_offset: reader.read_u32::<LE>()?,
+            payload_data_offset: reader.read_u32::<LE>()?,
             rotations: Vec::new(),
             translations: Vec::new(),
             scales: Vec::new(),
         };
-        let translation_data_offset = reader.read_u32::<LE>()?;
-        let scale_data_offset = reader.read_u32::<LE>()?;
-        let payload_data_offset = reader.read_u32::<LE>()?;
-        let total_compressed_size = reader.read_u32::<LE>()?;
-        let unknown = reader.read_u32::<LE>()?;
+        reader.seek_relative(8)?;
+        curve.process(&mut reader)?;
+        Ok(curve)
+    }
+
+    fn process(&mut self, mut reader: impl Read + Seek) -> Result<()> {
         let mut rotation_offsets = Vec::new();
-        for _ in 0..curve.header.rotated_node_count {
+        for _ in 0..self.header.rotated_node_count {
             rotation_offsets.push(reader.read_u32::<LE>()?);
         }
 
-        let mut rotations = Vec::with_capacity(curve.header.rotated_node_count as usize);
-        let mut translations = Vec::with_capacity(curve.header.translated_node_count as usize);
-        let mut scales = Vec::with_capacity(curve.header.scaled_node_count as usize);
+        let mut rotations = Vec::with_capacity(self.header.rotated_node_count as usize);
+        let mut translations = Vec::with_capacity(self.header.translated_node_count as usize);
+        let mut scales = Vec::with_capacity(self.header.scaled_node_count as usize);
 
         for &node_off in &rotation_offsets {
             reader.seek(std::io::SeekFrom::Start(
-                payload_data_offset as u64 + node_off as u64,
+                self.payload_data_offset as u64 + node_off as u64,
             ))?;
-            rotations.push(read_curve_rotation_node(&mut reader, frame_count, revised)?);
+            rotations.push(read_curve_rotation_node(&mut reader, self.frame_count)?);
         }
 
-        if curve.header.translated_node_count > 0 {
+        if self.header.translated_node_count > 0 {
             reader.seek(SeekFrom::Start(
-                payload_data_offset as u64 + translation_data_offset as u64,
+                self.payload_data_offset as u64 + self.translation_data_offset as u64,
             ))?;
-            let mut trans_offsets = Vec::with_capacity(curve.header.translated_node_count as usize);
-            for _ in 0..curve.header.translated_node_count {
+            let mut trans_offsets = Vec::with_capacity(self.header.translated_node_count as usize);
+            for _ in 0..self.header.translated_node_count {
                 trans_offsets.push(reader.read_u32::<LE>()? as usize);
             }
             for &node_off in &trans_offsets {
                 reader.seek(SeekFrom::Start(
-                    payload_data_offset as u64 + node_off as u64,
+                    self.payload_data_offset as u64 + node_off as u64,
                 ))?;
-                translations.push(read_curve_translation_node(&mut reader, frame_count)?);
+                translations.push(read_curve_translation_node(&mut reader, self.frame_count)?);
             }
         }
 
-        if curve.header.scaled_node_count > 0 {
+        if self.header.scaled_node_count > 0 {
             reader.seek(SeekFrom::Start(
-                payload_data_offset as u64 + scale_data_offset as u64,
+                self.payload_data_offset as u64 + self.scale_data_offset as u64,
             ))?;
-            let mut scale_offsets = Vec::with_capacity(curve.header.scaled_node_count as usize);
-            for _ in 0..curve.header.scaled_node_count {
+            let mut scale_offsets = Vec::with_capacity(self.header.scaled_node_count as usize);
+            for _ in 0..self.header.scaled_node_count {
                 scale_offsets.push(reader.read_u32::<LE>()? as usize);
             }
             for &node_off in &scale_offsets {
                 reader.seek(SeekFrom::Start(
-                    payload_data_offset as u64 + node_off as u64,
+                    self.payload_data_offset as u64 + node_off as u64,
                 ))?;
-                scales.push(read_curve_scale_node(&mut reader, frame_count)?);
+                scales.push(read_curve_scale_node(&mut reader, self.frame_count)?);
             }
         }
 
-        curve.scales = scales;
-        curve.rotations = rotations;
-        curve.translations = translations;
+        self.scales = scales;
+        self.rotations = rotations;
+        self.translations = translations;
 
-        Ok(curve)
-    }
-
-    fn process(&mut self, reader: &mut (impl Read + Seek)) -> Result<()> {
         Ok(())
     }
 

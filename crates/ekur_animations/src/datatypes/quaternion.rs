@@ -119,6 +119,34 @@ impl Quaternion {
         }
     }
 
+    pub fn decompress_revised_quat(reader: &mut impl Read) -> Result<Self> {
+        let v3 = reader.read_i16::<LE>()?;
+        let v4 = reader.read_i16::<LE>()?;
+        let v5 = reader.read_i16::<LE>()?;
+        const SQRT_HALF: f32 = 0.707_106_77;
+        let i = ((v3 & !1i16) as f32 / i16::MAX as f32) * SQRT_HALF;
+        let j = ((v4 & !1i16) as f32 / i16::MAX as f32) * SQRT_HALF;
+        let k = ((v5 & !1i16) as f32 / i16::MAX as f32) * SQRT_HALF;
+        let mut missing = (1.0 - i * i - j * j - k * k).max(0.0).sqrt();
+        if v3 & 1 != 0 {
+            missing = -missing;
+        }
+        let component_index = ((v5 & 1) as usize) | ((2 * (v4 & 1)) as usize);
+
+        let mut output = [0.0f32; 4];
+        output[(component_index + 1) & 3] = i;
+        output[(component_index + 2) & 3] = j;
+        output[(component_index + 3) & 3] = k;
+        output[component_index] = missing;
+        Ok(Self {
+            x: output[0],
+            y: output[1],
+            z: output[2],
+            w: output[3],
+        }
+        .normalized())
+    }
+
     pub fn rotate(
         &self,
         v: crate::datatypes::vector::Vector3,

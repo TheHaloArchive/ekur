@@ -105,7 +105,7 @@ fn process_codecs(
                         .into_codec()
                 }
                 CodecType::RevisedCurve => {
-                    RevisedCurve::from_reader(&mut reader, resolved_frame_count, true)?.into_codec()
+                    RevisedCurve::from_reader(&mut reader, resolved_frame_count)?.into_codec()
                 }
                 _ => {
                     println!("{:#?}", anim_codec);
