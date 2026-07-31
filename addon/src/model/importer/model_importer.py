@@ -143,6 +143,7 @@ class ModelImporter:
                     continue
                 point = key.data[vertex_index]
                 point.co = point.co + vertex_delta  # ty: ignore[unresolved-attribute]
+            key.mute = True
 
     def _create_material_indices(self, section: Section, mesh: Mesh) -> None:
         """
