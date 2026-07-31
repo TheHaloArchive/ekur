@@ -23,4 +23,42 @@ impl FlagData {
         };
         Ok(flags)
     }
+
+    pub fn from_slice(data: &[u8]) -> Self {
+        let mut flags = Self::default();
+        if !data.is_empty() && data.len().is_multiple_of(3) {
+            let per = data.len() / 3;
+            flags.rotation = BitVec::<u8>::from_slice(&data[0..per]);
+            flags.translation = BitVec::<u8>::from_slice(&data[per..2 * per]);
+            flags.scale = BitVec::<u8>::from_slice(&data[2 * per..3 * per]);
+        }
+        flags
+    }
+}
+
+pub fn bit_is_set(bits: &BitVec<u8>, index: usize) -> bool {
+    let bytes = bits.as_raw_slice();
+    let byte_idx = index / 8;
+    let bit_idx = index % 8;
+    bytes
+        .get(byte_idx)
+        .map(|b| (b >> bit_idx) & 1 != 0)
+        .unwrap_or(false)
+}
+
+pub fn popcount_below(bits: &BitVec<u8>, index: usize) -> usize {
+    let bytes = bits.as_raw_slice();
+    let full_bytes = index / 8;
+    let mut count = 0usize;
+    for &b in bytes.iter().take(full_bytes) {
+        count += b.count_ones() as usize;
+    }
+    if let Some(&b) = bytes.get(full_bytes) {
+        let rem = index % 8;
+        if rem > 0 {
+            let mask = ((1u32 << rem) - 1) as u8;
+            count += (b & mask).count_ones() as usize;
+        }
+    }
+    count
 }

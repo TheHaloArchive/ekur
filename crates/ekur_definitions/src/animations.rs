@@ -9,7 +9,7 @@ use infinite_rs::{
 };
 use num_enum::TryFromPrimitive;
 
-#[derive(Default, Debug, TryFromPrimitive, PartialEq)]
+#[derive(Default, Debug, Clone, Copy, TryFromPrimitive, PartialEq, Eq)]
 #[repr(u8)]
 pub enum MovementDataType {
     #[default]
@@ -109,7 +109,7 @@ pub struct AnimationResourceIndex {
     pub resource_member_index: FieldShortInteger,
 }
 
-#[derive(Debug, Default, TryFromPrimitive)]
+#[derive(Debug, Default, Clone, Copy, TryFromPrimitive, PartialEq, Eq)]
 #[repr(u8)]
 pub enum AnimationType {
     #[default]
@@ -249,7 +249,7 @@ pub struct AnimationGraph {
     pub scales: FieldBlock<SharedStaticDataCodecScale>,
 }
 
-#[derive(Debug, Default, TryFromPrimitive, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, TryFromPrimitive, PartialEq, Eq)]
 #[repr(u8)]
 pub enum CodecType {
     #[default]

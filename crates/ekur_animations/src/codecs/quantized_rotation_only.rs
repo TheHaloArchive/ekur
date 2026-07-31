@@ -1,9 +1,8 @@
-use std::io::{BufReader, Cursor, Read, Seek};
+use std::io::{Read, Seek};
 
 use anyhow::Result;
 
 use byteorder::{LE, ReadBytesExt};
-use ekur_definitions::animations::CodecType;
 
 use crate::{
     codecs::Codec,
@@ -15,14 +14,14 @@ pub struct QuantizedRotationOnly {
     pub rotated_node_count: u16,
     pub translated_node_count: u16,
     pub scaled_node_count: u16,
-    error_value: f32,
-    compression_rate: f32,
+    _error_value: f32,
+    _compression_rate: f32,
     pub frame_count: i16,
-    translation_data_offset: u32,
-    scale_data_offset: u32,
-    scaled_node_size: u32,
-    translated_node_size: u32,
-    rotated_node_size: u32,
+    _translation_data_offset: u32,
+    _scale_data_offset: u32,
+    _scaled_node_size: u32,
+    _translated_node_size: u32,
+    _rotated_node_size: u32,
     pub rotations: Vec<Vec<Quaternion>>,
     pub translations: Vec<Vec<Vector3>>,
     pub scales: Vec<Vec<f32>>,
@@ -36,19 +35,22 @@ impl QuantizedRotationOnly {
         quat_8byte: bool,
     ) -> Result<Self> {
         reader.seek_relative(2)?;
-        let mut qrot = Self::default();
-        qrot.rotated_node_count = reader.read_u16::<LE>()?;
-        qrot.translated_node_count = reader.read_u16::<LE>()?;
-        qrot.scaled_node_count = reader.read_u16::<LE>()?;
-        qrot.error_value = reader.read_f32::<LE>()?;
-        qrot.compression_rate = reader.read_f32::<LE>()?;
-        qrot.translation_data_offset = reader.read_u32::<LE>()?;
-        qrot.scale_data_offset = reader.read_u32::<LE>()?;
-        qrot.scaled_node_size = reader.read_u32::<LE>()?;
-        qrot.translated_node_size = reader.read_u32::<LE>()?;
-        qrot.rotated_node_size = reader.read_u32::<LE>()?;
-        qrot.frame_count = frame_count;
-        qrot.quat_8byte = quat_8byte;
+        let mut qrot = Self {
+            rotated_node_count: reader.read_u16::<LE>()?,
+            translated_node_count: reader.read_u16::<LE>()?,
+            scaled_node_count: reader.read_u16::<LE>()?,
+            _error_value: reader.read_f32::<LE>()?,
+            _compression_rate: reader.read_f32::<LE>()?,
+            _translation_data_offset: reader.read_u32::<LE>()?,
+            _scale_data_offset: reader.read_u32::<LE>()?,
+            _scaled_node_size: reader.read_u32::<LE>()?,
+            _translated_node_size: reader.read_u32::<LE>()?,
+            _rotated_node_size: reader.read_u32::<LE>()?,
+            frame_count,
+            quat_8byte,
+            ..Default::default()
+        };
+
         reader.seek_relative(12)?;
         qrot.process(&mut reader)?;
         Ok(qrot)
@@ -58,11 +60,12 @@ impl QuantizedRotationOnly {
         for _ in 0..self.rotated_node_count {
             let mut quat_list = Vec::new();
             for _ in 0..self.frame_count {
-                if self.quat_8byte {
-                    quat_list.push(Quaternion::from_quantized(reader)?);
+                let q = if self.quat_8byte {
+                    Quaternion::from_quantized(reader)?
                 } else {
-                    quat_list.push(Quaternion::from_reader(reader)?);
-                }
+                    Quaternion::from_reader(reader)?
+                };
+                quat_list.push(q.normalized());
             }
             self.rotations.push(quat_list);
         }
@@ -83,13 +86,11 @@ impl QuantizedRotationOnly {
         Ok(())
     }
 
-    pub fn into_codec(self, codec_type: CodecType) -> Codec {
+    pub fn into_codec(self) -> Codec {
         Codec {
             rotations: self.rotations,
             translations: self.translations,
             scales: self.scales,
-            codec_type: codec_type,
-            frame_count: self.frame_count,
         }
     }
 }

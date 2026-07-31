@@ -61,7 +61,7 @@ impl Quaternion {
         let magnitude =
             (self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w).sqrt();
         if magnitude == 0.0 {
-            Self::default()
+            Self::IDENTITY
         } else {
             Self {
                 x: self.x / magnitude,
@@ -91,6 +91,61 @@ impl Quaternion {
             y: -self.y,
             z: -self.z,
             w: self.w,
+        }
+    }
+
+    pub fn from_yaw(yaw: f32) -> Self {
+        let half = yaw * 0.5;
+        Self {
+            x: 0.0,
+            y: 0.0,
+            z: half.sin(),
+            w: half.cos(),
+        }
+    }
+
+    pub fn from_angle_axis(x: f32, y: f32, z: f32) -> Self {
+        let angle = (x * x + y * y + z * z).sqrt();
+        if angle <= 1e-8 {
+            return Self::IDENTITY;
+        }
+        let (s, c) = (angle * 0.5).sin_cos();
+        let k = s / angle;
+        Self {
+            x: x * k,
+            y: y * k,
+            z: z * k,
+            w: c,
+        }
+    }
+
+    pub fn rotate(
+        &self,
+        v: crate::datatypes::vector::Vector3,
+    ) -> crate::datatypes::vector::Vector3 {
+        let axis = crate::datatypes::vector::Vector3 {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+        };
+        let uv = axis.cross(v);
+        let uuv = axis.cross(uv);
+        crate::datatypes::vector::Vector3 {
+            x: v.x + 2.0 * (self.w * uv.x + uuv.x),
+            y: v.y + 2.0 * (self.w * uv.y + uuv.y),
+            z: v.z + 2.0 * (self.w * uv.z + uuv.z),
+        }
+    }
+}
+
+impl std::ops::Mul for Quaternion {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self {
+        Self {
+            w: self.w * rhs.w - self.x * rhs.x - self.y * rhs.y - self.z * rhs.z,
+            x: self.w * rhs.x + self.x * rhs.w + self.y * rhs.z - self.z * rhs.y,
+            y: self.w * rhs.y - self.x * rhs.z + self.y * rhs.w + self.z * rhs.x,
+            z: self.w * rhs.z + self.x * rhs.y - self.y * rhs.x + self.z * rhs.w,
         }
     }
 }
