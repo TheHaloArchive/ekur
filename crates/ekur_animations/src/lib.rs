@@ -336,6 +336,7 @@ fn process_animations(
     render_model: &RenderModel,
     save_path: &str,
     strings: &HashMap<i32, String>,
+    model_ids: &HashMap<i32, String>,
 ) -> Result<()> {
     let skeleton = create_skeleton(animation_graph, strings);
     if skeleton.nodes.is_empty() {
@@ -415,7 +416,10 @@ fn process_animations(
             .get(&anim.name.0)
             .cloned()
             .unwrap_or_else(|| format!("anim_{}", anim.name.0));
-        let render_model_id = render_model.any_tag.internal_struct.tag_id;
+        let render_model_id = model_ids
+            .get(&render_model.any_tag.internal_struct.tag_id)
+            .unwrap_or(&render_model.any_tag.internal_struct.tag_id.to_string())
+            .clone();
         let graph_id = animation_graph.any_tag.internal_struct.tag_id;
         let filename = format!(
             "{}_{}_{}.{}",
@@ -444,6 +448,7 @@ fn process_animations(
 
 pub fn extract_animations(
     strings: &HashMap<i32, String>,
+    model_ids: &HashMap<i32, String>,
     anim_tags: &HashMap<i32, AnimationGraph>,
     hlmt_tags: &HashMap<i32, ModelDefinition>,
     mode_tags: &HashMap<(usize, usize, i32), RenderModel>,
@@ -460,7 +465,7 @@ pub fn extract_animations(
         if let Some(anim_tag) = anim_tag
             && let Some(mode) = mode
         {
-            process_animations(anim_tag, mode.1, save_path, strings)?;
+            process_animations(anim_tag, mode.1, save_path, strings, model_ids)?;
         }
     }
 

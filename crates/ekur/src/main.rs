@@ -79,7 +79,14 @@ fn main() -> Result<()> {
     let anim_tags = get_tags::<AnimationGraph>(ANIM_GROUP, &mut modules)?;
 
     let render_tags = extract_models(&mut modules, &strings, &model_ids, save_path)?;
-    extract_animations(&strings, &anim_tags, &mode_tags, &render_tags, save_path)?;
+    extract_animations(
+        &strings,
+        &model_ids,
+        &anim_tags,
+        &mode_tags,
+        &render_tags,
+        save_path,
+    )?;
     let textures = extract_materials(&mut modules, save_path, args.is_campaign)?;
     if !args.is_campaign {
         extract_customization(&mut modules, &mode_tags, &strings, &model_ids, save_path)?;
