@@ -37,6 +37,11 @@ class ModelOptions(PropertyGroup):
         description="Whether to import vertex color as a mesh attribute for models that support it.",
         default=False,
     )
+    import_blendshapes: BoolProperty(
+        name="Import Blend Shapes",
+        description="Whether to import blend shapes as shape keys for models that support it.",
+        default=True,
+    )
     remove_unused_groups: BoolProperty(
         name="Remove Unused Groups",
         description="Whether to remove weight groups that don't have any values attached",
@@ -61,6 +66,7 @@ class ModelOptionsType:
     import_bones: bool = True
     import_collections: bool = True
     import_vertex_color: bool = False
+    import_blendshapes: bool = True
     remove_unused_groups: bool = False
     scale_factor: float = 1.0
     bone_size: float = 0.03
@@ -86,6 +92,7 @@ def draw_model_options(layout: UILayout, props: ModelOptionsType) -> None:
         model_opts.prop(props, "import_materials")
         model_opts.prop(props, "import_collections")
         model_opts.prop(props, "import_vertex_color")
+        model_opts.prop(props, "import_blendshapes")
         model_opts.prop(props, "remove_unused_groups")
         model_opts.prop(props, "scale_factor")
         model_opts.prop(props, "bone_size")

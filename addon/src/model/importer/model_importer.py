@@ -101,6 +101,49 @@ class ModelImporter:
                 1 - (uv0[mesh.loops[loop].vertex_index][1] * uv_scale[1][2] + uv_scale[1][0]),
             )
 
+    def _create_blendshapes(self, section: Section, mesh: Mesh, obj: Object) -> None:
+        """
+        Creates shape keys for the mesh from the section's blend shape data, if present.
+
+        Blend shape names are not stored in the model file, so shape keys are named
+        after their (per-section) shape id instead.
+
+        Args:
+        - section: The section to create the blend shapes for.
+        - mesh: The mesh to add the shape keys to.
+        - obj: The object owning the mesh.
+        """
+        if not section.vertex_flags.has_blendshape_index:
+            return
+        if not section.vertex_flags.has_blendshape_position:
+            return
+        if not self.model.blendshape_bounding_boxes:
+            return
+
+        bbox = self.model.blendshape_bounding_boxes[0]
+        scale = bbox.position_scale.vector
+        offset = bbox.position_offset.vector
+
+        shape_deltas: dict[int, dict[int, Vector]] = {}
+        for vertex_index, shape_id, delta in section.vertex_buffer.enumerate_blendshapes():
+            shape_deltas.setdefault(shape_id, {})[vertex_index] = Vector(
+                [delta[axis] * scale[axis] + offset[axis] for axis in range(3)]
+            )
+
+        if not shape_deltas:
+            return
+
+        if mesh.shape_keys is None:
+            _ = obj.shape_key_add(name="Basis", from_mix=False)
+
+        for shape_id in sorted(shape_deltas):
+            key = obj.shape_key_add(name=f"Shape_{shape_id:03d}", from_mix=False)
+            for vertex_index, vertex_delta in shape_deltas[shape_id].items():
+                if vertex_index >= len(key.data):
+                    continue
+                point = key.data[vertex_index]
+                point.co = point.co + vertex_delta  # ty: ignore[unresolved-attribute]
+
     def _create_material_indices(self, section: Section, mesh: Mesh) -> None:
         """
         Create material indices for the mesh. Assigns materials to the mesh based on the shader index of the submeshes.
@@ -261,6 +304,8 @@ class ModelImporter:
             self._create_uv(mesh, section.vertex_buffer.uv1_buffer.uv, uv_scale1, 1)
         if section.vertex_flags.has_uv2:
             self._create_uv(mesh, section.vertex_buffer.uv2_buffer.uv, uv_scale2, 2)
+        if options.import_blendshapes:
+            self._create_blendshapes(section, mesh, obj)
 
         if options.import_materials:
             self._create_material_indices(section, mesh)

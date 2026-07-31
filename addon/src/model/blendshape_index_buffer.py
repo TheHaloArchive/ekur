@@ -21,3 +21,25 @@ class BlendShapeIndexBuffer:
         for _ in range(self.count):
             index = int.from_bytes(reader.read(4), "little", signed=True)
             self.indices.append(index)
+
+    def decode(self, vertex_index: int) -> tuple[int, int] | None:
+        """
+        Decodes the packed (offset, count) range for a given vertex.
+
+        Each entry is a single packed 32-bit value: a sentinel value of -1 means
+        the vertex has no blend shape targets. Otherwise, the low 8 bits are the
+        number of blend shape targets ("count") that affect the vertex, and the
+        remaining upper 24 bits are the starting offset ("offset") of that
+        vertex's targets inside `BlendShapePositionBuffer.positions`.
+
+        Returns:
+        - A tuple of (offset, count), or None if the vertex has no blend shapes.
+        """
+        if vertex_index >= len(self.indices):
+            return None
+        value = self.indices[vertex_index]
+        if value == -1:
+            return None
+        offset = value >> 8
+        count = value & 0xFF
+        return (offset, count)
