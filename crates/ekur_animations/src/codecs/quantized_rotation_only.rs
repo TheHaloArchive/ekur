@@ -38,7 +38,7 @@ impl QuantizedRotationOnly {
             ..Default::default()
         };
 
-        reader.seek_relative(12)?;
+        reader.seek_relative(32)?;
         qrot.process(&mut reader)?;
         Ok(qrot)
     }

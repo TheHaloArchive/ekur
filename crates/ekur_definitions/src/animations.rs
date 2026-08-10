@@ -3,8 +3,8 @@ use infinite_rs::{
     TagStructure,
     tag::types::common_types::{
         AnyTag, FieldBlock, FieldCharEnum, FieldData, FieldDwordInteger, FieldLongInteger,
-        FieldReal, FieldRealPoint3D, FieldRealQuaternion, FieldShortBlockIndex, FieldShortInteger,
-        FieldStringId, FieldTagResource, FieldWordFlags, FieldWordInteger,
+        FieldReal, FieldRealPoint3D, FieldRealQuaternion, FieldReference, FieldShortBlockIndex,
+        FieldShortInteger, FieldStringId, FieldTagResource, FieldWordFlags, FieldWordInteger,
     },
 };
 use num_enum::TryFromPrimitive;
@@ -229,10 +229,19 @@ pub struct AdditionalNodeData {
 }
 
 #[derive(Debug, Default, TagStructure)]
+#[data(size(104))]
+pub struct AnimationGraphParentData {
+    #[data(offset(0x00))]
+    pub parent_graph: FieldReference,
+}
+
+#[derive(Debug, Default, TagStructure)]
 #[data(size(0x488))]
 pub struct AnimationGraph {
     #[data(offset(0x00))]
     pub any_tag: AnyTag,
+    #[data(offset(0x10))]
+    pub parents: FieldBlock<AnimationGraphParentData>,
     #[data(offset(192))]
     pub skeleton_bones: FieldBlock<SkeletonBone>,
     #[data(offset(432))]
