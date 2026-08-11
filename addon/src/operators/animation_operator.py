@@ -8,6 +8,17 @@ from ..ui.animation_options import get_animation_options
 from ..model.importer.animation.importer import import_animation
 from ..model.importer.animation.anim_data import AnimationData
 
+def import_anim(context: Context, path: str) -> None:
+    selected_mesh = context.active_object
+    if selected_mesh is None:
+        return None
+    anim_path = Path(path)
+    if not anim_path.exists():
+        return None
+    with open(anim_path, "rb") as f:
+        animation = AnimationData()
+        animation.read(f)
+        import_animation(selected_mesh, animation, anim_path.stem)
 
 @final
 class AnimationOperator(Operator):
@@ -24,16 +35,13 @@ class AnimationOperator(Operator):
             context: Blender context used to access import properties
         """
         animation_options = get_animation_options()
-        selected_mesh = context.active_object
-        if selected_mesh is None:
-            return {"CANCELLED"}
-
-        anim_path = Path(animation_options.animation_path)
-        if not anim_path.exists():
-            return {"CANCELLED"}
-        with open(anim_path, "rb") as f:
-            animation = AnimationData()
-            animation.read(f)
-            import_animation(selected_mesh, animation, anim_path.stem)
-
+        if animation_options.bulk_import:
+            path = animation_options.bulk_directory
+            anim_path = Path(path)
+            if not anim_path.exists():
+                return {"CANCELLED"}
+            for file in anim_path.glob("*.ekuranim"):
+                import_anim(context, str(file))
+        else:
+            import_anim(context, animation_options.animation_path)
         return {"FINISHED"}
