@@ -1,6 +1,7 @@
 use crate::codecs::animation_compression_library::AnimationCompressionLibrary;
 use crate::codecs::revised_curve::RevisedCurve;
 use crate::compose::{compose_overlay, compose_pose, compose_replacement};
+use crate::constants::{FIRST_PERSON_GRAPHS, FIRST_PERSON_MODE};
 use crate::{
     codecs::{
         Codec,
@@ -34,6 +35,7 @@ use ekur_definitions::{
 
 mod codecs;
 pub mod compose;
+mod constants;
 pub mod datatypes;
 mod write;
 
@@ -473,6 +475,21 @@ pub fn extract_animations(
                 if let Some(parent_graph) = anim_tags.get(&parent.parent_graph.global_id) {
                     process_animations(parent_graph, mode.1, save_path, strings, model_ids)?
                 }
+            }
+        }
+    }
+    let first_person_mode = mode_tags.iter().find(|x| x.0.2 == FIRST_PERSON_MODE);
+    if let Some(first_person_mode) = first_person_mode {
+        for anim_graph in FIRST_PERSON_GRAPHS {
+            let anim_graph_tag = anim_tags.get(&anim_graph);
+            if let Some(anim_graph_tag) = anim_graph_tag {
+                process_animations(
+                    anim_graph_tag,
+                    first_person_mode.1,
+                    save_path,
+                    strings,
+                    model_ids,
+                )?;
             }
         }
     }
