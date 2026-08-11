@@ -3,7 +3,7 @@
 from typing import cast
 
 import bpy
-from bpy.props import BoolProperty, FloatProperty, StringProperty
+from bpy.props import BoolProperty, StringProperty
 from bpy.types import PropertyGroup, UILayout
 
 
