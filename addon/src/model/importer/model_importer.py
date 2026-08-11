@@ -49,6 +49,7 @@ class ModelImporter:
         """
         options = get_model_options()
         model = Path(model_path)
+        model_name = model.stem
         if not model.exists() or model.is_dir():
             logging.warning(f"Model path does not exist: {model}")
             return []
@@ -58,7 +59,7 @@ class ModelImporter:
             self.model.materials = materials
         if options.import_bones and bones:
             if custom_rig is None:
-                self.rig = import_bones(self.model)
+                self.rig = import_bones(self.model, model_name)
                 scl = (options.scale_factor,) * 3
                 self.rig.scale = Vector((FEET_TO_METER, FEET_TO_METER, FEET_TO_METER)) * Vector(scl)
             else:

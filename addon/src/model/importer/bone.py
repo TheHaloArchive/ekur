@@ -76,7 +76,7 @@ def get_bone_transforms(model: Model) -> list[Matrix]:
     return result
 
 
-def _create_armature(model: Model) -> tuple[Armature, Object]:
+def _create_armature(model: Model, model_name: str | None = None) -> tuple[Armature, Object]:
     """
     Creates a new armature given a model.
 
@@ -86,8 +86,10 @@ def _create_armature(model: Model) -> tuple[Armature, Object]:
     Returns:
     - The armature data and object.
     """
-    armature_data = bpy.data.armatures.new(f"{model.header.tag_id}_Armature")
-    armature_obj = bpy.data.objects.new(f"{model.header.tag_id}_Armature", armature_data)
+    if model_name is None:
+        model_name = str(model.header.tag_id)
+    armature_data = bpy.data.armatures.new(f"{model_name}_Armature")
+    armature_obj = bpy.data.objects.new(f"{model_name}_Armature", armature_data)
 
     if bpy.context.scene is not None:
         bpy.context.scene.collection.objects.link(armature_obj)
@@ -104,7 +106,7 @@ def _create_armature(model: Model) -> tuple[Armature, Object]:
     return armature_data, armature_obj
 
 
-def import_bones(model: Model) -> Object:
+def import_bones(model: Model, model_name: str | None = None) -> Object:
     """
     Import the bones from the given model.
 
@@ -115,7 +117,7 @@ def import_bones(model: Model) -> Object:
     - The armature object containing the bones.
     """
     props = get_model_options()
-    armature_data, armature_obj = _create_armature(model)
+    armature_data, armature_obj = _create_armature(model, model_name)
     bone_transforms = get_bone_transforms(model)
 
     editbones: list[EditBone] = []
