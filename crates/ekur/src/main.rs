@@ -15,9 +15,11 @@ use crate::{
     },
     utils::{get_strings, get_tags, load_modules},
 };
+use ekur_animations::extract_animations;
 use ekur_definitions::{
-    coating_swatch::CoatingSwatchPODTag, material_palette::MaterialPaletteTag,
-    material_swatch::MaterialSwatchTag, model::ModelDefinition,
+    animations::AnimationGraph, coating_swatch::CoatingSwatchPODTag,
+    material_palette::MaterialPaletteTag, material_swatch::MaterialSwatchTag,
+    model::ModelDefinition,
 };
 
 use anyhow::Result;
@@ -30,6 +32,7 @@ const MODEL_GROUP: &str = "hlmt";
 const PALETTE_GROUP: &str = "mwpl";
 const MATERIAL_SWATCH_GROUP: &str = "mwsw";
 const COATING_SWATCH_GROUP: &str = "cmsw";
+const ANIM_GROUP: &str = "jmad";
 
 #[derive(Debug, Parser)]
 struct EkurArgs {
@@ -64,7 +67,7 @@ fn main() -> Result<()> {
     let model_ids = get_strings(&args.modelid_path)?;
     let mut modules = load_modules(&args.module_path)?;
 
-    // Used in: customization, forge, models
+    // Used in: customization, forge, models, animations
     let mode_tags = get_tags::<ModelDefinition>(MODEL_GROUP, &mut modules)?;
     // Used in: forge, material coating
     let mwpl_tags = get_tags::<MaterialPaletteTag>(PALETTE_GROUP, &mut modules)?;
@@ -72,7 +75,18 @@ fn main() -> Result<()> {
     let mwsw_tags = get_tags::<MaterialSwatchTag>(MATERIAL_SWATCH_GROUP, &mut modules)?;
     // Used in: coating globals, runtime
     let cmsw_tags = get_tags::<CoatingSwatchPODTag>(COATING_SWATCH_GROUP, &mut modules)?;
+    // Used in: animations
+    let anim_tags = get_tags::<AnimationGraph>(ANIM_GROUP, &mut modules)?;
 
+    let render_tags = extract_models(&mut modules, &strings, &model_ids, save_path)?;
+    extract_animations(
+        &strings,
+        &model_ids,
+        &anim_tags,
+        &mode_tags,
+        &render_tags,
+        save_path,
+    )?;
     let textures = extract_materials(&mut modules, save_path, args.is_campaign)?;
     if !args.is_campaign {
         extract_customization(&mut modules, &mode_tags, &strings, &model_ids, save_path)?;
@@ -86,7 +100,6 @@ fn main() -> Result<()> {
         )?;
     }
 
-    extract_models(&mut modules, &strings, &model_ids, save_path)?;
     extract_scenario(&mut modules, save_path, &map_ids)?;
     extract_visors(&mut modules, &mwsw_tags, save_path)?;
     extract_coating_globals(&mut modules, &cmsw_tags, save_path)?;

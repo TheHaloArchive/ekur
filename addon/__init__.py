@@ -36,6 +36,8 @@ from .src.operators.spartan_operator import ImportSpartanOperator  # ty:ignore[u
 from .src.operators.vanity_operator import (  # ty:ignore[unresolved-import]
     ImportVanityOperator,
 )
+from .src.operators.animation_operator import AnimationOperator  # ty:ignore[unresolved-import]
+
 from .src.ui.bake_options import BakeOptions  # ty:ignore[unresolved-import]
 from .src.ui.forge_map_options import ForgeMapOptions  # ty:ignore[unresolved-import]
 from .src.ui.forge_object_options import ForgeObjectOptions  # ty:ignore[unresolved-import]
@@ -45,6 +47,7 @@ from .src.ui.material_options import MaterialOptions  # ty:ignore[unresolved-imp
 from .src.ui.model_options import ModelOptions  # ty:ignore[unresolved-import]
 from .src.ui.spartan_options import SpartanOptions  # ty:ignore[unresolved-import]
 from .src.ui.vanity_options import VanityOptions  # ty: ignore[unresolved-import]
+from .src.ui.animation_options import AnimationOptions  # ty:ignore[unresolved-import]
 from .src.utils import get_package_name  # ty:ignore[unresolved-import]
 
 bl_info = {
@@ -148,12 +151,15 @@ def register():
     register_class(BakeOptions)
     register_class(LevelOptions)
     register_class(VanityOptions)
+    register_class(AnimationOptions)
+    register_class(AnimationOperator)
     bpy.types.Scene.material_properties = bpy.props.PointerProperty(type=MaterialOptions)  # ty: ignore[unresolved-attribute]
     bpy.types.Scene.model_properties = bpy.props.PointerProperty(type=ModelOptions)  # ty: ignore[unresolved-attribute]
     bpy.types.Scene.spartan_properties = bpy.props.PointerProperty(type=SpartanOptions)  # ty: ignore[unresolved-attribute]
     bpy.types.Scene.vanity_properties = bpy.props.PointerProperty(type=VanityOptions)  # ty: ignore[unresolved-attribute]
     bpy.types.Scene.forge_map_properties = bpy.props.PointerProperty(type=ForgeMapOptions)  # ty: ignore[unresolved-attribute]
     bpy.types.Scene.forge_object_properties = bpy.props.PointerProperty(type=ForgeObjectOptions)  # ty: ignore[unresolved-attribute]
+    bpy.types.Scene.animation_properties = bpy.props.PointerProperty(type=AnimationOptions)  # ty: ignore[unresolved-attribute]
     bpy.types.Scene.bake_properties = bpy.props.PointerProperty(type=BakeOptions)  # ty: ignore[unresolved-attribute]
     bpy.types.Scene.level_properties = bpy.props.PointerProperty(type=LevelOptions)  # ty: ignore[unresolved-attribute]
 
@@ -181,6 +187,8 @@ def unregister():
     unregister_class(ForgeObjectOptions)
     unregister_class(ForgeMapOptions)
     unregister_class(BakeOptions)
+    unregister_class(AnimationOptions)
+    unregister_class(AnimationOperator)
     del bpy.types.Scene.material_properties  # ty: ignore[unresolved-attribute]
     del bpy.types.Scene.model_properties  # ty: ignore[unresolved-attribute]
     del bpy.types.Scene.spartan_properties  # ty: ignore[unresolved-attribute]
@@ -189,3 +197,4 @@ def unregister():
     del bpy.types.Scene.forge_map_properties  # ty: ignore[unresolved-attribute]
     del bpy.types.Scene.bake_properties  # ty: ignore[unresolved-attribute]
     del bpy.types.Scene.level_properties  # ty: ignore[unresolved-attribute]
+    del bpy.types.Scene.animation_properties  # ty: ignore[unresolved-attribute]

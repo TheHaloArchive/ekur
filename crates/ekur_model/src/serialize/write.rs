@@ -197,26 +197,26 @@ pub(crate) fn write_section<R: Write>(
 }
 
 pub fn process_model(
-    model: RenderModel,
+    model: &RenderModel,
     indices: (usize, usize),
     modules: &mut [ModuleFile],
     string_mappings: &HashMap<i32, String>,
 ) -> Result<Vec<u8>> {
     let buffer = Vec::new();
     let mut writer = BufWriter::new(buffer);
-    write_header(&mut writer, &model)?;
-    write_regions(&mut writer, &model)?;
-    write_bones(&mut writer, &model, string_mappings)?;
-    write_markers(&mut writer, &model, string_mappings)?;
+    write_header(&mut writer, model)?;
+    write_regions(&mut writer, model)?;
+    write_bones(&mut writer, model, string_mappings)?;
+    write_markers(&mut writer, model, string_mappings)?;
     write_bounding_boxes(&mut writer, &model.bounding_boxes)?;
-    write_materials(&mut writer, &model)?;
+    write_materials(&mut writer, model)?;
     write_blendshape_boxes(&mut writer, &model.blend_shape_compression)?;
 
     let buffers = get_buffers(indices, modules, &Vec::new())?;
     let api_resource = model.resources.elements.first();
 
     for (section_index, section) in model.sections.elements.iter().enumerate() {
-        let (region_name, permutation_name) = get_region_permutation(&model, section_index)?;
+        let (region_name, permutation_name) = get_region_permutation(model, section_index)?;
         write_section(
             section,
             api_resource,

@@ -3,6 +3,8 @@
 from collections.abc import Iterable, Iterator
 from io import BufferedReader
 
+from mathutils import Vector
+
 from .blendshape_index_buffer import BlendShapeIndexBuffer
 from .blendshape_position_buffer import BlendShapePositionBuffer
 from .buffer_flags import BufferFlags
@@ -108,3 +110,23 @@ class VertexBuffers:
                 weights = [w / weight_sum for w in weights]
 
             yield (i, indices, weights)
+
+    def enumerate_blendshapes(self) -> Iterator[tuple[int, int, Vector]]:
+        """
+        Iterates over all (vertex_index, shape_id, delta) tuples describing the
+        blend shape (shape key) data for this vertex buffer.
+        """
+        if not self.flags.has_blendshape_index or not self.flags.has_blendshape_position:
+            return
+
+        positions = self.blendshape_position_buffer.positions
+        for vertex_index in range(len(self.blendshape_index_buffer.indices)):
+            decoded = self.blendshape_index_buffer.decode(vertex_index)
+            if decoded is None:
+                continue
+            offset, count = decoded
+            for i in range(offset, offset + count):
+                if i >= len(positions):
+                    continue
+                entry = positions[i]
+                yield (vertex_index, entry.index, entry.vector)
