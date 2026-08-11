@@ -13,6 +13,8 @@ from .material_options import draw_material_options, get_material_options
 from .model_options import draw_model_options, get_model_options
 from .spartan_options import draw_spartan_options, get_spartan_options
 from .vanity_options import draw_vanity_options, get_vanity_options
+from .animation_options import draw_animation_options, get_animation_options
+
 
 __all__ = ["EkurImportPanel"]
 
@@ -35,6 +37,7 @@ class EkurImportPanel(Panel):
         if generic_body:
             draw_material_options(generic_body, get_material_options())
             draw_model_options(generic_body, get_model_options())
+            draw_animation_options(generic_body, get_animation_options())
             draw_level_options(generic_body, get_level_options())
         spartan_header, spartan_body = layout.panel("VIEW3D_PT_import_spartan")
         spartan_header.label(text="Spartan")
