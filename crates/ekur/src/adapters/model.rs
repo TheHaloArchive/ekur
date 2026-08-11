@@ -10,7 +10,7 @@ use anyhow::Result;
 use infinite_rs::ModuleFile;
 use std::{
     collections::HashMap,
-    fs::{File, create_dir_all},
+    fs::{create_dir_all, File},
     io::{BufWriter, Write},
     path::PathBuf,
 };
@@ -45,12 +45,12 @@ pub(crate) fn extract_models(
         part_models.extend(get_tags_w_index::<ParticleModel>(PMDF_GROUP, module, idx)?);
         runtime_geo.extend(get_tags_w_index::<RuntimeGeo>(RTGO_GROUP, module, idx)?);
     }
-    /*
+
     save_path.push("models/");
     for model in &models {
-        let model_data = process_model(model.1, (model.0.0, model.0.1), modules, strings)?;
-        let temp_name = model.0.2.to_string();
-        save_path.push(model_ids.get(&model.0.2).unwrap_or(&temp_name));
+        let model_data = process_model(model.1, (model.0 .0, model.0 .1), modules, strings)?;
+        let temp_name = model.0 .2.to_string();
+        save_path.push(model_ids.get(&model.0 .2).unwrap_or(&temp_name));
         save_path.add_extension("ekur");
         let file = File::create(&save_path)?;
         let mut writer = BufWriter::new(file);
@@ -79,6 +79,5 @@ pub(crate) fn extract_models(
         writer.write_all(&model_data)?;
         save_path.pop();
     }
-    */
     Ok(models)
 }

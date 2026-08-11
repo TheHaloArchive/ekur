@@ -34,7 +34,7 @@ fn read_curve_keyframe_deltas(mut reader: impl Seek + Read, key_count: u16) -> R
 
 fn curve_tangent_scalar(tangent_signed: i32, p1: f32, p2: f32) -> f32 {
     let t = tangent_signed as f32 / 7.0;
-    t.abs() * (t * 0.300_000_011_920_929) + (p2 - p1)
+    t.abs() * (t * 0.3) + (p2 - p1)
 }
 
 fn curve_tangent_quat(
@@ -302,7 +302,7 @@ impl RevisedCurve {
         let header = CodecHeader::read(&mut reader)?;
         let mut curve = Self {
             header,
-            frame_count: frame_count,
+            frame_count,
             translation_data_offset: reader.read_u32::<LE>()?,
             scale_data_offset: reader.read_u32::<LE>()?,
             payload_data_offset: reader.read_u32::<LE>()?,

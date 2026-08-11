@@ -8,6 +8,7 @@ from ..ui.animation_options import get_animation_options
 from ..model.importer.animation.importer import import_animation
 from ..model.importer.animation.anim_data import AnimationData
 
+
 def import_anim(context: Context, path: str) -> None:
     selected_mesh = context.active_object
     if selected_mesh is None:
@@ -19,6 +20,7 @@ def import_anim(context: Context, path: str) -> None:
         animation = AnimationData()
         animation.read(f)
         import_animation(selected_mesh, animation, anim_path.stem)
+
 
 @final
 class AnimationOperator(Operator):

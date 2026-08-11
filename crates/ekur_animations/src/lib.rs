@@ -437,7 +437,7 @@ fn process_animations(
             .unwrap_or_else(|| format!("anim_{}", anim.name.0));
 
         let graph_id = animation_graph.any_tag.internal_struct.tag_id;
-        let filename = format!("{}_{}.ekuranim", &name, graph_id);
+        let filename = format!("{}_{}.ekuranim", name, graph_id);
         save_path_model.push(filename);
 
         write_animation(

@@ -153,9 +153,9 @@ class BakingOperator(Operator):
         previous_view_transform = scene.view_settings.view_transform
         previous_view_look = scene.view_settings.look
 
-        scene.display_settings.display_device = 'sRGB' # ty: ignore[invalid-assignment]
-        scene.view_settings.view_transform = 'Standard' # ty: ignore[invalid-assignment]
-        scene.view_settings.look = 'None' # ty: ignore[invalid-assignment]
+        scene.display_settings.display_device = "sRGB"  # ty: ignore[invalid-assignment]
+        scene.view_settings.view_transform = "Standard"  # ty: ignore[invalid-assignment]
+        scene.view_settings.look = "None"  # ty: ignore[invalid-assignment]
 
         bpy.ops.mesh.customdata_custom_splitnormals_clear()
         bpy.ops.object.shade_flat()
@@ -228,7 +228,13 @@ class BakingOperator(Operator):
         shader = material.node_tree.nodes.get("Group")
         mat_output = material.node_tree.nodes.get("Material Output")
         scene = context.scene
-        if not shader or not mat_output or not scene or not scene.display_settings or not scene.view_settings:
+        if (
+            not shader
+            or not mat_output
+            or not scene
+            or not scene.display_settings
+            or not scene.view_settings
+        ):
             return
         preset = PRESETS[options.output_workflow]
 
@@ -236,9 +242,9 @@ class BakingOperator(Operator):
         previous_view_transform = scene.view_settings.view_transform
         previous_view_look = scene.view_settings.look
 
-        scene.display_settings.display_device = 'sRGB' # ty: ignore[invalid-assignment]
-        scene.view_settings.view_transform = 'Standard' # ty: ignore[invalid-assignment]
-        scene.view_settings.look = 'None' # ty: ignore[invalid-assignment]
+        scene.display_settings.display_device = "sRGB"  # ty: ignore[invalid-assignment]
+        scene.view_settings.view_transform = "Standard"  # ty: ignore[invalid-assignment]
+        scene.view_settings.look = "None"  # ty: ignore[invalid-assignment]
 
         if options.bake_ao:
             preset["AO"] = 7

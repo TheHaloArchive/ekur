@@ -43,7 +43,9 @@ def get_animation_options() -> AnimationOptionsType:
 
 
 def draw_animation_options(layout: UILayout, props: AnimationOptionsType) -> None:
-    animation_header, animation_body = layout.panel("VIEW3D_PT_import_animation", default_closed=True)
+    animation_header, animation_body = layout.panel(
+        "VIEW3D_PT_import_animation", default_closed=True
+    )
     animation_header.label(icon="ANIM_DATA", text="Import Animation")
     if animation_body:
         animation_opts = animation_body.box()

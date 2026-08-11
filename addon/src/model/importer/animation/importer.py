@@ -4,9 +4,10 @@ from mathutils import Quaternion, Matrix
 
 from .anim_data import AnimationData, AnimationNode
 
+
 def _get_data_bone(armature: bpy.types.Object, node_name: str):
     if type(armature.data) == Armature:
-        for bone in armature.data.bones: # ty: ignore[unresolved-attribute]
+        for bone in armature.data.bones:  # ty: ignore[unresolved-attribute]
             if bone.name.lower() == node_name.lower():
                 return bone
     return None
@@ -50,7 +51,7 @@ def import_animation(
     armature: bpy.types.Object,
     animation_data: AnimationData,
     action_name: str,
-) -> bpy.types.Action:
+) -> bpy.types.Action | None:
     parent_index = _derive_parent_indices_from_child_sibling(animation_data.nodes)
 
     bone_map: dict[int, bpy.types.PoseBone] = {}
@@ -93,7 +94,7 @@ def import_animation(
 
             p_idx = parent_index[node_idx]
             if p_idx != -1 and absolute_frame[p_idx] is not None:
-                absolute_frame[node_idx] = absolute_frame[p_idx] @ local_matrix # ty: ignore[unsupported-operator]
+                absolute_frame[node_idx] = absolute_frame[p_idx] @ local_matrix  # ty: ignore[unsupported-operator]
             else:
                 absolute_frame[node_idx] = local_matrix
 
@@ -102,13 +103,13 @@ def import_animation(
 
             p_idx = parent_index[node_idx]
             if p_idx != -1 and absolute_frame[p_idx] is not None:
-                transform_matrix = absolute_frame[p_idx].inverted() @ transform_matrix # ty: ignore[unsupported-operator, unresolved-attribute]
+                transform_matrix = absolute_frame[p_idx].inverted() @ transform_matrix  # ty: ignore[unsupported-operator, unresolved-attribute]
 
             rest_local = local_rest.get(node_idx)
             if rest_local is not None:
-                transform_matrix = rest_local.inverted() @ transform_matrix # ty: ignore[unsupported-operator]
+                transform_matrix = rest_local.inverted() @ transform_matrix  # ty: ignore[unsupported-operator]
 
-            loc, rot_quat, scl = transform_matrix.decompose() # ty: ignore[unresolved-attribute]
+            loc, rot_quat, scl = transform_matrix.decompose()  # ty: ignore[unresolved-attribute]
 
             pose_bone.rotation_mode = "QUATERNION"
             pose_bone.location = loc
@@ -116,9 +117,12 @@ def import_animation(
             pose_bone.scale = scl
 
             pose_bone.keyframe_insert("location", frame=frame_number, group=pose_bone.name)
-            pose_bone.keyframe_insert("rotation_quaternion", frame=frame_number, group=pose_bone.name)
+            pose_bone.keyframe_insert(
+                "rotation_quaternion", frame=frame_number, group=pose_bone.name
+            )
             pose_bone.keyframe_insert("scale", frame=frame_number, group=pose_bone.name)
 
-    action.frame_start = 1
-    action.frame_end = animation_data.total_frames
+    if action:
+        action.frame_start = 1
+        action.frame_end = animation_data.total_frames
     return action
