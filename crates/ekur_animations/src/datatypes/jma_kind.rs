@@ -11,17 +11,6 @@ pub enum JmaKind {
 }
 
 impl JmaKind {
-    pub fn extension(self) -> &'static str {
-        match self {
-            Self::Jmm => "jmm",
-            Self::Jma => "jma",
-            Self::Jmt => "jmt",
-            Self::Jmz => "jmz",
-            Self::Jmo => "jmo",
-            Self::Jmr => "jmr",
-        }
-    }
-
     pub fn from_metadata(animation_type: AnimationType, frame_info_type: MovementDataType) -> Self {
         match animation_type {
             AnimationType::Overlay => return Self::Jmo,

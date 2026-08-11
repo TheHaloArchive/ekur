@@ -2,6 +2,7 @@ use byteorder::{LE, ReadBytesExt};
 
 use crate::datatypes::{quaternion::Quaternion, vector::Vector3};
 
+pub mod animation_compression_library;
 pub mod quantized_rotation_only;
 pub mod revised_curve;
 pub mod shared_static;

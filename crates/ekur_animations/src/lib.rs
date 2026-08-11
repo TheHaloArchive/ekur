@@ -1,4 +1,6 @@
+use crate::codecs::animation_compression_library::AnimationCompressionLibrary;
 use crate::codecs::revised_curve::RevisedCurve;
+use crate::compose::{compose_overlay, compose_pose, compose_replacement};
 use crate::{
     codecs::{
         Codec,
@@ -12,7 +14,7 @@ use crate::{
         quaternion::Quaternion,
         vector::Vector3,
     },
-    jma::{compose_overlay, compose_pose, compose_replacement, write_jma},
+    write::write_animation,
 };
 use std::{collections::HashMap, fs::create_dir_all, io::Cursor, path::PathBuf};
 
@@ -31,8 +33,9 @@ use ekur_definitions::{
 };
 
 mod codecs;
+pub mod compose;
 pub mod datatypes;
-mod jma;
+mod write;
 
 fn process_codecs(
     tag_resource: &AnimationTagResourceMember,
@@ -107,8 +110,13 @@ fn process_codecs(
                 CodecType::RevisedCurve => {
                     RevisedCurve::from_reader(&mut reader, resolved_frame_count)?.into_codec()
                 }
+                CodecType::AnimationCompressionLibrary => {
+                    animated_decoded = false;
+                    AnimationCompressionLibrary::from_reader(&mut reader, resolved_frame_count)?
+                        .into_codec()
+                }
+
                 _ => {
-                    println!("{:#?}", anim_codec);
                     animated_decoded = false;
                     Codec::default()
                 }
@@ -325,17 +333,6 @@ pub fn build_defaults(
         .collect()
 }
 
-pub fn sanitize(name: &str) -> String {
-    name.chars()
-        .map(|c| match c {
-            ':' => ' ',
-            '/' | '\\' | '*' | '?' | '"' | '<' | '>' | '|' => '_',
-            c if c.is_control() => '_',
-            c => c,
-        })
-        .collect()
-}
-
 fn process_animations(
     animation_graph: &AnimationGraph,
     render_model: &RenderModel,
@@ -343,6 +340,14 @@ fn process_animations(
     strings: &HashMap<i32, String>,
     model_ids: &HashMap<i32, String>,
 ) -> Result<()> {
+    let mut save_path_model = PathBuf::from(save_path);
+    save_path_model.push("anims");
+    let render_model_id = model_ids
+        .get(&render_model.any_tag.internal_struct.tag_id)
+        .unwrap_or(&render_model.any_tag.internal_struct.tag_id.to_string())
+        .clone();
+    save_path_model.push(&render_model_id);
+
     let skeleton = create_skeleton(animation_graph, strings);
     if skeleton.nodes.is_empty() {
         return Ok(());
@@ -380,6 +385,11 @@ fn process_animations(
         }
 
         let kind = JmaKind::from_metadata(anim.animation_type.0, anim.frame_info_type.0);
+        let kind_name = match kind {
+            JmaKind::Jmr => "replacement",
+            JmaKind::Jmo => "overlay",
+            _ => "base",
+        };
         let codec_frame_count = frame_count.max(1) as usize;
         let base: Vec<NodeTransform> = defaults.clone();
 
@@ -416,37 +426,28 @@ fn process_animations(
                 (base.clone(), body)
             }
         };
+        save_path_model.push(kind_name);
+        create_dir_all(&save_path_model)?;
 
         let name = strings
             .get(&anim.name.0)
             .cloned()
             .unwrap_or_else(|| format!("anim_{}", anim.name.0));
-        let render_model_id = model_ids
-            .get(&render_model.any_tag.internal_struct.tag_id)
-            .unwrap_or(&render_model.any_tag.internal_struct.tag_id.to_string())
-            .clone();
+
         let graph_id = animation_graph.any_tag.internal_struct.tag_id;
-        let filename = format!(
-            "{}_{}_{}.{}",
-            render_model_id,
-            sanitize(&name),
-            graph_id,
-            kind.extension()
-        );
+        let filename = format!("{}_{}.ekuranim", &name, graph_id);
+        save_path_model.push(filename);
 
-        let mut path = PathBuf::from(save_path);
-        path.push("anims");
-        path.push(filename);
-
-        write_jma(
-            &path,
+        write_animation(
+            &save_path_model,
             &skeleton,
             &frames,
             &leading,
             kind,
-            "unnamedActor",
             &movement,
         )?;
+        save_path_model.pop();
+        save_path_model.pop();
     }
     Ok(())
 }
@@ -459,9 +460,6 @@ pub fn extract_animations(
     mode_tags: &HashMap<(usize, usize, i32), RenderModel>,
     save_path: &str,
 ) -> Result<()> {
-    let mut save_paths = PathBuf::from(save_path);
-    save_paths.push("anims/");
-    create_dir_all(&save_paths)?;
     for hlmt in hlmt_tags.values() {
         let mode = mode_tags
             .iter()
@@ -471,6 +469,11 @@ pub fn extract_animations(
             && let Some(mode) = mode
         {
             process_animations(anim_tag, mode.1, save_path, strings, model_ids)?;
+            for parent in &anim_tag.parents.elements {
+                if let Some(parent_graph) = anim_tags.get(&parent.parent_graph.global_id) {
+                    process_animations(parent_graph, mode.1, save_path, strings, model_ids)?
+                }
+            }
         }
     }
 

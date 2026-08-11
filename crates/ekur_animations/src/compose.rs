@@ -1,25 +1,14 @@
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-    path::Path,
-};
-
 use crate::{
     NodeTransform, Skeleton, TrackSource,
     codecs::Codec,
     datatypes::{
-        flag_data::FlagData,
-        jma_kind::JmaKind,
-        movement::{MovementData, MovementFrame},
-        quaternion::Quaternion,
+        flag_data::FlagData, jma_kind::JmaKind, movement::MovementFrame, quaternion::Quaternion,
         vector::Vector3,
     },
     resolve_bones,
 };
-use anyhow::Result;
-use ekur_definitions::animations::MovementDataType;
 
-fn advance_movement(
+pub fn advance_movement(
     translation: &mut Vector3,
     rotation: &mut Quaternion,
     local: &MovementFrame,
@@ -42,7 +31,7 @@ fn advance_movement(
     *rotation = (*rotation * local.rotation).normalized();
 }
 
-fn compose_frame_bone(
+pub fn compose_frame_bone(
     transform: NodeTransform,
     bone_idx: usize,
     accumulated_translation: Vector3,
@@ -298,111 +287,4 @@ pub fn compose_replacement(
         frames.push(row);
     }
     frames
-}
-
-fn write_transform(writer: &mut impl Write, t: NodeTransform) -> Result<()> {
-    let p = t.translation;
-    write_floats(writer, &[p.x, p.y, p.z])?;
-    let q = t.rotation;
-    write_floats(writer, &[-q.x, -q.y, -q.z, q.w])?;
-    write_floats(writer, &[t.scale])?;
-    Ok(())
-}
-
-fn write_floats(writer: &mut impl Write, values: &[f32]) -> Result<()> {
-    for (i, v) in values.iter().enumerate() {
-        let v = if *v == -0.0 { 0.0 } else { *v };
-        if i + 1 < values.len() {
-            write!(writer, "{:.10}\t", v)?;
-        } else {
-            writeln!(writer, "{:.10}", v)?;
-        }
-    }
-    Ok(())
-}
-
-#[allow(clippy::too_many_arguments)]
-pub fn write_jma(
-    path: &Path,
-    skeleton: &Skeleton,
-    codec_frames: &[Vec<NodeTransform>],
-    leading: &[NodeTransform],
-    kind: JmaKind,
-    actor_name: &str,
-    movement: &MovementData,
-) -> Result<()> {
-    let codec_count = codec_frames.len();
-    let total_frames = if codec_count == 0 { 0 } else { codec_count + 1 };
-
-    let mut file = File::create(path)?;
-    let mut writer = BufWriter::new(&mut file);
-
-    writeln!(writer, "16392")?;
-    writeln!(writer, "{total_frames}")?;
-    writeln!(writer, "30")?;
-    writeln!(writer, "1")?;
-    writeln!(writer, "{actor_name}")?;
-    writeln!(writer, "{}", skeleton.nodes.len())?;
-    writeln!(writer, "0")?; // node list checksum placeholder
-
-    for node in &skeleton.nodes {
-        writeln!(writer, "{}", node.name)?;
-        writeln!(writer, "{}", node.first_child)?;
-        writeln!(writer, "{}", node.next_sibling)?;
-    }
-
-    if codec_count == 0 {
-        writer.flush()?;
-        return Ok(());
-    }
-
-    if kind.prepends_rest_pose() {
-        for transform in leading {
-            write_transform(&mut writer, *transform)?;
-        }
-    }
-
-    let mut accumulated_translation = Vector3::default();
-    let mut accumulated_rotation = Quaternion::IDENTITY;
-    let absolute = movement.kind == MovementDataType::XYZAbsolute;
-
-    for (frame_idx, frame) in codec_frames.iter().enumerate() {
-        for (bone_idx, transform) in frame.iter().enumerate() {
-            let composed = compose_frame_bone(
-                *transform,
-                bone_idx,
-                accumulated_translation,
-                accumulated_rotation,
-                kind,
-            );
-            write_transform(&mut writer, composed)?;
-        }
-        if kind.folds_movement()
-            && let Some(local) = movement.frames.get(frame_idx)
-        {
-            advance_movement(
-                &mut accumulated_translation,
-                &mut accumulated_rotation,
-                local,
-                absolute,
-            );
-        }
-    }
-
-    if kind.appends_held_frame() {
-        let last_idx = codec_count - 1;
-        for (bone_idx, transform) in codec_frames[last_idx].iter().enumerate() {
-            let composed = compose_frame_bone(
-                *transform,
-                bone_idx,
-                accumulated_translation,
-                accumulated_rotation,
-                kind,
-            );
-            write_transform(&mut writer, composed)?;
-        }
-    }
-
-    writer.flush()?;
-    Ok(())
 }
