@@ -46,6 +46,14 @@ impl Vector3 {
         }
     }
 
+    pub fn mul_add(&self, extent: Self, min: Self) -> Self {
+        Self {
+            x: self.x * extent.x + min.x,
+            y: self.y * extent.y + min.y,
+            z: self.z * extent.z + min.z,
+        }
+    }
+
     pub fn cross(&self, rhs: Self) -> Self {
         Self {
             x: self.y * rhs.z - self.z * rhs.y,

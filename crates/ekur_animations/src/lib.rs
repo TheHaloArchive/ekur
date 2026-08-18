@@ -1,7 +1,7 @@
 use crate::codecs::animation_compression_library::AnimationCompressionLibrary;
 use crate::codecs::revised_curve::RevisedCurve;
 use crate::compose::{compose_overlay, compose_pose, compose_replacement};
-use crate::constants::{FIRST_PERSON_GRAPHS, FIRST_PERSON_MODE, GRUNT_GRAPHS, GRUNT_MODE};
+use crate::constants::{FIRST_PERSON_GRAPHS, FIRST_PERSON_MODE};
 use crate::{
     codecs::{
         Codec,

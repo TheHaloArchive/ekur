@@ -85,6 +85,16 @@ impl Quaternion {
         Self { x, y, z, w }
     }
 
+    pub fn from_dropped_w(v: crate::datatypes::vector::Vector3) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: (1.0 - v.x * v.x - v.y * v.y - v.z * v.z).max(0.0).sqrt(),
+        }
+        .normalized()
+    }
+
     pub fn conjugate(&self) -> Self {
         Self {
             x: -self.x,
