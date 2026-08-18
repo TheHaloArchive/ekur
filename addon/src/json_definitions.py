@@ -141,6 +141,9 @@ class MacroMaskInfo(TypedDict):
     macro_metallic_intensity: float
     macro_cavity_intensity: float
     macro_cavity_exponent: float
+    has_color: bool
+    macro_color_map_transform: tuple[float, float, float, float]
+    macro_color_intensity: float
 
 
 class ExtraLayerData(TypedDict):

@@ -52,6 +52,7 @@ class LayeredLevelHINF:
             return
         interface = self.node_tree.interface
         _ = create_socket(interface, "BSDF", NodeSocketShader, False)
+        _ = create_socket(interface, "Macro Color", NodeSocketColor)
         _ = create_socket(interface, "Control", NodeSocketColor)
         _ = create_socket(interface, "Control Alpha", NodeSocketFloat)
         _ = create_socket(interface, "MacroMask", NodeSocketColor)
@@ -61,6 +62,7 @@ class LayeredLevelHINF:
         _ = create_socket(interface, "macro_roughness_intensity", NodeSocketFloat)
         _ = create_socket(interface, "macro_occlusion_intensity", NodeSocketFloat)
         _ = create_socket(interface, "macro_metallic_intensity", NodeSocketFloat)
+        _ = create_socket(interface, "macro_color_intensity", NodeSocketFloat)
         _ = create_socket(interface, "Layer 1 Color Blend Mode", NodeSocketInt)
         _ = create_socket(interface, "Layer 1 Normal Blend Mode", NodeSocketInt)
         _ = create_socket(interface, "Layer 1 Color", NodeSocketColor)
@@ -181,6 +183,21 @@ class LayeredLevelHINF:
         mix_005.factor_mode = "UNIFORM"
         assign_value(mix_005, 0, 1.0)
 
+        mix_006 = create_node(nodes, -640, 1010, ShaderNodeMix)
+        mix_006.blend_type = "OVERLAY"
+        mix_006.clamp_factor = True
+        mix_006.clamp_result = False
+        mix_006.data_type = "RGBA"
+        mix_006.factor_mode = "UNIFORM"
+        assign_value(mix_006, 0, 1.0)
+
+        mix_007 = create_node(nodes, -480, 1010, ShaderNodeMix)
+        mix_007.blend_type = "MIX"
+        mix_007.clamp_factor = True
+        mix_007.clamp_result = False
+        mix_007.data_type = "RGBA"
+        mix_007.factor_mode = "UNIFORM"
+
         metallic_bsdf = create_node(nodes, 171, 565, ShaderNodeBsdfMetallic)
         metallic_bsdf.distribution = "MULTI_GGX"
         metallic_bsdf.fresnel_type = "F82"
@@ -203,16 +220,16 @@ class LayeredLevelHINF:
         if value.outputs:
             value.outputs[0].default_value = 0.025
 
-        create_link(links, group_input_001, group_004, 2, 0)
-        create_link(links, group_input_001, group_004, 3, 1)
-        create_link(links, group_input_001, group_004, 16, 2)
-        create_link(links, group_input_001, group_004, 17, 3)
-        create_link(links, group_input_001, group_004, 25, 4)
-        create_link(links, group_input_001, group_004, 26, 5)
-        create_link(links, group_input_001, group_004, 34, 6)
-        create_link(links, group_input_001, group_004, 35, 7)
-        create_link(links, group_input_001, group_004, 43, 8)
-        create_link(links, group_input_001, group_004, 44, 9)
+        create_link(links, group_input_001, group_004, 3, 0)
+        create_link(links, group_input_001, group_004, 4, 1)
+        create_link(links, group_input_001, group_004, 18, 2)
+        create_link(links, group_input_001, group_004, 19, 3)
+        create_link(links, group_input_001, group_004, 27, 4)
+        create_link(links, group_input_001, group_004, 28, 5)
+        create_link(links, group_input_001, group_004, 36, 6)
+        create_link(links, group_input_001, group_004, 37, 7)
+        create_link(links, group_input_001, group_004, 45, 8)
+        create_link(links, group_input_001, group_004, 46, 9)
 
         create_link(links, group_004, reroute, 1, 0)
         create_link(links, group_004, reroute_001, 0, 0)
@@ -231,60 +248,67 @@ class LayeredLevelHINF:
         create_link(links, reroute_001, group_001, 0, 0)
         create_link(links, reroute_001, group_005, 0, 0)
 
-        create_link(links, group_input, separate_color, 0, 0)
+        create_link(links, group_input, separate_color, 1, 0)
 
         create_link(links, separate_color, group, 0, 2)
 
-        create_link(links, group_input, group, 6, 3)
-        create_link(links, group_input, group, 12, 4)
-        create_link(links, group_input, group, 21, 5)
-        create_link(links, group_input, group, 30, 6)
-        create_link(links, group_input, group, 39, 7)
+        create_link(links, group_input, group, 7, 3)
+        create_link(links, group_input, group, 14, 4)
+        create_link(links, group_input, group, 23, 5)
+        create_link(links, group_input, group, 32, 6)
+        create_link(links, group_input, group, 41, 7)
 
-        create_link(links, group_input, group_001, 3, 2)
-        create_link(links, group_input, group_001, 8, 3)
-        create_link(links, group_input, group_001, 13, 4)
-        create_link(links, group_input, group_001, 22, 5)
-        create_link(links, group_input, group_001, 31, 6)
-        create_link(links, group_input, group_001, 40, 7)
+        create_link(links, group_input, group_001, 2, 2)
+        create_link(links, group_input, group_001, 9, 3)
+        create_link(links, group_input, group_001, 15, 4)
+        create_link(links, group_input, group_001, 24, 5)
+        create_link(links, group_input, group_001, 33, 6)
+        create_link(links, group_input, group_001, 42, 7)
 
-        create_link(links, group_input, group_002, 11, 2)
-        create_link(links, group_input, group_002, 9, 3)
-        create_link(links, group_input, group_002, 20, 4)
-        create_link(links, group_input, group_002, 18, 5)
-        create_link(links, group_input, group_002, 29, 6)
-        create_link(links, group_input, group_002, 27, 7)
-        create_link(links, group_input, group_002, 38, 8)
-        create_link(links, group_input, group_002, 36, 9)
+        create_link(links, group_input, group_002, 13, 2)
+        create_link(links, group_input, group_002, 11, 3)
+        create_link(links, group_input, group_002, 22, 4)
+        create_link(links, group_input, group_002, 20, 5)
+        create_link(links, group_input, group_002, 31, 6)
+        create_link(links, group_input, group_002, 29, 7)
+        create_link(links, group_input, group_002, 40, 8)
+        create_link(links, group_input, group_002, 38, 9)
 
-        create_link(links, group_input, group_003, 16, 2)
-        create_link(links, group_input, group_003, 25, 4)
-        create_link(links, group_input, group_003, 34, 6)
-        create_link(links, group_input, group_003, 43, 8)
+        create_link(links, group_input, group_003, 18, 2)
+        create_link(links, group_input, group_003, 27, 4)
+        create_link(links, group_input, group_003, 36, 6)
+        create_link(links, group_input, group_003, 45, 8)
 
         create_link(links, group_003, separate_xyz, 0, 0)
 
-        create_link(links, group_input, group_005, 4, 2)
-        create_link(links, group_input, group_005, 15, 3)
-        create_link(links, group_input, group_005, 10, 4)
-        create_link(links, group_input, group_005, 24, 5)
-        create_link(links, group_input, group_005, 19, 6)
-        create_link(links, group_input, group_005, 33, 7)
-        create_link(links, group_input, group_005, 28, 8)
-        create_link(links, group_input, group_005, 42, 9)
-        create_link(links, group_input, group_005, 37, 10)
+        create_link(links, group_input, group_005, 5, 2)
+        create_link(links, group_input, group_005, 17, 3)
+        create_link(links, group_input, group_005, 12, 4)
+        create_link(links, group_input, group_005, 26, 5)
+        create_link(links, group_input, group_005, 21, 6)
+        create_link(links, group_input, group_005, 35, 7)
+        create_link(links, group_input, group_005, 30, 8)
+        create_link(links, group_input, group_005, 44, 9)
+        create_link(links, group_input, group_005, 39, 10)
 
         create_link(links, separate_color, group_006, 1, 2)
-        create_link(links, group_input, group_006, 7, 3)
-        create_link(links, group_input, group_006, 14, 4)
-        create_link(links, group_input, group_006, 23, 5)
-        create_link(links, group_input, group_006, 32, 6)
-        create_link(links, group_input, group_006, 41, 7)
+        create_link(links, group_input, group_006, 8, 3)
+        create_link(links, group_input, group_006, 16, 4)
+        create_link(links, group_input, group_006, 25, 5)
+        create_link(links, group_input, group_006, 34, 6)
+        create_link(links, group_input, group_006, 43, 7)
 
         create_link(links, group_001, mix, 0, 0)
         create_link(links, group_002, mix, 0, 7)
-        create_link(links, group_002, mix_001, 0, 6)
+        create_link(links, mix_007, mix_001, 2, 6)
         create_link(links, group_001, mix_001, 0, 0)
+
+        create_link(links, group_002, mix_006, 0, 6)
+        create_link(links, group_input, mix_006, 0, 7)
+
+        create_link(links, group_002, mix_007, 0, 6)
+        create_link(links, mix_006, mix_007, 2, 7)
+        create_link(links, group_input, mix_007, 10, 0)
 
         create_link(links, mix_001, mix_003, 2, 6)
         create_link(links, group_006, mix_003, 0, 7)
@@ -292,7 +316,7 @@ class LayeredLevelHINF:
         create_link(links, group_006, mix_004, 0, 7)
 
         create_link(links, value, bump_002, 0, 0)
-        create_link(links, group_input, bump_002, 5, 1)
+        create_link(links, group_input, bump_002, 6, 1)
         create_link(links, mix_005, bump_002, 2, 3)
         create_link(links, group_005, bump_002, 0, 4)
 

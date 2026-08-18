@@ -83,25 +83,33 @@ class LayeredLevel:
                 return
 
     def _get_textures(self, nodes: ShaderNodeGroup) -> None:
+        mcc = self.material["textures"].get("MacroColor")
+        if mcc:
+            color_image = create_image(self.tree.nodes, 100, str(mcc))
+            if color_image.image:
+                color_image.image.colorspace_settings.name = "sRGB"  # ty:ignore[invalid-assignment]
+            create_link(self.tree.links, color_image, nodes, 0, 0)
+        else:
+            assign_value(nodes, 0, (1.0, 1.0, 1.0, 1.0))
         mmm = self.material["textures"].get("MacroMaskMap")
         if mmm:
             color_image = create_image(self.tree.nodes, 200, str(mmm))
-            create_link(self.tree.links, color_image, nodes, 0, 2)
-            create_link(self.tree.links, color_image, nodes, 1, 3)
+            create_link(self.tree.links, color_image, nodes, 0, 3)
+            create_link(self.tree.links, color_image, nodes, 1, 4)
             uv_map = create_node(self.tree.nodes, -700, 200, ShaderNodeUVMap)
             uv_map.uv_map = "UV1"  # TODO: Check if exists..
             create_link(self.tree.links, uv_map, color_image, 0, 0)
         mmn = self.material["textures"].get("MacroNormal")
         if mmn:
             color_image = create_image(self.tree.nodes, 300, str(mmn))
-            create_link(self.tree.links, color_image, nodes, 0, 4)
+            create_link(self.tree.links, color_image, nodes, 0, 5)
         else:
-            assign_value(nodes, 4, (0.5, 0.5, 1.0, 1.0))
+            assign_value(nodes, 5, (0.5, 0.5, 1.0, 1.0))
         mmc = self.material["textures"].get("MacroControl")
         if mmc:
             color_image = create_image(self.tree.nodes, 400, str(mmc))
-            create_link(self.tree.links, color_image, nodes, 0, 0)
-            create_link(self.tree.links, color_image, nodes, 1, 1)
+            create_link(self.tree.links, color_image, nodes, 0, 1)
+            create_link(self.tree.links, color_image, nodes, 1, 2)
 
     def _setup_layer_shader(
         self,
@@ -121,7 +129,7 @@ class LayeredLevel:
         self, layer_shader: ShaderNodeGroup, shader: ShaderNodeGroup, i: int
     ) -> None:
         for out_idx in range(7):
-            self.tree.links.new(layer_shader.outputs[out_idx], shader.inputs[11 + i * 9 + out_idx])
+            self.tree.links.new(layer_shader.outputs[out_idx], shader.inputs[13 + i * 9 + out_idx])
 
     def _apply_rohm_values(self, layer_shader: ShaderNodeGroup, data: dict) -> None:
         assign_value(layer_shader, 1, (*data["color_tint"], 1.0))
@@ -165,13 +173,15 @@ class LayeredLevel:
 
         macro_mask_info = info["macro_mask_info"]
         if macro_mask_info:
-            assign_value(shader, 6, macro_mask_info["macro_roughness_intensity"])
-            assign_value(shader, 7, macro_mask_info["macro_occlusion_intensity"])
-            assign_value(shader, 8, macro_mask_info["macro_metallic_intensity"])
+            assign_value(shader, 7, macro_mask_info["macro_roughness_intensity"])
+            assign_value(shader, 8, macro_mask_info["macro_occlusion_intensity"])
+            assign_value(shader, 9, macro_mask_info["macro_metallic_intensity"])
+            assign_value(shader, 10, macro_mask_info["macro_color_intensity"])
         else:
-            assign_value(shader, 6, 0)
             assign_value(shader, 7, 0)
             assign_value(shader, 8, 0)
+            assign_value(shader, 9, 0)
+            assign_value(shader, 10, 0)
         material_output = create_node(self.tree.nodes, 800, 0, ShaderNodeOutputMaterial)
         create_link(self.tree.links, shader, material_output, 0, 0)
 
@@ -191,8 +201,8 @@ class LayeredLevel:
             offset = i * 250
 
             uv_map, layer_shader = self._setup_layer_shader(shader_class, layer_name, offset)
-            assign_value(shader, 9 + i * 9, data["color_blend_mode"])
-            assign_value(shader, 10 + i * 9, data["normal_blend_mode"])
+            assign_value(shader, 11 + i * 9, data["color_blend_mode"])
+            assign_value(shader, 12 + i * 9, data["normal_blend_mode"])
 
             if layer_type == "RohmLayer":
                 self._apply_rohm_values(layer_shader, data)
