@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2026 The Halo Archive */
 pub(crate) mod color_decal;
+pub(crate) mod color_tint_decal;
 pub(crate) mod const_decal;
 pub(crate) mod decal_mp;
 pub(crate) mod diffuse_shader;

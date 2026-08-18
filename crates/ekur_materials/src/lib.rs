@@ -19,6 +19,7 @@ pub enum ShaderType {
     Decal,
     SelfIllum,
     ColorDecal,
+    ColorTintDecal,
     Meter,
     SkinShader,
     EyeShader,
@@ -140,6 +141,15 @@ pub struct ColorDecal {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct ColorTintDecal {
+    pub opacity: f32,
+    pub tint_color: (f32, f32, f32),
+    pub metallic: f32,
+    pub roughness: f32,
+    pub normal_intensity: f32,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Meter {
     pub meter_off_color: (f32, f32, f32),
     pub meter_on_color: (f32, f32, f32),
@@ -211,6 +221,13 @@ pub enum LevelType {
     Rohg3Rohm1NoControl,
     Rohm1Rohg2Nnhg1NoControl,
     Rohg4MM,
+    Rohg1Rohm2Color,
+    Rohm1Rohg2Cone,
+    Rohm1Rohg1Cone,
+    Rohm1ConeAlpha,
+    Rohm1Cone,
+    Rohm2Rohg1Cone,
+    Rohm1Nnhg1Cone,
 }
 
 // TODO: Macro Mask Info may not have all the info but still exist (e.g control is missing)
@@ -224,6 +241,11 @@ pub struct MacroMaskInfo {
     pub macro_metallic_intensity: f32,
     pub macro_cavity_intensity: f32,
     pub macro_cavity_exponent: f32,
+    pub has_color: bool,
+    pub macro_color_map_transform: [f32; 4],
+    pub macro_color_intensity: f32,
+    pub has_conemap: bool,
+    pub conemap_map_transform: [f32; 4],
 }
 
 impl MacroMaskInfo {
@@ -247,6 +269,44 @@ impl MacroMaskInfo {
             macro_metallic_intensity: f32_from_const(material, offset + 56)?,
             macro_cavity_intensity: f32_from_const(material, offset + 60)?,
             macro_cavity_exponent: f32_from_const(material, offset + 64)?,
+            has_color: false,
+            macro_color_map_transform: [0.0; 4],
+            macro_color_intensity: 0.0,
+            has_conemap: false,
+            conemap_map_transform: [0.0; 4],
+        })
+    }
+
+    pub fn read_color(material: &mut Material, offset: usize) -> anyhow::Result<Self> {
+        Ok(Self {
+            macro_normal_map_transform: [
+                f32_from_const(material, offset)?,
+                f32_from_const(material, offset + 4)?,
+                f32_from_const(material, offset + 8)?,
+                f32_from_const(material, offset + 12)?,
+            ],
+            macro_normal_intensity: f32_from_const(material, offset + 16)?,
+            has_color: true,
+            macro_color_map_transform: [
+                f32_from_const(material, offset + 32)?,
+                f32_from_const(material, offset + 36)?,
+                f32_from_const(material, offset + 40)?,
+                f32_from_const(material, offset + 44)?,
+            ],
+            macro_color_intensity: f32_from_const(material, offset + 48)?,
+            macro_control_map_transform: [
+                f32_from_const(material, offset + 64)?,
+                f32_from_const(material, offset + 68)?,
+                f32_from_const(material, offset + 72)?,
+                f32_from_const(material, offset + 76)?,
+            ],
+            macro_roughness_intensity: f32_from_const(material, offset + 80)?,
+            macro_occlusion_intensity: f32_from_const(material, offset + 84)?,
+            macro_metallic_intensity: f32_from_const(material, offset + 88)?,
+            macro_cavity_intensity: f32_from_const(material, offset + 92)?,
+            macro_cavity_exponent: f32_from_const(material, offset + 96)?,
+            has_conemap: false,
+            conemap_map_transform: [0.0; 4],
         })
     }
 }
@@ -339,6 +399,67 @@ impl NnhgLayer {
 
         Ok(data)
     }
+
+    pub fn read_with_bounce(
+        material: &mut Material,
+        offset: usize,
+        is_layer1: bool,
+    ) -> anyhow::Result<Self> {
+        // Layer1 layout is missing the 12-byte extra_data trio (opacity,
+        // height_blend_range, height_accumulation), so everything from
+        // `bounce` onward sits 12 bytes earlier.
+        let shift = if is_layer1 { 12 } else { 0 };
+
+        let mut data = Self {
+            color_blend_mode: i32_from_const(material, offset)?,
+            normal_blend_mode: i32_from_const(material, offset + 4)?,
+            invert_height_blend: bool_from_const(material, offset + 8)?,
+            texture_bomb_enabled: bool_from_const(material, offset + 12)?,
+            texture_bomb_height_blend_enabled: bool_from_const(material, offset + 16)?,
+            texture_bomb_offset_strength: f32_from_const(material, offset + 20)?,
+            texture_bomb_mask_contrast: f32_from_const(material, offset + 24)?,
+            texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
+            micro_tessellation_scale: f32_from_const(material, offset + 32)?,
+            height_scale: f32_from_const(material, offset + 36)?,
+            roughness_white: f32_from_const(material, offset + 64 - shift)?,
+            roughness_black: f32_from_const(material, offset + 68 - shift)?,
+            ior: f32_from_const(material, offset + 72 - shift)?,
+            normal_intensity: f32_from_const(material, offset + 76 - shift)?,
+            metallic: f32_from_const(material, offset + 80 - shift)?,
+            top_color: [
+                f32_from_const(material, offset + 84 - shift)?,
+                f32_from_const(material, offset + 88 - shift)?,
+                f32_from_const(material, offset + 92 - shift)?,
+            ],
+            mid_color: [
+                f32_from_const(material, offset + 96 - shift)?,
+                f32_from_const(material, offset + 100 - shift)?,
+                f32_from_const(material, offset + 104 - shift)?,
+            ],
+            bottom_color: [
+                f32_from_const(material, offset + 112 - shift)?,
+                f32_from_const(material, offset + 116 - shift)?,
+                f32_from_const(material, offset + 120 - shift)?,
+            ],
+            packed_map_texture_transform: [
+                f32_from_const(material, offset + 144 - shift)?,
+                f32_from_const(material, offset + 148 - shift)?,
+                f32_from_const(material, offset + 152 - shift)?,
+                f32_from_const(material, offset + 156 - shift)?,
+            ],
+            extra_data: None,
+        };
+
+        if !is_layer1 {
+            data.extra_data = Some(ExtraLayerData {
+                opacity: f32_from_const(material, offset + 40)?,
+                height_blend_range: f32_from_const(material, offset + 44)?,
+                height_accumulation: f32_from_const(material, offset + 48)?,
+            });
+        }
+
+        Ok(data)
+    }
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -363,6 +484,8 @@ pub struct RohgLayer {
     bottom_color: [f32; 3],
     normal_map_texture_transform: [f32; 4],
     control_map_texture_transform: [f32; 4],
+    has_bounce: bool,
+    bounce: Option<[f32; 3]>,
     extra_data: Option<ExtraLayerData>,
 }
 
@@ -372,6 +495,7 @@ impl RohgLayer {
         offset: usize,
         is_layer1: bool,
         is_alt: bool,
+        has_bounce: bool,
     ) -> anyhow::Result<Self> {
         let shift = if is_layer1 {
             8
@@ -382,7 +506,7 @@ impl RohgLayer {
         };
         let secondary_shift = if is_layer1 { 12 } else { 0 };
         let tertiary_shift = if is_layer1 { 4 } else { 0 };
-
+        let bounce_shift = if has_bounce { 12 } else { 0 };
         let mut data = Self {
             color_blend_mode: i32_from_const(material, offset)?,
             normal_blend_mode: i32_from_const(material, offset + 4)?,
@@ -394,13 +518,11 @@ impl RohgLayer {
             texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
             micro_tessellation_scale: f32_from_const(material, offset + 32)?,
             height_scale: f32_from_const(material, offset + 36)?,
-
             roughness_white: f32_from_const(material, offset + 64 - shift)?,
             roughness_black: f32_from_const(material, offset + 68 - shift)?,
             ior: f32_from_const(material, offset + 72 - shift)?,
             normal_intensity: f32_from_const(material, offset + 76 - shift)?,
             metallic: f32_from_const(material, offset + 80 - shift)?,
-
             top_color: [
                 f32_from_const(material, offset + 84 - shift)?,
                 f32_from_const(material, offset + 88 - shift)?,
@@ -416,7 +538,6 @@ impl RohgLayer {
                 f32_from_const(material, offset + 116 - shift - secondary_shift)?,
                 f32_from_const(material, offset + 120 - shift - secondary_shift)?,
             ],
-
             normal_map_texture_transform: [
                 f32_from_const(material, offset + 144 - shift + tertiary_shift)?,
                 f32_from_const(material, offset + 148 - shift + tertiary_shift)?,
@@ -429,10 +550,18 @@ impl RohgLayer {
                 f32_from_const(material, offset + 184 - shift + tertiary_shift)?,
                 f32_from_const(material, offset + 188 - shift + tertiary_shift)?,
             ],
-
+            has_bounce,
+            bounce: if has_bounce {
+                Some([
+                    f32_from_const(material, offset + 52 - shift)?,
+                    f32_from_const(material, offset + 56 - shift)?,
+                    f32_from_const(material, offset + 60 - shift)?,
+                ])
+            } else {
+                None
+            },
             extra_data: None,
         };
-
         if shift == 0 {
             data.extra_data = Some(ExtraLayerData {
                 opacity: f32_from_const(material, offset + 40)?,
@@ -440,7 +569,6 @@ impl RohgLayer {
                 height_accumulation: f32_from_const(material, offset + 48)?,
             });
         }
-
         Ok(data)
     }
 }
@@ -467,6 +595,7 @@ pub struct RohmLayer {
     color_map_texture_transform: [f32; 4],
     normal_map_texture_transform: [f32; 4],
     control_map_texture_transform: [f32; 4],
+    bounce: Option<[f32; 3]>,
     extra_data: Option<ExtraLayerData>,
 }
 
@@ -476,12 +605,35 @@ impl RohmLayer {
         offset: usize,
         is_layer1: bool,
         is_other: bool,
+        has_bounce: bool,
     ) -> anyhow::Result<Self> {
         let mut shift = if is_layer1 { 8 } else { 0 };
         let secondary_shift = if is_layer1 { 12 } else { 0 };
         let tertiary_shift = if is_layer1 { 8 } else { 0 };
         shift = if is_other { 12 } else { shift };
-        shift = if is_layer1 && is_other { 4 } else { shift };
+        shift = if is_layer1 && has_bounce {
+            shift + 8
+        } else {
+            shift
+        };
+
+        // Bounce's byte impact differs depending on is_layer1, so each
+        // adjustment branches on it rather than being a flat has_bounce toggle.
+        let bounce_shift: usize = if has_bounce {
+            if is_layer1 { 4 } else { 8 }
+        } else {
+            0
+        };
+        let bounce_secondary_shift: usize = if has_bounce {
+            if is_layer1 { 0 } else { 4 }
+        } else {
+            0
+        };
+        let bounce_secondary_add: usize = if has_bounce && is_layer1 { 4 } else { 0 };
+        let bounce_tertiary_add: usize = if has_bounce && is_layer1 { 4 } else { 0 };
+
+        let roughness_base = offset + 64 + bounce_shift - shift;
+
         let mut data = Self {
             color_blend_mode: i32_from_const(material, offset)?,
             normal_blend_mode: i32_from_const(material, offset + 4)?,
@@ -493,43 +645,103 @@ impl RohmLayer {
             texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
             micro_tessellation_scale: f32_from_const(material, offset + 32)?,
             height_scale: f32_from_const(material, offset + 36)?,
-            roughness_white: f32_from_const(material, offset + 64 - shift)?,
-            roughness_black: f32_from_const(material, offset + 68 - shift)?,
-            ior: f32_from_const(material, offset + 72 - shift)?,
-            normal_intensity: f32_from_const(material, offset + 76 - shift)?,
-            metallic_white: f32_from_const(material, offset + 80 - shift)?,
-            metallic_black: f32_from_const(material, offset + 84 - shift)?,
-
+            roughness_white: f32_from_const(material, roughness_base)?,
+            roughness_black: f32_from_const(material, roughness_base + 4)?,
+            ior: f32_from_const(material, roughness_base + 8)?,
+            normal_intensity: f32_from_const(material, roughness_base + 12)?,
+            metallic_white: f32_from_const(material, roughness_base + 16)?,
+            metallic_black: f32_from_const(material, roughness_base + 20)?,
             color_tint: [
-                f32_from_const(material, offset + 96 - shift - tertiary_shift)?,
-                f32_from_const(material, offset + 100 - shift - tertiary_shift)?,
-                f32_from_const(material, offset + 104 - shift - tertiary_shift)?,
+                f32_from_const(
+                    material,
+                    offset + 96 - shift - tertiary_shift + bounce_tertiary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 100 - shift - tertiary_shift + bounce_tertiary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 104 - shift - tertiary_shift + bounce_tertiary_add,
+                )?,
             ],
-
             color_map_texture_transform: [
-                f32_from_const(material, offset + 128 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 132 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 136 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 140 - shift - secondary_shift)?,
+                f32_from_const(
+                    material,
+                    offset + 128 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 132 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 136 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 140 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
             ],
-
             normal_map_texture_transform: [
-                f32_from_const(material, offset + 160 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 164 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 168 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 172 - shift - secondary_shift)?,
+                f32_from_const(
+                    material,
+                    offset + 160 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 164 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 168 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 172 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
             ],
-
             control_map_texture_transform: [
-                f32_from_const(material, offset + 192 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 196 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 200 - shift - secondary_shift)?,
-                f32_from_const(material, offset + 204 - shift - secondary_shift)?,
+                f32_from_const(
+                    material,
+                    offset + 192 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 196 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 200 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
+                f32_from_const(
+                    material,
+                    offset + 204 - shift - secondary_shift - bounce_secondary_shift
+                        + bounce_secondary_add,
+                )?,
             ],
-
+            bounce: if has_bounce {
+                Some([
+                    f32_from_const(material, roughness_base - 12)?,
+                    f32_from_const(material, roughness_base - 8)?,
+                    f32_from_const(material, roughness_base - 4)?,
+                ])
+            } else {
+                None
+            },
             extra_data: None,
         };
-
         if shift == 0 {
             data.extra_data = Some(ExtraLayerData {
                 opacity: f32_from_const(material, offset + 40)?,
@@ -537,6 +749,116 @@ impl RohmLayer {
                 height_accumulation: f32_from_const(material, offset + 48)?,
             });
         }
+        Ok(data)
+    }
+
+    pub fn read_bounce_delta(material: &mut Material, offset: usize) -> anyhow::Result<Self> {
+        let data = Self {
+            color_blend_mode: i32_from_const(material, offset)?,
+            normal_blend_mode: i32_from_const(material, offset + 4)?,
+            invert_height_blend: bool_from_const(material, offset + 8)?,
+            texture_bomb_enabled: bool_from_const(material, offset + 12)?,
+            texture_bomb_height_blend_enabled: bool_from_const(material, offset + 16)?,
+            texture_bomb_offset_strength: f32_from_const(material, offset + 20)?,
+            texture_bomb_mask_contrast: f32_from_const(material, offset + 24)?,
+            texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
+            micro_tessellation_scale: f32_from_const(material, offset + 32)?,
+            height_scale: f32_from_const(material, offset + 36)?,
+            roughness_white: f32_from_const(material, offset + 64)?,
+            roughness_black: f32_from_const(material, offset + 68)?,
+            ior: f32_from_const(material, offset + 72)?,
+            normal_intensity: f32_from_const(material, offset + 76)?,
+            metallic_white: f32_from_const(material, offset + 80)?,
+            metallic_black: f32_from_const(material, offset + 84)?,
+            color_tint: [
+                f32_from_const(material, offset + 96)?,
+                f32_from_const(material, offset + 100)?,
+                f32_from_const(material, offset + 104)?,
+            ],
+            color_map_texture_transform: [
+                f32_from_const(material, offset + 128)?,
+                f32_from_const(material, offset + 132)?,
+                f32_from_const(material, offset + 136)?,
+                f32_from_const(material, offset + 140)?,
+            ],
+            normal_map_texture_transform: [
+                f32_from_const(material, offset + 160)?,
+                f32_from_const(material, offset + 164)?,
+                f32_from_const(material, offset + 168)?,
+                f32_from_const(material, offset + 172)?,
+            ],
+            control_map_texture_transform: [
+                f32_from_const(material, offset + 192)?,
+                f32_from_const(material, offset + 196)?,
+                f32_from_const(material, offset + 200)?,
+                f32_from_const(material, offset + 204)?,
+            ],
+            bounce: Some([
+                f32_from_const(material, offset + 52)?,
+                f32_from_const(material, offset + 56)?,
+                f32_from_const(material, offset + 60)?,
+            ]),
+            extra_data: Some(ExtraLayerData {
+                opacity: f32_from_const(material, offset + 40)?,
+                height_blend_range: f32_from_const(material, offset + 44)?,
+                height_accumulation: f32_from_const(material, offset + 48)?,
+            }),
+        };
+
+        Ok(data)
+    }
+
+    pub fn read_bounce_layer1_delta(
+        material: &mut Material,
+        offset: usize,
+    ) -> anyhow::Result<Self> {
+        let data = Self {
+            color_blend_mode: i32_from_const(material, offset)?,
+            normal_blend_mode: i32_from_const(material, offset + 4)?,
+            invert_height_blend: bool_from_const(material, offset + 8)?,
+            texture_bomb_enabled: bool_from_const(material, offset + 12)?,
+            texture_bomb_height_blend_enabled: bool_from_const(material, offset + 16)?,
+            texture_bomb_offset_strength: f32_from_const(material, offset + 20)?,
+            texture_bomb_mask_contrast: f32_from_const(material, offset + 24)?,
+            texture_bomb_height_mask_range: f32_from_const(material, offset + 28)?,
+            micro_tessellation_scale: f32_from_const(material, offset + 32)?,
+            height_scale: f32_from_const(material, offset + 36)?,
+            roughness_white: f32_from_const(material, offset + 60)?,
+            roughness_black: f32_from_const(material, offset + 64)?,
+            ior: f32_from_const(material, offset + 68)?,
+            normal_intensity: f32_from_const(material, offset + 72)?,
+            metallic_white: f32_from_const(material, offset + 76)?,
+            metallic_black: f32_from_const(material, offset + 80)?,
+            color_tint: [
+                f32_from_const(material, offset + 84)?,
+                f32_from_const(material, offset + 88)?,
+                f32_from_const(material, offset + 92)?,
+            ],
+            color_map_texture_transform: [
+                f32_from_const(material, offset + 112)?,
+                f32_from_const(material, offset + 116)?,
+                f32_from_const(material, offset + 120)?,
+                f32_from_const(material, offset + 124)?,
+            ],
+            normal_map_texture_transform: [
+                f32_from_const(material, offset + 144)?,
+                f32_from_const(material, offset + 148)?,
+                f32_from_const(material, offset + 152)?,
+                f32_from_const(material, offset + 156)?,
+            ],
+            control_map_texture_transform: [
+                f32_from_const(material, offset + 176)?,
+                f32_from_const(material, offset + 180)?,
+                f32_from_const(material, offset + 184)?,
+                f32_from_const(material, offset + 188)?,
+            ],
+            bounce: Some([
+                f32_from_const(material, offset + 48)?,
+                f32_from_const(material, offset + 52)?,
+                f32_from_const(material, offset + 56)?,
+            ]),
+            extra_data: None,
+        };
 
         Ok(data)
     }
@@ -579,11 +901,36 @@ impl ConeMapInfo {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct AlphaInfo {
+    pub alpha_map_transform: [f32; 4],
+    pub alpha_power: f32,
+    pub alpha_add: f32,
+    pub ac_thresh: f32,
+}
+
+impl AlphaInfo {
+    pub fn read(material: &mut Material, offset: usize) -> anyhow::Result<Self> {
+        Ok(Self {
+            alpha_map_transform: [
+                f32_from_const(material, offset)?,
+                f32_from_const(material, offset + 4)?,
+                f32_from_const(material, offset + 8)?,
+                f32_from_const(material, offset + 12)?,
+            ],
+            alpha_power: f32_from_const(material, offset + 16)?,
+            alpha_add: f32_from_const(material, offset + 20)?,
+            ac_thresh: f32_from_const(material, offset + 24)?,
+        })
+    }
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct LayeredLevel {
     pub level_type: LevelType,
     pub conemap_info: Option<ConeMapInfo>,
     pub macro_mask_info: Option<MacroMaskInfo>,
     pub layers: Option<Vec<LevelLayer>>,
+    pub alpha_info: Option<AlphaInfo>,
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -602,6 +949,7 @@ pub struct Material {
     pub eye: Option<EyeShader>,
     pub hair: Option<Hair>,
     pub layered_level: Option<LayeredLevel>,
+    pub color_tint_decal: Option<ColorTintDecal>,
     #[serde(skip)]
     pub material_constants: Vec<u8>,
 }
