@@ -38,6 +38,28 @@ class BakeOptions(PropertyGroup):
     bake_detail_normals: BoolProperty(name="Bake Detail Normals", default=False)
     merge_textures: BoolProperty(name="Merge Textures Into Single Bake", default=False)
     merge_objects: BoolProperty(name="Merge Objects Into Single Bake", default=False)
+    bake_udim: BoolProperty(
+        name="Bake Selection Into UDIM Tiles",
+        description="Bakes the selected objects into a single tiled (UDIM) texture set, one tile per material.",
+        default=False,
+    )
+    udim_name: StringProperty(
+        name="UDIM Texture Name",
+        description="Base name of the baked UDIM texture set. Empty uses the name of the active object.",
+        default="",
+    )
+    udim_first_tile: IntProperty(
+        name="First UDIM Tile",
+        description="UDIM tile the first material is baked into.",
+        default=1001,
+        min=1001,
+        max=2000,
+    )
+    udim_layout_uvs: BoolProperty(
+        name="Move UVs Into Tiles",
+        description="Moves the UVs of every material into its own tile, so the objects use the baked tiles. Disable if the objects are already laid out across UDIM tiles.",
+        default=True,
+    )
     bake_ao: BoolProperty(name="Bake Ambient Occlusion", default=False)
     bake_layer_map: BoolProperty(name="Bake Layer Map", default=False)
     advanced_bake: BoolProperty(name="Toggle Advanced Bake Options", default=False)
@@ -79,6 +101,11 @@ class BakeOptions(PropertyGroup):
         description="Save the base normals from the game.",
         default=False,
     )
+    center_uvs: BoolProperty(
+        name="Center UVs",
+        description="Moves UVs that lie outside the 0-1 tile back onto it before baking, keeping their layout intact.",
+        default=False,
+    )
 
 
 class BakeOptionsType:
@@ -90,6 +117,10 @@ class BakeOptionsType:
     bake_detail_normals: bool = False
     merge_textures: bool = False
     merge_objects: bool = False
+    bake_udim: bool = False
+    udim_name: str = ""
+    udim_first_tile: int = 1001
+    udim_layout_uvs: bool = True
     bake_ao: bool = False
     bake_layer_map: bool = False
     advanced_bake: bool = False
@@ -99,6 +130,7 @@ class BakeOptionsType:
     uv_to_bake_to: str = ""
     align_bakes: bool = False
     save_normals: bool = False
+    center_uvs: bool = False
 
 
 def get_bake_options() -> BakeOptionsType:
@@ -125,8 +157,15 @@ def draw_bake_menu_options(layout: UILayout, props: BakeOptionsType) -> None:
         bake_opts.prop(props, "pixel_padding")
         bake_opts.prop(props, "bit_depth")
         bake_opts.prop(props, "save_normals")
+        bake_opts.prop(props, "center_uvs")
         bake_opts.prop(props, "merge_textures")
         bake_opts.prop(props, "merge_objects")
+        bake_opts.prop(props, "bake_udim")
+        if props.bake_udim:
+            udim_opts = bake_opts.box()
+            udim_opts.prop(props, "udim_name")
+            udim_opts.prop(props, "udim_first_tile")
+            udim_opts.prop(props, "udim_layout_uvs")
         bake_opts.prop(props, "bake_detail_normals")
         bake_opts.prop(props, "bake_ao")
         bake_opts.prop(props, "bake_layer_map")
