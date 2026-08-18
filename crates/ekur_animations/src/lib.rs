@@ -1,7 +1,7 @@
 use crate::codecs::animation_compression_library::AnimationCompressionLibrary;
 use crate::codecs::revised_curve::RevisedCurve;
 use crate::compose::{compose_overlay, compose_pose, compose_replacement};
-use crate::constants::{FIRST_PERSON_GRAPHS, FIRST_PERSON_MODE};
+use crate::constants::{FIRST_PERSON_GRAPHS, FIRST_PERSON_MODE, GRUNT_GRAPHS, GRUNT_MODE};
 use crate::{
     codecs::{
         Codec,
@@ -84,6 +84,15 @@ fn process_codecs(
         0
     };
 
+    // ACL encodes the whole skeleton, so it needs the animated flags up front to
+    // select tracks; the other codecs already store only the animated nodes.
+    let flags_offset = static_codec_size + animated_stream_size;
+    let static_flags_size = sizes.movement_data.0 as usize;
+    let animated_flags_size = sizes.pill_offset_data.0 as usize;
+
+    let static_flags = read_flags_at(data, flags_offset, static_flags_size);
+    let animated_flags = read_flags_at(data, flags_offset + static_flags_size, animated_flags_size);
+
     let mut animated_decoded = true;
     let animated_tracks = if animated_stream_size == 0 || animated_offset >= data.len() {
         Codec::default()
@@ -113,9 +122,13 @@ fn process_codecs(
                     RevisedCurve::from_reader(&mut reader, resolved_frame_count)?.into_codec()
                 }
                 CodecType::AnimationCompressionLibrary => {
-                    animated_decoded = false;
-                    AnimationCompressionLibrary::from_reader(&mut reader, resolved_frame_count)?
-                        .into_codec()
+                    match AnimationCompressionLibrary::from_bytes(anim_blob) {
+                        Ok(acl) => acl.into_codec_for(&animated_flags, resolved_frame_count),
+                        Err(_) => {
+                            animated_decoded = false;
+                            Codec::default()
+                        }
+                    }
                 }
 
                 _ => {
@@ -125,13 +138,6 @@ fn process_codecs(
             }
         }
     };
-
-    let flags_offset = static_codec_size + animated_stream_size;
-    let static_flags_size = sizes.movement_data.0 as usize;
-    let animated_flags_size = sizes.pill_offset_data.0 as usize;
-
-    let static_flags = read_flags_at(data, flags_offset, static_flags_size);
-    let animated_flags = read_flags_at(data, flags_offset + static_flags_size, animated_flags_size);
 
     let movement_offset = flags_offset + static_flags_size + animated_flags_size;
     let movement_size = sizes.default_data.0 as usize;
