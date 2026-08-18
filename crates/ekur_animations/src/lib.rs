@@ -122,13 +122,8 @@ fn process_codecs(
                     RevisedCurve::from_reader(&mut reader, resolved_frame_count)?.into_codec()
                 }
                 CodecType::AnimationCompressionLibrary => {
-                    match AnimationCompressionLibrary::from_bytes(anim_blob) {
-                        Ok(acl) => acl.into_codec_for(&animated_flags, resolved_frame_count),
-                        Err(_) => {
-                            animated_decoded = false;
-                            Codec::default()
-                        }
-                    }
+                    AnimationCompressionLibrary::from_bytes(anim_blob)?
+                        .into_codec_for(&animated_flags, resolved_frame_count)
                 }
 
                 _ => {
