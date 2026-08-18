@@ -9,6 +9,7 @@ from bpy.types import Context, MaterialSlot, Operator, ShaderNodeTree
 
 from ..json_definitions import CommonMaterial, CommonStyleList
 from ..material_types.color_decal import ColorDecalShader
+from ..material_types.color_tint_decal import ColorTintDecalShader
 from ..material_types.decal_shader import DecalShader
 from ..material_types.diffuse_shader import DiffuseShaderType
 from ..material_types.hair_shader import HairShader
@@ -92,6 +93,8 @@ def run_material(material: CommonMaterial, node_tree: ShaderNodeTree) -> None:
             _ = HairShader(material, node_tree)
         case "LayeredLevel":
             _ = LayeredLevel(material, node_tree)
+        case "ColorTintDecal":
+            _ = ColorTintDecalShader(material, node_tree)
         case "Unknown":
             pass
         case _:

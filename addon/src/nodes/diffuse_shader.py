@@ -45,7 +45,8 @@ class DiffuseShader:
         _ = create_socket(interface, "Color Texture", NodeSocketColor)
         control = create_socket(interface, "Control Texture", NodeSocketColor)
         control.default_value = (0.0, 1.0, 0.0, 0.0)
-        _ = create_socket(interface, "Normal Texture", NodeSocketColor)
+        norm = create_socket(interface, "Normal Texture", NodeSocketColor)
+        norm.default_value = (0.5, 0.5, 1.0, 1.0)
         rw = create_socket(interface, "Roughness White", NodeSocketFloat)
         rw.default_value = 0.0
         rb = create_socket(interface, "Roughness Black", NodeSocketFloat)
@@ -83,7 +84,7 @@ class DiffuseShader:
 
         color_tint = create_node(nodes, 0, 0, ShaderNodeMix)
         color_tint.data_type = "RGBA"
-        color_tint.blend_type = "COLOR"
+        color_tint.blend_type = "COLOR" # TODO: is this right?
         assign_value(color_tint, 0, 0.999)
 
         em_tint = create_node(nodes, 0, 0, ShaderNodeMix)

@@ -233,6 +233,13 @@ class LayeredLevel(TypedDict):
     macro_mask_info: MacroMaskInfo | None
     layers: list[LevelLayer] | None
 
+class ColorTintDecal(TypedDict):
+    opacity: float
+    tint_color: tuple[float, float, float]
+    metallic: float
+    roughness: float
+    normal_intensity: float
+
 
 class CommonMaterial(TypedDict):
     textures: dict[str, int]
@@ -243,6 +250,7 @@ class CommonMaterial(TypedDict):
     illum_info: SelfIllum | None
     decal_slots: DecalSlot | None
     color_decal: ColorDecal | None
+    color_tint_decal: ColorTintDecal | None
     skin: SkinInfo | None
     hair: HairInfo | None
     layered_level: LayeredLevel | None
