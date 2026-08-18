@@ -42,34 +42,34 @@ pub fn decode_shared_static(
     if s.len() < 48 || s[0] != CodecType::SharedStatic as u8 {
         return None;
     }
-    let (n_rot, n_trn, n_scl) = (s[2] as usize, s[3] as usize, s[4] as usize);
-    let trn_off = u32::from_le_bytes(s.get(12..16)?.try_into().ok()?) as usize;
-    let scl_off = u32::from_le_bytes(s.get(16..20)?.try_into().ok()?) as usize;
+    let (n_rot, n_scl, n_trn) = (s[2] as usize, s[4] as usize, s[6] as usize);
+    let trn_off = 48 + n_rot * 2;
+    let scl_off = trn_off + n_trn * 2;
     let index =
-        |o: usize| -> Option<i16> { s.get(o..o + 2).map(|b| i16::from_le_bytes([b[0], b[1]])) };
+        |o: usize| -> Option<u16> { s.get(o..o + 2).map(|b| u16::from_le_bytes([b[0], b[1]])) };
     let mut rotations = Vec::with_capacity(n_rot);
     for k in 0..n_rot {
         let idx = index(48 + 2 * k)?;
-        let q = (idx >= 0)
+        let q = (idx != u16::MAX)
             .then(|| pool.rotations.get(idx as usize).copied())
             .flatten();
-        rotations.push(vec![q.unwrap_or(Quaternion::IDENTITY)]);
+        rotations.push(q.map(|v| vec![v]).unwrap_or_default());
     }
     let mut translations = Vec::with_capacity(n_trn);
     for k in 0..n_trn {
         let idx = index(trn_off + 2 * k)?;
-        let t = (idx >= 0)
+        let t = (idx != u16::MAX)
             .then(|| pool.translations.get(idx as usize).copied())
             .flatten();
-        translations.push(vec![t.unwrap_or_default()]);
+        translations.push(t.map(|v| vec![v]).unwrap_or_default());
     }
     let mut scales = Vec::with_capacity(n_scl);
     for k in 0..n_scl {
         let idx = index(scl_off + 2 * k)?;
-        let v = (idx >= 0)
+        let v = (idx != u16::MAX)
             .then(|| pool.scales.get(idx as usize).copied())
             .flatten();
-        scales.push(vec![v.unwrap_or(1.0)]);
+        scales.push(v.map(|x| vec![x]).unwrap_or_default());
     }
     Some(Codec {
         rotations,
