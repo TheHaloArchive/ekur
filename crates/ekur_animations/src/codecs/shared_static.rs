@@ -39,17 +39,17 @@ pub fn decode_shared_static(
     }
 
     let s = &buffer[buffer.len() - cps..];
-    if s.len() < 32 || s[0] != CodecType::SharedStatic as u8 {
+    if s.len() < 48 || s[0] != CodecType::SharedStatic as u8 {
         return None;
     }
-    let (n_rot, n_trn, n_scl) = (s[1] as usize, s[2] as usize, s[3] as usize);
+    let (n_rot, n_trn, n_scl) = (s[2] as usize, s[3] as usize, s[4] as usize);
     let trn_off = u32::from_le_bytes(s.get(12..16)?.try_into().ok()?) as usize;
     let scl_off = u32::from_le_bytes(s.get(16..20)?.try_into().ok()?) as usize;
     let index =
         |o: usize| -> Option<i16> { s.get(o..o + 2).map(|b| i16::from_le_bytes([b[0], b[1]])) };
     let mut rotations = Vec::with_capacity(n_rot);
     for k in 0..n_rot {
-        let idx = index(32 + 2 * k)?;
+        let idx = index(48 + 2 * k)?;
         let q = (idx >= 0)
             .then(|| pool.rotations.get(idx as usize).copied())
             .flatten();
