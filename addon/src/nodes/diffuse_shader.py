@@ -98,7 +98,10 @@ class DiffuseShader:
         create_link(links, color_tint, ao_multiply, 2, 1)
         create_link(links, input, em_tint, 0, 6)
         create_link(links, input, em_tint, 7, 7)
-        if bpy.app.version >= (5, 2, 0):
+        if bpy.app.version >= (5, 3, 0):
+            create_link(links, em_tint, bsdf, 2, 30)
+            create_link(links, input, bsdf, 8, 31)
+        elif bpy.app.version >= (5, 2, 0):
             create_link(links, em_tint, bsdf, 2, 28)
             create_link(links, input, bsdf, 8, 29)
         else:

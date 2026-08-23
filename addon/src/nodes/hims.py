@@ -554,7 +554,9 @@ class HIMS:
         create_link(links, group_011, infinite_color, 0, 7)
         create_link(links, group_012, infinite_color, 0, 8)
         create_link(links, group_013, group_output_17, 0, 4)
-        if bpy.app.version >= (5, 2, 0):
+        if bpy.app.version >= (5, 3, 0):
+            create_link(links, infinite_color, principled_bsdf, 0, 30)
+        elif bpy.app.version >= (5, 2, 0):
             create_link(links, infinite_color, principled_bsdf, 0, 28)
         else:
             create_link(links, infinite_color, principled_bsdf, 0, 27)
@@ -726,7 +728,9 @@ class HIMS:
         create_link(links, infinite_color, mix_005_6, 0, 6)
         create_link(links, infinite_color, mix_006_7, 0, 6)
         create_link(links, infinite_color, mix_11, 0, 6)
-        if bpy.app.version >= (5, 2, 0):
+        if bpy.app.version >= (5, 3, 0):
+            create_link(links, group_013, principled_bsdf, 0, 31)
+        elif bpy.app.version >= (5, 2, 0):
             create_link(links, group_013, principled_bsdf, 0, 29)
         else:
             create_link(links, group_013, principled_bsdf, 0, 28)
