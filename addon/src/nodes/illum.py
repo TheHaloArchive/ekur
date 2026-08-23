@@ -71,10 +71,20 @@ class SelfIllum:
         create_link(links, input, mult_2, 0, 6)
         create_link(links, input, mult_2, 2, 7)
         create_link(links, mult_2, bsdf, 2, 0)
-        create_link(links, mult_2, bsdf, 2, 27)
+        if bpy.app.version >= (5, 3, 0):
+            create_link(links, mult_2, bsdf, 2, 30)
+        elif bpy.app.version >= (5, 2, 0):
+            create_link(links, mult_2, bsdf, 2, 28)
+        else:
+            create_link(links, mult_2, bsdf, 2, 27)
         create_link(links, input, mult, 1, 0)
         create_link(links, input, mult, 3, 1)
-        create_link(links, input, bsdf, 4, 28)
+        if bpy.app.version >= (5, 3, 0):
+            create_link(links, input, bsdf, 4, 31)
+        elif bpy.app.version >= (5, 2, 0):
+            create_link(links, input, bsdf, 4, 29)
+        else:
+            create_link(links, input, bsdf, 4, 28)
         create_link(links, mult, bsdf, 0, 4)
         create_link(links, geometry, invert, 6, 1)
         create_link(links, invert, mix_shader, 0, 0)
