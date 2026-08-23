@@ -150,7 +150,9 @@ class ForgeOperator(Operator):
                         if not representation["name"] == represnt:
                             continue
                         model_path = Path(f"{data}/models/{representation['model']}.ekur")
-                        objects = ModelImporter().start_import(str(model_path), bones=False)
+                        objects = ModelImporter().start_import(
+                            str(model_path), bones=not options.remove_rig
+                        )
                         collection = bpy.data.collections.new(obj["name"])
                         count = 0
                         for bl_obj in objects:
