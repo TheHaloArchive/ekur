@@ -154,7 +154,11 @@ class ForgeOperator(Operator):
                         collection = bpy.data.collections.new(obj["name"])
                         count = 0
                         for bl_obj in objects:
-                            if type(bl_obj.data) is Mesh and "UV1" in bl_obj.data.uv_layers:
+                            if (
+                                options.use_uv1
+                                and type(bl_obj.data) is Mesh
+                                and "UV1" in bl_obj.data.uv_layers
+                            ):
                                 bl_obj.data.uv_layers["UV1"].active_render = True
                                 bl_obj.data.uv_layers["UV1"].active = True
                             if str(representation["name_int"]) == str(bl_obj["permutation_name"]):

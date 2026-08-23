@@ -160,6 +160,7 @@ class ForgeObjectOptions(PropertyGroup):
         name="Object Representation", items=ForgeObjectLogic.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
+    use_uv1: BoolProperty(name="Use UV1", description="Set UV1 as the active UV map on import", default=True)
     override_materials: BoolProperty(name="Override Materials", default=False)
     layer1: EnumProperty(name="Layer 1", items=ForgeObjectLogic.forge_materials)
     layer2: EnumProperty(name="Layer 2", items=ForgeObjectLogic.forge_materials)
@@ -175,6 +176,7 @@ class ForgeObjectOptionsType:
     objects: str = ""
     object_representation: str = ""
     sort_objects: bool = True
+    use_uv1: bool = True
     override_materials: bool = False
     layer1: str = ""
     layer2: str = ""
@@ -206,6 +208,7 @@ def draw_forge_object_options(layout: UILayout, props: ForgeObjectOptionsType) -
             forge_opts.prop(props, "subcategory")
             forge_opts.prop(props, "objects")
             forge_opts.prop(props, "object_representation")
+        forge_opts.prop(props, "use_uv1")
         _ = forge_body.operator("ekur.importforge")
         forge_opts.prop(props, "override_materials")
         if props.override_materials:
