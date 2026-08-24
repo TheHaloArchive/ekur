@@ -43,7 +43,6 @@ class DownloadFilesOperator(Operator):
         customs_path = f"{extension_path}/purp.blend"
         index_path = f"{extension_path}/index.json"
 
-
         debug_print(f"[download_files_operator.py] save_path: {save_path}")
         debug_print(f"[download_files_operator.py] visors_path: {visors_path}")
         debug_print(f"[download_files_operator.py] regions_path: {regions_path}")

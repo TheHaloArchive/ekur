@@ -52,8 +52,12 @@ class ConemapParallax:
         parallax_depth_in.default_value = 0.855
         parallax_depth_in.description = "Larger = deeper. Shrinks the Z divisor from 150 toward 10"
 
-        parallax_height_offset_in = create_socket(interface, "Parallax Height Offset", NodeSocketFloat)
-        parallax_height_offset_in.description = "Pushes the ray start back below the top of the heightfield"
+        parallax_height_offset_in = create_socket(
+            interface, "Parallax Height Offset", NodeSocketFloat
+        )
+        parallax_height_offset_in.description = (
+            "Pushes the ray start back below the top of the heightfield"
+        )
 
         quality_in = create_socket(interface, "Quality", NodeSocketFloat)
         quality_in.default_value = 0.5
@@ -68,7 +72,9 @@ class ConemapParallax:
         cone_step_fade_far_in.description = "Fully faded out at or beyond this camera distance"
 
         invert_handedness_in = create_socket(interface, "Invert Handedness", NodeSocketFloat)
-        invert_handedness_in.description = "0 = +1 handedness, 1 = -1. Flip if parallax slides the wrong way"
+        invert_handedness_in.description = (
+            "0 = +1 handedness, 1 = -1. Flip if parallax slides the wrong way"
+        )
 
         nodes = node_tree.nodes
 
@@ -93,45 +99,45 @@ class ConemapParallax:
 
         tangent = create_node(nodes, 181, -613, ShaderNodeTangent)
         tangent.label = "Tangent (UV)"
-        tangent.axis = 'Z'
-        tangent.direction_type = 'UV_MAP'
+        tangent.axis = "Z"
+        tangent.direction_type = "UV_MAP"
         tangent.uv_map = ""
 
         vector_math = create_node(nodes, 324, -272, ShaderNodeVectorMath)
         vector_math.label = "Normalize"
-        vector_math.operation = 'NORMALIZE'
+        vector_math.operation = "NORMALIZE"
 
         vector_math_001 = create_node(nodes, 483, -245, ShaderNodeVectorMath)
         vector_math_001.label = "V = camera -> surface"
-        vector_math_001.operation = 'SCALE'
+        vector_math_001.operation = "SCALE"
         assign_value(vector_math_001, 3, -1.0)
 
         math = create_node(nodes, 379, -735, ShaderNodeMath)
         math.label = "handedness"
-        math.operation = 'MULTIPLY_ADD'
+        math.operation = "MULTIPLY_ADD"
         math.use_clamp = False
         assign_value(math, 1, -2.0)
         assign_value(math, 2, 1.0)
 
         vector_math_002 = create_node(nodes, 407, -540, ShaderNodeVectorMath)
         vector_math_002.label = "Bitangent"
-        vector_math_002.operation = 'CROSS_PRODUCT'
+        vector_math_002.operation = "CROSS_PRODUCT"
 
         vector_math_003 = create_node(nodes, 662, -658, ShaderNodeVectorMath)
         vector_math_003.label = "Handedness"
-        vector_math_003.operation = 'SCALE'
+        vector_math_003.operation = "SCALE"
 
         vector_math_004 = create_node(nodes, 953, -537, ShaderNodeVectorMath)
         vector_math_004.label = "ray.T"
-        vector_math_004.operation = 'DOT_PRODUCT'
+        vector_math_004.operation = "DOT_PRODUCT"
 
         vector_math_005 = create_node(nodes, 955, -670, ShaderNodeVectorMath)
         vector_math_005.label = "ray.B"
-        vector_math_005.operation = 'DOT_PRODUCT'
+        vector_math_005.operation = "DOT_PRODUCT"
 
         vector_math_006 = create_node(nodes, 617, -39, ShaderNodeVectorMath)
         vector_math_006.label = "N . V"
-        vector_math_006.operation = 'DOT_PRODUCT'
+        vector_math_006.operation = "DOT_PRODUCT"
 
         frame_001 = create_node(nodes, -5935, 683, NodeFrame)
         frame_001.label = "Depth Scale  (150 - depth*140)"
@@ -144,51 +150,51 @@ class ConemapParallax:
 
         math_001 = create_node(nodes, 205, -460, ShaderNodeMath)
         math_001.label = "Multiply"
-        math_001.operation = 'MULTIPLY'
+        math_001.operation = "MULTIPLY"
         math_001.use_clamp = False
         assign_value(math_001, 1, 140.0)
 
         math_002 = create_node(nodes, 359, -459, ShaderNodeMath)
         math_002.label = "Divisor"
-        math_002.operation = 'SUBTRACT'
+        math_002.operation = "SUBTRACT"
         math_002.use_clamp = False
         assign_value(math_002, 0, 150.0)
 
         math_003 = create_node(nodes, 542, -360, ShaderNodeMath)
         math_003.label = "rayZ"
-        math_003.operation = 'MULTIPLY'
+        math_003.operation = "MULTIPLY"
         math_003.use_clamp = False
 
         math_004 = create_node(nodes, 714, -326, ShaderNodeMath)
         math_004.label = "Absolute"
-        math_004.operation = 'ABSOLUTE'
+        math_004.operation = "ABSOLUTE"
         math_004.use_clamp = False
 
         math_005 = create_node(nodes, 877, -307, ShaderNodeMath)
         math_005.label = "Maximum"
-        math_005.operation = 'MAXIMUM'
+        math_005.operation = "MAXIMUM"
         math_005.use_clamp = False
         assign_value(math_005, 1, 1e-06)
 
         math_006 = create_node(nodes, 1068, -206, ShaderNodeMath)
         math_006.label = "1 / max(|rayZ|, eps)"
-        math_006.operation = 'DIVIDE'
+        math_006.operation = "DIVIDE"
         math_006.use_clamp = False
         assign_value(math_006, 0, 1.0)
 
         math_007 = create_node(nodes, 1397, -39, ShaderNodeMath)
         math_007.label = "d.x"
-        math_007.operation = 'MULTIPLY'
+        math_007.operation = "MULTIPLY"
         math_007.use_clamp = False
 
         math_008 = create_node(nodes, 1387, -348, ShaderNodeMath)
         math_008.label = "d.y"
-        math_008.operation = 'MULTIPLY'
+        math_008.operation = "MULTIPLY"
         math_008.use_clamp = False
 
         math_009 = create_node(nodes, 1392, -199, ShaderNodeMath)
         math_009.label = "dz = sign(N.V)"
-        math_009.operation = 'MULTIPLY'
+        math_009.operation = "MULTIPLY"
         math_009.use_clamp = False
 
         combine_xyz = create_node(nodes, 1827, -231, ShaderNodeCombineXYZ)
@@ -198,7 +204,7 @@ class ConemapParallax:
 
         vector_math_007 = create_node(nodes, 1824, -75, ShaderNodeVectorMath)
         vector_math_007.label = "lateralSpeed"
-        vector_math_007.operation = 'LENGTH'
+        vector_math_007.operation = "LENGTH"
 
         frame_002 = create_node(nodes, -4895, -155, NodeFrame)
         frame_002.label = "Ray Start + Step Budget"
@@ -211,12 +217,12 @@ class ConemapParallax:
 
         math_010 = create_node(nodes, 377, -319, ShaderNodeMath)
         math_010.label = "Maximum"
-        math_010.operation = 'MAXIMUM'
+        math_010.operation = "MAXIMUM"
         math_010.use_clamp = False
 
         math_011 = create_node(nodes, 740, -256, ShaderNodeMath)
         math_011.label = "saturate(heightOffset)"
-        math_011.operation = 'MINIMUM'
+        math_011.operation = "MINIMUM"
         math_011.use_clamp = False
         assign_value(math_011, 1, 1.0)
 
@@ -232,32 +238,32 @@ class ConemapParallax:
 
         vector_math_008 = create_node(nodes, 1281, -213, ShaderNodeVectorMath)
         vector_math_008.label = "Scale"
-        vector_math_008.operation = 'SCALE'
+        vector_math_008.operation = "SCALE"
 
         vector_math_009 = create_node(nodes, 1503, -128, ShaderNodeVectorMath)
         vector_math_009.label = "start = (uv,1) - D*bias"
-        vector_math_009.operation = 'SUBTRACT'
+        vector_math_009.operation = "SUBTRACT"
 
         math_012 = create_node(nodes, 1286, -560, ShaderNodeMath)
         math_012.label = "Multiply"
-        math_012.operation = 'MULTIPLY'
+        math_012.operation = "MULTIPLY"
         math_012.use_clamp = False
         assign_value(math_012, 1, 25.0)
 
         math_013 = create_node(nodes, 1742, -39, ShaderNodeMath)
         math_013.label = "floor(q*25)"
-        math_013.operation = 'FLOOR'
+        math_013.operation = "FLOOR"
         math_013.use_clamp = False
 
         math_014 = create_node(nodes, 1525, -515, ShaderNodeMath)
         math_014.label = "Multiply"
-        math_014.operation = 'MULTIPLY'
+        math_014.operation = "MULTIPLY"
         math_014.use_clamp = False
         assign_value(math_014, 1, 9.0)
 
         math_015 = create_node(nodes, 1742, -429, ShaderNodeMath)
         math_015.label = "floor(q*9)"
-        math_015.operation = 'FLOOR'
+        math_015.operation = "FLOOR"
         math_015.use_clamp = False
 
         frame_003 = create_node(nodes, -2945, 783, NodeFrame)
@@ -276,7 +282,7 @@ class ConemapParallax:
         repeat_output.label = "March End"
         repeat_output.repeat_items.clear()
         # Create item "P"
-        repeat_output.repeat_items.new('VECTOR', "P")
+        repeat_output.repeat_items.new("VECTOR", "P")
 
         separate_xyz_001 = create_node(nodes, 452, -268, ShaderNodeSeparateXYZ)
         separate_xyz_001.label = "P"
@@ -288,55 +294,55 @@ class ConemapParallax:
         evaluate_closure.label = "Sample Cone Map"
         evaluate_closure.active_output_index = 1
         evaluate_closure.input_items.clear()
-        evaluate_closure.input_items.new('VECTOR', "Vector")
+        evaluate_closure.input_items.new("VECTOR", "Vector")
         evaluate_closure.output_items.clear()
-        evaluate_closure.output_items.new('FLOAT', "Height")
-        evaluate_closure.output_items.new('FLOAT', "Cone Ratio")
+        evaluate_closure.output_items.new("FLOAT", "Height")
+        evaluate_closure.output_items.new("FLOAT", "Cone Ratio")
 
         math_016 = create_node(nodes, 1090, -242, ShaderNodeMath)
         math_016.label = "guard cr = 0"
-        math_016.operation = 'MAXIMUM'
+        math_016.operation = "MAXIMUM"
         math_016.use_clamp = False
         assign_value(math_016, 1, 0.03)
 
         math_017 = create_node(nodes, 861, -352, ShaderNodeMath)
         math_017.label = "Subtract"
-        math_017.operation = 'SUBTRACT'
+        math_017.operation = "SUBTRACT"
         math_017.use_clamp = False
 
         math_018 = create_node(nodes, 1099, -73, ShaderNodeMath)
         math_018.label = "dh = saturate((z-bias) - h)"
-        math_018.operation = 'SUBTRACT'
+        math_018.operation = "SUBTRACT"
         math_018.use_clamp = True
 
         math_019 = create_node(nodes, 1252, -229, ShaderNodeMath)
         math_019.label = "Add"
-        math_019.operation = 'ADD'
+        math_019.operation = "ADD"
         math_019.use_clamp = False
 
         math_020 = create_node(nodes, 1491, -218, ShaderNodeMath)
         math_020.label = "cr + lateralSpeed"
-        math_020.operation = 'MAXIMUM'
+        math_020.operation = "MAXIMUM"
         math_020.use_clamp = False
         assign_value(math_020, 1, 1e-06)
 
         math_021 = create_node(nodes, 1527, -39, ShaderNodeMath)
         math_021.label = "Multiply"
-        math_021.operation = 'MULTIPLY'
+        math_021.operation = "MULTIPLY"
         math_021.use_clamp = False
 
         math_022 = create_node(nodes, 1783, -168, ShaderNodeMath)
         math_022.label = "step"
-        math_022.operation = 'DIVIDE'
+        math_022.operation = "DIVIDE"
         math_022.use_clamp = False
 
         vector_math_010 = create_node(nodes, 1932, -187, ShaderNodeVectorMath)
         vector_math_010.label = "Scale"
-        vector_math_010.operation = 'SCALE'
+        vector_math_010.operation = "SCALE"
 
         vector_math_011 = create_node(nodes, 2077, -189, ShaderNodeVectorMath)
         vector_math_011.label = "P += D*step"
-        vector_math_011.operation = 'ADD'
+        vector_math_011.operation = "ADD"
 
         frame_004 = create_node(nodes, -157, 271, NodeFrame)
         frame_004.label = "Binary Search Refinement"
@@ -349,7 +355,7 @@ class ConemapParallax:
 
         math_023 = create_node(nodes, 58, -355, ShaderNodeMath)
         math_023.label = "Add"
-        math_023.operation = 'ADD'
+        math_023.operation = "ADD"
         math_023.use_clamp = False
         assign_value(math_023, 1, 1.0)
 
@@ -358,23 +364,23 @@ class ConemapParallax:
 
         math_024 = create_node(nodes, 231, -198, ShaderNodeMath)
         math_024.label = "Absolute"
-        math_024.operation = 'ABSOLUTE'
+        math_024.operation = "ABSOLUTE"
         math_024.use_clamp = False
 
         math_025 = create_node(nodes, 396, -171, ShaderNodeMath)
         math_025.label = "interval"
-        math_025.operation = 'SUBTRACT'
+        math_025.operation = "SUBTRACT"
         math_025.use_clamp = False
 
         math_026 = create_node(nodes, 547, -165, ShaderNodeMath)
         math_026.label = "Multiply"
-        math_026.operation = 'MULTIPLY'
+        math_026.operation = "MULTIPLY"
         math_026.use_clamp = False
         assign_value(math_026, 1, 0.5)
 
         vector_math_012 = create_node(nodes, 704, -39, ShaderNodeVectorMath)
         vector_math_012.label = "delta0"
-        vector_math_012.operation = 'SCALE'
+        vector_math_012.operation = "SCALE"
 
         repeat_input_001 = create_node(nodes, 889, -92, GeometryNodeRepeatInput)
         repeat_input_001.label = "Refine"
@@ -384,17 +390,17 @@ class ConemapParallax:
         repeat_output_001.active_index = 1
         repeat_output_001.repeat_items.clear()
         # Create item "P"
-        repeat_output_001.repeat_items.new('VECTOR', "P")
+        repeat_output_001.repeat_items.new("VECTOR", "P")
         # Create item "Delta"
-        repeat_output_001.repeat_items.new('VECTOR', "Delta")
+        repeat_output_001.repeat_items.new("VECTOR", "Delta")
 
         vector_math_013 = create_node(nodes, 706, -166, ShaderNodeVectorMath)
         vector_math_013.label = "start + delta0"
-        vector_math_013.operation = 'ADD'
+        vector_math_013.operation = "ADD"
 
         vector_math_014 = create_node(nodes, 1181, -278, ShaderNodeVectorMath)
         vector_math_014.label = "delta *= 0.5"
-        vector_math_014.operation = 'SCALE'
+        vector_math_014.operation = "SCALE"
         assign_value(vector_math_014, 3, 0.5)
 
         separate_xyz_003 = create_node(nodes, 889, -229, ShaderNodeSeparateXYZ)
@@ -407,35 +413,35 @@ class ConemapParallax:
         evaluate_closure_001.label = "Sample Height"
         evaluate_closure_001.active_output_index = 1
         evaluate_closure_001.input_items.clear()
-        evaluate_closure_001.input_items.new('VECTOR', "Vector")
+        evaluate_closure_001.input_items.new("VECTOR", "Vector")
         evaluate_closure_001.output_items.clear()
-        evaluate_closure_001.output_items.new('FLOAT', "Height")
-        evaluate_closure_001.output_items.new('FLOAT', "Cone Ratio")
+        evaluate_closure_001.output_items.new("FLOAT", "Height")
+        evaluate_closure_001.output_items.new("FLOAT", "Cone Ratio")
 
         math_027 = create_node(nodes, 886, -653, ShaderNodeMath)
         math_027.label = "Add"
-        math_027.operation = 'ADD'
+        math_027.operation = "ADD"
         math_027.use_clamp = False
 
         math_028 = create_node(nodes, 1079, -654, ShaderNodeMath)
         math_028.label = "still above?"
-        math_028.operation = 'GREATER_THAN'
+        math_028.operation = "GREATER_THAN"
         math_028.use_clamp = False
 
         math_029 = create_node(nodes, 1276, -430, ShaderNodeMath)
         math_029.label = "above ? +1 : -1"
-        math_029.operation = 'MULTIPLY_ADD'
+        math_029.operation = "MULTIPLY_ADD"
         math_029.use_clamp = False
         assign_value(math_029, 1, 2.0)
         assign_value(math_029, 2, -1.0)
 
         vector_math_015 = create_node(nodes, 1361, -211, ShaderNodeVectorMath)
         vector_math_015.label = "Scale"
-        vector_math_015.operation = 'SCALE'
+        vector_math_015.operation = "SCALE"
 
         vector_math_016 = create_node(nodes, 1533, -91, ShaderNodeVectorMath)
         vector_math_016.label = "P +/- delta"
-        vector_math_016.operation = 'ADD'
+        vector_math_016.operation = "ADD"
 
         frame_005 = create_node(nodes, 1878, 247, NodeFrame)
         frame_005.label = "Distance Fade + Output"
@@ -448,40 +454,40 @@ class ConemapParallax:
 
         math_030 = create_node(nodes, 506, -611, ShaderNodeMath)
         math_030.label = "Subtract"
-        math_030.operation = 'SUBTRACT'
+        math_030.operation = "SUBTRACT"
         math_030.use_clamp = False
 
         math_031 = create_node(nodes, 854, -544, ShaderNodeMath)
         math_031.label = "far - near"
-        math_031.operation = 'MAXIMUM'
+        math_031.operation = "MAXIMUM"
         math_031.use_clamp = False
         assign_value(math_031, 1, 1e-06)
 
         math_032 = create_node(nodes, 848, -368, ShaderNodeMath)
         math_032.label = "Subtract"
-        math_032.operation = 'SUBTRACT'
+        math_032.operation = "SUBTRACT"
         math_032.use_clamp = False
 
         math_033 = create_node(nodes, 1079, -543, ShaderNodeMath)
         math_033.label = "Divide"
-        math_033.operation = 'DIVIDE'
+        math_033.operation = "DIVIDE"
         math_033.use_clamp = True
 
         math_034 = create_node(nodes, 1263, -532, ShaderNodeMath)
         math_034.label = "fade"
-        math_034.operation = 'SUBTRACT'
+        math_034.operation = "SUBTRACT"
         math_034.use_clamp = False
         assign_value(math_034, 0, 1.0)
 
         math_035 = create_node(nodes, 1276, -248, ShaderNodeMath)
         math_035.label = "Greater_Than"
-        math_035.operation = 'GREATER_THAN'
+        math_035.operation = "GREATER_THAN"
         math_035.use_clamp = False
         assign_value(math_035, 1, 1e-05)
 
         math_036 = create_node(nodes, 1490, -136, ShaderNodeMath)
         math_036.label = "fade (gated)"
-        math_036.operation = 'MULTIPLY'
+        math_036.operation = "MULTIPLY"
         math_036.use_clamp = True
 
         separate_xyz_004 = create_node(nodes, 1490, -331, ShaderNodeSeparateXYZ)
@@ -489,11 +495,11 @@ class ConemapParallax:
 
         mix = create_node(nodes, 1791, -39, ShaderNodeMix)
         mix.label = "lerp(uv, hit, fade)"
-        mix.blend_type = 'MIX'
+        mix.blend_type = "MIX"
         mix.clamp_factor = True
         mix.clamp_result = False
-        mix.data_type = 'VECTOR'
-        mix.factor_mode = 'UNIFORM'
+        mix.data_type = "VECTOR"
+        mix.factor_mode = "UNIFORM"
 
         combine_xyz_006 = create_node(nodes, 1665, -310, ShaderNodeCombineXYZ)
         combine_xyz_006.label = "hit UV"

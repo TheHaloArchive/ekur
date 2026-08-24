@@ -27,7 +27,9 @@ class ColorTintDecalShader:
         shader.node_tree = cast(ShaderNodeTree, ColorTintDecal().node_tree)
 
         if not self.material["color_tint_decal"]:
-            logging.warning("Color tint decal material has no color_tint_decal key, this shouldn't happen!")
+            logging.warning(
+                "Color tint decal material has no color_tint_decal key, this shouldn't happen!"
+            )
             return
         info = self.material["color_tint_decal"]
 
@@ -36,7 +38,6 @@ class ColorTintDecalShader:
         assign_value(shader, 5, info["metallic"])
         assign_value(shader, 6, info["normal_intensity"])
         assign_value(shader, 7, (*info["tint_color"], 1.0))
-
 
         if self.material["textures"].get("Color"):
             img = create_image(self.tree.nodes, -100, str(self.material["textures"]["Color"]))

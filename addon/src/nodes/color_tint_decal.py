@@ -13,7 +13,11 @@ from bpy.types import (
     ShaderNodeBsdfTransparent,
     ShaderNodeMath,
     ShaderNodeMixShader,
-    ShaderNodeNewGeometry, ShaderNodeNormalMap, ShaderNodeGroup, ShaderNodeTree, ShaderNodeMix,
+    ShaderNodeNewGeometry,
+    ShaderNodeNormalMap,
+    ShaderNodeGroup,
+    ShaderNodeTree,
+    ShaderNodeMix,
 )
 
 from .norm_normalize import NormNormalize
@@ -72,7 +76,7 @@ class ColorTintDecal:
 
         mix = create_node(nodes, 0, 0, ShaderNodeMix)
         mix.data_type = "RGBA"
-        mix.blend_type = "MULTIPLY" #TODO: Figure out blending logic
+        mix.blend_type = "MULTIPLY"  # TODO: Figure out blending logic
         assign_value(mix, 0, 1.0)
 
         links = self.node_tree.links

@@ -160,8 +160,12 @@ class ForgeObjectOptions(PropertyGroup):
         name="Object Representation", items=ForgeObjectLogic.object_representations
     )
     sort_objects: BoolProperty(name="Sort Objects By Name", default=True)
-    use_uv1: BoolProperty(name="Use UV1", description="Set UV1 as the active UV map on import", default=True)
-    remove_rig: BoolProperty(name="Remove Rig", description="Don't import the object's rig", default=True)
+    use_uv1: BoolProperty(
+        name="Use UV1", description="Set UV1 as the active UV map on import", default=True
+    )
+    remove_rig: BoolProperty(
+        name="Remove Rig", description="Don't import the object's rig", default=True
+    )
     override_materials: BoolProperty(name="Override Materials", default=False)
     layer1: EnumProperty(name="Layer 1", items=ForgeObjectLogic.forge_materials)
     layer2: EnumProperty(name="Layer 2", items=ForgeObjectLogic.forge_materials)

@@ -515,7 +515,7 @@ pub fn extract_animations(
         let mode = mode_tags.iter().find(|x| x.0.2 == *custom_mode);
         if let Some(mode) = mode {
             for anim_graph in &custom_graphs[idx] {
-                let anim_graph_tag = anim_tags.get(&anim_graph);
+                let anim_graph_tag = anim_tags.get(anim_graph);
                 if let Some(anim_graph_tag) = anim_graph_tag {
                     process_animations(anim_graph_tag, mode.1, save_path, strings, model_ids)?;
                 }

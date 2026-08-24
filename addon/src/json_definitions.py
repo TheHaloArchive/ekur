@@ -236,6 +236,7 @@ class LayeredLevel(TypedDict):
     macro_mask_info: MacroMaskInfo | None
     layers: list[LevelLayer] | None
 
+
 class ColorTintDecal(TypedDict):
     opacity: float
     tint_color: tuple[float, float, float]

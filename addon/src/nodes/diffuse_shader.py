@@ -84,7 +84,7 @@ class DiffuseShader:
 
         color_tint = create_node(nodes, 0, 0, ShaderNodeMix)
         color_tint.data_type = "RGBA"
-        color_tint.blend_type = "COLOR" # TODO: is this right?
+        color_tint.blend_type = "COLOR"  # TODO: is this right?
         assign_value(color_tint, 0, 0.999)
 
         em_tint = create_node(nodes, 0, 0, ShaderNodeMix)

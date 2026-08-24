@@ -17,7 +17,7 @@ def _get_data_bone(armature: bpy.types.Object, node_name: str):
 
 def _get_pose_bone(armature: bpy.types.Object, node_name: str):
     if type(armature.data) is Armature:
-        for bone in armature.pose.bones: # ty: ignore[unresolved-attribute]
+        for bone in armature.pose.bones:  # ty: ignore[unresolved-attribute]
             if bone.name.lower() == node_name.lower():
                 return bone
     return None

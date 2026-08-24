@@ -125,8 +125,10 @@ pub(crate) fn handle_rohg_2_rohm_1_mm_cone(
     material: &mut Material,
 ) -> Result<()> {
     let conemap_info = ConeMapInfo::read(material, 0)?;
-    let mut level_shader = LayeredLevel::default();
-    level_shader.conemap_info = Some(conemap_info);
+    let mut level_shader = LayeredLevel {
+        conemap_info: Some(conemap_info),
+        ..Default::default()
+    };
     get_post_texture(post_process, material, 20, TextureType::MacroConemap)?;
     get_post_texture(post_process, material, 48, TextureType::MacroMaskMap)?;
     level_shader.macro_mask_info = Some(MacroMaskInfo {
@@ -182,8 +184,10 @@ pub(crate) fn handle_rohm_2_rohg_1_mm_cone_norm(
     material: &mut Material,
 ) -> Result<()> {
     let conemap_info = ConeMapInfo::read(material, 0)?;
-    let mut level_shader = LayeredLevel::default();
-    level_shader.conemap_info = Some(conemap_info);
+    let mut level_shader = LayeredLevel {
+        conemap_info: Some(conemap_info),
+        ..Default::default()
+    };
     get_post_texture(post_process, material, 20, TextureType::MacroConemap)?;
     get_post_texture(post_process, material, 48, TextureType::MacroMaskMap)?;
     get_post_texture(post_process, material, 56, TextureType::MacroNormal)?;
@@ -248,8 +252,10 @@ pub(crate) fn handle_rohg_1_rohm_1_mm_cone(
     material: &mut Material,
 ) -> Result<()> {
     let conemap_info = ConeMapInfo::read(material, 0)?;
-    let mut level_shader = LayeredLevel::default();
-    level_shader.conemap_info = Some(conemap_info);
+    let mut level_shader = LayeredLevel {
+        conemap_info: Some(conemap_info),
+        ..Default::default()
+    };
     get_post_texture(post_process, material, 20, TextureType::MacroConemap)?;
     get_post_texture(post_process, material, 48, TextureType::MacroMaskMap)?;
     level_shader.macro_mask_info = Some(MacroMaskInfo {
@@ -296,8 +302,10 @@ pub(crate) fn handle_rohm_1_cone(
     material: &mut Material,
 ) -> Result<()> {
     let conemap_info = ConeMapInfo::read(material, 0)?;
-    let mut level_shader = LayeredLevel::default();
-    level_shader.conemap_info = Some(conemap_info);
+    let mut level_shader = LayeredLevel {
+        conemap_info: Some(conemap_info),
+        ..Default::default()
+    };
     get_post_texture(post_process, material, 20, TextureType::MacroConemap)?;
     level_shader.macro_mask_info = Some(MacroMaskInfo {
         macro_cavity_intensity: f32_from_const(material, 48)?,
@@ -333,8 +341,10 @@ pub(crate) fn handle_rohm_1_nnhg_1_cone_mm(
     material: &mut Material,
 ) -> Result<()> {
     let conemap_info = ConeMapInfo::read(material, 0)?;
-    let mut level_shader = LayeredLevel::default();
-    level_shader.conemap_info = Some(conemap_info);
+    let mut level_shader = LayeredLevel {
+        conemap_info: Some(conemap_info),
+        ..Default::default()
+    };
     get_post_texture(post_process, material, 20, TextureType::MacroConemap)?;
     get_post_texture(post_process, material, 20, TextureType::MacroMaskMap)?;
     level_shader.macro_mask_info = Some(MacroMaskInfo {
@@ -380,8 +390,10 @@ pub(crate) fn handle_rohm_1_mm_cone_alpha(
     material: &mut Material,
 ) -> Result<()> {
     let conemap_info = ConeMapInfo::read(material, 0)?;
-    let mut level_shader = LayeredLevel::default();
-    level_shader.conemap_info = Some(conemap_info);
+    let mut level_shader = LayeredLevel {
+        conemap_info: Some(conemap_info),
+        ..Default::default()
+    };
     get_post_texture(post_process, material, 20, TextureType::MacroConemap)?;
     get_post_texture(post_process, material, 240, TextureType::AlphaMap)?;
     level_shader.macro_mask_info = Some(MacroMaskInfo {
