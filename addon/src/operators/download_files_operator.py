@@ -16,6 +16,7 @@ MAP_IDS_URL = "https://github.com/TheHaloArchive/ReclaimerFiles/raw/refs/heads/m
 MODEL_IDS_URL = (
     "https://github.com/TheHaloArchive/ReclaimerFiles/raw/refs/heads/master/model_ids.txt"
 )
+INDEX_URL = "https://github.com/TheHaloArchive/ReclaimerFiles/raw/refs/heads/master/index.json"
 EKUR = "https://github.com/TheHaloArchive/ekur/raw/refs/heads/master/assets"
 REGIONS_URL = f"{EKUR}/regions_and_permutations.json"
 CUSTOM_RIG_URL = f"{EKUR}/purp.blend"
@@ -40,6 +41,8 @@ class DownloadFilesOperator(Operator):
         visors_path = f"{extension_path}/all_visors.json"
         regions_path = f"{extension_path}/regions_and_permutations.json"
         customs_path = f"{extension_path}/purp.blend"
+        index_path = f"{extension_path}/index.json"
+
 
         debug_print(f"[download_files_operator.py] save_path: {save_path}")
         debug_print(f"[download_files_operator.py] visors_path: {visors_path}")
@@ -47,6 +50,7 @@ class DownloadFilesOperator(Operator):
         debug_print(f"[download_files_operator.py] customs_path: {customs_path}")
         debug_print(f"[download_files_operator.py] map_ids_path: {map_ids_path}")
         debug_print(f"[download_files_operator.py] model_ids_path: {model_ids_path}")
+        debug_print(f"[download_files_operator.py] index_path: {index_path}")
 
         ekur_url = f"https://github.com/TheHaloArchive/ekur/releases/download/{version_string}/ekur-{version_string}"
         if platform.system() == "Windows":
@@ -65,5 +69,6 @@ class DownloadFilesOperator(Operator):
         download_file(REGIONS_URL, regions_path)
         download_file(MAP_IDS_URL, map_ids_path)
         download_file(MODEL_IDS_URL, model_ids_path)
+        download_file(INDEX_URL, index_path)
 
         return {"FINISHED"}

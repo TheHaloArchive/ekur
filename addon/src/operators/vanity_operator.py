@@ -85,12 +85,15 @@ class ImportVanityOperator(Operator):
             return {"CANCELLED"}
         options = get_vanity_options()
         data = get_data_folder()
+        extension_path = bpy.utils.extension_path_user(get_package_name(), create=True)
         vanity = self.request(
             url=f"https://cylix.guide/api/vanity/profile/{options.gamertag.replace(' ', '-')}"
         )
-        index = self.request(url="https://hi.cylix.guide/index.json")
+        index_path = Path(f"{extension_path}/index.json")
+        index_json = read_json_file(index_path, CylixIndex)
+        if index_json is None:
+            return {"CANCELLED"}
         armor: CylixVanityResponse = json.loads(vanity)
-        index_json: CylixIndex = json.loads(index)
 
         customization_path = Path(f"{data}/customization_globals.json")
         customization_globals = read_json_file(customization_path, CustomizationGlobals)
