@@ -14,23 +14,25 @@ use crate::{
         },
         eye_shader::handle_eye_shader,
         hair::handle_hair_shader,
-        layered_level::{
-            handle_rohg_1_rohm_1_mm_cone, handle_rohg_1_rohm_2_mm_color,
-            handle_rohg_1_rohm_2_nnhg_1_mm, handle_rohg_2_rohm_1_mm_cone,
-            handle_rohg_2_rohm_1_nnhg_1_mm, handle_rohg_2_rohm_2_mm, handle_rohg_2_rohm_2_mm_alt,
-            handle_rohg_3_rohm_1, handle_rohg_3_rohm_1_mm, handle_rohg_4_mm, handle_rohm_1_cone,
-            handle_rohm_1_mm_cone_alpha, handle_rohm_1_nnhg_1_cone_mm, handle_rohm_1_rohg_1_nnhg_1,
-            handle_rohm_1_rohg_2_nnhg_1, handle_rohm_2_pack_2_mm,
-            handle_rohm_2_rohg_1_mm_cone_norm, handle_rohm_2_rohg_1_nnhg_1, handle_rohm_2_rohg_2,
-            handle_rohm_2_rohg_2_mm, handle_rohm_3_mm, handle_rohm_3_nnhg_1,
-            handle_rohm_3_rohg_1_mm_cone,
-        },
         meter_shader::handle_meter_shader,
         parallax_decal::handle_parallax_decal,
         self_illum::{handle_illum, handle_illum_full},
         skin_shader::handle_skin,
     },
-    layered::layered_shader::{add_style_info, add_style_info_campaign, collect_textures},
+    layered::{
+        layered_level::{
+            handle_rohg_1_rohm_1_mm_cone, handle_rohg_1_rohm_2_mm_color,
+            handle_rohg_1_rohm_2_nnhg_1_mm, handle_rohg_2_rohm_1_mm_cone,
+            handle_rohg_2_rohm_1_nnhg_1_mm, handle_rohg_2_rohm_2_mm, handle_rohg_2_rohm_2_mm_alt,
+            handle_rohg_3_rohm_1, handle_rohg_3_rohm_1_mm, handle_rohg_4_mm, handle_rohm_1_alpha,
+            handle_rohm_1_cone, handle_rohm_1_mm_cone_alpha, handle_rohm_1_nnhg_1_cone_mm,
+            handle_rohm_1_rohg_1_nnhg_1, handle_rohm_1_rohg_2_nnhg_1, handle_rohm_2_nnhg_2_mm,
+            handle_rohm_2_pack_2_mm, handle_rohm_2_rohg_1_mm_cone_norm,
+            handle_rohm_2_rohg_1_nnhg_1, handle_rohm_2_rohg_2, handle_rohm_2_rohg_2_mm,
+            handle_rohm_3_mm, handle_rohm_3_nnhg_1, handle_rohm_3_rohg_1_mm_cone,
+        },
+        layered_shader::{add_style_info, add_style_info_campaign, collect_textures},
+    },
     utils::collect_constants,
 };
 use ekur_definitions::material::MaterialTag;
@@ -108,6 +110,8 @@ pub fn process_material(material_tag: &MaterialTag) -> Result<Material> {
         -1061664150 => handle_color_tint_decal(post_process, &mut material)?,
         1513831273 => handle_rohm_1_nnhg_1_cone_mm(post_process, &mut material)?,
         -1525938898 => handle_color_notint_decal(post_process, &mut material)?,
+        -1054410158 => handle_rohm_2_nnhg_2_mm(post_process, &mut material)?,
+        1242808444 | 1892746775 => handle_rohm_1_alpha(post_process, &mut material)?,
         _ => {}
     };
     material.shader = material_tag.material_shader.global_id;

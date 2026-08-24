@@ -1192,3 +1192,80 @@ pub(crate) fn handle_rohm_1_rohg_1_nnhg_1(
     material.shader_type = ShaderType::LayeredLevel;
     Ok(())
 }
+
+pub(crate) fn handle_rohm_2_nnhg_2_mm(
+    post_process: &MaterialPostProcessing,
+    material: &mut Material,
+) -> Result<()> {
+    let mut level_shader = LayeredLevel::default();
+    get_post_texture(post_process, material, 0, TextureType::MacroMaskMap)?;
+    level_shader.level_type = LevelType::Rohm2Nnhg2;
+
+    let layer1 = RohmLayer::read_bounce_layer1_delta(material, 16)?;
+    let norm_layer1 = LevelLayer {
+        layer_type: LayerType::RohmLayer,
+        rohm: Some(layer1),
+        ..Default::default()
+    };
+    get_post_texture(post_process, material, 112, TextureType::Layer1Color)?;
+    get_post_texture(post_process, material, 144, TextureType::Layer1Normal)?;
+    get_post_texture(post_process, material, 176, TextureType::Layer1Control)?;
+
+    let layer2 = RohmLayer::read_bounce_delta(material, 208)?;
+    let norm_layer2 = LevelLayer {
+        layer_type: LayerType::RohmLayer,
+        rohm: Some(layer2),
+        ..Default::default()
+    };
+    get_post_texture(post_process, material, 316, TextureType::Layer2Color)?;
+    get_post_texture(post_process, material, 352, TextureType::Layer2Normal)?;
+    get_post_texture(post_process, material, 384, TextureType::Layer2Control)?;
+
+    let layer3 = NnhgLayer::read(material, 416, false)?;
+    let norm_layer3 = LevelLayer {
+        layer_type: LayerType::NnhgLayer,
+        nnhg: Some(layer3),
+        ..Default::default()
+    };
+    get_post_texture(post_process, material, 540, TextureType::Layer3Packed)?;
+
+    let layer4 = NnhgLayer::read(material, 576, false)?;
+    let norm_layer4 = LevelLayer {
+        layer_type: LayerType::NnhgLayer,
+        nnhg: Some(layer4),
+        ..Default::default()
+    };
+    get_post_texture(post_process, material, 700, TextureType::Layer4Packed)?;
+
+    level_shader.layers = Some(vec![norm_layer1, norm_layer2, norm_layer3, norm_layer4]);
+    material.layered_level = Some(level_shader);
+    material.shader_type = ShaderType::LayeredLevel;
+    Ok(())
+}
+
+pub(crate) fn handle_rohm_1_alpha(
+    post_process: &MaterialPostProcessing,
+    material: &mut Material,
+) -> Result<()> {
+    let mut level_shader = LayeredLevel::default();
+    get_post_texture(post_process, material, 192, TextureType::AlphaMap)?;
+    level_shader.level_type = LevelType::Rohm1Alpha;
+
+    let layer1 = RohmLayer::read(material, 8, true, false, true)?;
+    let norm_layer1 = LevelLayer {
+        layer_type: LayerType::RohmLayer,
+        rohm: Some(layer1),
+        ..Default::default()
+    };
+    get_post_texture(post_process, material, 96, TextureType::Layer1Color)?;
+    get_post_texture(post_process, material, 128, TextureType::Layer1Normal)?;
+    get_post_texture(post_process, material, 160, TextureType::Layer1Control)?;
+
+    let alpha_info = AlphaInfo::read(material, 208)?;
+    level_shader.alpha_info = Some(alpha_info);
+
+    level_shader.layers = Some(vec![norm_layer1]);
+    material.layered_level = Some(level_shader);
+    material.shader_type = ShaderType::LayeredLevel;
+    Ok(())
+}

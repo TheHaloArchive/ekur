@@ -7,7 +7,6 @@ pub(crate) mod decal_mp;
 pub(crate) mod diffuse_shader;
 pub(crate) mod eye_shader;
 pub(crate) mod hair;
-pub(crate) mod layered_level;
 pub(crate) mod meter_shader;
 pub(crate) mod parallax_decal;
 pub(crate) mod self_illum;

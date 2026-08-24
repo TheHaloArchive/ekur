@@ -228,6 +228,8 @@ pub enum LevelType {
     Rohm1Cone,
     Rohm2Rohg1Cone,
     Rohm1Nnhg1Cone,
+    Rohm2Nnhg2,
+    Rohm1Alpha,
 }
 
 // TODO: Macro Mask Info may not have all the info but still exist (e.g control is missing)
@@ -506,7 +508,6 @@ impl RohgLayer {
         };
         let secondary_shift = if is_layer1 { 12 } else { 0 };
         let tertiary_shift = if is_layer1 { 4 } else { 0 };
-        let bounce_shift = if has_bounce { 12 } else { 0 };
         let mut data = Self {
             color_blend_mode: i32_from_const(material, offset)?,
             normal_blend_mode: i32_from_const(material, offset + 4)?,
