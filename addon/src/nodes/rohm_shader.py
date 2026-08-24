@@ -4,6 +4,7 @@ import bpy
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
+    NodeSocketBool,
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketVector,
@@ -51,6 +52,7 @@ class RohmShader:
         _ = create_socket(interface, "Height Scale", NodeSocketFloat)
         _ = create_socket(interface, "Normal", NodeSocketColor)
         _ = create_socket(interface, "Normal Intensity", NodeSocketFloat)
+        _ = create_socket(interface, "Invert Height Blend", NodeSocketBool)
         if interface is None:
             return
         extra_panel = interface.new_panel("Extra")
@@ -108,14 +110,14 @@ class RohmShader:
         create_link(links, group_input, mix_002, 1, 7)
         create_link(links, mix_001, group_output, 2, 4)
         create_link(links, group_input, mix_001, 10, 0)
-        create_link(links, group_input, combine_xyz, 11, 0)
-        create_link(links, group_input, combine_xyz, 13, 2)
+        create_link(links, group_input, combine_xyz, 12, 0)
+        create_link(links, group_input, combine_xyz, 14, 2)
         create_link(links, combine_xyz, group_output, 0, 6)
         create_link(links, separate_color, combine_xyz_001, 2, 2)
         create_link(links, group_input, combine_xyz_001, 8, 1)
         create_link(links, combine_xyz_001, group_output, 0, 5)
-        create_link(links, group_input, combine_xyz, 12, 1)
-        create_link(links, group_input, combine_xyz_001, 3, 0)
+        create_link(links, group_input, combine_xyz, 13, 1)
+        create_link(links, group_input, combine_xyz_001, 11, 0)
         create_link(links, mix_002, group_output, 2, 0)
         create_link(links, separate_color, group_output, 1, 3)
         create_link(links, group_input, mix_001, 9, 7)

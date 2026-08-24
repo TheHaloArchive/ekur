@@ -6,6 +6,7 @@ import bpy
 from bpy.types import (
     NodeGroupInput,
     NodeGroupOutput,
+    NodeSocketBool,
     NodeSocketColor,
     NodeSocketFloat,
     NodeSocketVector,
@@ -58,6 +59,7 @@ class NnhgShader:
         _ = create_socket(interface, "Height Scale", NodeSocketFloat)
         _ = create_socket(interface, "Normal", NodeSocketColor)
         _ = create_socket(interface, "Normal Intensity", NodeSocketFloat)
+        _ = create_socket(interface, "Invert Height Blend", NodeSocketBool)
         if interface is None:
             return
         extra_panel = interface.new_panel("Extra")
@@ -110,11 +112,11 @@ class NnhgShader:
         create_link(links, group_input, mix_001, 11, 0)
         create_link(links, group_input, combine_xyz, 9, 1)
         create_link(links, combine_xyz, group_output, 0, 5)
-        create_link(links, group_input, combine_xyz_001, 12, 0)
-        create_link(links, group_input, combine_xyz_001, 13, 1)
-        create_link(links, group_input, combine_xyz_001, 14, 2)
+        create_link(links, group_input, combine_xyz_001, 13, 0)
+        create_link(links, group_input, combine_xyz_001, 14, 1)
+        create_link(links, group_input, combine_xyz_001, 15, 2)
         create_link(links, combine_xyz_001, group_output, 0, 6)
-        create_link(links, group_input, combine_xyz, 2, 0)
+        create_link(links, group_input, combine_xyz, 12, 0)
         create_link(links, color_mixer, group_output, 0, 0)
         create_link(links, mix_001, group_output, 2, 4)
         create_link(links, group_input, math, 3, 2)

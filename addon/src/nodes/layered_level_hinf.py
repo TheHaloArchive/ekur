@@ -149,7 +149,7 @@ class LayeredLevelHINF:
         mix.clamp_result = False
         mix.data_type = "RGBA"
         mix.factor_mode = "UNIFORM"
-        assign_value(mix, 6, (0.02, 0.02, 0.02, 1.0))
+        assign_value(mix, 6, (0.05, 0.05, 0.05, 1.0))
 
         mix_001 = create_node(nodes, -451, 889, ShaderNodeMix)
         mix_001.blend_type = "MIX"

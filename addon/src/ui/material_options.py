@@ -129,6 +129,11 @@ class MaterialOptions(PropertyGroup):
     visor: EnumProperty(
         name="Visor", description="Visor to import.", items=MaterialSelectionLogic.visors
     )
+    enable_parallax: BoolProperty(
+        name="Enable Parallax",
+        description="Enables conemap parallax occlusion for layered level materials.",
+        default=False,
+    )
 
 
 class MaterialOptionsType:
@@ -141,6 +146,7 @@ class MaterialOptionsType:
     flip_alpha: bool = True
     override_visor: bool = True
     visor: str = ""
+    enable_parallax: bool = False
 
 
 def get_material_options() -> MaterialOptionsType:
@@ -168,6 +174,7 @@ def draw_material_options(layout: UILayout, props: MaterialOptionsType) -> None:
         options.prop(props, "disable_damage")
         options.prop(props, "selected_only")
         options.prop(props, "flip_alpha")
+        options.prop(props, "enable_parallax")
         options.prop(props, "override_visor")
         if props.override_visor:
             options.prop(props, "visor")
