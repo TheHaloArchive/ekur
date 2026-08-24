@@ -39,8 +39,8 @@ class ConemapParallax:
         node_tree = bpy.data.node_groups.new(type="ShaderNodeTree", name="Cone Step Parallax")
         interface = node_tree.interface
 
-        uv_out = create_socket(interface, "UV", NodeSocketVector, False)
-        fade_out = create_socket(interface, "Fade", NodeSocketFloat, False)
+        create_socket(interface, "UV", NodeSocketVector, False)
+        create_socket(interface, "Fade", NodeSocketFloat, False)
 
         uv_in = create_socket(interface, "UV", NodeSocketVector)
         uv_in.description = "Detail UV, with your cone map scale/offset already applied"

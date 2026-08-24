@@ -772,7 +772,7 @@ class BakingOperator(Operator):
                 for material in object.material_slots
                 if material.material and material.material.node_tree
             ]
-            materials = [material for material, _ in material_trees]
+            [material for material, _ in material_trees]
             tex_nodes = [
                 create_node(node_tree.nodes, 0, 0, ShaderNodeTexImage)
                 for _, node_tree in material_trees
