@@ -1,7 +1,12 @@
 use crate::codecs::animation_compression_library::AnimationCompressionLibrary;
 use crate::codecs::revised_curve::RevisedCurve;
 use crate::compose::{compose_overlay, compose_pose, compose_replacement};
-use crate::constants::{FIRST_PERSON_GRAPHS, FIRST_PERSON_MODE};
+use crate::constants::{
+    BRUTE_CHIEFTAIN_GRAPHS, BRUTE_CHIEFTAIN_MODE, BRUTE_GRAPHS, BRUTE_MODE, DRILL_SGT_GRAPHS,
+    DRILL_SGT_MODE, ELITE_GRAPHS, ELITE_MODE, FIRST_PERSON_GRAPHS, FIRST_PERSON_MODE, GRUNT_GRAPHS,
+    GRUNT_MODE, HUNTER_GRAPHS, HUNTER_MODE, INQUISITOR_GRAPHS, INQUISITOR_MODE, JACKAL_GRAPHS,
+    JACKAL_MODE, MARINE_GRAPHS, MARINE_MODE, SKIMMER_GRAPHS, SKIMMER_MODE,
+};
 use crate::{
     codecs::{
         Codec,
@@ -479,18 +484,41 @@ pub fn extract_animations(
             }
         }
     }
-    let first_person_mode = mode_tags.iter().find(|x| x.0.2 == FIRST_PERSON_MODE);
-    if let Some(first_person_mode) = first_person_mode {
-        for anim_graph in FIRST_PERSON_GRAPHS {
-            let anim_graph_tag = anim_tags.get(&anim_graph);
-            if let Some(anim_graph_tag) = anim_graph_tag {
-                process_animations(
-                    anim_graph_tag,
-                    first_person_mode.1,
-                    save_path,
-                    strings,
-                    model_ids,
-                )?;
+
+    let custom_modes = [
+        FIRST_PERSON_MODE,
+        BRUTE_CHIEFTAIN_MODE,
+        BRUTE_MODE,
+        DRILL_SGT_MODE,
+        ELITE_MODE,
+        GRUNT_MODE,
+        HUNTER_MODE,
+        INQUISITOR_MODE,
+        JACKAL_MODE,
+        MARINE_MODE,
+        SKIMMER_MODE,
+    ];
+    let custom_graphs = [
+        FIRST_PERSON_GRAPHS.to_vec(),
+        BRUTE_CHIEFTAIN_GRAPHS.to_vec(),
+        BRUTE_GRAPHS.to_vec(),
+        DRILL_SGT_GRAPHS.to_vec(),
+        ELITE_GRAPHS.to_vec(),
+        GRUNT_GRAPHS.to_vec(),
+        HUNTER_GRAPHS.to_vec(),
+        INQUISITOR_GRAPHS.to_vec(),
+        JACKAL_GRAPHS.to_vec(),
+        MARINE_GRAPHS.to_vec(),
+        SKIMMER_GRAPHS.to_vec(),
+    ];
+    for (idx, custom_mode) in custom_modes.iter().enumerate() {
+        let mode = mode_tags.iter().find(|x| x.0.2 == *custom_mode);
+        if let Some(mode) = mode {
+            for anim_graph in &custom_graphs[idx] {
+                let anim_graph_tag = anim_tags.get(&anim_graph);
+                if let Some(anim_graph_tag) = anim_graph_tag {
+                    process_animations(anim_graph_tag, mode.1, save_path, strings, model_ids)?;
+                }
             }
         }
     }
