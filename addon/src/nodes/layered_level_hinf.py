@@ -21,6 +21,7 @@ from bpy.types import (
     ShaderNodeGroup,
     ShaderNodeMath,
     ShaderNodeMix,
+    ShaderNodeMixShader,
     ShaderNodeSeparateColor,
     ShaderNodeSeparateXYZ,
     ShaderNodeTree,
@@ -244,7 +245,7 @@ class LayeredLevelHINF:
 
         transparent_bsdf = create_node(nodes, 850, -460, ShaderNodeBsdfTransparent)
 
-        add_shader_alpha = create_node(nodes, 1020, 400, ShaderNodeAddShader)
+        mix_shader_alpha = create_node(nodes, 1020, 400, ShaderNodeMixShader)
 
         bump_002 = create_node(nodes, -67, 239, ShaderNodeBump)
         bump_002.invert = False
@@ -376,8 +377,8 @@ class LayeredLevelHINF:
         create_link(links, alpha_add_math, alpha_test_math, 0, 0)
         create_link(links, alpha_clip_math, alpha_test_math, 0, 1)
         create_link(links, alpha_test_math, alpha_invert_math, 0, 1)
-        create_link(links, alpha_invert_math, transparent_bsdf, 0, 0)
 
-        create_link(links, add_shader, add_shader_alpha, 0, 0)
-        create_link(links, transparent_bsdf, add_shader_alpha, 0, 1)
-        create_link(links, add_shader_alpha, group_output, 0, 0)
+        create_link(links, alpha_invert_math, mix_shader_alpha, 0, 0)
+        create_link(links, add_shader, mix_shader_alpha, 0, 1)
+        create_link(links, transparent_bsdf, mix_shader_alpha, 0, 2)
+        create_link(links, mix_shader_alpha, group_output, 0, 0)
