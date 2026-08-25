@@ -56,7 +56,7 @@ class ImportSpartanOperator(Operator):
             logging.warning(f"Model path does not exist!: {model_path}")
             return {"CANCELLED"}
         importer = ModelImporter()
-        rig = import_custom_rig()
+        rig = import_custom_rig() if options.use_purp_rig else None
         objects = importer.start_import(str(model_path), custom_rig=rig)
         global_collection = bpy.data.collections.new("Spartans")
         themes = customization_globals["themes"]
