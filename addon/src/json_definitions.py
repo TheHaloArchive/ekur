@@ -146,6 +146,13 @@ class MacroMaskInfo(TypedDict):
     macro_color_intensity: float
 
 
+class AlphaInfo(TypedDict):
+    alpha_map_transform: tuple[float, float, float, float]
+    alpha_power: float
+    alpha_add: float
+    ac_thresh: float
+
+
 class ExtraLayerData(TypedDict):
     opacity: float
     height_blend_range: float
@@ -235,6 +242,7 @@ class LayeredLevel(TypedDict):
     conemap_info: ConemapInfo | None
     macro_mask_info: MacroMaskInfo | None
     layers: list[LevelLayer] | None
+    alpha_info: AlphaInfo | None
 
 
 class ColorTintDecal(TypedDict):

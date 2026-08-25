@@ -16,8 +16,10 @@ from bpy.types import (
     ShaderNodeAddShader,
     ShaderNodeBsdfDiffuse,
     ShaderNodeBsdfMetallic,
+    ShaderNodeBsdfTransparent,
     ShaderNodeBump,
     ShaderNodeGroup,
+    ShaderNodeMath,
     ShaderNodeMix,
     ShaderNodeSeparateColor,
     ShaderNodeSeparateXYZ,
@@ -99,6 +101,12 @@ class LayeredLevelHINF:
         _ = create_socket(interface, "Layer 4 Normal", NodeSocketVector)
         _ = create_socket(interface, "Layer 4 Height Info", NodeSocketVector)
         _ = create_socket(interface, "Layer 4 Extra", NodeSocketVector)
+        alpha_tex = create_socket(interface, "Alpha Texture", NodeSocketColor)
+        alpha_tex.default_value = (1.0, 1.0, 1.0, 1.0)
+        alpha_power = create_socket(interface, "Alpha Power", NodeSocketFloat)
+        alpha_power.default_value = 1.0
+        _ = create_socket(interface, "Alpha Add", NodeSocketFloat)
+        _ = create_socket(interface, "AC Threshold", NodeSocketFloat)
 
     def create_nodes(self) -> None:
         if self.node_tree is None:
@@ -211,6 +219,32 @@ class LayeredLevelHINF:
         diffuse_bsdf = create_node(nodes, 52, 860, ShaderNodeBsdfDiffuse)
 
         add_shader = create_node(nodes, 368, 752, ShaderNodeAddShader)
+
+        alpha_separate_color = create_node(nodes, 171, -320, ShaderNodeSeparateColor)
+        alpha_separate_color.mode = "RGB"
+
+        alpha_power_math = create_node(nodes, 340, -320, ShaderNodeMath)
+        alpha_power_math.operation = "POWER"
+
+        alpha_add_math = create_node(nodes, 510, -320, ShaderNodeMath)
+        alpha_add_math.operation = "ADD"
+        alpha_add_math.use_clamp = True
+
+        alpha_clip_math = create_node(nodes, 510, -460, ShaderNodeMath)
+        alpha_clip_math.operation = "GREATER_THAN"
+
+        alpha_test_math = create_node(nodes, 680, -320, ShaderNodeMath)
+        alpha_test_math.operation = "MULTIPLY"
+        alpha_test_math.use_clamp = True
+
+        alpha_invert_math = create_node(nodes, 850, -320, ShaderNodeMath)
+        alpha_invert_math.operation = "SUBTRACT"
+        alpha_invert_math.use_clamp = True
+        assign_value(alpha_invert_math, 0, 1.0)
+
+        transparent_bsdf = create_node(nodes, 850, -460, ShaderNodeBsdfTransparent)
+
+        add_shader_alpha = create_node(nodes, 1020, 400, ShaderNodeAddShader)
 
         bump_002 = create_node(nodes, -67, 239, ShaderNodeBump)
         bump_002.invert = False
@@ -331,4 +365,19 @@ class LayeredLevelHINF:
         create_link(links, bump_002, metallic_bsdf, 0, 7)
         create_link(links, diffuse_bsdf, add_shader, 0, 0)
         create_link(links, metallic_bsdf, add_shader, 0, 1)
-        create_link(links, add_shader, group_output, 0, 0)
+
+        create_link(links, group_input, alpha_separate_color, 47, 0)
+        create_link(links, alpha_separate_color, alpha_power_math, 0, 0)
+        create_link(links, group_input, alpha_power_math, 48, 1)
+        create_link(links, alpha_power_math, alpha_add_math, 0, 0)
+        create_link(links, group_input, alpha_add_math, 49, 1)
+        create_link(links, alpha_add_math, alpha_clip_math, 0, 0)
+        create_link(links, group_input, alpha_clip_math, 50, 1)
+        create_link(links, alpha_add_math, alpha_test_math, 0, 0)
+        create_link(links, alpha_clip_math, alpha_test_math, 0, 1)
+        create_link(links, alpha_test_math, alpha_invert_math, 0, 1)
+        create_link(links, alpha_invert_math, transparent_bsdf, 0, 0)
+
+        create_link(links, add_shader, add_shader_alpha, 0, 0)
+        create_link(links, transparent_bsdf, add_shader_alpha, 0, 1)
+        create_link(links, add_shader_alpha, group_output, 0, 0)

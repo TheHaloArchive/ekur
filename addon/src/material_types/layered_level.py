@@ -13,7 +13,8 @@ from bpy.types import (
     ShaderNodeUVMap,
 )
 
-from ..json_definitions import CommonMaterial, ConemapInfo
+from ..json_definitions import CommonMaterial, ConemapInfo, MacroMaskInfo
+from ..nodes.better_uv_scaling import BetterUVScaling
 from ..nodes.conemap_parallax import ConemapParallax
 from ..nodes.layered_level_hinf import LayeredLevelHINF
 from ..nodes.nnhg_shader import NnhgShader
@@ -37,13 +38,57 @@ class LayeredLevel:
         self.tree: ShaderNodeTree = material_tree
         self._create_nodes()
 
+    def _create_uv_scaling(
+        self, transform: tuple[float, float, float, float], uv: str, offset: int
+    ) -> ShaderNodeGroup:
+        node = create_node(self.tree.nodes, -700, offset, ShaderNodeGroup)
+        node.hide = True
+        node.label = f"{uv} Scaling"
+        node.node_tree = cast(ShaderNodeTree, BetterUVScaling(uv).node_tree)
+        assign_value(node, 0, transform[0])
+        assign_value(node, 1, transform[1])
+        assign_value(node, 2, 1.0)
+        assign_value(node, 3, 1.0)
+        assign_value(node, 4, transform[2])
+        assign_value(node, 5, transform[3])
+        return node
+
+    def _create_texture_uv(
+        self,
+        transform: tuple[float, float, float, float],
+        layer_name: str,
+        texture_label: str,
+        offset: int,
+        conemap_info: ConemapInfo | None,
+        conemap_closure: NodeClosureOutput | None,
+    ) -> ShaderNodeGroup:
+        uv = self._create_uv_scaling(transform, "UV2", offset)
+        if not conemap_info:
+            return uv
+
+        conemap_node = create_node(self.tree.nodes, -500, offset, ShaderNodeGroup)
+        conemap_node.hide = True
+        conemap_node.label = f"{layer_name} {texture_label} Conemap Parallax"
+        conemap_node.node_tree = cast(ShaderNodeTree, ConemapParallax().node_tree)
+        create_link(self.tree.links, uv, conemap_node, 0, 0)
+        if conemap_closure:
+            create_link(self.tree.links, conemap_closure, conemap_node, 0, 1)
+        assign_value(conemap_node, 2, conemap_info["parallax_depth"])
+        assign_value(conemap_node, 3, conemap_info["parallax_height_offset"])
+        assign_value(conemap_node, 4, conemap_info["quality"])
+        assign_value(conemap_node, 5, conemap_info["cone_step_fade_near"])
+        assign_value(conemap_node, 6, conemap_info["cone_step_fade_far"])
+        return conemap_node
+
     def _get_textures_for_layer(
         self,
         layer_name: str,
         layer_type: str,
         layer_shader: ShaderNodeGroup,
-        uv_map: ShaderNodeUVMap | ShaderNodeGroup,
+        data: dict,
         offset: int,
+        conemap_info: ConemapInfo | None,
+        conemap_closure: NodeClosureOutput | None,
     ) -> None:
         match layer_type:
             case "RohmLayer":
@@ -53,47 +98,100 @@ class LayeredLevel:
                     if color_image.image:
                         color_image.image.colorspace_settings.name = "sRGB"  # ty:ignore[invalid-assignment]
                     create_link(self.tree.links, color_image, layer_shader, 0, 0)
-                    create_link(self.tree.links, uv_map, color_image, 0, 0)
+                    color_uv = self._create_texture_uv(
+                        data["color_map_texture_transform"],
+                        layer_name,
+                        "Color",
+                        offset + 100,
+                        conemap_info,
+                        conemap_closure,
+                    )
+                    create_link(self.tree.links, color_uv, color_image, 0, 0)
                 contr = self.material["textures"].get(f"{layer_name}Control")
                 if contr:
                     control_image = create_image(self.tree.nodes, offset, str(contr))
                     create_link(self.tree.links, control_image, layer_shader, 0, 2)
                     create_link(self.tree.links, control_image, layer_shader, 1, 3)
-                    create_link(self.tree.links, uv_map, control_image, 0, 0)
+                    control_uv = self._create_texture_uv(
+                        data["control_map_texture_transform"],
+                        layer_name,
+                        "Control",
+                        offset,
+                        conemap_info,
+                        conemap_closure,
+                    )
+                    create_link(self.tree.links, control_uv, control_image, 0, 0)
                 norm = self.material["textures"].get(f"{layer_name}Normal")
                 if norm:
                     normal_image = create_image(self.tree.nodes, offset - 100, str(norm))
                     create_link(self.tree.links, normal_image, layer_shader, 0, 9)
-                    create_link(self.tree.links, uv_map, normal_image, 0, 0)
+                    normal_uv = self._create_texture_uv(
+                        data["normal_map_texture_transform"],
+                        layer_name,
+                        "Normal",
+                        offset - 100,
+                        conemap_info,
+                        conemap_closure,
+                    )
+                    create_link(self.tree.links, normal_uv, normal_image, 0, 0)
             case "RohgLayer":
                 contr = self.material["textures"].get(f"{layer_name}Control")
                 if contr:
                     control_image = create_image(self.tree.nodes, offset, str(contr))
                     create_link(self.tree.links, control_image, layer_shader, 0, 1)
                     create_link(self.tree.links, control_image, layer_shader, 1, 2)
-                    create_link(self.tree.links, uv_map, control_image, 0, 0)
+                    control_uv = self._create_texture_uv(
+                        data["control_map_texture_transform"],
+                        layer_name,
+                        "Control",
+                        offset,
+                        conemap_info,
+                        conemap_closure,
+                    )
+                    create_link(self.tree.links, control_uv, control_image, 0, 0)
                 norm = self.material["textures"].get(f"{layer_name}Normal")
                 if norm:
                     normal_image = create_image(self.tree.nodes, offset - 100, str(norm))
                     create_link(self.tree.links, normal_image, layer_shader, 0, 10)
-                    create_link(self.tree.links, uv_map, normal_image, 0, 0)
+                    normal_uv = self._create_texture_uv(
+                        data["normal_map_texture_transform"],
+                        layer_name,
+                        "Normal",
+                        offset - 100,
+                        conemap_info,
+                        conemap_closure,
+                    )
+                    create_link(self.tree.links, normal_uv, normal_image, 0, 0)
             case "NnhgLayer":
                 packed = self.material["textures"].get(f"{layer_name}Packed")
                 if packed:
                     control_image = create_image(self.tree.nodes, offset, str(packed))
                     create_link(self.tree.links, control_image, layer_shader, 0, 1)
                     create_link(self.tree.links, control_image, layer_shader, 1, 2)
-                    create_link(self.tree.links, uv_map, control_image, 0, 0)
+                    packed_uv = self._create_texture_uv(
+                        data["packed_map_texture_transform"],
+                        layer_name,
+                        "Packed",
+                        offset,
+                        conemap_info,
+                        conemap_closure,
+                    )
+                    create_link(self.tree.links, packed_uv, control_image, 0, 0)
             case _:
                 return
 
-    def _get_textures(self, nodes: ShaderNodeGroup) -> None:
+    def _get_textures(self, nodes: ShaderNodeGroup, macro_mask_info: MacroMaskInfo | None) -> None:
         mcc = self.material["textures"].get("MacroColor")
         if mcc:
             color_image = create_image(self.tree.nodes, 100, str(mcc))
             if color_image.image:
                 color_image.image.colorspace_settings.name = "sRGB"  # ty:ignore[invalid-assignment]
             create_link(self.tree.links, color_image, nodes, 0, 0)
+            if macro_mask_info:
+                uv = self._create_uv_scaling(
+                    macro_mask_info["macro_color_map_transform"], "UV0", 100
+                )
+                create_link(self.tree.links, uv, color_image, 0, 0)
         else:
             assign_value(nodes, 0, (1.0, 1.0, 1.0, 1.0))
         mmm = self.material["textures"].get("MacroMaskMap")
@@ -108,6 +206,11 @@ class LayeredLevel:
         if mmn:
             color_image = create_image(self.tree.nodes, 300, str(mmn))
             create_link(self.tree.links, color_image, nodes, 0, 5)
+            if macro_mask_info:
+                uv = self._create_uv_scaling(
+                    macro_mask_info["macro_normal_map_transform"], "UV0", 300
+                )
+                create_link(self.tree.links, uv, color_image, 0, 0)
         else:
             assign_value(nodes, 5, (0.5, 0.5, 1.0, 1.0))
         mmc = self.material["textures"].get("MacroControl")
@@ -115,6 +218,33 @@ class LayeredLevel:
             color_image = create_image(self.tree.nodes, 400, str(mmc))
             create_link(self.tree.links, color_image, nodes, 0, 1)
             create_link(self.tree.links, color_image, nodes, 1, 2)
+            if macro_mask_info:
+                uv = self._create_uv_scaling(
+                    macro_mask_info["macro_control_map_transform"], "UV0", 400
+                )
+                create_link(self.tree.links, uv, color_image, 0, 0)
+
+    def _setup_alpha(self, shader: ShaderNodeGroup) -> None:
+        layered_level = self.material.get("layered_level")
+        if not layered_level:
+            return
+        alpha_info = layered_level.get("alpha_info")
+        alpha_map = self.material["textures"].get("AlphaMap")
+        if not alpha_map:
+            return
+        alpha_image = create_image(self.tree.nodes, 700, str(alpha_map))
+        if alpha_info:
+            uv = self._create_uv_scaling(alpha_info["alpha_map_transform"], "UV2", 700)
+            create_link(self.tree.links, uv, alpha_image, 0, 0)
+        else:
+            uv_map = create_node(self.tree.nodes, -700, 700, ShaderNodeUVMap)
+            uv_map.uv_map = "UV2"
+            create_link(self.tree.links, uv_map, alpha_image, 0, 0)
+        create_link(self.tree.links, alpha_image, shader, 0, 47)
+        if alpha_info:
+            assign_value(shader, 48, alpha_info["alpha_power"])
+            assign_value(shader, 49, alpha_info["alpha_add"])
+            assign_value(shader, 50, alpha_info["ac_thresh"])
 
     def _setup_conemap_closure(self) -> NodeClosureOutput | None:
         conemap = self.material["textures"].get("MacroConemap")
@@ -141,37 +271,13 @@ class LayeredLevel:
         return closure_output
 
     def _setup_layer_shader(
-        self,
-        shader_class: type,
-        layer_name: str,
-        offset: int,
-        conemap_info: ConemapInfo | None,
-        conemap_closure: NodeClosureOutput | None,
-    ) -> tuple[ShaderNodeUVMap | ShaderNodeGroup, ShaderNodeGroup]:
-        uv_map = create_node(self.tree.nodes, -700, -offset, ShaderNodeUVMap)
-        uv_map.uv_map = "UV2"  # TODO: Check if exists..
-
-        uv_source: ShaderNodeUVMap | ShaderNodeGroup = uv_map
-        if conemap_info:
-            conemap_node = create_node(self.tree.nodes, -500, -offset, ShaderNodeGroup)
-            conemap_node.hide = True
-            conemap_node.label = f"{layer_name} Conemap Parallax"
-            conemap_node.node_tree = cast(ShaderNodeTree, ConemapParallax().node_tree)
-            create_link(self.tree.links, uv_map, conemap_node, 0, 0)
-            if conemap_closure:
-                create_link(self.tree.links, conemap_closure, conemap_node, 0, 1)
-            assign_value(conemap_node, 2, conemap_info["parallax_depth"])
-            assign_value(conemap_node, 3, conemap_info["parallax_height_offset"])
-            assign_value(conemap_node, 4, conemap_info["quality"])
-            assign_value(conemap_node, 5, conemap_info["cone_step_fade_near"])
-            assign_value(conemap_node, 6, conemap_info["cone_step_fade_far"])
-            uv_source = conemap_node
-
+        self, shader_class: type, layer_name: str, offset: int
+    ) -> ShaderNodeGroup:
         layer_shader = create_node(self.tree.nodes, 0, -offset, ShaderNodeGroup)
         layer_shader.hide = True
         layer_shader.label = layer_name
         layer_shader.node_tree = cast(ShaderNodeTree, shader_class().node_tree)
-        return uv_source, layer_shader
+        return layer_shader
 
     def _connect_layer_outputs(
         self, layer_shader: ShaderNodeGroup, shader: ShaderNodeGroup, i: int
@@ -233,7 +339,8 @@ class LayeredLevel:
         material_output = create_node(self.tree.nodes, 800, 0, ShaderNodeOutputMaterial)
         create_link(self.tree.links, shader, material_output, 0, 0)
 
-        self._get_textures(shader)
+        self._get_textures(shader, macro_mask_info)
+        self._setup_alpha(shader)
 
         options = get_material_options()
         conemap_info = info["conemap_info"] if options.enable_parallax else None
@@ -252,9 +359,7 @@ class LayeredLevel:
             layer_name = f"Layer{i + 1}"
             offset = i * 250
 
-            uv_map, layer_shader = self._setup_layer_shader(
-                shader_class, layer_name, offset, conemap_info, conemap_closure
-            )
+            layer_shader = self._setup_layer_shader(shader_class, layer_name, offset)
             assign_value(shader, 11 + i * 9, data["color_blend_mode"])
             assign_value(shader, 12 + i * 9, data["normal_blend_mode"])
 
@@ -263,5 +368,13 @@ class LayeredLevel:
             else:
                 self._apply_rohg_nnhg_values(layer_shader, data)
 
-            self._get_textures_for_layer(layer_name, layer_type, layer_shader, uv_map, -offset)
+            self._get_textures_for_layer(
+                layer_name,
+                layer_type,
+                layer_shader,
+                data,
+                -offset,
+                conemap_info if i == 0 else None,
+                conemap_closure,
+            )
             self._connect_layer_outputs(layer_shader, shader, i)
