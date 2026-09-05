@@ -1,0 +1,15 @@
+[package]
+name = "ekur_terrain"
+version = "0.1.0"
+authors.workspace = true
+repository.workspace = true
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[dependencies]
+ekur_definitions = { version = "0.1.0", path = "../ekur_definitions" }
+anyhow = "1.0.102"
+serde = { version = "1.0.228", features = ["derive"] }
+infinite-rs = { version = "0.13.2", features = ["derive"] }

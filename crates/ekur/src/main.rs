@@ -8,9 +8,9 @@ use crate::{
         },
         customization::{extract_customization, extract_visors},
         forge::extract_forge,
+        level::extract_levels,
         material::extract_materials,
         model::extract_models,
-        scenario::extract_scenario,
         texture::extract_texture,
     },
     utils::{get_strings, get_tags, load_modules},
@@ -100,7 +100,7 @@ fn main() -> Result<()> {
         )?;
     }
 
-    extract_scenario(&mut modules, save_path, &map_ids)?;
+    extract_levels(&mut modules, save_path, &map_ids)?;
     extract_visors(&mut modules, &mwsw_tags, save_path)?;
     extract_coating_globals(&mut modules, &cmsw_tags, save_path)?;
     extract_styles(&mut modules, &strings, save_path)?;

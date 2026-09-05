@@ -1,5 +1,5 @@
 [workspace]
-members = ["ekur", "ekur_coating", "ekur_customization", "ekur_definitions", "ekur_forge", "ekur_materials", "ekur_scenario", "ekur_model", "ekur_texture", "ekur_animations"]
+members = ["ekur", "ekur_coating", "ekur_customization", "ekur_definitions", "ekur_forge", "ekur_materials", "ekur_scenario", "ekur_terrain", "ekur_model", "ekur_texture", "ekur_animations"]
 resolver = "3"
 
 [workspace.package]

@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2026 The Halo Archive */
+pub mod level;
 pub mod scenario_bsp;
 
 use serde::Serialize;
@@ -17,6 +18,18 @@ pub struct Instance {
 }
 
 #[derive(Default, Debug, Serialize)]
-pub struct Level {
+pub struct LevelBsp {
+    pub global_id: i32,
+    pub name: String,
+    pub is_vista: bool,
+    pub is_active: bool,
     pub instances: Vec<Instance>,
+}
+
+#[derive(Default, Debug, Serialize)]
+pub struct Level {
+    pub global_id: i32,
+    pub name: String,
+    pub terrain: Option<String>,
+    pub bsps: Vec<LevelBsp>,
 }

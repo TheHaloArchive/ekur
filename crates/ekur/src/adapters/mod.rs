@@ -3,7 +3,7 @@
 pub(crate) mod coating;
 pub(crate) mod customization;
 pub(crate) mod forge;
+pub(crate) mod level;
 pub(crate) mod material;
 pub(crate) mod model;
-pub(crate) mod scenario;
 pub(crate) mod texture;

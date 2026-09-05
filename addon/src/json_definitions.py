@@ -25,6 +25,8 @@ __all__ = [
     "CustomizationKit",
     "Instance",
     "Level",
+    "LevelBsp",
+    "Terrain",
     "ColorDecal",
     "ForgeObjectRepresentation",
     "ForgeObject",
@@ -367,8 +369,37 @@ class Instance(TypedDict):
     bounding_box_index: int
 
 
-class Level(TypedDict):
+class LevelBsp(TypedDict):
+    global_id: int
+    name: str
+    is_vista: bool
+    is_active: bool
     instances: list[Instance]
+
+
+class Level(TypedDict):
+    global_id: int
+    name: str
+    terrain: str | None
+    bsps: list[LevelBsp]
+
+
+class TerrainStats(TypedDict):
+    tiles: int
+    missing: int
+
+
+class Terrain(TypedDict):
+    global_id: int
+    name: str
+    heightfield: str
+    position: tuple[float, float, float]
+    size: tuple[float, float, float]
+    grid: tuple[int, int]
+    level_count: int
+    leaf_node_edge_count: int
+    active_leaf_indices: list[int]
+    stats: TerrainStats
 
 
 class ForgeObjectRepresentation(TypedDict):

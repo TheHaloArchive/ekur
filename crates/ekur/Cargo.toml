@@ -22,6 +22,7 @@ ekur_forge = { version = "0.1.0", path = "../ekur_forge" }
 ekur_materials = { version = "0.1.0", path = "../ekur_materials" }
 ekur_model = { version = "0.1.0", path = "../ekur_model" }
 ekur_scenario = { version = "0.1.0", path = "../ekur_scenario" }
+ekur_terrain = { version = "0.1.0", path = "../ekur_terrain" }
 ekur_texture = { version = "0.1.0", path = "../ekur_texture" }
 ekur_animations = { version = "0.1.0", path = "../ekur_animations" }
 image = { version = "0.25.10", default-features = false, features = ["png"] }

@@ -285,6 +285,7 @@ dependencies = [
  "ekur_materials",
  "ekur_model",
  "ekur_scenario",
+ "ekur_terrain",
  "ekur_texture",
  "image",
  "infinite-rs",
@@ -368,6 +369,16 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ekur_definitions",
+ "serde",
+]
+
+[[package]]
+name = "ekur_terrain"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ekur_definitions",
+ "infinite-rs",
  "serde",
 ]
 
