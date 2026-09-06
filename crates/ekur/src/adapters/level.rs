@@ -73,7 +73,8 @@ pub(crate) fn extract_levels(
             if let Some(existing) = written_terrain.get(&terrain_id) {
                 level.terrain = Some(format!("{existing}.json"));
             } else if let Some(terrain) = terrains.get(&terrain_id)
-                && let Some((record, heights)) = process_terrain(terrain, modules, &level.name)?
+                && let Some((record, heights)) =
+                    process_terrain(terrain, modules, &level.name, &terrain_path)?
             {
                 terrain_path.push(&level.name);
                 terrain_path.add_extension("r16");

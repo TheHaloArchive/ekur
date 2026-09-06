@@ -1,10 +1,12 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright © 2026 The Halo Archive */
 use ekur_definitions::bitmap::{Bitmap, BitmapFormat};
-use ekur_texture::{decompress_file, extract_bitmaps};
+use ekur_texture::{decompress_file, extract_bitmaps, process::decode_bitmap_data};
 
 use anyhow::Result;
 use infinite_rs::ModuleFile;
+
+pub type SurfaceTile = (Vec<u8>, u32, u32, String);
 
 pub struct TileStore {
     module: usize,
@@ -70,7 +72,11 @@ impl TileStore {
             .map(|entry| entry.width.0.max(0) as usize)
     }
 
-    pub fn height_tile(&mut self, tile: u32, modules: &mut [ModuleFile]) -> Result<Option<Vec<u16>>> {
+    pub fn height_tile(
+        &mut self,
+        tile: u32,
+        modules: &mut [ModuleFile],
+    ) -> Result<Option<Vec<u16>>> {
         let index = usize::try_from(tile)?;
         let bitmap_count = self.bitmap.bitmaps.size;
         let Some(entry) = self.bitmap.bitmaps.elements.get_mut(index) else {
@@ -98,5 +104,32 @@ impl TileStore {
                 .map(|pair| u16::from_le_bytes([pair[0], pair[1]]))
                 .collect(),
         ))
+    }
+
+    pub fn surface_tile(
+        &mut self,
+        tile: u32,
+        modules: &mut [ModuleFile],
+    ) -> Result<Option<SurfaceTile>> {
+        let index = usize::try_from(tile)?;
+        let bitmap_count = self.bitmap.bitmaps.size;
+        let Some(entry) = self.bitmap.bitmaps.elements.get_mut(index) else {
+            return Ok(None);
+        };
+        if entry.format.0 == BitmapFormat::R16UnormRrr0L16 {
+            return Ok(None);
+        }
+        let slug = format!("{:?}", entry.format.0).to_lowercase();
+
+        let module = &mut modules[self.module];
+        let Some(file_index) =
+            extract_bitmaps(module, self.file_index, index, entry, bitmap_count)?
+        else {
+            return Ok(None);
+        };
+        let payload = decompress_file(file_index, module)?;
+        let image = decode_bitmap_data(entry, &payload)?;
+        let (width, height) = image.dimensions();
+        Ok(Some((image.into_raw(), width, height, slug)))
     }
 }

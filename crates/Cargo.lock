@@ -379,6 +379,7 @@ dependencies = [
  "anyhow",
  "ekur_definitions",
  "ekur_texture",
+ "image",
  "infinite-rs",
  "serde",
 ]

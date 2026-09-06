@@ -3,17 +3,10 @@
 use infinite_rs::{
     TagStructure,
     tag::types::common_types::{
-        AnyTag, FieldBlock, FieldDwordInteger, FieldLongInteger, FieldReal, FieldRealVector3D,
-        FieldReference, FieldWordInteger,
+        AnyTag, FieldBlock, FieldDwordInteger, FieldLongInteger, FieldReference,
+        FieldRealVector3D, FieldWordInteger,
     },
 };
-
-#[derive(Default, Debug, TagStructure)]
-#[data(size(4))]
-pub struct NodeSharedIndexBlock {
-    #[data(offset(0x00))]
-    pub index: FieldLongInteger,
-}
 
 #[derive(Default, Debug, TagStructure)]
 #[data(size(4))]
@@ -22,19 +15,23 @@ pub struct InputBitmapIndexBlock {
     pub index: FieldDwordInteger,
 }
 
+/// Which catalog bitmap fills an output slot, keyed by `output_id`.
+#[derive(Default, Debug, TagStructure)]
+#[data(size(24))]
+pub struct InputTextureDataBlock {
+    #[data(offset(0x00))]
+    pub output_id: FieldLongInteger,
+    #[data(offset(0x04))]
+    pub bitmap_index: FieldLongInteger,
+}
+
 #[derive(Default, Debug, TagStructure)]
 #[data(size(112))]
 pub struct QuadTreeNodeBlock {
-    #[data(offset(0x00))]
-    pub material_layer_indices: FieldBlock<NodeSharedIndexBlock>,
-    #[data(offset(0x14))]
-    pub placement_layer_indices: FieldBlock<NodeSharedIndexBlock>,
     #[data(offset(0x3C))]
     pub input_bitmap_indices: FieldBlock<InputBitmapIndexBlock>,
-    #[data(offset(0x50))]
-    pub min_height: FieldReal,
-    #[data(offset(0x54))]
-    pub max_height: FieldReal,
+    #[data(offset(0x58))]
+    pub input_texture_data: FieldBlock<InputTextureDataBlock>,
 }
 
 #[derive(Default, Debug, TagStructure)]
@@ -44,16 +41,8 @@ pub struct RuntimeTerrain {
     pub any_tag: AnyTag,
     #[data(offset(0x10))]
     pub bitmap: FieldReference,
-    #[data(offset(0x40))]
-    pub render_material: FieldReference,
-    #[data(offset(0x5C))]
-    pub masks_composite_material: FieldReference,
-    #[data(offset(0x78))]
-    pub quad_tree_lod_resolution: FieldLongInteger,
     #[data(offset(0x7C))]
     pub quad_tree_level_count: FieldWordInteger,
-    #[data(offset(0x7E))]
-    pub quad_tree_collision_data_level: FieldWordInteger,
     #[data(offset(0x80))]
     pub quad_tree_position: FieldRealVector3D,
     #[data(offset(0x8C))]
