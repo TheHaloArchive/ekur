@@ -48,6 +48,14 @@ fn place(
     }
 }
 
+fn flat_height_tile(min: f32, max: f32, edge: usize) -> Option<Vec<u16>> {
+    if !(max > 0.0 && max >= min) {
+        return None;
+    }
+    let value = ((min + max) * 0.5 * 65535.0).round().clamp(0.0, 65535.0) as u16;
+    Some(vec![value; edge * edge])
+}
+
 fn place_surface(
     canvas: &mut [u8],
     tile: &[u8],
@@ -123,19 +131,21 @@ pub fn process_terrain(
         let Some(quad_node) = terrain.quad_tree_nodes.elements.get(node) else {
             continue;
         };
-        if quad_node.input_bitmap_indices.elements.is_empty() {
-            continue;
-        }
         let tile = match node_tile[node] {
             Some(id) => store.height_tile(id, modules)?,
             None => None,
         };
+        let tile =
+            tile.or_else(|| flat_height_tile(quad_node.min_height.0, quad_node.max_height.0, edge));
         let Some(tile) = tile else {
             continue;
         };
         place(&mut heights, &tile, leaf, leaf_side, edge, width);
         active_leaf_indices.push(leaf);
 
+        if quad_node.input_bitmap_indices.elements.is_empty() {
+            continue;
+        }
         let mut seen_keys = HashSet::new();
         for bitmap in &quad_node.input_bitmap_indices.elements {
             let id = bitmap.index.0;

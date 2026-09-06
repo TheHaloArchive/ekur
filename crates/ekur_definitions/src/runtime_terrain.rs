@@ -3,8 +3,8 @@
 use infinite_rs::{
     TagStructure,
     tag::types::common_types::{
-        AnyTag, FieldBlock, FieldDwordInteger, FieldLongInteger, FieldReference,
-        FieldRealVector3D, FieldWordInteger,
+        AnyTag, FieldBlock, FieldDwordInteger, FieldLongInteger, FieldReal, FieldRealVector3D,
+        FieldReference, FieldWordInteger,
     },
 };
 
@@ -15,7 +15,6 @@ pub struct InputBitmapIndexBlock {
     pub index: FieldDwordInteger,
 }
 
-/// Which catalog bitmap fills an output slot, keyed by `output_id`.
 #[derive(Default, Debug, TagStructure)]
 #[data(size(24))]
 pub struct InputTextureDataBlock {
@@ -30,6 +29,10 @@ pub struct InputTextureDataBlock {
 pub struct QuadTreeNodeBlock {
     #[data(offset(0x3C))]
     pub input_bitmap_indices: FieldBlock<InputBitmapIndexBlock>,
+    #[data(offset(0x50))]
+    pub min_height: FieldReal,
+    #[data(offset(0x54))]
+    pub max_height: FieldReal,
     #[data(offset(0x58))]
     pub input_texture_data: FieldBlock<InputTextureDataBlock>,
 }
