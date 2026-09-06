@@ -4,7 +4,7 @@ use crate::{
     dds::construct_dds_header,
     utils::{decompress_file, extract_bitmaps},
 };
-use ekur_definitions::bitmap::{Bitmap, BitmapFormat, BitmapType, TextureFlags};
+use ekur_definitions::bitmap::{Bitmap, BitmapData, BitmapFormat, BitmapType, TextureFlags};
 use ekur_materials::TextureType;
 
 use anyhow::Result;
@@ -15,6 +15,14 @@ use image_dds::{
 use infinite_rs::ModuleFile;
 
 type ProcessImage = Vec<(ImageBuffer<Rgba<u8>, Vec<u8>>, String)>;
+
+pub fn decode_bitmap_data(
+    bitmap: &BitmapData,
+    data: &[u8],
+) -> Result<ImageBuffer<Rgba<u8>, Vec<u8>>> {
+    let dds = construct_dds_header(bitmap, data)?;
+    Ok(image_from_dds(&dds, 0)?)
+}
 
 pub fn process_image(
     modules: &mut [ModuleFile],

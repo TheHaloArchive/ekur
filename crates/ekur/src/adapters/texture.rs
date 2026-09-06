@@ -10,8 +10,13 @@ use infinite_rs::ModuleFile;
 use std::{
     collections::{HashMap, HashSet},
     fs::create_dir_all,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
+
+fn already_extracted(save_path: &Path, texture: i32) -> bool {
+    save_path.join(format!("{texture}_0.png")).exists()
+        || save_path.join(format!("{texture}_0_t.png")).exists()
+}
 
 pub(crate) fn extract_texture(
     modules: &mut [ModuleFile],
@@ -36,6 +41,10 @@ pub(crate) fn extract_texture(
 
     for texture in textures.iter() {
         if processed_textures.contains(texture.0) {
+            continue;
+        }
+        if already_extracted(&save_path, *texture.0) {
+            processed_textures.insert(*texture.0);
             continue;
         }
         let images = process_image(modules, texture)?;

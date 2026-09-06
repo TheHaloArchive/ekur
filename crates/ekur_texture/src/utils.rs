@@ -6,7 +6,7 @@ use anyhow::Result;
 use infinite_rs::{ModuleFile, module::file::DataOffsetType};
 use std::io::{Read, Seek, SeekFrom};
 
-pub(crate) fn decompress_file(index: i32, module: &mut ModuleFile) -> Result<Vec<u8>> {
+pub fn decompress_file(index: i32, module: &mut ModuleFile) -> Result<Vec<u8>> {
     let file = &mut module.files[usize::try_from(index)?];
     let capacity = if file.uncompressed_actual_resource_size != 0 {
         u64::from(file.uncompressed_actual_resource_size)
