@@ -45,7 +45,7 @@ pub fn process_terrain(
     modules: &mut [ModuleFile],
     name: &str,
 ) -> Result<Option<(Terrain, Vec<u16>)>> {
-    let Some(store) = TileStore::open(terrain.bitmap.global_id, modules)? else {
+    let Some(mut store) = TileStore::open(terrain.bitmap.global_id, modules)? else {
         return Ok(None);
     };
     let Some(edge) = store.height_edge() else {

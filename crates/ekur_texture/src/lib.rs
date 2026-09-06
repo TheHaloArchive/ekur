@@ -4,4 +4,4 @@ pub mod dds;
 pub mod process;
 mod utils;
 
-pub use utils::decompress_file;
+pub use utils::{decompress_file, extract_bitmaps};

@@ -24,7 +24,7 @@ pub fn decompress_file(index: i32, module: &mut ModuleFile) -> Result<Vec<u8>> {
     Ok(buffer)
 }
 
-pub(crate) fn extract_bitmaps(
+pub fn extract_bitmaps(
     module: &mut ModuleFile,
     index: usize,
     bitm_index: usize,

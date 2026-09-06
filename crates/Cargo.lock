@@ -378,6 +378,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ekur_definitions",
+ "ekur_texture",
  "infinite-rs",
  "serde",
 ]
