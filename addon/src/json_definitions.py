@@ -384,9 +384,6 @@ class Level(TypedDict):
     bsps: list[LevelBsp]
 
 
-class TerrainStats(TypedDict):
-    tiles: int
-    missing: int
 
 
 class Terrain(TypedDict):
@@ -399,7 +396,6 @@ class Terrain(TypedDict):
     level_count: int
     leaf_node_edge_count: int
     active_leaf_indices: list[int]
-    stats: TerrainStats
 
 
 class ForgeObjectRepresentation(TypedDict):

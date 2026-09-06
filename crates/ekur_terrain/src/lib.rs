@@ -10,12 +10,6 @@ use infinite_rs::ModuleFile;
 use serde::Serialize;
 
 #[derive(Default, Debug, Serialize)]
-pub struct TerrainStats {
-    pub tiles: usize,
-    pub missing: usize,
-}
-
-#[derive(Default, Debug, Serialize)]
 pub struct Terrain {
     pub global_id: i32,
     pub name: String,
@@ -26,7 +20,6 @@ pub struct Terrain {
     pub level_count: u16,
     pub leaf_node_edge_count: usize,
     pub active_leaf_indices: Vec<usize>,
-    pub stats: TerrainStats,
 }
 
 fn place(
@@ -83,7 +76,6 @@ pub fn process_terrain(
     let step = edge - 1;
     let width = leaf_side * step + 1;
     let mut heights = vec![0u16; width * width];
-    let mut stats = TerrainStats::default();
     let mut active_leaf_indices = Vec::new();
 
     for leaf in 0..leaf_side * leaf_side {
@@ -99,11 +91,9 @@ pub fn process_terrain(
             None => None,
         };
         let Some(tile) = tile else {
-            stats.missing += 1;
             continue;
         };
         place(&mut heights, &tile, leaf, leaf_side, edge, width);
-        stats.tiles += 1;
         active_leaf_indices.push(leaf);
     }
 
@@ -125,7 +115,6 @@ pub fn process_terrain(
         level_count: terrain.quad_tree_level_count.0,
         leaf_node_edge_count: leaf_side,
         active_leaf_indices,
-        stats,
     };
     Ok(Some((record, heights)))
 }
