@@ -3,7 +3,7 @@
 use infinite_rs::{
     TagStructure,
     tag::types::common_types::{
-        AnyTag, FieldArray, FieldBlock, FieldDwordInteger, FieldLongInteger, FieldReal,
+        AnyTag, FieldArray, FieldBlock, FieldData, FieldDwordInteger, FieldLongInteger, FieldReal,
         FieldRealVector2D, FieldRealVector3D, FieldReference, FieldStringId, FieldWordInteger,
     },
 };
@@ -85,4 +85,6 @@ pub struct RuntimeTerrain {
     pub material_layer_ids: FieldBlock<MaterialLayerIdBlock>,
     #[data(offset(0xC8))]
     pub material_layer_bitmap_references: FieldBlock<MaterialLayerBitmapReferenceBlock>,
+    #[data(offset(0x12C))]
+    pub material_layer_data: FieldData,
 }

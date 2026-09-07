@@ -23,11 +23,36 @@ pub struct MaterialLayerTexture {
 }
 
 #[derive(Default, Debug, Serialize)]
+pub struct MaterialLayerSurface {
+    pub detail_scale: f32,
+    pub height_blend_width: f32,
+    pub roughness_scale: f32,
+    pub roughness_bias: f32,
+    pub metallic_scale: f32,
+    pub metallic_bias: f32,
+    pub color_blend_mode: u32,
+    pub normal_blend_mode: u32,
+    pub nonmetal_f0: f32,
+    pub normal_intensity: f32,
+    pub top_color: [f32; 3],
+    pub middle_color: [f32; 3],
+    pub bottom_or_tint_color: [f32; 3],
+    pub control_uv_transform: [f32; 4],
+    pub color_uv_transform: [f32; 4],
+    pub normal_uv_transform: [f32; 4],
+    pub surface_parameters: [f32; 4],
+    pub anti_tiling_offset: f32,
+    pub anti_tiling_power: f32,
+    pub anti_tiling_flags: u32,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct MaterialLayer {
     pub id: i32,
     pub color: Option<MaterialLayerTexture>,
     pub normal: Option<MaterialLayerTexture>,
     pub control: Option<MaterialLayerTexture>,
+    pub surface: Option<MaterialLayerSurface>,
 }
 
 #[derive(Default, Debug, Serialize)]
@@ -103,13 +128,57 @@ fn surface_key(output_id: Option<i32>, fallback: &str) -> String {
     }
 }
 
+const MATERIAL_LAYER_DATA_STRIDE: usize = 208;
+
+fn read_f32(data: &[u8], offset: usize) -> f32 {
+    data.get(offset..offset + 4)
+        .map_or(0.0, |b| f32::from_le_bytes(b.try_into().unwrap()))
+}
+
+fn read_f32_array<const N: usize>(data: &[u8], offset: usize) -> [f32; N] {
+    std::array::from_fn(|i| read_f32(data, offset + i * 4))
+}
+
+fn read_u32(data: &[u8], offset: usize) -> u32 {
+    data.get(offset..offset + 4)
+        .map_or(0, |b| u32::from_le_bytes(b.try_into().unwrap()))
+}
+
+fn material_layer_surface(data: &[u8], index: usize) -> Option<MaterialLayerSurface> {
+    let record = data.get(index * MATERIAL_LAYER_DATA_STRIDE..)?;
+    let record = record.get(..MATERIAL_LAYER_DATA_STRIDE)?;
+    Some(MaterialLayerSurface {
+        detail_scale: read_f32(record, 12),
+        height_blend_width: read_f32(record, 72),
+        roughness_scale: read_f32(record, 56),
+        roughness_bias: read_f32(record, 60),
+        metallic_scale: read_f32(record, 48),
+        metallic_bias: read_f32(record, 52),
+        color_blend_mode: read_u32(record, 80),
+        normal_blend_mode: read_u32(record, 88),
+        nonmetal_f0: read_f32(record, 172),
+        normal_intensity: read_f32(record, 76),
+        top_color: read_f32_array(record, 96),
+        middle_color: read_f32_array(record, 112),
+        bottom_or_tint_color: read_f32_array(record, 160),
+        control_uv_transform: read_f32_array(record, 32),
+        color_uv_transform: read_f32_array(record, 128),
+        normal_uv_transform: read_f32_array(record, 144),
+        surface_parameters: read_f32_array(record, 176),
+        anti_tiling_offset: read_f32(record, 192),
+        anti_tiling_power: read_f32(record, 196),
+        anti_tiling_flags: read_u32(record, 204),
+    })
+}
+
 fn material_layers(terrain: &RuntimeTerrain) -> Vec<MaterialLayer> {
     let bitmap_refs = &terrain.material_layer_bitmap_references.elements;
     terrain
         .material_layer_ids
         .elements
         .iter()
-        .map(|layer| {
+        .enumerate()
+        .map(|(index, layer)| {
             let mut slots = layer.output_bitmap_references.elements.iter().map(|r| {
                 let index = usize::try_from(r.bitmap_reference_index.0).ok()?;
                 let bitmap = bitmap_refs.get(index)?.bitmap_reference.global_id;
@@ -123,6 +192,7 @@ fn material_layers(terrain: &RuntimeTerrain) -> Vec<MaterialLayer> {
                 color: slots.next().flatten(),
                 normal: slots.next().flatten(),
                 control: slots.next().flatten(),
+                surface: material_layer_surface(&terrain.material_layer_data.data, index),
             }
         })
         .collect()

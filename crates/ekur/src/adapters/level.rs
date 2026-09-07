@@ -4,8 +4,9 @@ use crate::utils::get_tags;
 use ekur_definitions::{
     level::LevelTag, runtime_terrain::RuntimeTerrain, scenario::ScenarioStructureBsp,
 };
+use ekur_materials::TextureType;
 use ekur_scenario::level::process_level;
-use ekur_terrain::process_terrain;
+use ekur_terrain::{Terrain, process_terrain};
 
 use anyhow::Result;
 use infinite_rs::ModuleFile;
@@ -20,7 +21,6 @@ const LEVEL_GROUP: &str = "levl";
 const SCENARIO_BSP_GROUP: &str = "sbsp";
 const RUNTIME_TERRAIN_GROUP: &str = "rtrn";
 
-/// The `rtrn` a level renders its terrain from, if it has one.
 fn runtime_terrain(level: &LevelTag) -> Option<i32> {
     level
         .terrains
@@ -31,11 +31,29 @@ fn runtime_terrain(level: &LevelTag) -> Option<i32> {
         .map(|reference| reference.global_id)
 }
 
+fn terrain_textures(record: &Terrain) -> impl Iterator<Item = (i32, TextureType)> + '_ {
+    record.material_layers.iter().flat_map(|layer| {
+        [
+            layer.color.as_ref().map(|t| (t.bitmap, TextureType::Color)),
+            layer
+                .normal
+                .as_ref()
+                .map(|t| (t.bitmap, TextureType::Normal)),
+            layer
+                .control
+                .as_ref()
+                .map(|t| (t.bitmap, TextureType::Control)),
+        ]
+        .into_iter()
+        .flatten()
+    })
+}
+
 pub(crate) fn extract_levels(
     modules: &mut [ModuleFile],
     save_path: &str,
     map_ids: &HashMap<i32, String>,
-) -> Result<()> {
+) -> Result<HashMap<i32, TextureType>> {
     let mut level_path = PathBuf::from(save_path);
     level_path.push("levels/");
     create_dir_all(&level_path)?;
@@ -63,6 +81,7 @@ pub(crate) fn extract_levels(
     }
 
     let mut written_terrain: HashMap<i32, String> = HashMap::new();
+    let mut textures = HashMap::new();
 
     for (level_tag, mut level) in processed {
         if name_counts.get(&level.name).is_some_and(|count| *count > 1) {
@@ -90,6 +109,7 @@ pub(crate) fn extract_levels(
                 serde_json::to_writer(BufWriter::new(File::create(&terrain_path)?), &record)?;
                 terrain_path.pop();
 
+                textures.extend(terrain_textures(&record));
                 written_terrain.insert(terrain_id, level.name.clone());
                 level.terrain = Some(format!("{}.json", level.name));
             }
@@ -100,5 +120,5 @@ pub(crate) fn extract_levels(
         serde_json::to_writer(BufWriter::new(File::create(&level_path)?), &level)?;
         level_path.pop();
     }
-    Ok(())
+    Ok(textures)
 }

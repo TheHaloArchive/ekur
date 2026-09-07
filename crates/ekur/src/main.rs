@@ -87,7 +87,7 @@ fn main() -> Result<()> {
         &render_tags,
         save_path,
     )?;
-    let textures = extract_materials(&mut modules, save_path, args.is_campaign)?;
+    let mut textures = extract_materials(&mut modules, save_path, args.is_campaign)?;
     if !args.is_campaign {
         extract_customization(&mut modules, &mode_tags, &strings, &model_ids, save_path)?;
         extract_forge(
@@ -100,7 +100,7 @@ fn main() -> Result<()> {
         )?;
     }
 
-    extract_levels(&mut modules, save_path, &map_ids)?;
+    textures.extend(extract_levels(&mut modules, save_path, &map_ids)?);
     extract_visors(&mut modules, &mwsw_tags, save_path)?;
     extract_coating_globals(&mut modules, &cmsw_tags, save_path)?;
     extract_styles(&mut modules, &strings, save_path)?;
