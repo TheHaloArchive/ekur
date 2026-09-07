@@ -17,6 +17,20 @@ use std::{
 const SURFACE_BORDER: usize = 2;
 
 #[derive(Default, Debug, Serialize)]
+pub struct MaterialLayerTexture {
+    pub bitmap: i32,
+    pub uv_scale: [f32; 2],
+}
+
+#[derive(Default, Debug, Serialize)]
+pub struct MaterialLayer {
+    pub id: i32,
+    pub color: Option<MaterialLayerTexture>,
+    pub normal: Option<MaterialLayerTexture>,
+    pub control: Option<MaterialLayerTexture>,
+}
+
+#[derive(Default, Debug, Serialize)]
 pub struct Terrain {
     pub global_id: i32,
     pub name: String,
@@ -28,6 +42,9 @@ pub struct Terrain {
     pub leaf_node_edge_count: usize,
     pub active_leaf_indices: Vec<usize>,
     pub surfaces: Vec<String>,
+    pub render_material: i32,
+    pub masks_composite_material: i32,
+    pub material_layers: Vec<MaterialLayer>,
 }
 
 fn place(
@@ -84,6 +101,31 @@ fn surface_key(output_id: Option<i32>, fallback: &str) -> String {
         Some(n) if n >= 4 => format!("mask_{}", n - 4),
         _ => fallback.into(),
     }
+}
+
+fn material_layers(terrain: &RuntimeTerrain) -> Vec<MaterialLayer> {
+    let bitmap_refs = &terrain.material_layer_bitmap_references.elements;
+    terrain
+        .material_layer_ids
+        .elements
+        .iter()
+        .map(|layer| {
+            let mut slots = layer.output_bitmap_references.elements.iter().map(|r| {
+                let index = usize::try_from(r.bitmap_reference_index.0).ok()?;
+                let bitmap = bitmap_refs.get(index)?.bitmap_reference.global_id;
+                (bitmap != -1).then_some(MaterialLayerTexture {
+                    bitmap,
+                    uv_scale: [r.uv_scale.x, r.uv_scale.y],
+                })
+            });
+            MaterialLayer {
+                id: layer.id.0,
+                color: slots.next().flatten(),
+                normal: slots.next().flatten(),
+                control: slots.next().flatten(),
+            }
+        })
+        .collect()
 }
 
 pub fn process_terrain(
@@ -217,6 +259,9 @@ pub fn process_terrain(
         leaf_node_edge_count: leaf_side,
         active_leaf_indices,
         surfaces: surface_names,
+        render_material: terrain.render_material.global_id,
+        masks_composite_material: terrain.masks_composite_material.global_id,
+        material_layers: material_layers(terrain),
     };
     Ok(Some((record, heights)))
 }
