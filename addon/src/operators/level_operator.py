@@ -40,7 +40,7 @@ class ImportLevelOperator(Operator):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._queue: list[tuple[Instance, Collection]] = []
-        self._cache: dict[str, list[Object]] = {}
+        self._cache: dict[tuple[str, tuple[int, ...]], list[Object]] = {}
         self._missing: set[str] = set()
         self._cursor: int = 0
         self._placed: int = 0
@@ -49,7 +49,8 @@ class ImportLevelOperator(Operator):
         self._data: str = ""
 
     def _geometry(self, global_id: str, materials: list[int]) -> list[Object]:
-        cached = self._cache.get(global_id)
+        cache_key = (global_id, tuple(materials))
+        cached = self._cache.get(cache_key)
         if cached is not None:
             return cached
 
@@ -58,7 +59,7 @@ class ImportLevelOperator(Operator):
             path = Path(f"{self._data}/models/{global_id}.ekur")
         if not path.is_file():
             self._missing.add(global_id)
-            self._cache[global_id] = []
+            self._cache[cache_key] = []
             return []
 
         importer = ModelImporter()
@@ -74,7 +75,7 @@ class ImportLevelOperator(Operator):
             if obj.name not in master.objects:
                 master.objects.link(obj)
 
-        self._cache[global_id] = objects
+        self._cache[cache_key] = objects
         return objects
 
     def _place(self, instance: Instance, target: Collection) -> None:

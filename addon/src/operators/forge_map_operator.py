@@ -61,8 +61,9 @@ class ForgeMapOperator(Operator):
         self._geometry_cache = {}
 
     def _get_or_create_geometry(self, global_id: str, style: int) -> list[Object]:
-        if global_id in self._geometry_cache or bpy.context.scene is None:
-            return self._geometry_cache[global_id]
+        cache_key = (global_id, style)
+        if cache_key in self._geometry_cache or bpy.context.scene is None:
+            return self._geometry_cache[cache_key]
 
         data = get_data_folder()
         props = get_material_options()
@@ -90,7 +91,7 @@ class ForgeMapOperator(Operator):
             import_materials()
             source_object.select_set(False)
 
-        self._geometry_cache[global_id] = source_objects
+        self._geometry_cache[cache_key] = source_objects
         return source_objects
 
     def create_categories(
